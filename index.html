@@ -357,10 +357,13 @@
             // ============================================================
             const VIDEOS = ['abc1.mp4', 'abc2.mp4', 'abc3.mp4'];
             const PLAYLIST_URL = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
-            const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'play12'];
+            const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
             const MAX_TENTATIVAS = 3;
 
+            // ============================================================
+            // 11 GÊNEROS COMPLETOS (INCLUINDO ROMÂNTICA E FLASHBACK)
+            // ============================================================
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
                 'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
@@ -371,7 +374,8 @@
                 'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
                 'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json',
                 'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
-                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json'
+                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
+                'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json'
             };
 
             const CORES_POR_GENERO = {
@@ -384,7 +388,8 @@
                 'REGGAE': '#00ffaa',
                 'MODA TOP': '#ff4400',
                 'RELIGIOSA': '#aa55ff',
-                'ROMÂNTICA': '#ff2d7f'
+                'ROMÂNTICA': '#ff2d7f',
+                'FLASHBACK': '#ffaa00'
             };
 
             // ============================================================
@@ -469,7 +474,7 @@
             }
 
             // ============================================================
-            // VÍDEOS - LOOP DE 15 SEGUNDOS
+            // VÍDEOS - LOOP
             // ============================================================
             let videoIndex = 0;
             let videoInterval = null;
@@ -678,15 +683,9 @@
             }
 
             function entrarModoFavoritos() {
-                if (favorites.length === 0) { 
-                    showNotification('❌ Nenhuma música favorita!', 1500);
-                    return; 
-                }
+                if (favorites.length === 0) { return; }
                 const favMusicas = favorites.map(id => musicas.find(m => m.id === id)).filter(Boolean);
-                if (favMusicas.length === 0) { 
-                    showNotification('❌ Nenhuma música favorita encontrada!', 1500);
-                    return; 
-                }
+                if (favMusicas.length === 0) { return; }
                 
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
@@ -701,9 +700,7 @@
                 }
                 genreBadge.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;"></i> ❤️ FAVORITOS (${favorites.length})`;
                 genreBadge.className = 'genre-badge favoritos';
-                if (isBackgroundActive) {
-                    setTimeout(() => playMusic(), 200);
-                }
+                if (isBackgroundActive) setTimeout(() => playMusic(), 200);
             }
 
             // ============================================================
@@ -768,40 +765,7 @@
                 }
             }
 
-            async function carregarPlaylistRomantica() {
-                try {
-                    showLoading(true);
-                    const response = await fetch(GENRE_URLS['ROMÂNTICA']);
-                    if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
-                    let data = await response.json();
-                    if (!Array.isArray(data)) {
-                        if (data.musicas && Array.isArray(data.musicas)) data = data.musicas;
-                        else if (data.data && Array.isArray(data.data)) data = data.data;
-                        else {
-                            const vals = Object.values(data);
-                            if (vals.length && Array.isArray(vals[0])) data = vals[0];
-                            else throw new Error('Formato inválido');
-                        }
-                    }
-                    const lista = data.filter(m => m.src && m.src.trim() && m.title && m.title.trim());
-                    lista.forEach(m => {
-                        m.id = m.id || `rom_${Math.random().toString(36).substr(2, 6)}`;
-                        m.genero = 'ROMÂNTICA';
-                    });
-                    playlistCache['ROMÂNTICA'] = lista;
-                    showLoading(false);
-                    return lista;
-                } catch (error) {
-                    showLoading(false);
-                    return null;
-                }
-            }
-
             async function carregarPlaylistPorGenero(genero) {
-                if (genero === 'ROMÂNTICA') {
-                    return await carregarPlaylistRomantica();
-                }
-                
                 const url = GENRE_URLS[genero];
                 if (!url) return null;
                 if (playlistCache[genero]) return playlistCache[genero];
@@ -880,12 +844,9 @@
                     genreBadge.className = 'genre-badge';
                 }
                 
-                // Para a reprodução atual completamente
-                try {
-                    audio.pause();
-                    audio.src = '';
-                    audio.load();
-                } catch(e) {}
+                audio.pause();
+                audio.src = '';
+                audio.load();
                 isPlaying = false;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
@@ -893,7 +854,6 @@
                 
                 const lista = await carregarPlaylistPorGenero(genero);
                 if (!lista || lista.length === 0) {
-                    showNotification(`⚠️ Nenhuma música para ${genero}`, 1500);
                     reprodutorOcupado = false;
                     return;
                 }
@@ -976,22 +936,15 @@
             }
 
             // ============================================================
-            // playMusic - VERSÃO SIMPLIFICADA E CORRIGIDA
+            // playMusic - VERSÃO CORRIGIDA (NÃO TRAVA + PULA ERRO)
             // ============================================================
             function playMusic() {
-                if (carregandoMusica || reprodutorOcupado) {
-                    return;
-                }
-                if (!isBackgroundActive) {
-                    return;
-                }
-                if (!musicas || musicas.length === 0) {
-                    return;
-                }
+                if (carregandoMusica) return;
+                if (!isBackgroundActive) return;
+                if (!musicas || musicas.length === 0) return;
 
                 carregandoMusica = true;
 
-                // Limpa eventos antigos
                 audio.oncanplay = null;
                 audio.onerror = null;
                 audio.onended = null;
@@ -1020,7 +973,6 @@
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
-                        // Todas as URLs falharam - pula para a próxima música
                         carregandoMusica = false;
                         tentativasFalhas = 0;
                         setTimeout(() => nextTrack(), 100);
@@ -1034,13 +986,11 @@
                     audio.src = url;
                     audio.load();
 
-                    // Limpa timeout anterior
                     if (timeoutId) {
                         clearTimeout(timeoutId);
                         timeoutId = null;
                     }
 
-                    // Timeout para tentar a próxima URL
                     timeoutId = setTimeout(() => {
                         audio.oncanplay = null;
                         audio.onerror = null;
@@ -1079,7 +1029,6 @@
                         tentarUrl();
                     };
 
-                    // Se o áudio já estiver pronto
                     if (audio.readyState >= 3) {
                         if (timeoutId) {
                             clearTimeout(timeoutId);
@@ -1134,7 +1083,6 @@
                 reprodutorOcupado = true;
                 tentativasFalhas = 0;
                 
-                // Para a reprodução atual
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -1300,7 +1248,7 @@
             }
 
             // ============================================================
-            // GRID DE GÊNEROS
+            // GRID DE GÊNEROS (11 GÊNEROS)
             // ============================================================
             function buildGenresGrid() {
                 const genresGrid = document.getElementById('genresGrid');
@@ -1312,7 +1260,10 @@
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
-                for (const [genero, url] of Object.entries(GENRE_URLS)) {
+                // 11 GÊNEROS (ADICIONADO FLASHBACK)
+                const generos = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
+                
+                generos.forEach(genero => {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     const cor = CORES_POR_GENERO[genero] || '#ffffff';
@@ -1323,7 +1274,7 @@
                         selecionarGenero(genero);
                     };
                     genresGrid.appendChild(card);
-                }
+                });
             }
 
             // ============================================================
