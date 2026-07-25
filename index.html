@@ -429,6 +429,21 @@
             const menuButton = document.getElementById('menuButton');
 
             // ============================================================
+            // FUNÇÃO RESETAR ÁUDIO
+            // ============================================================
+            function resetarAudio() {
+                try {
+                    audio.pause();
+                    audio.src = '';
+                    audio.load();
+                } catch(e) {}
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                carregandoMusica = false;
+            }
+
+            // ============================================================
             // FUNÇÃO MODO TV
             // ============================================================
             function toggleModoTV() {
@@ -536,21 +551,6 @@
                         teachingBar.classList.remove('show');
                     }, 3000);
                 }, 300000);
-            }
-
-            // ============================================================
-            // FUNÇÃO DE RESET DO ÁUDIO
-            // ============================================================
-            function resetarAudio() {
-                try {
-                    audio.pause();
-                    audio.src = '';
-                    audio.load();
-                } catch(e) {}
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                carregandoMusica = false;
             }
 
             // ============================================================
@@ -868,16 +868,29 @@
                 }
             }
 
+            // ============================================================
+            // SELECIONAR GENERO - CORRIGIDO
+            // ============================================================
             async function selecionarGenero(genero) {
+                console.log('🎯 Selecionando gênero:', genero);
+                
                 if (modoFavoritosAtivo) {
                     modoFavoritosAtivo = false;
                     genreBadge.className = 'genre-badge';
                 }
                 
+                // RESETA COMPLETAMENTE
+                resetarAudio();
+                carregandoMusica = false;
+                tentativasFalhas = 0;
+                
                 const lista = await carregarPlaylistPorGenero(genero);
                 if (!lista || lista.length === 0) {
+                    showNotification(`⚠️ Nenhuma música para ${genero}`, 2000);
                     return;
                 }
+                
+                console.log(`✅ ${genero} carregado: ${lista.length} músicas`);
                 
                 musicas = lista;
                 modoAtual = genero;
@@ -888,20 +901,26 @@
                 genreBadge.innerHTML = genero;
                 genreBadge.className = 'genre-badge';
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
+                
                 const primeira = currentPlaylist[0];
                 if (primeira) {
                     updateNowPlaying(primeira);
                     adicionarAoHistorico(primeira);
                 }
-                if (isBackgroundActive) {
-                    setTimeout(() => playMusic(), 300);
-                } else {
-                    resetarAudio();
-                }
+                
                 buildGenresGrid();
                 document.getElementById('genresModal').classList.remove('open');
                 goFullscreen();
                 showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
+                
+                // FORÇA A REPRODUÇÃO
+                if (isBackgroundActive) {
+                    console.log('🎵 Forçando reprodução...');
+                    setTimeout(() => playMusic(), 300);
+                } else {
+                    console.log('🔊 Ativando áudio...');
+                    await ativarAudio();
+                }
             }
 
             // ============================================================
@@ -962,12 +981,23 @@
             }
 
             // ============================================================
-            // playMusic - CORRIGIDO (RESETA ÁUDIO EM TODOS OS ERROS)
+            // playMusic - CORRIGIDO
             // ============================================================
             async function playMusic() {
-                if (carregandoMusica) return;
-                if (!isBackgroundActive) return;
-                if (!musicas.length) return;
+                console.log('▶️ playMusic chamado, gênero:', modoAtual, 'músicas:', musicas.length);
+                
+                if (carregandoMusica) {
+                    console.log('⏳ Já carregando, ignorando');
+                    return;
+                }
+                if (!isBackgroundActive) {
+                    console.log('🔇 Áudio não ativado');
+                    return;
+                }
+                if (!musicas || !musicas.length) {
+                    console.log('📭 Sem músicas carregadas');
+                    return;
+                }
                 
                 if (tentativasFalhas >= MAX_TENTATIVAS) {
                     tentativasFalhas = 0;
@@ -984,6 +1014,7 @@
 
                 let salvadorTimeout = setTimeout(() => {
                     if (carregandoMusica) {
+                        console.log('⏰ SALVADOR: Forçando próximo...');
                         resetarAudio();
                         tentativasFalhas = 0;
                         nextTrack();
@@ -992,12 +1023,15 @@
 
                 const track = obterProximaMusica();
                 if (!track) {
+                    console.log('❌ Sem track disponível');
                     resetarAudio();
                     clearTimeout(salvadorTimeout);
                     setTimeout(() => { tentativasFalhas++; playMusic(); }, 100);
                     return;
                 }
 
+                console.log('🎵 Tocando:', track.title, '-', track.artist);
+                
                 ultimoId = track.id;
                 updateNowPlaying(track);
                 adicionarAoHistorico(track);
@@ -1005,6 +1039,7 @@
                 const urls = gerarUrlsAlternativas(track);
                 
                 if (urls.length === 0) {
+                    console.log('❌ Sem URLs disponíveis');
                     resetarAudio();
                     clearTimeout(salvadorTimeout);
                     tentativasFalhas++;
@@ -1018,6 +1053,7 @@
                 function tentarProximaUrl() {
                     if (tentativaAtual >= urls.length || sucesso) {
                         if (!sucesso) {
+                            console.log('❌ Todas as URLs falharam, pulando...');
                             tentativasFalhas++;
                             resetarAudio();
                             clearTimeout(salvadorTimeout);
@@ -1028,6 +1064,7 @@
 
                     const urlAtual = urls[tentativaAtual];
                     tentativaAtual++;
+                    console.log(`🔄 Tentando URL ${tentativaAtual}/${urls.length}:`, urlAtual.substring(0, 60) + '...');
 
                     audio.oncanplay = null;
                     audio.onerror = null;
@@ -1038,6 +1075,7 @@
                     audio.load();
 
                     let timeoutId = setTimeout(() => {
+                        console.log('⏰ Timeout URL, tentando próxima...');
                         audio.oncanplay = null;
                         audio.onerror = null;
                         audio.onloadeddata = null;
@@ -1049,6 +1087,7 @@
                         clearTimeout(timeoutId);
                         audio.play()
                             .then(() => {
+                                console.log('✅ Música tocando com sucesso!');
                                 sucesso = true;
                                 tentativasFalhas = 0;
                                 isPlaying = true;
@@ -1065,6 +1104,7 @@
                                 }
                             })
                             .catch(() => {
+                                console.log('❌ Erro ao play, tentando próxima...');
                                 audio.oncanplay = null;
                                 audio.onerror = null;
                                 audio.onloadeddata = null;
@@ -1075,6 +1115,7 @@
 
                     audio.onerror = function() {
                         clearTimeout(timeoutId);
+                        console.log('❌ Erro no áudio, tentando próxima...');
                         audio.oncanplay = null;
                         audio.onloadeddata = null;
                         resetarAudio();
@@ -1085,6 +1126,7 @@
                         clearTimeout(timeoutId);
                         audio.play()
                             .then(() => {
+                                console.log('✅ Música tocando (loadeddata)!');
                                 sucesso = true;
                                 tentativasFalhas = 0;
                                 isPlaying = true;
@@ -1094,6 +1136,7 @@
                                 clearTimeout(salvadorTimeout);
                             })
                             .catch(() => {
+                                console.log('❌ Erro ao play (loadeddata), tentando próxima...');
                                 audio.oncanplay = null;
                                 audio.onerror = null;
                                 audio.onloadeddata = null;
@@ -1439,6 +1482,7 @@
             });
 
             audio.addEventListener('error', () => {
+                console.log('❌ Evento de erro do áudio');
                 if (!carregandoMusica) {
                     tentativasFalhas++;
                     resetarAudio();
