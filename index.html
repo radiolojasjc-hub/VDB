@@ -96,7 +96,7 @@
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .fav-modal, .feedback-modal, .historico-modal {
+        .fav-modal, .feedback-modal {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -116,13 +116,13 @@
             border: 2px solid transparent;
             box-shadow: 0 0 40px rgba(0,243,255,0.2), 0 0 80px rgba(255,45,127,0.1);
         }
-        .fav-modal.open, .feedback-modal.open, .historico-modal.open {
+        .fav-modal.open, .feedback-modal.open {
             display: flex;
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
             border-image: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)) 1;
         }
-        .fav-modal h3, .feedback-modal h3, .historico-modal h3 {
+        .fav-modal h3, .feedback-modal h3 {
             font-size: 1.2rem;
             margin-bottom: 15px;
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
@@ -130,7 +130,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .fav-modal .close-fav, .historico-modal .close-hist {
+        .fav-modal .close-fav {
             position: absolute;
             top: 12px;
             right: 16px;
@@ -140,39 +140,169 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
-        .fav-modal .close-fav:active, .historico-modal .close-hist:active { color: #fff; }
+        .fav-modal .close-fav:active { color: #fff; }
         
-        .fav-list, .historico-list { max-height: 50vh; overflow-y: auto; text-align: left; margin-bottom: 15px; }
-        .fav-item, .historico-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; }
-        .fav-item .info, .historico-item .info { flex: 1; cursor: pointer; min-width: 0; }
-        .fav-item .info .title, .historico-item .info .title { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fav-item .info .artist, .historico-item .info .artist { font-size: 0.7rem; color: #aaa; }
+        .fav-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .fav-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: white;
+        }
+        .fav-item .info { flex: 1; cursor: pointer; min-width: 0; }
+        .fav-item .info .title { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fav-item .info .artist { font-size: 0.7rem; color: #aaa; }
         .fav-item .remove { background: transparent; border: none; color: #ff2d7f; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
         .fav-empty { color: #888; padding: 30px; text-align: center; }
-        .fav-modal .close-btn, .historico-modal .close-btn { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 0; font-size: 0.95rem; }
-        .fav-modal .close-btn:active, .historico-modal .close-btn:active { transform: scale(0.95); }
+        .fav-modal .close-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 0;
+            font-size: 0.95rem;
+        }
+        .fav-modal .close-btn:active { transform: scale(0.95); }
         
-        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20,20,40,0.95); backdrop-filter: blur(20px); border-radius: 30px 30px 0 0; padding: 16px 10px 20px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; max-height: 60vh; overflow-y: auto; border-top: 2px solid transparent; border-image: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)) 1; box-shadow: 0 -10px 40px rgba(0,243,255,0.15); }
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20,20,40,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px 30px 0 0;
+            padding: 16px 10px 20px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 60vh;
+            overflow-y: auto;
+            border-top: 2px solid transparent;
+            border-image: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)) 1;
+            box-shadow: 0 -10px 40px rgba(0,243,255,0.15);
+        }
         .genres-modal.open { transform: translateY(0); }
-        .genres-modal h3 { text-align: center; margin-bottom: 12px; font-size: 0.9rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-        .genre-card { border-radius: 14px; cursor: pointer; transition: all 0.25s ease; border: 2px solid rgba(255,255,255,0.12); aspect-ratio: 4 / 2.4; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; text-align: center; color: white; font-weight: 700; font-size: 0.7rem; padding: 6px; }
+        .genres-modal h3 {
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .genres-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .genre-card {
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid rgba(255,255,255,0.12);
+            aspect-ratio: 4 / 2.4;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 6px;
+        }
         .genre-card:active { transform: scale(0.94); }
-        .genre-card.fav-card { border-color: #ff2d7f; background: rgba(255,45,127,0.15); }
-        .close-genres { width: 100%; padding: 10px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+        .genre-card.fav-card {
+            border-color: #ff2d7f;
+            background: rgba(255,45,127,0.15);
+        }
+        .close-genres {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            border-radius: 30px;
+            color: #000;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
         .close-genres:active { transform: scale(0.95); }
         
-        .feedback-modal .feedback-label { color: #ccc; font-size: 0.85rem; margin-bottom: 6px; }
-        .feedback-modal .stars { display: flex; justify-content: center; gap: 12px; margin: 12px 0 15px 0; }
-        .feedback-modal .star { font-size: 2.4rem; color: #555; cursor: pointer; transition: 0.15s; }
-        .feedback-modal .star.active { color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.6); }
+        .feedback-modal .feedback-label {
+            color: #ccc;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+        .feedback-modal .stars { 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            margin: 12px 0 15px 0; 
+        }
+        .feedback-modal .star { 
+            font-size: 2.4rem; 
+            color: #555; 
+            cursor: pointer; 
+            transition: 0.15s; 
+        }
+        .feedback-modal .star.active { 
+            color: #ffd700; 
+            text-shadow: 0 0 20px rgba(255,215,0,0.6); 
+        }
         .feedback-modal .star:active { transform: scale(1.2); }
-        .feedback-modal textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.08); border: 1px solid rgba(0,243,255,0.2); border-radius: 15px; padding: 10px; color: white; resize: none; font-size: 0.85rem; }
+        .feedback-modal textarea {
+            width: 100%;
+            height: 80px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(0,243,255,0.2);
+            border-radius: 15px;
+            padding: 10px;
+            color: white;
+            resize: none;
+            font-size: 0.85rem;
+        }
         .feedback-modal textarea::placeholder { color: #666; }
-        .feedback-modal .feedback-buttons { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .feedback-modal .btn-send { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        .feedback-modal .feedback-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .feedback-modal .btn-send {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
         .feedback-modal .btn-send:active { transform: scale(0.95); }
-        .feedback-modal .btn-close-feedback { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 30px; color: #aaa; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+        .feedback-modal .btn-close-feedback {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 30px;
+            color: #aaa;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
         .feedback-modal .btn-close-feedback:active { background: rgba(255,255,255,0.15); }
         
         @media (min-width: 1280px) {
@@ -212,7 +342,7 @@
             .fab-container { bottom: 80px; right: 8px; }
             .menu-button { width: 20px; height: 20px; font-size: 0.6rem; }
             #tap-to-start { padding: 10px 18px; font-size: 0.9rem; bottom: 25%; }
-            .fav-modal, .feedback-modal, .historico-modal { padding: 20px; max-width: 340px; }
+            .fav-modal, .feedback-modal { padding: 20px; max-width: 340px; }
             .top-buttons { gap: 3px; }
             .feedback-modal .star { font-size: 2rem; }
         }
@@ -242,7 +372,6 @@
             <div class="top-buttons">
                 <button class="top-btn ativo" id="audioStatusBtn"><span class="dot"></span> Ativado</button>
                 <button class="top-btn" id="favTopBtn"><i class="fas fa-heart"></i> <span class="badge" id="favCount">0</span></button>
-                <button class="top-btn" id="historicoTopBtn" title="Histórico"><i class="fas fa-history"></i></button>
                 <div class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></div>
             </div>
         </div>
@@ -267,7 +396,6 @@
         <button id="btStatusMenuBtn"><i class="fab fa-bluetooth"></i> Procurar Bluetooth</button>
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
-        <button id="historicoMenuBtn"><i class="fas fa-history"></i> Histórico</button>
         <button id="tvMenuBtn"><i class="fas fa-tv"></i> Modo TV</button>
     </div>
 
@@ -276,13 +404,6 @@
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Suas Favoritas</h3>
         <div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música favorita</div></div>
         <button class="close-btn" id="closeFavBtn">FECHAR</button>
-    </div>
-
-    <div class="historico-modal" id="historicoModal">
-        <button class="close-hist" id="closeHistModal"><i class="fas fa-times"></i></button>
-        <h3><i class="fas fa-history"></i> Últimas Tocadas</h3>
-        <div class="historico-list" id="historicoList"><div class="fav-empty">Nenhuma música tocada ainda</div></div>
-        <button class="close-btn" id="closeHistBtn">FECHAR</button>
     </div>
 
     <div class="genres-modal" id="genresModal">
@@ -325,7 +446,6 @@
             <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
             <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube fab-icon-youtube"></i> Vídeo YouTube</button>
             <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i> Compartilhar</button>
-            <button class="fab-sub-btn" id="fabHistorico"><i class="fas fa-history"></i> Histórico</button>
             <button class="fab-sub-btn" id="fabTv"><i class="fas fa-tv"></i> Modo TV</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
@@ -348,7 +468,7 @@
             const PLAYLIST_URL = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
             const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
-            const MAX_TENTATIVAS = 8;
+            const MAX_TENTATIVAS = 3;
 
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
@@ -389,7 +509,6 @@
             let isBackgroundActive = false;
             let timerInterval = null;
             let modoAtual = "MPB";
-            let historicoReproducao = [];
             let favorites = [];
             let modoFavoritosAtivo = false;
             let fabOpen = false;
@@ -402,6 +521,7 @@
             let tentativasFalhas = 0;
             let modoTVAtivo = false;
             let trocandoGenero = false;
+            let falhaAtual = 0;
 
             const audio = document.getElementById('musicPlayer');
             const playBtn = document.getElementById('playBtn');
@@ -689,44 +809,14 @@
                 modoAtual = "FAVORITOS";
                 currentPlaylist = shuffleArray([...favMusicas]);
                 currentIndex = 0;
-                historicoReproducao = [];
                 ultimoId = null;
                 const m = currentPlaylist[0];
                 if (m) {
                     updateNowPlaying(m);
-                    adicionarAoHistorico(m);
                 }
                 genreBadge.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;"></i> ❤️ FAVORITOS (${favorites.length})`;
                 genreBadge.className = 'genre-badge favoritos';
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
-            }
-
-            // ============================================================
-            // HISTÓRICO
-            // ============================================================
-            function abrirHistorico() {
-                const list = document.getElementById('historicoList');
-                list.innerHTML = '';
-                if (historicoReproducao.length === 0) {
-                    list.innerHTML = '<div class="fav-empty">Nenhuma música tocada ainda</div>';
-                } else {
-                    historicoReproducao.forEach(m => {
-                        const div = document.createElement('div');
-                        div.className = 'historico-item';
-                        div.innerHTML = `
-                            <div class="info" data-id="${m.id}">
-                                <div class="title">${m.title}</div>
-                                <div class="artist">${m.artist}</div>
-                            </div>
-                        `;
-                        div.querySelector('.info').addEventListener('click', () => {
-                            playSongById(m.id);
-                            document.getElementById('historicoModal').classList.remove('open');
-                        });
-                        list.appendChild(div);
-                    });
-                }
-                document.getElementById('historicoModal').classList.add('open');
             }
 
             // ============================================================
@@ -849,7 +939,6 @@
                             const primeira = currentPlaylist[0];
                             if (primeira) {
                                 updateNowPlaying(primeira);
-                                adicionarAoHistorico(primeira);
                             }
                             genreBadge.innerHTML = '📝 EDITADA';
                             genreBadge.className = 'genre-badge';
@@ -870,28 +959,24 @@
             }
 
             // ============================================================
-            // SELECIONAR GENERO - CORRIGIDO
+            // SELECIONAR GENERO - SIMPLIFICADO
             // ============================================================
             async function selecionarGenero(genero) {
                 if (trocandoGenero) return;
                 trocandoGenero = true;
-                
-                console.log('🎯 Selecionando gênero:', genero);
                 
                 if (modoFavoritosAtivo) {
                     modoFavoritosAtivo = false;
                     genreBadge.className = 'genre-badge';
                 }
                 
-                // RESETA COMPLETAMENTE
                 resetarAudio();
                 carregandoMusica = false;
                 tentativasFalhas = 0;
+                falhaAtual = 0;
                 
-                // FECHA O MODAL IMEDIATAMENTE
                 document.getElementById('genresModal').classList.remove('open');
                 
-                // CARREGA A PLAYLIST
                 const lista = await carregarPlaylistPorGenero(genero);
                 if (!lista || lista.length === 0) {
                     showNotification(`⚠️ Nenhuma música para ${genero}`, 2000);
@@ -899,15 +984,11 @@
                     return;
                 }
                 
-                console.log(`✅ ${genero} carregado: ${lista.length} músicas`);
-                
-                // ATUALIZA OS DADOS
                 musicas = lista;
                 modoAtual = genero;
                 ultimoId = null;
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
-                historicoReproducao = [];
                 genreBadge.innerHTML = genero;
                 genreBadge.className = 'genre-badge';
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
@@ -915,21 +996,17 @@
                 const primeira = currentPlaylist[0];
                 if (primeira) {
                     updateNowPlaying(primeira);
-                    adicionarAoHistorico(primeira);
                 }
                 
                 buildGenresGrid();
                 goFullscreen();
                 showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
                 
-                // FORÇA A REPRODUÇÃO
                 setTimeout(() => {
                     trocandoGenero = false;
                     if (isBackgroundActive) {
-                        console.log('🎵 Forçando reprodução...');
                         playMusic();
                     } else {
-                        console.log('🔊 Ativando áudio...');
                         ativarAudio();
                     }
                 }, 300);
@@ -939,7 +1016,8 @@
             // REPRODUÇÃO
             // ============================================================
             function obterProximaMusica() {
-                if (tentativasFalhas >= MAX_TENTATIVAS) {
+                if (falhaAtual >= MAX_TENTATIVAS) {
+                    falhaAtual = 0;
                     tentativasFalhas = 0;
                     if (musicas.length === 0) return null;
                     currentPlaylist = shuffleArray([...musicas]);
@@ -969,13 +1047,6 @@
                 return musica;
             }
 
-            function adicionarAoHistorico(musica) {
-                if (!musica) return;
-                historicoReproducao = historicoReproducao.filter(m => m.id !== musica.id);
-                historicoReproducao.unshift(musica);
-                if (historicoReproducao.length > 25) historicoReproducao.pop();
-            }
-
             function updateNowPlaying(track) {
                 if (track) {
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist}`;
@@ -984,17 +1055,15 @@
             }
 
             // ============================================================
-            // playMusic - CORRIGIDO E SIMPLIFICADO
+            // playMusic - SIMPLIFICADO E DIRETO
             // ============================================================
             function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) return;
-                if (!musicas || !musicas.length) {
-                    console.log('📭 Sem músicas carregadas');
-                    return;
-                }
+                if (!musicas || !musicas.length) return;
                 
-                if (tentativasFalhas >= MAX_TENTATIVAS) {
+                if (falhaAtual >= MAX_TENTATIVAS) {
+                    falhaAtual = 0;
                     tentativasFalhas = 0;
                     if (musicas.length === 0) return;
                     currentPlaylist = shuffleArray([...musicas]);
@@ -1012,22 +1081,19 @@
                 const track = obterProximaMusica();
                 if (!track) {
                     carregandoMusica = false;
-                    setTimeout(() => { tentativasFalhas++; playMusic(); }, 200);
+                    falhaAtual++;
+                    setTimeout(() => playMusic(), 100);
                     return;
                 }
 
-                console.log('🎵 Tocando:', track.title, '-', track.artist);
-                
                 ultimoId = track.id;
                 updateNowPlaying(track);
-                adicionarAoHistorico(track);
 
                 const urls = gerarUrlsAlternativas(track);
-                
                 if (urls.length === 0) {
                     carregandoMusica = false;
-                    tentativasFalhas++;
-                    setTimeout(() => playMusic(), 200);
+                    falhaAtual++;
+                    setTimeout(() => playMusic(), 100);
                     return;
                 }
 
@@ -1036,10 +1102,9 @@
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
-                        console.log('❌ Todas as URLs falharam, pulando...');
                         carregandoMusica = false;
-                        tentativasFalhas = 0;
-                        setTimeout(() => nextTrack(), 100);
+                        falhaAtual++;
+                        setTimeout(() => playMusic(), 100);
                         return;
                     }
 
@@ -1060,11 +1125,10 @@
                     }
 
                     timeoutId = setTimeout(() => {
-                        console.log('⏰ Timeout, tentando próxima URL...');
                         audio.oncanplay = null;
                         audio.onerror = null;
                         tentarUrl();
-                    }, 2500);
+                    }, 2000);
 
                     audio.oncanplay = function() {
                         if (timeoutId) {
@@ -1073,7 +1137,7 @@
                         }
                         audio.play()
                             .then(() => {
-                                console.log('✅ Música tocando!');
+                                falhaAtual = 0;
                                 tentativasFalhas = 0;
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1106,7 +1170,7 @@
                         }
                         audio.play()
                             .then(() => {
-                                console.log('✅ Música tocando (ready)!');
+                                falhaAtual = 0;
                                 tentativasFalhas = 0;
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1136,7 +1200,7 @@
             // CONTROLES
             // ============================================================
             function togglePlay() {
-                if (!isBackgroundActive) { return; }
+                if (!isBackgroundActive) return;
                 if (audio.paused) {
                     if (carregandoMusica) return;
                     playMusic();
@@ -1148,12 +1212,11 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
+                falhaAtual = 0;
                 tentativasFalhas = 0;
                 resetarAudio();
                 
-                if (!musicas || musicas.length === 0) {
-                    return;
-                }
+                if (!musicas || musicas.length === 0) return;
                 
                 if (!currentPlaylist || currentPlaylist.length === 0) {
                     currentPlaylist = shuffleArray([...musicas]);
@@ -1175,7 +1238,6 @@
                 
                 ultimoId = track.id;
                 updateNowPlaying(track);
-                adicionarAoHistorico(track);
                 
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
@@ -1189,7 +1251,9 @@
                     nextTrack();
                     return;
                 }
+                falhaAtual = 0;
                 tentativasFalhas = 0;
+                
                 if (currentIndex <= 1) {
                     currentIndex = currentPlaylist.length - 1;
                 } else {
@@ -1205,7 +1269,6 @@
                 }
                 ultimoId = track.id;
                 updateNowPlaying(track);
-                adicionarAoHistorico(track);
                 
                 resetarAudio();
                 currentIndex++;
@@ -1247,7 +1310,7 @@
                         totalTimeEl.textContent = formatTime(audio.duration);
                         if (audio.currentTime >= audio.duration - 0.5) {
                             if (!carregandoMusica) {
-                                tentativasFalhas = 0;
+                                falhaAtual = 0;
                                 setTimeout(() => nextTrack(), 50);
                             }
                         }
@@ -1270,10 +1333,10 @@
                 currentPlaylist = shuffleArray([musica, ...outras]);
                 currentIndex = 0;
                 ultimoId = musica.id;
-                historicoReproducao = [];
                 updateNowPlaying(musica);
                 genreBadge.innerHTML = musica.genero;
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
+                falhaAtual = 0;
                 tentativasFalhas = 0;
                 
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
@@ -1342,6 +1405,7 @@
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
                     if ('wakeLock' in navigator) try { await navigator.wakeLock.request('screen'); } catch(e) {}
+                    falhaAtual = 0;
                     tentativasFalhas = 0;
                     playMusic();
                     showLoading(false);
@@ -1350,6 +1414,7 @@
                     isBackgroundActive = true;
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
+                    falhaAtual = 0;
                     tentativasFalhas = 0;
                     playMusic();
                     showLoading(false);
@@ -1399,7 +1464,6 @@
                         const primeira = currentPlaylist[0];
                         if (primeira) {
                             updateNowPlaying(primeira);
-                            adicionarAoHistorico(primeira);
                         }
                         genreBadge.innerHTML = 'MPB';
                     } else {
@@ -1413,7 +1477,6 @@
                             const primeira = currentPlaylist[0];
                             if (primeira) {
                                 updateNowPlaying(primeira);
-                                adicionarAoHistorico(primeira);
                             }
                             genreBadge.innerHTML = 'MPB';
                         }
@@ -1466,15 +1529,15 @@
 
             audio.addEventListener('error', () => {
                 if (!carregandoMusica) {
-                    tentativasFalhas++;
+                    falhaAtual++;
                     setTimeout(() => {
-                        if (tentativasFalhas >= MAX_TENTATIVAS) {
-                            tentativasFalhas = 0;
+                        if (falhaAtual >= MAX_TENTATIVAS) {
+                            falhaAtual = 0;
                             nextTrack();
                         } else {
                             playMusic();
                         }
-                    }, 200);
+                    }, 100);
                 }
             });
 
@@ -1492,12 +1555,6 @@
             document.getElementById('closeFavBtn').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
             document.getElementById('closeGenresBtn').addEventListener('click', () => document.getElementById('genresModal').classList.remove('open'));
             document.getElementById('closeFeedbackBtn').addEventListener('click', () => document.getElementById('feedbackModal').classList.remove('open'));
-            document.getElementById('closeHistModal').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
-            document.getElementById('closeHistBtn').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
-
-            document.getElementById('historicoTopBtn').addEventListener('click', abrirHistorico);
-            document.getElementById('historicoMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); abrirHistorico(); });
-            document.getElementById('fabHistorico').addEventListener('click', () => { fabMain.click(); abrirHistorico(); });
 
             const fabMain = document.getElementById('fabMain');
             const fabSub = document.getElementById('fabSub');
@@ -1613,7 +1670,6 @@
 
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
             document.getElementById('feedbackModal').addEventListener('click', (e) => { if (e.target === document.getElementById('feedbackModal')) document.getElementById('feedbackModal').classList.remove('open'); });
-            document.getElementById('historicoModal').addEventListener('click', (e) => { if (e.target === document.getElementById('historicoModal')) document.getElementById('historicoModal').classList.remove('open'); });
             document.getElementById('genresModal').addEventListener('click', (e) => { if (e.target === document.getElementById('genresModal')) document.getElementById('genresModal').classList.remove('open'); });
 
             document.querySelectorAll('.star').forEach(star => {
