@@ -353,14 +353,17 @@
             'use strict';
 
             // ============================================================
-            // CONFIGURAÇÕES
+            // CONFIGURAÇÕES - 11 GÊNEROS COMPLETOS
             // ============================================================
             const VIDEOS = ['abc1.mp4', 'abc2.mp4', 'abc3.mp4'];
             const PLAYLIST_URL = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
-            const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'play12'];
+            const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
-            const MAX_TENTATIVAS = 5;
+            const MAX_TENTATIVAS = 3;
 
+            // ============================================================
+            // 11 GÊNEROS (MPB, POP, SERTANEJO, FORRÓ, SAMBA, BREGA, REGGAE, MODA TOP, RELIGIOSA, ROMÂNTICA, FLASHBACK)
+            // ============================================================
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
                 'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
@@ -370,7 +373,9 @@
                 'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
                 'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
                 'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json',
-                'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json'
+                'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
+                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
+                'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json'
             };
 
             const CORES_POR_GENERO = {
@@ -382,7 +387,9 @@
                 'BREGA': '#ff66aa',
                 'REGGAE': '#00ffaa',
                 'MODA TOP': '#ff4400',
-                'RELIGIOSA': '#aa55ff'
+                'RELIGIOSA': '#aa55ff',
+                'ROMÂNTICA': '#ff2d7f',
+                'FLASHBACK': '#ffaa00'
             };
 
             // ============================================================
@@ -928,20 +935,12 @@
             // playMusic - CORRIGIDO (PULA MAIS RÁPIDO QUANDO DÁ ERRO)
             // ============================================================
             function playMusic() {
-                // IMPEDE EXECUÇÃO DUPLICADA
-                if (carregandoMusica) {
-                    return;
-                }
-                if (!isBackgroundActive) {
-                    return;
-                }
-                if (!musicas || musicas.length === 0) {
-                    return;
-                }
+                if (carregandoMusica) return;
+                if (!isBackgroundActive) return;
+                if (!musicas || musicas.length === 0) return;
 
                 carregandoMusica = true;
 
-                // LIMPA EVENTOS ANTIGOS
                 audio.oncanplay = null;
                 audio.onerror = null;
                 audio.onended = null;
@@ -989,7 +988,6 @@
                         timeoutId = null;
                     }
 
-                    // TIMEOUT MAIS CURTO (2 segundos)
                     timeoutId = setTimeout(() => {
                         audio.oncanplay = null;
                         audio.onerror = null;
@@ -1206,7 +1204,7 @@
             }
 
             // ============================================================
-            // GRID DE GÊNEROS
+            // GRID DE GÊNEROS - 11 GÊNEROS
             // ============================================================
             function buildGenresGrid() {
                 const genresGrid = document.getElementById('genresGrid');
@@ -1218,7 +1216,9 @@
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
-                for (const [genero, url] of Object.entries(GENRE_URLS)) {
+                const generos = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
+                
+                generos.forEach(genero => {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     const cor = CORES_POR_GENERO[genero] || '#ffffff';
@@ -1229,7 +1229,7 @@
                         selecionarGenero(genero);
                     };
                     genresGrid.appendChild(card);
-                }
+                });
             }
 
             // ============================================================
