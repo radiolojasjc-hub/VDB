@@ -430,7 +430,7 @@
             'use strict';
 
             // ============================================================
-            // CONFIGURAÇÕES (as mesmas que você usou)
+            // CONFIGURAÇÕES
             // ============================================================
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
@@ -482,6 +482,12 @@
             let teachingTimeout = null;
             let modoTVAtivo = false;
             let trocandoGenero = false;
+
+            // ============================================================
+            // NOVAS VARIÁVEIS PARA TELA BLOQUEADA
+            // ============================================================
+            let keepAliveInterval = null;
+            let audioContext = null;
 
             const audio = document.getElementById('musicPlayer');
             const backgroundAudio = document.getElementById('backgroundAudio');
@@ -567,7 +573,69 @@
             }
 
             // ============================================================
-            // GERAR URL (igual ao seu player)
+            // NOVAS FUNÇÕES PARA TELA BLOQUEADA
+            // ============================================================
+            function initAudioContext() {
+                try {
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        // Criar um nó de áudio silencioso para manter o contexto ativo
+                        const buffer = audioContext.createBuffer(1, 1, 22050);
+                        const source = audioContext.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(audioContext.destination);
+                        source.start(0);
+                        console.log('🎵 AudioContext inicializado');
+                    }
+                } catch(e) {
+                    console.log('AudioContext não suportado');
+                }
+            }
+
+            function startKeepAlive() {
+                if (keepAliveInterval) {
+                    clearInterval(keepAliveInterval);
+                    keepAliveInterval = null;
+                }
+                
+                console.log('🔋 KeepAlive iniciado (verificação a cada 2s)');
+                
+                // Manter o áudio ativo com um "heartbeat" a cada 2 segundos
+                keepAliveInterval = setInterval(() => {
+                    // Se o áudio está ativo e pausou sozinho (tela bloqueada), tenta retomar
+                    if (isBackgroundActive && audio.paused && !carregandoMusica && !audio.src) {
+                        console.log('🔄 Áudio pausado em background - retomando...');
+                        playMusic();
+                    } else if (isBackgroundActive && audio.paused && !carregandoMusica && audio.src) {
+                        console.log('🔄 Tentando retomar áudio em background...');
+                        audio.play().catch(() => {
+                            // Se não conseguir, recarrega a música
+                            if (!carregandoMusica) {
+                                playMusic();
+                            }
+                        });
+                    }
+                    
+                    // Verificar se a música acabou (fallback para o evento 'ended' que falha em background)
+                    if (isBackgroundActive && audio.duration > 0 && !audio.paused && !carregandoMusica) {
+                        if (audio.currentTime >= audio.duration - 0.5) {
+                            console.log('⏭️ Música terminou (detectado pelo KeepAlive)');
+                            nextTrack();
+                        }
+                    }
+                }, 2000);
+            }
+
+            function stopKeepAlive() {
+                if (keepAliveInterval) {
+                    clearInterval(keepAliveInterval);
+                    keepAliveInterval = null;
+                    console.log('🔋 KeepAlive parado');
+                }
+            }
+
+            // ============================================================
+            // GERAR URL
             // ============================================================
             function gerarUrlCompleta(nomeArquivo) {
                 if (!nomeArquivo) return '';
@@ -792,7 +860,7 @@
             }
 
             // ============================================================
-            // playMusic - SIMPLES E ESTÁVEL
+            // playMusic - VERSÃO CORRIGIDA
             // ============================================================
             function playMusic() {
                 if (carregandoMusica) return;
@@ -848,6 +916,11 @@
                             startTimer();
                             audio.oncanplay = null;
                             audio.onerror = null;
+                            
+                            // Iniciar KeepAlive quando a música começar a tocar
+                            if (isBackgroundActive && !keepAliveInterval) {
+                                startKeepAlive();
+                            }
                         })
                         .catch(() => {
                             carregandoMusica = false;
@@ -877,6 +950,7 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
                 carregandoMusica = false;
+                stopKeepAlive();
             }
 
             function togglePlay() {
@@ -1019,7 +1093,7 @@
             }
 
             // ============================================================
-            // ÁUDIO SILENCIOSO (igual ao seu player)
+            // ÁUDIO SILENCIOSO
             // ============================================================
             function createSilentAudio() {
                 try {
@@ -1052,11 +1126,15 @@
             }
 
             // ============================================================
-            // ATIVAR ÁUDIO (com áudio silencioso)
+            // ATIVAR ÁUDIO (COM SUPORTE A TELA BLOQUEADA)
             // ============================================================
             async function ativarAudio() {
                 try {
                     showLoading(true);
+                    
+                    // Inicializar AudioContext para melhor suporte em background
+                    initAudioContext();
+                    
                     const silentUrl = createSilentAudio();
                     if (silentUrl) {
                         backgroundAudio.src = silentUrl;
@@ -1067,19 +1145,39 @@
                     } else {
                         throw new Error('Falha ao criar áudio silencioso');
                     }
+                    
+                    // Wake Lock para manter a tela ativa (se possível)
                     if ('wakeLock' in navigator) {
-                        try { await navigator.wakeLock.request('screen'); } catch(e) {}
+                        try {
+                            const wakeLock = await navigator.wakeLock.request('screen');
+                            console.log('🔒 Wake Lock ativado');
+                            // Liberar quando a página for ocultada
+                            document.addEventListener('visibilitychange', () => {
+                                if (document.visibilityState === 'hidden') {
+                                    wakeLock.release().catch(() => {});
+                                }
+                            });
+                        } catch(e) {
+                            console.log('Wake Lock não disponível');
+                        }
                     }
+                    
                     isBackgroundActive = true;
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
+                    
+                    // Iniciar KeepAlive
+                    startKeepAlive();
+                    
                     playMusic();
                     showLoading(false);
                     return true;
                 } catch (error) {
+                    // Fallback: mesmo com erro, tenta tocar
                     isBackgroundActive = true;
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
+                    startKeepAlive();
                     playMusic();
                     showLoading(false);
                     return true;
@@ -1185,24 +1283,58 @@
             }
 
             // ============================================================
-            // EVENTOS DOM (minimalistas para evitar travamentos)
+            // EVENTOS DOM
             // ============================================================
             audio.addEventListener('play', () => {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 startTimer();
+                
+                // Garantir que o keepAlive está rodando
+                if (isBackgroundActive && !keepAliveInterval) {
+                    startKeepAlive();
+                }
             });
+            
             audio.addEventListener('pause', () => {
                 isPlaying = false;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
             });
+            
             audio.addEventListener('ended', () => {
                 if (!carregandoMusica && isPlaying) {
                     setTimeout(() => nextTrack(), 50);
                 }
             });
 
+            // ============================================================
+            // EVENTO VISIBILITYCHANGE - TELA BLOQUEADA/DESBLOQUEADA
+            // ============================================================
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    // Tela desbloqueada - garantir que está tocando
+                    console.log('📱 Tela desbloqueada');
+                    if (isBackgroundActive && audio.paused && !carregandoMusica) {
+                        console.log('🔄 Retomando áudio ao desbloquear');
+                        playMusic();
+                    }
+                    // Reiniciar keepAlive se necessário
+                    if (isBackgroundActive && !keepAliveInterval) {
+                        startKeepAlive();
+                    }
+                } else {
+                    // Tela bloqueada - manter o keepAlive rodando
+                    console.log('📱 Tela bloqueada - mantendo KeepAlive');
+                    if (isBackgroundActive && !keepAliveInterval) {
+                        startKeepAlive();
+                    }
+                }
+            });
+
+            // ============================================================
+            // EVENTOS UI
+            // ============================================================
             heartBtn.addEventListener('click', () => {
                 const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
                 if (music) toggleFavorito(music.id);
@@ -1292,12 +1424,6 @@
                 await ativarAudio();
                 tapToStart.style.display = 'none';
                 goFullscreen();
-            });
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible' && isBackgroundActive && audio.paused) {
-                    if (!carregandoMusica) playMusic();
-                }
             });
 
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
