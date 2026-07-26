@@ -7,7 +7,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (mesmo CSS anterior, sem alterações) */
+        /* ===== SEU CSS ORIGINAL (mantido intacto) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -330,6 +330,7 @@
     </style>
 </head>
 <body>
+    <!-- VÍDEOS -->
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
         <source src="abc1.mp4" type="video/mp4">
     </video>
@@ -338,14 +339,18 @@
     </video>
     <div class="tv-overlay" id="tvOverlay"></div>
 
+    <!-- SPLASH -->
     <div id="splash">
         <div class="splash-loading">
             <i class="fas fa-circle-notch fa-spin"></i>
             <p>Carregando playlist...</p>
         </div>
     </div>
+
+    <!-- BOTÃO ATIVAR -->
     <div id="tap-to-start">▶ ATIVAR RÁDIO</div>
 
+    <!-- APP -->
     <div class="app" id="appContainer" style="display: none;">
         <div class="top-bar" id="topBar">
             <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
@@ -366,6 +371,7 @@
         <div class="teaching-bar" id="teachingBar">👆 Toque na tela para <span class="cyan">controles</span></div>
     </div>
 
+    <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
         <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
@@ -376,6 +382,7 @@
         <button id="tvMenuBtn"><i class="fas fa-tv"></i> Modo TV</button>
     </div>
 
+    <!-- MODAIS -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Suas Favoritas</h3>
@@ -406,6 +413,7 @@
         </div>
     </div>
 
+    <!-- CONTROLES INFERIORES -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -417,6 +425,7 @@
         </div>
     </div>
 
+    <!-- FAB -->
     <div class="fab-container" id="fabContainer">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
@@ -431,9 +440,8 @@
     <div class="notification" id="notification">Mensagem</div>
     <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
+    <!-- ÁUDIO PRINCIPAL -->
     <audio id="musicPlayer" preload="auto"></audio>
-    <!-- Áudio silencioso para manter ativo -->
-    <audio id="keepAliveAudio" loop preload="auto" style="display:none;"></audio>
 
     <script>
         (function() {
@@ -477,7 +485,7 @@
             };
 
             // ============================================================
-            // VARIÁVEIS
+            // VARIÁVEIS GLOBAIS
             // ============================================================
             let musicas = [];
             let currentPlaylist = [];
@@ -501,13 +509,11 @@
             let trocandoGenero = false;
 
             // ============================================================
-            // Web Audio + Keep-Alive
+            // Web Audio API (keep-alive)
             // ============================================================
             let audioContext = null;
             let oscilador = null;
             let ganho = null;
-            let keepAliveAudio = document.getElementById('keepAliveAudio');
-            let keepAliveInterval = null;
 
             const audio = document.getElementById('musicPlayer');
             const playBtn = document.getElementById('playBtn');
@@ -888,18 +894,12 @@
                 if (track) {
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist}`;
                     updateHeartIcon(track.id);
-                    // Atualiza Media Session
+                    // Media Session
                     if ('mediaSession' in navigator) {
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: track.title,
                             artist: track.artist,
-                            album: 'Play 12',
-                            artwork: [
-                                { src: 'https://via.placeholder.com/96x96/00f3ff/000000?text=12', sizes: '96x96', type: 'image/png' },
-                                { src: 'https://via.placeholder.com/128x128/00f3ff/000000?text=12', sizes: '128x128', type: 'image/png' },
-                                { src: 'https://via.placeholder.com/192x192/00f3ff/000000?text=12', sizes: '192x192', type: 'image/png' },
-                                { src: 'https://via.placeholder.com/512x512/00f3ff/000000?text=12', sizes: '512x512', type: 'image/png' }
-                            ]
+                            album: 'Play 12'
                         });
                     }
                 }
@@ -973,6 +973,10 @@
                             carregandoMusica = false;
                             audio.oncanplay = null;
                             audio.onerror = null;
+                            // Notifica Media Session que está tocando
+                            if ('mediaSession' in navigator) {
+                                navigator.mediaSession.playbackState = 'playing';
+                            }
                         }).catch(() => {
                             audio.oncanplay = null;
                             audio.onerror = null;
@@ -995,6 +999,9 @@
                             carregandoMusica = false;
                             audio.oncanplay = null;
                             audio.onerror = null;
+                            if ('mediaSession' in navigator) {
+                                navigator.mediaSession.playbackState = 'playing';
+                            }
                         }).catch(() => {
                             audio.oncanplay = null;
                             audio.onerror = null;
@@ -1003,7 +1010,9 @@
                     }
                 }
                 audio.onended = function() {
-                    if (!carregandoMusica && isPlaying) setTimeout(() => nextTrack(), 100);
+                    if (!carregandoMusica && isPlaying) {
+                        setTimeout(() => nextTrack(), 100);
+                    }
                 };
                 tentarUrl();
             }
@@ -1022,6 +1031,9 @@
                 stopTimer();
                 carregandoMusica = false;
                 tentativasGlobais = 0;
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'paused';
+                }
             }
 
             function togglePlay() {
@@ -1162,56 +1174,25 @@
             }
 
             // ============================================================
-            // ÁUDIO SILENCIOSO PARA KEEP-ALIVE (cria um WAV)
-            // ============================================================
-            function createSilentWav() {
-                try {
-                    const sampleRate = 44100, duration = 1, numSamples = sampleRate * duration;
-                    const buffer = new ArrayBuffer(44 + numSamples * 2);
-                    const view = new DataView(buffer);
-                    const writeString = (view, offset, str) => {
-                        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-                    };
-                    writeString(view, 0, 'RIFF');
-                    view.setUint32(4, 36 + numSamples * 2, true);
-                    writeString(view, 8, 'WAVE');
-                    writeString(view, 12, 'fmt ');
-                    view.setUint32(16, 16, true);
-                    view.setUint16(20, 1, true);
-                    view.setUint16(22, 1, true);
-                    view.setUint32(24, sampleRate, true);
-                    view.setUint32(28, sampleRate * 2, true);
-                    view.setUint16(32, 2, true);
-                    view.setUint16(34, 16, true);
-                    writeString(view, 36, 'data');
-                    view.setUint32(40, numSamples * 2, true);
-                    let offset = 44;
-                    for (let i = 0; i < numSamples; i++) {
-                        view.setInt16(offset, 0, true);
-                        offset += 2;
-                    }
-                    return URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' }));
-                } catch(e) { return ''; }
-            }
-
-            // ============================================================
-            // ATIVAR ÁUDIO - Combinação de técnicas (Web Audio + keep-alive)
+            // ATIVAR ÁUDIO (com Web Audio API e keep-alive)
             // ============================================================
             async function ativarAudio() {
                 try {
                     showLoading(true);
 
-                    // 1. Web Audio API com oscilador (ganho muito baixo, mas não zero)
+                    // 1. Cria/retoma AudioContext
                     if (!audioContext) {
                         audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     }
                     if (audioContext.state === 'suspended') {
                         await audioContext.resume();
                     }
+
+                    // 2. Cria oscilador inaudível (ganho 0.001)
                     if (!oscilador) {
                         oscilador = audioContext.createOscillator();
                         ganho = audioContext.createGain();
-                        ganho.gain.value = 0.0001; // muito baixo, mas não zero
+                        ganho.gain.value = 0.001; // quase zero, mas não zero
                         oscilador.connect(ganho);
                         ganho.connect(audioContext.destination);
                         oscilador.frequency.value = 1;
@@ -1219,16 +1200,7 @@
                         oscilador.start(0);
                     }
 
-                    // 2. Áudio silencioso em loop (elemento <audio>)
-                    const wavUrl = createSilentWav();
-                    if (wavUrl) {
-                        keepAliveAudio.src = wavUrl;
-                        keepAliveAudio.loop = true;
-                        keepAliveAudio.volume = 0.001;
-                        await keepAliveAudio.play();
-                    }
-
-                    // 3. Media Session (para informar ao sistema que há mídia)
+                    // 3. Media Session
                     if ('mediaSession' in navigator) {
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: 'Play 12',
@@ -1247,37 +1219,26 @@
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
 
-                    // 5. Intervalo para "cutucar" o áudio se ele pausar
-                    if (keepAliveInterval) clearInterval(keepAliveInterval);
-                    keepAliveInterval = setInterval(() => {
-                        if (keepAliveAudio.paused && isBackgroundActive) {
-                            keepAliveAudio.play().catch(() => {});
-                        }
-                        if (audioContext && audioContext.state === 'suspended') {
-                            audioContext.resume().catch(() => {});
-                        }
-                        // Se a música principal pausou sem motivo, tenta retomar
-                        if (audio.paused && isPlaying && !carregandoMusica && isBackgroundActive) {
-                            audio.play().catch(() => {});
-                        }
-                    }, 5000);
-
                     tentativasGlobais = 0;
                     playMusic();
                     showLoading(false);
+
+                    // 5. Intervalo de keep-alive (a cada 3s)
+                    setInterval(() => {
+                        // Se o contexto foi suspenso, retoma
+                        if (audioContext && audioContext.state === 'suspended') {
+                            audioContext.resume().catch(() => {});
+                        }
+                        // Se a música pausou sozinha, retoma
+                        if (audio.paused && isPlaying && !carregandoMusica && isBackgroundActive) {
+                            audio.play().catch(() => {});
+                        }
+                    }, 3000);
+
                     return true;
 
                 } catch (error) {
-                    // Fallback: tenta apenas o keep-alive
-                    try {
-                        const wavUrl = createSilentWav();
-                        if (wavUrl) {
-                            keepAliveAudio.src = wavUrl;
-                            keepAliveAudio.loop = true;
-                            keepAliveAudio.volume = 0.001;
-                            await keepAliveAudio.play();
-                        }
-                    } catch(e2) {}
+                    // Fallback: só marca como ativo e tenta tocar
                     isBackgroundActive = true;
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
@@ -1322,6 +1283,15 @@
                 if (!genero || !GENRE_URLS[genero]) return;
                 delete playlistCache[genero];
                 await selecionarGenero(genero);
+            }
+
+            // ============================================================
+            // VÍDEOS
+            // ============================================================
+            function iniciarLoopVideos() {
+                bgVideo.src = VIDEOS[0];
+                bgVideo.load();
+                bgVideo.play().catch(() => {});
             }
 
             // ============================================================
@@ -1390,20 +1360,29 @@
             }
 
             // ============================================================
-            // VÍDEOS (loop sem troca automática)
-            // ============================================================
-            function iniciarLoopVideos() {
-                bgVideo.src = VIDEOS[0];
-                bgVideo.load();
-                bgVideo.play().catch(() => {});
-            }
-
-            // ============================================================
             // EVENTOS DOM
             // ============================================================
-            audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
-            audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
-            audio.addEventListener('ended', () => { if (!carregandoMusica && isPlaying) setTimeout(() => nextTrack(), 100); });
+            audio.addEventListener('play', () => {
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                startTimer();
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'playing';
+                }
+            });
+            audio.addEventListener('pause', () => {
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'paused';
+                }
+            });
+            audio.addEventListener('ended', () => {
+                if (!carregandoMusica && isPlaying) {
+                    setTimeout(() => nextTrack(), 100);
+                }
+            });
             audio.addEventListener('error', () => {
                 if (!carregandoMusica) {
                     tentativasGlobais++;
@@ -1415,6 +1394,20 @@
                             playMusic();
                         }
                     }, 200);
+                }
+            });
+
+            // ===== VISIBILITY CHANGE =====
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    // Se a música estava tocando e foi pausada, retoma
+                    if (isBackgroundActive && audio.paused && !carregandoMusica && isPlaying) {
+                        audio.play().catch(() => {});
+                    }
+                    // Retoma o contexto se suspenso
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume().catch(() => {});
+                    }
                 }
             });
 
@@ -1521,13 +1514,6 @@
                 await ativarAudio();
                 tapToStart.style.display = 'none';
                 goFullscreen();
-            });
-
-            // Listener para quando a aba ficar visível
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible' && isBackgroundActive && audio.paused) {
-                    if (!carregandoMusica) playMusic();
-                }
             });
 
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
