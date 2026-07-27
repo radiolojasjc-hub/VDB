@@ -7,6 +7,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== CSS COMPLETO (mantido) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -498,7 +499,7 @@
             };
 
             // ============================================================
-            // VARIÁVEIS DO PLAYER
+            // VARIÁVEIS DO PLAYER (SIMPLES)
             // ============================================================
             let musicas = [];
             let playlistIndex = 0;
@@ -519,10 +520,6 @@
             let trocandoGenero = false;
             let musicaAtualId = null;
             let trackStartTime = 0;
-
-            // ===== NOVO: HISTÓRICO PARA EVITAR REPETIÇÃO =====
-            let historico = [];
-            const TAMANHO_HISTORICO = 5; // quantas músicas evitar repetir
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -686,7 +683,7 @@
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
                 musicas = favMusicas;
-                // Embaralha a lista de favoritos para começar variado
+                // Embaralha para começar variado
                 musicas = shuffleArray(musicas);
                 playlistIndex = 0;
                 musicaAtualId = null;
@@ -856,7 +853,7 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO (CORRIGIDA - SEM REPETIÇÃO)
+            // REPRODUÇÃO (SIMPLES, ESTÁVEL, SEM TRAVAR)
             // ============================================================
             function updateNowPlaying(track) {
                 if (track) {
@@ -865,74 +862,26 @@
                 }
             }
 
-            // Função que avança o índice garantindo NUNCA repetir a mesma música
+            // Função que avança o índice de forma simples (NÃO TRAVA)
             function avancarIndice() {
                 if (!musicas || musicas.length === 0) return 0;
-                
-                // Se só tem uma música, toca ela (não tem como evitar)
                 if (musicas.length === 1) return 0;
-                
+
                 if (shuffleMode) {
-                    // MODO SHUFFLE: escolhe aleatória, mas que não esteja no histórico
-                    let tentativas = 0;
-                    let maxTentativas = 30; // evita loop infinito
-                    let novaPosicao;
-                    let atualId = musicas[playlistIndex % musicas.length]?.id;
-                    
-                    do {
-                        novaPosicao = Math.floor(Math.random() * musicas.length);
-                        tentativas++;
-                        // Se tentou muitas vezes, pega a primeira que não seja a atual
-                        if (tentativas > maxTentativas) {
-                            for (let i = 0; i < musicas.length; i++) {
-                                if (i !== playlistIndex % musicas.length) {
-                                    novaPosicao = i;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    } while (
-                        // Não pode ser a mesma posição atual
-                        novaPosicao === playlistIndex % musicas.length ||
-                        // Não pode ser uma música que já está no histórico
-                        historico.includes(musicas[novaPosicao].id)
-                    );
-                    
-                    return novaPosicao;
-                    
-                } else {
-                    // MODO SEQUENCIAL: avança normalmente
-                    let novaPos = playlistIndex + 1;
-                    if (novaPos >= musicas.length) {
-                        // Quando chega ao fim, EMBARALHA a playlist e recomeça
-                        const atual = musicas[playlistIndex % musicas.length];
-                        // Pega a lista sem a atual
-                        let outras = musicas.filter(m => m.id !== atual.id);
-                        // Embaralha as outras
-                        outras = shuffleArray(outras);
-                        // Monta nova lista com a atual no início e o resto embaralhado
-                        musicas = [atual, ...outras];
-                        novaPos = 0; // recomeça do zero
-                        showNotification('🔄 Playlist reembaralhada', 1500);
+                    // Shuffle: escolhe aleatório, mas se for igual ao atual, tenta uma vez
+                    let novo = Math.floor(Math.random() * musicas.length);
+                    if (novo === playlistIndex && musicas.length > 1) {
+                        novo = Math.floor(Math.random() * musicas.length);
                     }
-                    return novaPos;
+                    return novo;
+                } else {
+                    // Sequencial: avança e volta ao início se chegar ao fim
+                    let novo = playlistIndex + 1;
+                    if (novo >= musicas.length) novo = 0;
+                    return novo;
                 }
             }
 
-            // Atualiza o histórico com o ID da música que está tocando
-            function atualizarHistorico(trackId) {
-                // Remove o ID se já estiver no histórico (evita duplicados)
-                historico = historico.filter(id => id !== trackId);
-                // Adiciona no final
-                historico.push(trackId);
-                // Mantém apenas os últimos N
-                if (historico.length > TAMANHO_HISTORICO) {
-                    historico.shift();
-                }
-            }
-
-            // Função principal de tocar música
             function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) return;
@@ -946,9 +895,6 @@
                     setTimeout(() => playMusic(), 500);
                     return;
                 }
-
-                // ATUALIZA O HISTÓRICO (para evitar repetição)
-                atualizarHistorico(track.id);
 
                 musicaAtualId = track.id;
                 updateNowPlaying(track);
@@ -1040,7 +986,6 @@
                     audio.onended = function() {
                         if (carregandoMusica) return;
                         if (isPlaying) {
-                            // Avança para a próxima (com a lógica anti-repetição)
                             playlistIndex = avancarIndice();
                             setTimeout(() => playMusic(), 100);
                         }
