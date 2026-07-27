@@ -499,7 +499,7 @@
             };
 
             // ============================================================
-            // VARIÁVEIS DO PLAYER (SIMPLES)
+            // VARIÁVEIS DO PLAYER
             // ============================================================
             let musicas = [];
             let playlistIndex = 0;
@@ -520,6 +520,9 @@
             let trocandoGenero = false;
             let musicaAtualId = null;
             let trackStartTime = 0;
+
+            // HISTÓRICO SIMPLES (opcional, mas vou usar só para evitar repetir a mesma consecutivamente)
+            let ultimoIndice = -1;
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -683,7 +686,6 @@
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
                 musicas = favMusicas;
-                // Embaralha para começar variado
                 musicas = shuffleArray(musicas);
                 playlistIndex = 0;
                 musicaAtualId = null;
@@ -807,7 +809,6 @@
                     genreBadge.className = 'genre-badge';
                 }
                 
-                // Para a música atual
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -853,7 +854,7 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO (SIMPLES, ESTÁVEL, SEM TRAVAR)
+            // REPRODUÇÃO CORRIGIDA (GARANTE NÃO REPETIR A MESMA CONSECUTIVAMENTE)
             // ============================================================
             function updateNowPlaying(track) {
                 if (track) {
@@ -862,24 +863,45 @@
                 }
             }
 
-            // Função que avança o índice de forma simples (NÃO TRAVA)
+            // FUNÇÃO AVANÇA ÍNDICE - DEFINITIVA
             function avancarIndice() {
                 if (!musicas || musicas.length === 0) return 0;
-                if (musicas.length === 1) return 0;
+                const total = musicas.length;
+                if (total === 1) return 0;
+
+                let novoIndice;
 
                 if (shuffleMode) {
-                    // Shuffle: escolhe aleatório, mas se for igual ao atual, tenta uma vez
-                    let novo = Math.floor(Math.random() * musicas.length);
-                    if (novo === playlistIndex && musicas.length > 1) {
-                        novo = Math.floor(Math.random() * musicas.length);
+                    // Shuffle: tenta até 10 vezes achar um diferente do atual
+                    let tentativas = 0;
+                    do {
+                        novoIndice = Math.floor(Math.random() * total);
+                        tentativas++;
+                        if (tentativas > 10) break;
+                    } while (novoIndice === playlistIndex);
+                    
+                    // Se mesmo assim deu igual (caso raro), força o próximo
+                    if (novoIndice === playlistIndex) {
+                        novoIndice = (playlistIndex + 1) % total;
                     }
-                    return novo;
                 } else {
-                    // Sequencial: avança e volta ao início se chegar ao fim
-                    let novo = playlistIndex + 1;
-                    if (novo >= musicas.length) novo = 0;
-                    return novo;
+                    // Sequencial: avança, e se chegar ao fim, embaralha a playlist
+                    novoIndice = playlistIndex + 1;
+                    if (novoIndice >= total) {
+                        // Embaralha a lista (menos a atual) e recomeça
+                        const atual = musicas[playlistIndex % total];
+                        let outras = musicas.filter(m => m.id !== atual.id);
+                        outras = shuffleArray(outras);
+                        musicas = [atual, ...outras];
+                        novoIndice = 0;
+                        // Notifica o usuário (opcional)
+                        showNotification('🔄 Playlist reembaralhada', 1500);
+                    }
                 }
+
+                console.log(`🔄 Avançando: índice ${playlistIndex} -> ${novoIndice}, shuffle=${shuffleMode}`);
+                playlistIndex = novoIndice;
+                return novoIndice;
             }
 
             function playMusic() {
@@ -900,11 +922,10 @@
                 updateNowPlaying(track);
                 trackStartTime = Date.now();
 
-                // ===== GERAR URLs ALTERNATIVAS =====
                 const urls = gerarUrlsAlternativas(track);
                 if (urls.length === 0) {
                     carregandoMusica = false;
-                    playlistIndex = avancarIndice();
+                    avancarIndice();
                     setTimeout(() => playMusic(), 500);
                     return;
                 }
@@ -917,7 +938,7 @@
                     if (urlIndex >= urls.length) {
                         carregandoMusica = false;
                         console.warn('⚠️ Todas as URLs falharam, pulando:', track.title);
-                        playlistIndex = avancarIndice();
+                        avancarIndice();
                         setTimeout(() => playMusic(), 500);
                         return;
                     }
@@ -986,7 +1007,8 @@
                     audio.onended = function() {
                         if (carregandoMusica) return;
                         if (isPlaying) {
-                            playlistIndex = avancarIndice();
+                            // Avança para a próxima (com a lógica anti-repetição)
+                            avancarIndice();
                             setTimeout(() => playMusic(), 100);
                         }
                     };
@@ -1078,7 +1100,7 @@
             function nextTrack() {
                 if (carregandoMusica) return;
                 resetarAudio();
-                playlistIndex = avancarIndice();
+                avancarIndice();
                 setTimeout(() => playMusic(), 200);
                 showControls();
             }
@@ -1086,7 +1108,6 @@
             function prevTrack() {
                 if (carregandoMusica) return;
                 if (!musicas || !musicas.length) return;
-                // Volta duas posições (uma para compensar o avanço)
                 playlistIndex -= 2;
                 if (playlistIndex < 0) playlistIndex = musicas.length - 1;
                 resetarAudio();
@@ -1143,7 +1164,6 @@
                 modoFavoritosAtivo = false;
                 modoAtual = musica.genero || 'MPB';
                 
-                // Reorganiza a playlist para começar com a música selecionada
                 const outras = musicas.filter(m => m.id !== id);
                 musicas = [musica, ...shuffleArray(outras)];
                 playlistIndex = 0;
