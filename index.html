@@ -7,7 +7,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS ===== */
+        /* ===== CSS (mantido o mesmo) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -572,7 +572,6 @@
                     if (isBackgroundActive && audio.paused && !carregandoMusica && audio.src) {
                         audio.play().catch(() => {});
                     }
-                    // Não força nextTrack aqui para não interferir no fluxo normal
                 }, 3000);
             }
 
@@ -680,7 +679,7 @@
             }
 
             // ============================================================
-            // GERAR URLs ALTERNATIVAS
+            // GERAR URLs ALTERNATIVAS (simplificada)
             // ============================================================
             function gerarUrlsAlternativas(musica) {
                 const urls = new Set();
@@ -957,9 +956,10 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO - CORRIGIDA DEFINITIVAMENTE
+            // REPRODUÇÃO - SIMPLES E ROBUSTA
             // ============================================================
             function obterProximaMusica() {
+                // Se a playlist atual está vazia ou chegou ao fim, recria
                 if (!currentPlaylist || currentPlaylist.length === 0 || currentIndex >= currentPlaylist.length) {
                     if (musicas.length === 0) return null;
                     // Evita repetir a última música
@@ -1021,7 +1021,6 @@
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
-                        // Todas as URLs falharam, pula para a próxima música
                         carregandoMusica = false;
                         setTimeout(() => playMusic(), 200);
                         return;
@@ -1030,7 +1029,7 @@
                     const url = urls[urlIndex];
                     urlIndex++;
 
-                    // Limpa eventos anteriores
+                    // Remove listeners antigos
                     audio.oncanplay = null;
                     audio.onerror = null;
                     audio.onended = null;
@@ -1039,9 +1038,8 @@
                     audio.src = url;
                     audio.load();
 
-                    // Evento canplay: uma única vez
-                    audio.addEventListener('canplay', function onCanPlay() {
-                        audio.removeEventListener('canplay', onCanPlay);
+                    audio.oncanplay = function() {
+                        audio.oncanplay = null;
                         audio.play()
                             .then(() => {
                                 isPlaying = true;
@@ -1049,25 +1047,22 @@
                                 startTimer();
                                 carregandoMusica = false;
                                 audio.onerror = null;
-                                audio.onended = null;
                                 if (isBackgroundActive && !keepAliveInterval) {
                                     startKeepAlive();
                                 }
                             })
                             .catch(() => {
-                                // Erro ao play, tenta próxima URL
                                 tentarUrl();
                             });
-                    });
+                    };
 
                     audio.onerror = function() {
-                        // Se der erro de carregamento, tenta próxima URL
                         audio.oncanplay = null;
                         audio.onerror = null;
                         tentarUrl();
                     };
 
-                    // Se o navegador já tiver carregado, o canplay pode não disparar
+                    // Se já estiver carregado
                     if (audio.readyState >= 3) {
                         audio.oncanplay = null;
                         audio.onerror = null;
@@ -1077,8 +1072,6 @@
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
                                 carregandoMusica = false;
-                                audio.onerror = null;
-                                audio.onended = null;
                                 if (isBackgroundActive && !keepAliveInterval) {
                                     startKeepAlive();
                                 }
@@ -1114,7 +1107,6 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                // Para a reprodução atual sem resetar tudo
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -1122,7 +1114,6 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
                 carregandoMusica = false;
-                // Chama playMusic para pegar a próxima
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
