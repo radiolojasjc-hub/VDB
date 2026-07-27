@@ -469,6 +469,9 @@
             const PLAYLIST_URL = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
             const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
+            
+            // HISTÓRICO PARA EVITAR REPETIÇÃO
+            const MAX_HISTORICO = 5; // Evita repetir as últimas 5 músicas
 
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
@@ -520,6 +523,7 @@
             let teachingTimeout = null;
             let modoTVAtivo = false;
             let trocandoGenero = false;
+            let historicoMusicas = []; // HISTÓRICO PARA EVITAR REPETIÇÃO
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -551,17 +555,21 @@
             const menuButton = document.getElementById('menuButton');
 
             // ============================================================
-            // FUNÇÕES AUXILIARES
+            // FUNÇÕES DE ÁUDIO EM SEGUNDO PLANO (CORRIGIDAS)
             // ============================================================
             function initAudioContext() {
                 try {
                     if (!audioContext) {
                         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        // Cria um buffer de silêncio para manter o contexto ativo
                         const buffer = audioContext.createBuffer(1, 1, 22050);
                         const source = audioContext.createBufferSource();
                         source.buffer = buffer;
                         source.connect(audioContext.destination);
                         source.start(0);
+                    }
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume().catch(() => {});
                     }
                 } catch(e) {}
             }
@@ -569,10 +577,19 @@
             function startKeepAlive() {
                 if (keepAliveInterval) clearInterval(keepAliveInterval);
                 keepAliveInterval = setInterval(() => {
+                    // Mantém o AudioContext ativo
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume().catch(() => {});
+                    }
+                    // Se o áudio está pausado mas deveria estar tocando, retoma
                     if (isBackgroundActive && audio.paused && !carregandoMusica && audio.src) {
                         audio.play().catch(() => {});
                     }
-                }, 3000);
+                    // Mantém o áudio silencioso rodando
+                    if (backgroundAudio.paused && isBackgroundActive) {
+                        backgroundAudio.play().catch(() => {});
+                    }
+                }, 2000);
             }
 
             function stopKeepAlive() {
@@ -582,19 +599,52 @@
                 }
             }
 
-            function resetarAudio() {
-                try {
-                    audio.pause();
-                    audio.src = '';
-                    audio.load();
-                } catch(e) {}
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                carregandoMusica = false;
-                stopKeepAlive();
+            // ============================================================
+            // GERAR URLs ALTERNATIVAS (otimizada)
+            // ============================================================
+            function gerarUrlsAlternativas(musica) {
+                const urls = new Set();
+                const src = musica.src || '';
+                
+                if (src && src.trim()) {
+                    if (src.startsWith('http://') || src.startsWith('https://')) {
+                        urls.add(src);
+                    } else {
+                        const nome = src.replace(/^\.\//, '').replace(/^\/+/, '');
+                        REPOSITORIOS.forEach(repo => {
+                            urls.add(`https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}`);
+                        });
+                    }
+                }
+                
+                const baseNome = src.replace(/\.[^.]+$/, '');
+                const variacoes = [
+                    baseNome,
+                    baseNome.replace(/ /g, '_'),
+                    baseNome.replace(/ /g, '-'),
+                    baseNome.replace(/[^a-zA-Z0-9]/g, ''),
+                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_')
+                ];
+                
+                variacoes.forEach(nome => {
+                    if (nome && nome.trim().length > 2) {
+                        EXTENSOES.forEach(ext => {
+                            const nomeLimpo = nome.trim().replace(/[^a-zA-Z0-9\-_]/g, '');
+                            if (nomeLimpo.length > 2) {
+                                REPOSITORIOS.forEach(repo => {
+                                    urls.add(`https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nomeLimpo}.${ext}`);
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                return Array.from(urls);
             }
 
+            // ============================================================
+            // FUNÇÕES AUXILIARES
+            // ============================================================
             function toggleModoTV() {
                 modoTVAtivo = !modoTVAtivo;
                 if (modoTVAtivo) {
@@ -679,49 +729,6 @@
             }
 
             // ============================================================
-            // GERAR URLs ALTERNATIVAS (simplificada)
-            // ============================================================
-            function gerarUrlsAlternativas(musica) {
-                const urls = new Set();
-                const src = musica.src || '';
-                
-                if (src && src.trim()) {
-                    if (src.startsWith('http://') || src.startsWith('https://')) {
-                        urls.add(src);
-                    } else {
-                        const nome = src.replace(/^\.\//, '').replace(/^\/+/, '');
-                        REPOSITORIOS.forEach(repo => {
-                            urls.add(`https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}`);
-                        });
-                    }
-                }
-                
-                const baseNome = src.replace(/\.[^.]+$/, '');
-                const variacoes = [
-                    baseNome,
-                    baseNome.replace(/ /g, '_'),
-                    baseNome.replace(/ /g, '-'),
-                    baseNome.replace(/[^a-zA-Z0-9]/g, ''),
-                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_')
-                ];
-                
-                variacoes.forEach(nome => {
-                    if (nome && nome.trim().length > 2) {
-                        EXTENSOES.forEach(ext => {
-                            const nomeLimpo = nome.trim().replace(/[^a-zA-Z0-9\-_]/g, '');
-                            if (nomeLimpo.length > 2) {
-                                REPOSITORIOS.forEach(repo => {
-                                    urls.add(`https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nomeLimpo}.${ext}`);
-                                });
-                            }
-                        });
-                    }
-                });
-                
-                return Array.from(urls);
-            }
-
-            // ============================================================
             // FAVORITOS
             // ============================================================
             function updateFavCount() {
@@ -791,6 +798,7 @@
                 
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
+                historicoMusicas = [];
                 currentPlaylist = shuffleArray([...favMusicas]);
                 currentIndex = 0;
                 ultimoId = null;
@@ -878,6 +886,7 @@
                         if (data && data.length > 0) {
                             musicas = data;
                             modoAtual = 'EDITADA';
+                            historicoMusicas = [];
                             currentPlaylist = shuffleArray([...musicas]);
                             currentIndex = 0;
                             ultimoId = null;
@@ -904,7 +913,7 @@
             }
 
             // ============================================================
-            // SELECIONAR GÊNERO
+            // SELECIONAR GÊNERO (CORRIGIDO)
             // ============================================================
             async function selecionarGenero(genero) {
                 if (trocandoGenero) return;
@@ -915,7 +924,13 @@
                     genreBadge.className = 'genre-badge';
                 }
                 
-                resetarAudio();
+                // Para a música atual
+                audio.pause();
+                audio.src = '';
+                audio.load();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
                 carregandoMusica = false;
                 
                 document.getElementById('genresModal').classList.remove('open');
@@ -930,6 +945,7 @@
                 musicas = lista;
                 modoAtual = genero;
                 ultimoId = null;
+                historicoMusicas = []; // Reseta histórico
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 genreBadge.innerHTML = genero;
@@ -956,28 +972,45 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO - SIMPLES E ROBUSTA
+            // REPRODUÇÃO CORRIGIDA - SEM REPETIÇÃO
             // ============================================================
             function obterProximaMusica() {
-                // Se a playlist atual está vazia ou chegou ao fim, recria
-                if (!currentPlaylist || currentPlaylist.length === 0 || currentIndex >= currentPlaylist.length) {
-                    if (musicas.length === 0) return null;
-                    // Evita repetir a última música
-                    let novaLista = shuffleArray([...musicas]);
-                    if (ultimoId) {
-                        const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx !== -1) {
-                            const [repetida] = novaLista.splice(idx, 1);
-                            const pos = Math.floor(Math.random() * (novaLista.length + 1));
-                            novaLista.splice(pos, 0, repetida);
-                        }
+                // Se não há músicas, retorna null
+                if (!musicas || musicas.length === 0) return null;
+                
+                // Se a playlist atual está vazia, cria uma nova
+                if (!currentPlaylist || currentPlaylist.length === 0) {
+                    historicoMusicas = [];
+                    currentPlaylist = shuffleArray([...musicas]);
+                    currentIndex = 0;
+                }
+                
+                // Se chegou ao fim da playlist
+                if (currentIndex >= currentPlaylist.length) {
+                    // Filtra as músicas que NÃO estão no histórico
+                    let novasMusicas = musicas.filter(m => !historicoMusicas.includes(m.id));
+                    
+                    // Se só tem uma música ou nenhuma disponível, mantém todas
+                    if (novasMusicas.length === 0) {
+                        historicoMusicas = [];
+                        novasMusicas = [...musicas];
                     }
-                    currentPlaylist = novaLista;
+                    
+                    currentPlaylist = shuffleArray(novasMusicas);
                     currentIndex = 0;
                 }
 
                 const musica = currentPlaylist[currentIndex];
                 currentIndex++;
+                
+                // Adiciona ao histórico
+                if (musica) {
+                    historicoMusicas.push(musica.id);
+                    if (historicoMusicas.length > MAX_HISTORICO) {
+                        historicoMusicas.shift();
+                    }
+                }
+                
                 return musica || null;
             }
 
@@ -994,6 +1027,7 @@
                 if (!musicas || !musicas.length) return;
 
                 if (!currentPlaylist || currentPlaylist.length === 0) {
+                    historicoMusicas = [];
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
                 }
@@ -1029,7 +1063,6 @@
                     const url = urls[urlIndex];
                     urlIndex++;
 
-                    // Remove listeners antigos
                     audio.oncanplay = null;
                     audio.onerror = null;
                     audio.onended = null;
@@ -1038,7 +1071,14 @@
                     audio.src = url;
                     audio.load();
 
+                    let timeoutId = setTimeout(() => {
+                        audio.oncanplay = null;
+                        audio.onerror = null;
+                        tentarUrl();
+                    }, 5000);
+
                     audio.oncanplay = function() {
+                        clearTimeout(timeoutId);
                         audio.oncanplay = null;
                         audio.play()
                             .then(() => {
@@ -1057,29 +1097,11 @@
                     };
 
                     audio.onerror = function() {
+                        clearTimeout(timeoutId);
                         audio.oncanplay = null;
                         audio.onerror = null;
                         tentarUrl();
                     };
-
-                    // Se já estiver carregado
-                    if (audio.readyState >= 3) {
-                        audio.oncanplay = null;
-                        audio.onerror = null;
-                        audio.play()
-                            .then(() => {
-                                isPlaying = true;
-                                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                startTimer();
-                                carregandoMusica = false;
-                                if (isBackgroundActive && !keepAliveInterval) {
-                                    startKeepAlive();
-                                }
-                            })
-                            .catch(() => {
-                                tentarUrl();
-                            });
-                    }
                 }
 
                 audio.onended = function() {
@@ -1094,6 +1116,18 @@
             // ============================================================
             // CONTROLES
             // ============================================================
+            function resetarAudio() {
+                try {
+                    audio.pause();
+                    audio.src = '';
+                    audio.load();
+                } catch(e) {}
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                carregandoMusica = false;
+            }
+
             function togglePlay() {
                 if (!isBackgroundActive) return;
                 if (audio.paused) {
@@ -1107,13 +1141,18 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                audio.pause();
-                audio.src = '';
-                audio.load();
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                carregandoMusica = false;
+                // Força a próxima música pulando a atual
+                if (currentIndex < currentPlaylist.length) {
+                    // Marca a música atual como tocada no histórico
+                    const atual = currentPlaylist[currentIndex - 1];
+                    if (atual) {
+                        historicoMusicas.push(atual.id);
+                        if (historicoMusicas.length > MAX_HISTORICO) {
+                            historicoMusicas.shift();
+                        }
+                    }
+                }
+                resetarAudio();
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1126,6 +1165,12 @@
                     nextTrack();
                     return;
                 }
+                
+                // Remove a última música do histórico
+                if (historicoMusicas.length > 0) {
+                    historicoMusicas.pop();
+                }
+                
                 if (currentIndex <= 1) {
                     currentIndex = currentPlaylist.length - 1;
                 } else {
@@ -1211,6 +1256,7 @@
                 
                 modoFavoritosAtivo = false;
                 modoAtual = musica.genero;
+                historicoMusicas = [];
                 const lista = musicas.filter(m => m.genero === musica.genero);
                 const outras = lista.filter(m => m.id !== musica.id);
                 currentPlaylist = shuffleArray([musica, ...outras]);
@@ -1224,7 +1270,7 @@
             }
 
             // ============================================================
-            // GRID DE GÊNEROS
+            // GRID DE GÊNEROS (CORRIGIDO - usa Object.keys)
             // ============================================================
             function buildGenresGrid() {
                 const genresGrid = document.getElementById('genresGrid');
@@ -1236,8 +1282,8 @@
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
-                const generos = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
-                
+                // Usa as chaves do GENRE_URLS para gerar os cards automaticamente
+                const generos = Object.keys(GENRE_URLS);
                 generos.forEach(genero => {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
@@ -1352,6 +1398,7 @@
                     if (listaPrincipal && listaPrincipal.length > 0) {
                         musicas = listaPrincipal;
                         modoAtual = 'MPB';
+                        historicoMusicas = [];
                         currentPlaylist = shuffleArray([...musicas]);
                         currentIndex = 0;
                         ultimoId = null;
@@ -1365,6 +1412,7 @@
                         if (listaMPB && listaMPB.length > 0) {
                             musicas = listaMPB;
                             modoAtual = 'MPB';
+                            historicoMusicas = [];
                             currentPlaylist = shuffleArray([...musicas]);
                             currentIndex = 0;
                             ultimoId = null;
@@ -1411,6 +1459,9 @@
                     }
                     if (isBackgroundActive && !keepAliveInterval) {
                         startKeepAlive();
+                    }
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume().catch(() => {});
                     }
                 } else {
                     if (isBackgroundActive && !keepAliveInterval) {
