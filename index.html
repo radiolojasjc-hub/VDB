@@ -570,16 +570,10 @@
                 if (keepAliveInterval) clearInterval(keepAliveInterval);
                 keepAliveInterval = setInterval(() => {
                     if (isBackgroundActive && audio.paused && !carregandoMusica && audio.src) {
-                        audio.play().catch(() => {
-                            if (!carregandoMusica) playMusic();
-                        });
+                        audio.play().catch(() => {});
                     }
-                    if (isBackgroundActive && audio.duration > 0 && !audio.paused && !carregandoMusica) {
-                        if (audio.currentTime >= audio.duration - 0.5) {
-                            nextTrack();
-                        }
-                    }
-                }, 2000);
+                    // Não força nextTrack aqui para não interferir no fluxo normal
+                }, 3000);
             }
 
             function stopKeepAlive() {
@@ -686,7 +680,7 @@
             }
 
             // ============================================================
-            // GERAR URLs ALTERNATIVAS (simplificada)
+            // GERAR URLs ALTERNATIVAS
             // ============================================================
             function gerarUrlsAlternativas(musica) {
                 const urls = new Set();
@@ -937,7 +931,6 @@
                 musicas = lista;
                 modoAtual = genero;
                 ultimoId = null;
-                // Cria playlist embaralhada e começa do início
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 genreBadge.innerHTML = genero;
@@ -956,7 +949,7 @@
                 setTimeout(() => {
                     trocandoGenero = false;
                     if (isBackgroundActive) {
-                        playMusic(); // inicia a primeira música
+                        playMusic();
                     } else {
                         ativarAudio();
                     }
@@ -964,10 +957,9 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO - LÓGICA CORRIGIDA (SIMPLES E ROBUSTA)
+            // REPRODUÇÃO - CORRIGIDA DEFINITIVAMENTE
             // ============================================================
             function obterProximaMusica() {
-                // Se a playlist atual está vazia ou já percorremos todas, recria
                 if (!currentPlaylist || currentPlaylist.length === 0 || currentIndex >= currentPlaylist.length) {
                     if (musicas.length === 0) return null;
                     // Evita repetir a última música
@@ -975,7 +967,6 @@
                     if (ultimoId) {
                         const idx = novaLista.findIndex(m => m.id === ultimoId);
                         if (idx !== -1) {
-                            // Remove a música que acabou de tocar e coloca em posição aleatória
                             const [repetida] = novaLista.splice(idx, 1);
                             const pos = Math.floor(Math.random() * (novaLista.length + 1));
                             novaLista.splice(pos, 0, repetida);
@@ -986,7 +977,6 @@
                 }
 
                 const musica = currentPlaylist[currentIndex];
-                // Avança o índice para a próxima
                 currentIndex++;
                 return musica || null;
             }
@@ -1003,7 +993,6 @@
                 if (!isBackgroundActive) return;
                 if (!musicas || !musicas.length) return;
 
-                // Se a playlist atual está vazia, recria
                 if (!currentPlaylist || currentPlaylist.length === 0) {
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
@@ -1029,7 +1018,6 @@
                 }
 
                 let urlIndex = 0;
-                let timeoutId = null;
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
@@ -1042,6 +1030,7 @@
                     const url = urls[urlIndex];
                     urlIndex++;
 
+                    // Limpa eventos anteriores
                     audio.oncanplay = null;
                     audio.onerror = null;
                     audio.onended = null;
@@ -1050,71 +1039,51 @@
                     audio.src = url;
                     audio.load();
 
-                    if (timeoutId) {
-                        clearTimeout(timeoutId);
-                        timeoutId = null;
-                    }
-
-                    timeoutId = setTimeout(() => {
-                        audio.oncanplay = null;
-                        audio.onerror = null;
-                        tentarUrl();
-                    }, 3000);
-
-                    audio.oncanplay = function() {
-                        if (timeoutId) {
-                            clearTimeout(timeoutId);
-                            timeoutId = null;
-                        }
+                    // Evento canplay: uma única vez
+                    audio.addEventListener('canplay', function onCanPlay() {
+                        audio.removeEventListener('canplay', onCanPlay);
                         audio.play()
                             .then(() => {
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
                                 carregandoMusica = false;
-                                audio.oncanplay = null;
                                 audio.onerror = null;
+                                audio.onended = null;
                                 if (isBackgroundActive && !keepAliveInterval) {
                                     startKeepAlive();
                                 }
                             })
                             .catch(() => {
-                                audio.oncanplay = null;
-                                audio.onerror = null;
+                                // Erro ao play, tenta próxima URL
                                 tentarUrl();
                             });
-                    };
+                    });
 
                     audio.onerror = function() {
-                        if (timeoutId) {
-                            clearTimeout(timeoutId);
-                            timeoutId = null;
-                        }
+                        // Se der erro de carregamento, tenta próxima URL
                         audio.oncanplay = null;
                         audio.onerror = null;
                         tentarUrl();
                     };
 
+                    // Se o navegador já tiver carregado, o canplay pode não disparar
                     if (audio.readyState >= 3) {
-                        if (timeoutId) {
-                            clearTimeout(timeoutId);
-                            timeoutId = null;
-                        }
+                        audio.oncanplay = null;
+                        audio.onerror = null;
                         audio.play()
                             .then(() => {
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
                                 carregandoMusica = false;
-                                audio.oncanplay = null;
                                 audio.onerror = null;
+                                audio.onended = null;
                                 if (isBackgroundActive && !keepAliveInterval) {
                                     startKeepAlive();
                                 }
                             })
                             .catch(() => {
-                                audio.oncanplay = null;
-                                audio.onerror = null;
                                 tentarUrl();
                             });
                     }
@@ -1145,7 +1114,7 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                // Para a reprodução atual e chama playMusic para obter a próxima
+                // Para a reprodução atual sem resetar tudo
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -1153,7 +1122,7 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
                 carregandoMusica = false;
-                // Se a playlist acabou, o playMusic vai recriar
+                // Chama playMusic para pegar a próxima
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1166,7 +1135,6 @@
                     nextTrack();
                     return;
                 }
-                // Volta duas posições (porque o índice já foi incrementado após tocar a atual)
                 if (currentIndex <= 1) {
                     currentIndex = currentPlaylist.length - 1;
                 } else {
@@ -1180,7 +1148,7 @@
                 ultimoId = track.id;
                 updateNowPlaying(track);
                 resetarAudio();
-                currentIndex++; // compensar o incremento que ocorrerá no playMusic
+                currentIndex++;
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1191,7 +1159,6 @@
                 shuffleMode = !shuffleMode;
                 shuffleBtn.classList.toggle('active', shuffleMode);
                 if (shuffleMode && currentPlaylist.length > 1) {
-                    // Reembaralha mantendo a atual como primeira
                     const atualId = currentPlaylist[currentIndex % currentPlaylist.length]?.id;
                     currentPlaylist = shuffleArray(currentPlaylist);
                     if (atualId) {
@@ -1242,7 +1209,7 @@
             }
 
             // ============================================================
-            // playSongById (favoritos)
+            // playSongById
             // ============================================================
             function playSongById(id) {
                 if (carregandoMusica) return;
@@ -1482,7 +1449,6 @@
 
             audio.addEventListener('error', () => {
                 if (!carregandoMusica) {
-                    // Pula para a próxima música
                     setTimeout(() => nextTrack(), 200);
                 }
             });
