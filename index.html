@@ -7,6 +7,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== CSS COMPLETO (mantido) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -501,8 +502,7 @@
             // VARIÁVEIS
             // ============================================================
             let musicas = [];
-            let currentPlaylist = [];
-            let currentIndex = 0;
+            let playlistIndex = 0; // Índice SIMPLES
             let isPlaying = false;
             let shuffleMode = false;
             let isBackgroundActive = false;
@@ -518,6 +518,7 @@
             let teachingTimeout = null;
             let modoTVAtivo = false;
             let trocandoGenero = false;
+            let musicaAtualId = null;
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -788,9 +789,11 @@
                 
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
-                currentPlaylist = shuffleArray([...favMusicas]);
-                currentIndex = 0;
-                const m = currentPlaylist[0];
+                // Usa a lista de favoritos como playlist
+                musicas = favMusicas;
+                playlistIndex = 0;
+                musicaAtualId = null;
+                const m = musicas[playlistIndex % musicas.length];
                 if (m) {
                     updateNowPlaying(m);
                 }
@@ -874,11 +877,11 @@
                         if (data && data.length > 0) {
                             musicas = data;
                             modoAtual = 'EDITADA';
-                            currentPlaylist = shuffleArray([...musicas]);
-                            currentIndex = 0;
-                            const primeira = currentPlaylist[0];
-                            if (primeira) {
-                                updateNowPlaying(primeira);
+                            playlistIndex = 0;
+                            musicaAtualId = null;
+                            const m = musicas[playlistIndex % musicas.length];
+                            if (m) {
+                                updateNowPlaying(m);
                             }
                             genreBadge.innerHTML = '📝 EDITADA';
                             genreBadge.className = 'genre-badge';
@@ -930,13 +933,13 @@
                 
                 musicas = lista;
                 modoAtual = genero;
-                currentPlaylist = shuffleArray([...musicas]);
-                currentIndex = 0;
+                playlistIndex = 0;
+                musicaAtualId = null;
                 genreBadge.innerHTML = genero;
                 genreBadge.className = 'genre-badge';
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
                 
-                const primeira = currentPlaylist[0];
+                const primeira = musicas[playlistIndex % musicas.length];
                 if (primeira) {
                     updateNowPlaying(primeira);
                 }
@@ -956,7 +959,7 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO SIMPLES E ESTÁVEL
+            // REPRODUÇÃO SIMPLES - DEFINITIVA
             // ============================================================
             function updateNowPlaying(track) {
                 if (track) {
@@ -965,40 +968,47 @@
                 }
             }
 
+            function obterProximaMusica() {
+                if (!musicas || musicas.length === 0) return null;
+                
+                // Avança o índice
+                playlistIndex++;
+                
+                // Se chegou ao fim, volta para o início
+                if (playlistIndex >= musicas.length) {
+                    playlistIndex = 0;
+                }
+                
+                return musicas[playlistIndex] || null;
+            }
+
             function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) return;
                 if (!musicas || !musicas.length) return;
 
-                // Cria playlist se necessário
-                if (!currentPlaylist || currentPlaylist.length === 0) {
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
-
-                // Se chegou ao fim, recria
-                if (currentIndex >= currentPlaylist.length) {
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
-
                 carregandoMusica = true;
 
-                const track = currentPlaylist[currentIndex];
+                // Pega a música atual (se não tiver, pega a primeira)
+                let track = musicas[playlistIndex % musicas.length];
                 if (!track) {
                     carregandoMusica = false;
                     setTimeout(() => playMusic(), 500);
                     return;
                 }
 
-                // Incrementa para a próxima
-                currentIndex++;
+                // Atualiza o ID da música atual
+                musicaAtualId = track.id;
                 updateNowPlaying(track);
 
                 const urls = gerarUrlsAlternativas(track);
                 if (urls.length === 0) {
                     carregandoMusica = false;
-                    setTimeout(() => playMusic(), 500);
+                    // Tenta a próxima música
+                    setTimeout(() => {
+                        obterProximaMusica();
+                        playMusic();
+                    }, 500);
                     return;
                 }
 
@@ -1010,6 +1020,8 @@
                     if (urlIndex >= urls.length) {
                         carregandoMusica = false;
                         console.warn('⚠️ Todas as URLs falharam, pulando:', track.title);
+                        // Avança para a próxima música
+                        obterProximaMusica();
                         setTimeout(() => playMusic(), 500);
                         return;
                     }
@@ -1089,6 +1101,8 @@
                     audio.onended = function() {
                         if (carregandoMusica) return;
                         if (isPlaying) {
+                            // Avança para a próxima música
+                            obterProximaMusica();
                             setTimeout(() => playMusic(), 100);
                         }
                     };
@@ -1137,35 +1151,23 @@
             function nextTrack() {
                 if (carregandoMusica) return;
                 resetarAudio();
-                // Força a próxima música
-                if (currentIndex >= currentPlaylist.length) {
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
+                // Avança para a próxima música
+                obterProximaMusica();
                 setTimeout(() => playMusic(), 200);
                 showControls();
             }
 
             function prevTrack() {
                 if (carregandoMusica) return;
-                if (!currentPlaylist || currentPlaylist.length === 0) {
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
+                if (!musicas || !musicas.length) return;
+                
+                // Volta duas posições (uma para compensar o avanço)
+                playlistIndex -= 2;
+                if (playlistIndex < 0) {
+                    playlistIndex = musicas.length - 1;
                 }
                 
-                if (currentIndex <= 1) {
-                    currentIndex = currentPlaylist.length - 1;
-                } else {
-                    currentIndex -= 2;
-                }
-                if (currentIndex < 0) currentIndex = 0;
-                if (currentIndex >= currentPlaylist.length) currentIndex = currentPlaylist.length - 1;
-                
-                const track = currentPlaylist[currentIndex];
-                if (!track) { nextTrack(); return; }
-                updateNowPlaying(track);
                 resetarAudio();
-                currentIndex++;
                 setTimeout(() => playMusic(), 200);
                 showControls();
             }
@@ -1173,21 +1175,16 @@
             function toggleShuffle() {
                 shuffleMode = !shuffleMode;
                 shuffleBtn.classList.toggle('active', shuffleMode);
-                if (shuffleMode && currentPlaylist.length > 1) {
-                    const atualId = currentPlaylist[currentIndex % currentPlaylist.length]?.id;
-                    currentPlaylist = shuffleArray(currentPlaylist);
-                    if (atualId) {
-                        const idx = currentPlaylist.findIndex(m => m.id === atualId);
-                        if (idx > 0) {
-                            const [atual] = currentPlaylist.splice(idx, 1);
-                            currentPlaylist.unshift(atual);
-                            currentIndex = 0;
-                        } else {
-                            currentIndex = 0;
-                        }
-                    } else {
-                        currentIndex = 0;
-                    }
+                if (shuffleMode && musicas.length > 1) {
+                    // Embaralha a playlist, mantendo a música atual no topo
+                    const atual = musicas[playlistIndex % musicas.length];
+                    const outras = musicas.filter(m => m.id !== atual.id);
+                    const embaralhadas = shuffleArray(outras);
+                    musicas = [atual, ...embaralhadas];
+                    playlistIndex = 0;
+                } else if (!shuffleMode && musicas.length > 1) {
+                    // Volta para a ordem original (se possível)
+                    // Isso é mais complexo, então apenas mantemos a ordem atual
                 }
                 showControls();
             }
@@ -1208,13 +1205,6 @@
                         progressFill.style.width = pct + '%';
                         currentTimeEl.textContent = formatTime(audio.currentTime);
                         totalTimeEl.textContent = formatTime(audio.duration);
-                        
-                        if (audio.currentTime >= audio.duration - 0.3) {
-                            if (!carregandoMusica) {
-                                setTimeout(() => playMusic(), 100);
-                                return;
-                            }
-                        }
                     }
                     if (isPlaying) {
                         timerRAF = requestAnimationFrame(update);
@@ -1241,13 +1231,15 @@
                 resetarAudio();
                 
                 modoFavoritosAtivo = false;
-                modoAtual = musica.genero;
-                const lista = musicas.filter(m => m.genero === musica.genero);
-                const outras = lista.filter(m => m.id !== musica.id);
-                currentPlaylist = shuffleArray([musica, ...outras]);
-                currentIndex = 0;
+                modoAtual = musica.genero || 'MPB';
+                
+                // Reorganiza a playlist para começar com a música selecionada
+                const outras = musicas.filter(m => m.id !== id);
+                musicas = [musica, ...shuffleArray(outras)];
+                playlistIndex = 0;
+                musicaAtualId = musica.id;
                 updateNowPlaying(musica);
-                genreBadge.innerHTML = musica.genero;
+                genreBadge.innerHTML = musica.genero || 'MPB';
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
                 
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
@@ -1381,9 +1373,9 @@
                     if (listaPrincipal && listaPrincipal.length > 0) {
                         musicas = listaPrincipal;
                         modoAtual = 'MPB';
-                        currentPlaylist = shuffleArray([...musicas]);
-                        currentIndex = 0;
-                        const primeira = currentPlaylist[0];
+                        playlistIndex = 0;
+                        musicaAtualId = null;
+                        const primeira = musicas[playlistIndex % musicas.length];
                         if (primeira) {
                             updateNowPlaying(primeira);
                         }
@@ -1393,9 +1385,9 @@
                         if (listaMPB && listaMPB.length > 0) {
                             musicas = listaMPB;
                             modoAtual = 'MPB';
-                            currentPlaylist = shuffleArray([...musicas]);
-                            currentIndex = 0;
-                            const primeira = currentPlaylist[0];
+                            playlistIndex = 0;
+                            musicaAtualId = null;
+                            const primeira = musicas[playlistIndex % musicas.length];
                             if (primeira) {
                                 updateNowPlaying(primeira);
                             }
@@ -1462,20 +1454,9 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
                 stopTimer(); 
             });
-            audio.addEventListener('ended', () => { 
-                if (!carregandoMusica && isPlaying) {
-                    setTimeout(() => playMusic(), 100);
-                }
-            });
-
-            audio.addEventListener('error', () => {
-                if (!carregandoMusica) {
-                    setTimeout(() => playMusic(), 200);
-                }
-            });
 
             heartBtn.addEventListener('click', () => {
-                const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
+                const music = musicas[playlistIndex % musicas.length] || musicas[0];
                 if (music) { toggleFavorito(music.id); }
             });
 
@@ -1500,7 +1481,7 @@
             document.getElementById('fabFeedback').addEventListener('click', () => { openFeedback(); fabMain.click(); });
             document.getElementById('fabYoutube').addEventListener('click', () => { window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio', '_blank'); fabMain.click(); });
             document.getElementById('fabShare').addEventListener('click', () => {
-                const track = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
+                const track = musicas[playlistIndex % musicas.length] || musicas[0];
                 if (!track) return;
                 const msg = `🎵 Estou ouvindo "${track.title}" - ${track.artist} no Play 12! 📻 Ouça também: ${location.href}`;
                 if (navigator.share) {
@@ -1609,7 +1590,7 @@
                     case 'ArrowLeft': prevTrack(); break;
                     case 's': case 'S': toggleShuffle(); break;
                     case 'f': case 'F': 
-                        const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
+                        const music = musicas[playlistIndex % musicas.length] || musicas[0];
                         if (music) { toggleFavorito(music.id); }
                         break;
                     case 't': case 'T': toggleModoTV(); break;
@@ -1653,7 +1634,7 @@
             document.getElementById('nowPlaying').addEventListener('click', (e) => {
                 const now = Date.now();
                 if (now - lastTap < 300 && now - lastTap > 50) {
-                    const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
+                    const music = musicas[playlistIndex % musicas.length] || musicas[0];
                     if (music) { toggleFavorito(music.id); }
                 }
                 lastTap = now;
