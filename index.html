@@ -6,7 +6,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== SEU CSS ORIGINAL (mantido) ===== */
+        /* ===== CSS ORIGINAL (mantido) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
@@ -462,23 +462,33 @@
             ];
 
             // ============================================================
-            // CONFIGURAÇÕES - USANDO listtop (como no original)
+            // CONFIGURAÇÕES - LINKS PARA CADA GÊNERO (GitHub Pages)
             // ============================================================
             const GENRE_URLS = {
-                'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/mpb.json',
-                'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/pop.json',
-                'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/sertanejo.json',
-                'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/forro.json',
-                'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/samba.json',
-                'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/brega.json',
-                'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/reggae.json',
-                'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/moda.json',
-                'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/religiosa.json',
-                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/romantica.json',
-                'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/flashback.json'
+                // BÔNUS (playlist principal - mantém raw)
+                'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
+                // FLASHBACK
+                'FLASHBACK': 'https://radiolojasjc-hub.github.io/flashbacktop/flashback.json',
+                // RELIGIOSA
+                'RELIGIOSA': 'https://radiolojasjc-hub.github.io/religiosa/religiosa.json',
+                // ROMÂNTICA
+                'ROMÂNTICA': 'https://radiolojasjc-hub.github.io/romanticatop/romantica.json',
+                // Outros gêneros (usando GitHub Pages)
+                'MPB': 'https://radiolojasjc-hub.github.io/mpbtop/mpb.json',
+                'POP': 'https://radiolojasjc-hub.github.io/poptop/pop.json',
+                'SERTANEJO': 'https://radiolojasjc-hub.github.io/sertanejo/sertanejo.json',
+                'FORRÓ': 'https://radiolojasjc-hub.github.io/forrotop/forro.json',
+                'SAMBA': 'https://radiolojasjc-hub.github.io/sambatop/samba.json',
+                'BREGA': 'https://radiolojasjc-hub.github.io/bregatop/brega.json',
+                'REGGAE': 'https://radiolojasjc-hub.github.io/reggaetop/reggae.json',
+                'MODA TOP': 'https://radiolojasjc-hub.github.io/modatop/moda.json'
             };
 
             const CORES_POR_GENERO = {
+                'BÔNUS': '#ffaa00',
+                'FLASHBACK': '#ffaa00',
+                'RELIGIOSA': '#aa55ff',
+                'ROMÂNTICA': '#ff2d7f',
                 'MPB': '#00ff88',
                 'POP': '#ff3366',
                 'SERTANEJO': '#ff8800',
@@ -486,10 +496,7 @@
                 'SAMBA': '#ffdd00',
                 'BREGA': '#ff66aa',
                 'REGGAE': '#00ffaa',
-                'MODA TOP': '#ff4400',
-                'RELIGIOSA': '#aa55ff',
-                'ROMÂNTICA': '#ff2d7f',
-                'FLASHBACK': '#ffaa00'
+                'MODA TOP': '#ff4400'
             };
 
             // ============================================================
@@ -593,7 +600,7 @@
             // ============================================================
             // FUNÇÃO PARA GERAR URL COMPLETA
             // ============================================================
-            function gerarUrlCompleta(nomeArquivo, repo = 'listtop') {
+            function gerarUrlCompleta(nomeArquivo, repo = 'play12') {
                 if (!nomeArquivo || !nomeArquivo.trim()) return '';
                 if (nomeArquivo.startsWith('http://') || nomeArquivo.startsWith('https://')) {
                     return nomeArquivo;
@@ -605,9 +612,9 @@
             }
 
             // ============================================================
-            // FUNÇÃO PARA GERAR URLs ALTERNATIVAS (com listtop + fallback)
+            // FUNÇÃO PARA GERAR URLs ALTERNATIVAS
             // ============================================================
-            const REPOSITORIOS = ['listtop', 'mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
+            const REPOSITORIOS = ['play12', 'mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
 
             function gerarUrlsAlternativas(musica) {
@@ -761,17 +768,16 @@
             }
 
             // ============================================================
-            // CARREGAMENTO DE PLAYLIST - VERSÃO OTIMIZADA
+            // CARREGAMENTO DE PLAYLIST
             // ============================================================
             async function carregarPlaylistPorGenero(genero) {
-                // SE FOR RELIGIOSA, USA FALLBACK SE O JSON FALHAR
+                // Para RELIGIOSA, usa fallback offline se o JSON falhar
                 if (genero === 'RELIGIOSA') {
                     console.log('🔄 Carregando RELIGIOSA...');
                     if (playlistCache['RELIGIOSA']) {
                         return playlistCache['RELIGIOSA'];
                     }
                     
-                    // Tenta carregar do JSON
                     try {
                         const url = GENRE_URLS['RELIGIOSA'];
                         const response = await fetch(url);
@@ -792,7 +798,6 @@
                         console.warn('⚠️ Falha ao carregar JSON RELIGIOSA, usando fallback', e);
                     }
                     
-                    // FALLBACK: usa a playlist local
                     const lista = PLAYLIST_RELIGIOSA_FALLBACK;
                     playlistCache['RELIGIOSA'] = lista;
                     showNotification(`🎵 RELIGIOSA (${lista.length} músicas - modo offline)`, 1500);
@@ -969,7 +974,7 @@
             }
 
             // ============================================================
-            // playMusic - VERSÃO OTIMIZADA (TIMEOT 2.5s)
+            // playMusic - VERSÃO OTIMIZADA
             // ============================================================
             async function playMusic() {
                 if (carregandoMusica) return;
@@ -1002,7 +1007,7 @@
                 let urlParaTentar = track.src;
                 
                 if (!urlParaTentar.startsWith('http://') && !urlParaTentar.startsWith('https://')) {
-                    urlParaTentar = gerarUrlCompleta(urlParaTentar);
+                    urlParaTentar = gerarUrlCompleta(urlParaTentar, 'play12');
                 }
 
                 if (!urlParaTentar) {
@@ -1027,7 +1032,6 @@
                     tentativas++;
                     if (timeoutId) clearTimeout(timeoutId);
 
-                    // Se já tentou muitas vezes, pula
                     if (tentativas > MAX_TENTATIVAS) {
                         showNotification("⏭️ Pulando...", 800);
                         carregandoMusica = false;
@@ -1039,7 +1043,6 @@
                     audio.src = url;
                     audio.load();
 
-                    // TIMEOUT: 2.5 segundos
                     timeoutId = setTimeout(() => {
                         if (!sucesso) {
                             console.warn(`⏰ Timeout ${tentativas}/${MAX_TENTATIVAS} para ${url}`);
@@ -1378,10 +1381,26 @@
                 }
 
                 try {
-                    const listaMPB = await carregarPlaylistPorGenero('MPB');
-                    if (listaMPB && listaMPB.length > 0) {
-                        musicas = listaMPB;
-                        modoAtual = 'MPB';
+                    // Tenta carregar MPB, depois BÔNUS, depois POP...
+                    let lista = await carregarPlaylistPorGenero('MPB');
+                    let generoInicial = 'MPB';
+                    if (!lista || lista.length === 0) {
+                        lista = await carregarPlaylistPorGenero('BÔNUS');
+                        generoInicial = 'BÔNUS';
+                    }
+                    if (!lista || lista.length === 0) {
+                        lista = await carregarPlaylistPorGenero('POP');
+                        generoInicial = 'POP';
+                    }
+                    if (!lista || lista.length === 0) {
+                        const primeiroGenero = Object.keys(GENRE_URLS)[0] || 'MPB';
+                        lista = await carregarPlaylistPorGenero(primeiroGenero);
+                        generoInicial = primeiroGenero;
+                    }
+                    
+                    if (lista && lista.length > 0) {
+                        musicas = lista;
+                        modoAtual = generoInicial;
                         currentPlaylist = shuffleArray([...musicas]);
                         currentIndex = 0;
                         ultimoId = null;
@@ -1390,25 +1409,9 @@
                             updateNowPlaying(primeira);
                             adicionarAoHistorico(primeira);
                         }
-                        genreBadge.innerHTML = 'MPB';
+                        genreBadge.innerHTML = generoInicial;
                     } else {
-                        const primeiroGenero = Object.keys(GENRE_URLS)[0] || 'MPB';
-                        const listaFallback = await carregarPlaylistPorGenero(primeiroGenero);
-                        if (listaFallback) {
-                            musicas = listaFallback;
-                            modoAtual = primeiroGenero;
-                            currentPlaylist = shuffleArray([...musicas]);
-                            currentIndex = 0;
-                            ultimoId = null;
-                            const primeira = currentPlaylist[0];
-                            if (primeira) {
-                                updateNowPlaying(primeira);
-                                adicionarAoHistorico(primeira);
-                            }
-                            genreBadge.innerHTML = primeiroGenero;
-                        } else {
-                            showNotification('❌ Nenhuma playlist carregada', 2000);
-                        }
+                        showNotification('❌ Nenhuma playlist carregada', 2000);
                     }
 
                     try {
