@@ -7,7 +7,7 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS IDÊNTICO AO SEU ===== */
+        /* ===== CSS ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -469,8 +469,6 @@
             const PLAYLIST_URL = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
             const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
-            const MAX_TENTATIVAS_POR_URL = 3;
-            const MAX_TENTATIVAS_GLOBAIS = 10; // aumentado
 
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
@@ -520,10 +518,8 @@
             let ultimoId = null;
             let carregandoMusica = false;
             let teachingTimeout = null;
-            let tentativasGlobais = 0;
             let modoTVAtivo = false;
             let trocandoGenero = false;
-            let falhaAtual = 0;
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -566,31 +562,20 @@
                         source.buffer = buffer;
                         source.connect(audioContext.destination);
                         source.start(0);
-                        console.log('🎵 AudioContext inicializado');
                     }
-                } catch(e) {
-                    console.log('AudioContext não suportado');
-                }
+                } catch(e) {}
             }
 
             function startKeepAlive() {
-                if (keepAliveInterval) {
-                    clearInterval(keepAliveInterval);
-                    keepAliveInterval = null;
-                }
-                console.log('🔋 KeepAlive iniciado');
+                if (keepAliveInterval) clearInterval(keepAliveInterval);
                 keepAliveInterval = setInterval(() => {
                     if (isBackgroundActive && audio.paused && !carregandoMusica && audio.src) {
-                        console.log('🔄 Áudio pausado em background - tentando retomar...');
                         audio.play().catch(() => {
-                            if (!carregandoMusica) {
-                                playMusic();
-                            }
+                            if (!carregandoMusica) playMusic();
                         });
                     }
                     if (isBackgroundActive && audio.duration > 0 && !audio.paused && !carregandoMusica) {
                         if (audio.currentTime >= audio.duration - 0.5) {
-                            console.log('⏭️ Música terminou (detectado pelo KeepAlive)');
                             nextTrack();
                         }
                     }
@@ -601,7 +586,6 @@
                 if (keepAliveInterval) {
                     clearInterval(keepAliveInterval);
                     keepAliveInterval = null;
-                    console.log('🔋 KeepAlive parado');
                 }
             }
 
@@ -615,8 +599,6 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
                 carregandoMusica = false;
-                tentativasGlobais = 0;
-                falhaAtual = 0;
                 stopKeepAlive();
             }
 
@@ -645,15 +627,6 @@
 
             function iniciarLoopVideos() {
                 bgVideo.src = VIDEOS[0];
-                bgVideo.load();
-                bgVideo.play().catch(() => {});
-            }
-
-            function alternarVideo() {
-                if (modoTVAtivo) return;
-                let idx = VIDEOS.indexOf(bgVideo.src.split('/').pop());
-                idx = (idx + 1) % VIDEOS.length;
-                bgVideo.src = VIDEOS[idx];
                 bgVideo.load();
                 bgVideo.play().catch(() => {});
             }
@@ -708,14 +681,12 @@
                 if (teachingTimeout) clearInterval(teachingTimeout);
                 teachingTimeout = setInterval(() => {
                     teachingBar.classList.add('show');
-                    setTimeout(() => {
-                        teachingBar.classList.remove('show');
-                    }, 3000);
+                    setTimeout(() => teachingBar.classList.remove('show'), 3000);
                 }, 300000);
             }
 
             // ============================================================
-            // GERAR URLs
+            // GERAR URLs ALTERNATIVAS (versão simplificada)
             // ============================================================
             function gerarUrlsAlternativas(musica) {
                 const urls = new Set();
@@ -738,22 +709,8 @@
                     baseNome.replace(/ /g, '_'),
                     baseNome.replace(/ /g, '-'),
                     baseNome.replace(/[^a-zA-Z0-9]/g, ''),
-                    baseNome.replace(/_/g, ''),
-                    baseNome.replace(/-/g, ''),
-                    musica.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ /g, '_'),
-                    musica.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ /g, '-'),
-                    musica.title.replace(/[^a-zA-Z0-9]/g, '').trim(),
-                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_'),
-                    (musica.artist + '-' + musica.title).replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-')
+                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_')
                 ];
-                
-                if (musica.artist) {
-                    const artistClean = musica.artist.replace(/[^a-zA-Z0-9]/g, '').trim();
-                    if (artistClean.length > 2) {
-                        variacoes.push(artistClean);
-                        variacoes.push(artistClean + '_' + musica.title.replace(/[^a-zA-Z0-9]/g, '').trim());
-                    }
-                }
                 
                 variacoes.forEach(nome => {
                     if (nome && nome.trim().length > 2) {
@@ -851,33 +808,6 @@
                 genreBadge.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;"></i> ❤️ FAVORITOS (${favorites.length})`;
                 genreBadge.className = 'genre-badge favoritos';
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
-            }
-
-            // ============================================================
-            // VARREDURA (apenas log)
-            // ============================================================
-            async function varrerGeneros() {
-                console.log('🔍 INICIANDO VARREDURA DOS GÊNEROS...');
-                let totalOK = 0, totalERRO = 0;
-                for (const [genero, url] of Object.entries(GENRE_URLS)) {
-                    try {
-                        const response = await fetch(url);
-                        if (response.ok) {
-                            const data = await response.json();
-                            const lista = Array.isArray(data) ? data : (data.musicas || data.data || []);
-                            const total = lista.filter(m => m.src && m.src.trim() && m.title && m.title.trim()).length;
-                            console.log(`✅ ${genero}: ${total} músicas`);
-                            totalOK++;
-                        } else {
-                            console.log(`❌ ${genero}: Falha ao carregar`);
-                            totalERRO++;
-                        }
-                    } catch (e) {
-                        console.log(`❌ ${genero}: Erro - ${e.message}`);
-                        totalERRO++;
-                    }
-                }
-                console.log(`✅ Gêneros OK: ${totalOK}, ❌ ERRO: ${totalERRO}`);
             }
 
             // ============================================================
@@ -994,8 +924,6 @@
                 
                 resetarAudio();
                 carregandoMusica = false;
-                tentativasGlobais = 0;
-                falhaAtual = 0;
                 
                 document.getElementById('genresModal').classList.remove('open');
                 
@@ -1009,6 +937,7 @@
                 musicas = lista;
                 modoAtual = genero;
                 ultimoId = null;
+                // Embaralha e começa do início
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 genreBadge.innerHTML = genero;
@@ -1035,40 +964,18 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO
+            // REPRODUÇÃO - LÓGICA CORRIGIDA
             // ============================================================
             function obterProximaMusica() {
-                if (tentativasGlobais >= MAX_TENTATIVAS_GLOBAIS) {
-                    tentativasGlobais = 0;
+                // Se chegou ao fim da playlist, recria embaralhada
+                if (currentIndex >= currentPlaylist.length || !currentPlaylist.length) {
                     if (musicas.length === 0) return null;
-                    // Evitar repetir a mesma música que estava tocando
+                    // Evita repetir a última música que tocou
                     let novaLista = shuffleArray([...musicas]);
                     if (ultimoId) {
                         const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx > -1) {
-                            // Remove a que já tocou e coloca em uma posição aleatória no final
-                            const [repetida] = novaLista.splice(idx, 1);
-                            const pos = Math.floor(Math.random() * (novaLista.length + 1));
-                            novaLista.splice(pos, 0, repetida);
-                        }
-                    }
-                    currentPlaylist = novaLista;
-                    currentIndex = 0;
-                }
-                
-                if (!currentPlaylist || currentPlaylist.length === 0) {
-                    if (musicas.length === 0) return null;
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
-
-                if (currentIndex >= currentPlaylist.length) {
-                    if (musicas.length === 0) return null;
-                    // Evitar repetição
-                    let novaLista = shuffleArray([...musicas]);
-                    if (ultimoId) {
-                        const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx > -1) {
+                        if (idx !== -1) {
+                            // Remove a música que já tocou e coloca em posição aleatória
                             const [repetida] = novaLista.splice(idx, 1);
                             const pos = Math.floor(Math.random() * (novaLista.length + 1));
                             novaLista.splice(pos, 0, repetida);
@@ -1079,14 +986,9 @@
                 }
 
                 const musica = currentPlaylist[currentIndex];
-                if (!musica) {
-                    if (musicas.length === 0) return null;
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                    return currentPlaylist[0] || null;
-                }
+                // Avança o índice para a próxima (mesmo que essa falhe, já estará pronto)
                 currentIndex++;
-                return musica;
+                return musica || null;
             }
 
             function updateNowPlaying(track) {
@@ -1096,32 +998,13 @@
                 }
             }
 
-            // ============================================================
-            // playMusic - OTIMIZADO
-            // ============================================================
             function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) return;
                 if (!musicas || !musicas.length) return;
-                
-                if (tentativasGlobais >= MAX_TENTATIVAS_GLOBAIS) {
-                    tentativasGlobais = 0;
-                    if (musicas.length === 0) return;
-                    let novaLista = shuffleArray([...musicas]);
-                    if (ultimoId) {
-                        const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx > -1) {
-                            const [repetida] = novaLista.splice(idx, 1);
-                            const pos = Math.floor(Math.random() * (novaLista.length + 1));
-                            novaLista.splice(pos, 0, repetida);
-                        }
-                    }
-                    currentPlaylist = novaLista;
-                    currentIndex = 0;
-                }
 
+                // Se a playlist atual está vazia, recria
                 if (!currentPlaylist || currentPlaylist.length === 0) {
-                    if (musicas.length === 0) return;
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
                 }
@@ -1131,7 +1014,6 @@
                 const track = obterProximaMusica();
                 if (!track) {
                     carregandoMusica = false;
-                    tentativasGlobais++;
                     setTimeout(() => playMusic(), 200);
                     return;
                 }
@@ -1142,7 +1024,6 @@
                 const urls = gerarUrlsAlternativas(track);
                 if (urls.length === 0) {
                     carregandoMusica = false;
-                    tentativasGlobais++;
                     setTimeout(() => playMusic(), 200);
                     return;
                 }
@@ -1152,10 +1033,9 @@
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
+                        // Todas as URLs falharam, pula para a próxima música
                         carregandoMusica = false;
-                        tentativasGlobais++;
-                        const delay = Math.min(200 * (tentativasGlobais + 1), 2000);
-                        setTimeout(() => playMusic(), delay);
+                        setTimeout(() => playMusic(), 200);
                         return;
                     }
 
@@ -1188,7 +1068,6 @@
                         }
                         audio.play()
                             .then(() => {
-                                tentativasGlobais = 0;
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
@@ -1223,7 +1102,6 @@
                         }
                         audio.play()
                             .then(() => {
-                                tentativasGlobais = 0;
                                 isPlaying = true;
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
@@ -1244,6 +1122,7 @@
 
                 audio.onended = function() {
                     if (!carregandoMusica && isPlaying) {
+                        // Pequeno delay para evitar conflitos
                         setTimeout(() => nextTrack(), 50);
                     }
                 };
@@ -1267,21 +1146,28 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                tentativasGlobais = 0;
-                resetarAudio();
-                
-                if (!musicas || musicas.length === 0) return;
-                
+                // Não reseta o áudio aqui, apenas para a reprodução atual e chama playMusic
+                // que irá buscar a próxima música
+                audio.pause();
+                audio.src = '';
+                audio.load();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                carregandoMusica = false;
+                // O índice já foi incrementado em obterProximaMusica, mas se não houver
+                // playlist, recria.
                 if (!currentPlaylist || currentPlaylist.length === 0) {
+                    if (musicas.length === 0) return;
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
                 }
-                
+                // Se o índice estiver no fim, recria
                 if (currentIndex >= currentPlaylist.length) {
                     let novaLista = shuffleArray([...musicas]);
                     if (ultimoId) {
                         const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx > -1) {
+                        if (idx !== -1) {
                             const [repetida] = novaLista.splice(idx, 1);
                             const pos = Math.floor(Math.random() * (novaLista.length + 1));
                             novaLista.splice(pos, 0, repetida);
@@ -1290,18 +1176,7 @@
                     currentPlaylist = novaLista;
                     currentIndex = 0;
                 }
-                
-                const track = currentPlaylist[currentIndex];
-                currentIndex++;
-                
-                if (!track) {
-                    setTimeout(() => nextTrack(), 100);
-                    return;
-                }
-                
-                ultimoId = track.id;
-                updateNowPlaying(track);
-                
+                // Força a próxima música
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1309,13 +1184,12 @@
             }
 
             function prevTrack() {
+                // Volta duas posições (para não repetir a atual)
                 if (carregandoMusica) return;
                 if (!currentPlaylist || currentPlaylist.length === 0) {
                     nextTrack();
                     return;
                 }
-                tentativasGlobais = 0;
-                
                 if (currentIndex <= 1) {
                     currentIndex = currentPlaylist.length - 1;
                 } else {
@@ -1325,16 +1199,11 @@
                 if (currentIndex >= currentPlaylist.length) currentIndex = currentPlaylist.length - 1;
                 
                 const track = currentPlaylist[currentIndex];
-                if (!track) { 
-                    nextTrack(); 
-                    return; 
-                }
+                if (!track) { nextTrack(); return; }
                 ultimoId = track.id;
                 updateNowPlaying(track);
-                
                 resetarAudio();
-                currentIndex++;
-                
+                currentIndex++; // para compensar o incremento no playMusic
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1345,6 +1214,7 @@
                 shuffleMode = !shuffleMode;
                 shuffleBtn.classList.toggle('active', shuffleMode);
                 if (shuffleMode && currentPlaylist.length > 1) {
+                    // Reembaralha mantendo a atual como primeira
                     const atualId = currentPlaylist[currentIndex % currentPlaylist.length]?.id;
                     currentPlaylist = shuffleArray(currentPlaylist);
                     if (atualId) {
@@ -1395,7 +1265,7 @@
             }
 
             // ============================================================
-            // playSongById
+            // playSongById (para favoritos)
             // ============================================================
             function playSongById(id) {
                 if (carregandoMusica) return;
@@ -1414,7 +1284,6 @@
                 updateNowPlaying(musica);
                 genreBadge.innerHTML = musica.genero;
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
-                tentativasGlobais = 0;
                 
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
             }
@@ -1490,19 +1359,15 @@
                     if ('wakeLock' in navigator) {
                         try {
                             const wakeLock = await navigator.wakeLock.request('screen');
-                            console.log('🔒 Wake Lock ativado');
                             document.addEventListener('visibilitychange', () => {
                                 if (document.visibilityState === 'hidden') {
                                     wakeLock.release().catch(() => {});
                                 }
                             });
-                        } catch(e) {
-                            console.log('Wake Lock não disponível');
-                        }
+                        } catch(e) {}
                     }
                     
                     startKeepAlive();
-                    tentativasGlobais = 0;
                     playMusic();
                     showLoading(false);
                     return true;
@@ -1511,7 +1376,6 @@
                     audioStatusBtn.innerHTML = '<span class="dot"></span> Ativado';
                     audioStatusBtn.className = 'top-btn ativo';
                     startKeepAlive();
-                    tentativasGlobais = 0;
                     playMusic();
                     showLoading(false);
                     return true;
@@ -1534,7 +1398,6 @@
             async function iniciar() {
                 if (carregarDoLocalStorage()) {
                     iniciarLoopVideos();
-                    await varrerGeneros();
                     setTimeout(() => {
                         splash.classList.add('hidden');
                         setTimeout(() => {
@@ -1587,7 +1450,6 @@
                     buildGenresGrid();
 
                     iniciarLoopVideos();
-                    await varrerGeneros();
 
                     setTimeout(() => {
                         splash.classList.add('hidden');
@@ -1605,20 +1467,17 @@
             }
 
             // ============================================================
-            // EVENTOS
+            // EVENTOS DOM
             // ============================================================
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    console.log('📱 Tela desbloqueada');
                     if (isBackgroundActive && audio.paused && !carregandoMusica) {
-                        console.log('🔄 Retomando áudio ao desbloquear');
                         playMusic();
                     }
                     if (isBackgroundActive && !keepAliveInterval) {
                         startKeepAlive();
                     }
                 } else {
-                    console.log('📱 Tela bloqueada - mantendo KeepAlive');
                     if (isBackgroundActive && !keepAliveInterval) {
                         startKeepAlive();
                     }
@@ -1646,15 +1505,8 @@
 
             audio.addEventListener('error', () => {
                 if (!carregandoMusica) {
-                    tentativasGlobais++;
-                    setTimeout(() => {
-                        if (tentativasGlobais >= MAX_TENTATIVAS_GLOBAIS) {
-                            tentativasGlobais = 0;
-                            nextTrack();
-                        } else {
-                            playMusic();
-                        }
-                    }, 200);
+                    // Pula para a próxima música
+                    setTimeout(() => nextTrack(), 200);
                 }
             });
 
@@ -1843,9 +1695,7 @@
                 lastTap = now;
                 showControls();
                 teachingBar.classList.add('show');
-                setTimeout(() => {
-                    teachingBar.classList.remove('show');
-                }, 3000);
+                setTimeout(() => teachingBar.classList.remove('show'), 3000);
             });
 
             function openGenres() {
