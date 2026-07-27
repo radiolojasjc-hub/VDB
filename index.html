@@ -686,7 +686,7 @@
             }
 
             // ============================================================
-            // GERAR URLs ALTERNATIVAS (versão simplificada)
+            // GERAR URLs ALTERNATIVAS (simplificada)
             // ============================================================
             function gerarUrlsAlternativas(musica) {
                 const urls = new Set();
@@ -937,7 +937,7 @@
                 musicas = lista;
                 modoAtual = genero;
                 ultimoId = null;
-                // Embaralha e começa do início
+                // Cria playlist embaralhada e começa do início
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 genreBadge.innerHTML = genero;
@@ -956,7 +956,7 @@
                 setTimeout(() => {
                     trocandoGenero = false;
                     if (isBackgroundActive) {
-                        playMusic();
+                        playMusic(); // inicia a primeira música
                     } else {
                         ativarAudio();
                     }
@@ -964,18 +964,18 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO - LÓGICA CORRIGIDA
+            // REPRODUÇÃO - LÓGICA CORRIGIDA (SIMPLES E ROBUSTA)
             // ============================================================
             function obterProximaMusica() {
-                // Se chegou ao fim da playlist, recria embaralhada
-                if (currentIndex >= currentPlaylist.length || !currentPlaylist.length) {
+                // Se a playlist atual está vazia ou já percorremos todas, recria
+                if (!currentPlaylist || currentPlaylist.length === 0 || currentIndex >= currentPlaylist.length) {
                     if (musicas.length === 0) return null;
-                    // Evita repetir a última música que tocou
+                    // Evita repetir a última música
                     let novaLista = shuffleArray([...musicas]);
                     if (ultimoId) {
                         const idx = novaLista.findIndex(m => m.id === ultimoId);
                         if (idx !== -1) {
-                            // Remove a música que já tocou e coloca em posição aleatória
+                            // Remove a música que acabou de tocar e coloca em posição aleatória
                             const [repetida] = novaLista.splice(idx, 1);
                             const pos = Math.floor(Math.random() * (novaLista.length + 1));
                             novaLista.splice(pos, 0, repetida);
@@ -986,7 +986,7 @@
                 }
 
                 const musica = currentPlaylist[currentIndex];
-                // Avança o índice para a próxima (mesmo que essa falhe, já estará pronto)
+                // Avança o índice para a próxima
                 currentIndex++;
                 return musica || null;
             }
@@ -1122,7 +1122,6 @@
 
                 audio.onended = function() {
                     if (!carregandoMusica && isPlaying) {
-                        // Pequeno delay para evitar conflitos
                         setTimeout(() => nextTrack(), 50);
                     }
                 };
@@ -1146,8 +1145,7 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                // Não reseta o áudio aqui, apenas para a reprodução atual e chama playMusic
-                // que irá buscar a próxima música
+                // Para a reprodução atual e chama playMusic para obter a próxima
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -1155,28 +1153,7 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 stopTimer();
                 carregandoMusica = false;
-                // O índice já foi incrementado em obterProximaMusica, mas se não houver
-                // playlist, recria.
-                if (!currentPlaylist || currentPlaylist.length === 0) {
-                    if (musicas.length === 0) return;
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
-                // Se o índice estiver no fim, recria
-                if (currentIndex >= currentPlaylist.length) {
-                    let novaLista = shuffleArray([...musicas]);
-                    if (ultimoId) {
-                        const idx = novaLista.findIndex(m => m.id === ultimoId);
-                        if (idx !== -1) {
-                            const [repetida] = novaLista.splice(idx, 1);
-                            const pos = Math.floor(Math.random() * (novaLista.length + 1));
-                            novaLista.splice(pos, 0, repetida);
-                        }
-                    }
-                    currentPlaylist = novaLista;
-                    currentIndex = 0;
-                }
-                // Força a próxima música
+                // Se a playlist acabou, o playMusic vai recriar
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1184,12 +1161,12 @@
             }
 
             function prevTrack() {
-                // Volta duas posições (para não repetir a atual)
                 if (carregandoMusica) return;
                 if (!currentPlaylist || currentPlaylist.length === 0) {
                     nextTrack();
                     return;
                 }
+                // Volta duas posições (porque o índice já foi incrementado após tocar a atual)
                 if (currentIndex <= 1) {
                     currentIndex = currentPlaylist.length - 1;
                 } else {
@@ -1203,7 +1180,7 @@
                 ultimoId = track.id;
                 updateNowPlaying(track);
                 resetarAudio();
-                currentIndex++; // para compensar o incremento no playMusic
+                currentIndex++; // compensar o incremento que ocorrerá no playMusic
                 if (isBackgroundActive) {
                     setTimeout(() => playMusic(), 100);
                 }
@@ -1265,7 +1242,7 @@
             }
 
             // ============================================================
-            // playSongById (para favoritos)
+            // playSongById (favoritos)
             // ============================================================
             function playSongById(id) {
                 if (carregandoMusica) return;
