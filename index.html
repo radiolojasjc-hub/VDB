@@ -465,20 +465,18 @@
             // CONFIGURAÇÕES - TODOS OS GÊNEROS (SEM BÔNUS)
             // ============================================================
             const GENRE_URLS = {
-                // Playlist padrão (não aparece no grid, mas é carregada ao iniciar)
                 'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
-                // Gêneros que aparecem no grid
-                'FLASHBACK': 'https://radiolojasjc-hub.github.io/flashbacktop/flashback.json',
-                'RELIGIOSA': 'https://radiolojasjc-hub.github.io/religiosa/religiosa.json',
-                'ROMÂNTICA': 'https://radiolojasjc-hub.github.io/romanticatop/romantica.json',
-                'MPB': 'https://radiolojasjc-hub.github.io/mpbtop/mpb.json',
-                'POP': 'https://radiolojasjc-hub.github.io/poptop/pop.json',
-                'SERTANEJO': 'https://radiolojasjc-hub.github.io/sertanejo/sertanejo.json',
-                'FORRÓ': 'https://radiolojasjc-hub.github.io/forrotop/forro.json',
-                'SAMBA': 'https://radiolojasjc-hub.github.io/sambatop/samba.json',
-                'BREGA': 'https://radiolojasjc-hub.github.io/bregatop/brega.json',
-                'REGGAE': 'https://radiolojasjc-hub.github.io/reggaetop/reggae.json',
-                'MODA TOP': 'https://radiolojasjc-hub.github.io/modatop/moda.json'
+                'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
+                'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
+                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
+                'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
+                'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
+                'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json',
+                'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrotop/refs/heads/main/forro.json',
+                'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json',
+                'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
+                'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
+                'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
             };
 
             const CORES_POR_GENERO = {
@@ -516,6 +514,9 @@
             const playlistCache = {};
             let ultimoId = null;
             let carregandoMusica = false;
+
+            // ===== NOVO: CACHE DE URLs FUNCIONAIS =====
+            let urlFuncionaCache = {};
 
             const audio = document.getElementById('musicPlayer');
             const playBtn = document.getElementById('playBtn');
@@ -595,7 +596,7 @@
             }
 
             // ============================================================
-            // FUNÇÃO PARA GERAR URL COMPLETA
+            // FUNÇÃO PARA GERAR URL COMPLETA - CORRIGIDA
             // ============================================================
             function gerarUrlCompleta(nomeArquivo, repo = 'play12') {
                 if (!nomeArquivo || !nomeArquivo.trim()) return '';
@@ -609,7 +610,7 @@
             }
 
             // ============================================================
-            // FUNÇÃO PARA GERAR URLs ALTERNATIVAS
+            // FUNÇÃO PARA GERAR URLs ALTERNATIVAS - MELHORADA
             // ============================================================
             const REPOSITORIOS = ['play12', 'mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
@@ -618,6 +619,7 @@
                 const urls = new Set();
                 const src = musica.src || '';
                 
+                // 1. Tenta a URL exata do JSON
                 if (src && src.trim()) {
                     if (src.startsWith('http://') || src.startsWith('https://')) {
                         urls.add(src);
@@ -629,6 +631,7 @@
                     }
                 }
                 
+                // 2. Gera variações do nome do arquivo
                 const baseNome = src.replace(/\.[^.]+$/, '');
                 const variacoes = [
                     baseNome,
@@ -637,22 +640,17 @@
                     baseNome.replace(/[^a-zA-Z0-9]/g, ''),
                     musica.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ /g, '_'),
                     musica.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ /g, '-'),
-                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_')
+                    musica.title.replace(/[^a-zA-Z0-9]/g, '').trim(),
+                    (musica.artist + '_' + musica.title).replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_'),
+                    (musica.artist + '-' + musica.title).replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-')
                 ];
                 
-                const titleClean = musica.title.replace(/[^a-zA-Z0-9 ]/g, '').trim();
-                if (titleClean && titleClean.length > 2) {
-                    variacoes.push(titleClean);
-                    variacoes.push(titleClean.replace(/ /g, '_'));
-                    variacoes.push(titleClean.replace(/ /g, '-'));
-                }
-                
-                const artist = musica.artist || '';
-                const combo = (artist + ' ' + musica.title).replace(/[^a-zA-Z0-9 ]/g, '').trim();
-                if (combo && combo.length > 3) {
-                    variacoes.push(combo);
-                    variacoes.push(combo.replace(/ /g, '_'));
-                    variacoes.push(combo.replace(/ /g, '-'));
+                if (musica.artist) {
+                    const artistClean = musica.artist.replace(/[^a-zA-Z0-9]/g, '').trim();
+                    if (artistClean.length > 2) {
+                        variacoes.push(artistClean);
+                        variacoes.push(artistClean + '_' + musica.title.replace(/[^a-zA-Z0-9]/g, '').trim());
+                    }
                 }
                 
                 variacoes.forEach(nome => {
@@ -668,6 +666,7 @@
                     }
                 });
                 
+                // Remove URLs duplicadas e retorna array
                 return Array.from(urls);
             }
 
@@ -919,7 +918,7 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO
+            // REPRODUÇÃO - CORRIGIDA (NÃO PULA)
             // ============================================================
             function obterProximaMusica() {
                 if (!currentPlaylist || currentPlaylist.length === 0) {
@@ -971,7 +970,7 @@
             }
 
             // ============================================================
-            // playMusic - VERSÃO OTIMIZADA
+            // playMusic - CORRIGIDA (timeout 5s + pré-carregamento)
             // ============================================================
             async function playMusic() {
                 if (carregandoMusica) return;
@@ -1001,59 +1000,58 @@
                 updateNowPlaying(track);
                 adicionarAoHistorico(track);
 
-                let urlParaTentar = track.src;
-                
-                if (!urlParaTentar.startsWith('http://') && !urlParaTentar.startsWith('https://')) {
-                    urlParaTentar = gerarUrlCompleta(urlParaTentar, 'play12');
+                // Usa URL em cache se disponível
+                let urls = gerarUrlsAlternativas(track);
+                if (urls.length === 0) {
+                    showNotification("❌ Nenhuma URL para esta música", 1000);
+                    carregandoMusica = false;
+                    setTimeout(nextTrack, 500);
+                    return;
                 }
 
-                if (!urlParaTentar) {
-                    const urls = gerarUrlsAlternativas(track);
-                    if (urls.length === 0) {
-                        showNotification("❌ Nenhuma URL para esta música", 1000);
-                        carregandoMusica = false;
-                        setTimeout(nextTrack, 500);
-                        return;
-                    }
-                    urlParaTentar = urls[0];
-                }
+                // Filtra URLs que já falharam
+                const falhas = JSON.parse(localStorage.getItem('url_falhas') || '[]');
+                urls = urls.filter(u => !falhas.includes(u));
 
-                console.log(`🎯 Tocando: ${track.title} - ${urlParaTentar}`);
-
+                let urlIndex = 0;
                 let timeoutId = null;
                 let sucesso = false;
                 let tentativas = 0;
-                const MAX_TENTATIVAS = 3;
+                const MAX_TENTATIVAS = urls.length;
 
-                function tentarTocar(url) {
-                    tentativas++;
-                    if (timeoutId) clearTimeout(timeoutId);
-
-                    if (tentativas > MAX_TENTATIVAS) {
+                function tentarUrl() {
+                    if (urlIndex >= urls.length) {
+                        // Se acabaram as URLs, marca todas como falhas
+                        const novasFalhas = [...new Set([...falhas, ...urls])];
+                        localStorage.setItem('url_falhas', JSON.stringify(novasFalhas));
                         showNotification("⏭️ Pulando...", 800);
                         carregandoMusica = false;
                         setTimeout(nextTrack, 300);
                         return;
                     }
 
+                    const url = urls[urlIndex];
+                    urlIndex++;
+                    tentativas++;
+
+                    if (timeoutId) clearTimeout(timeoutId);
+
                     audio.pause();
                     audio.src = url;
                     audio.load();
 
+                    // TIMEOUT DE 5 SEGUNDOS (mais generoso)
                     timeoutId = setTimeout(() => {
                         if (!sucesso) {
-                            console.warn(`⏰ Timeout ${tentativas}/${MAX_TENTATIVAS} para ${url}`);
-                            const urls = gerarUrlsAlternativas(track);
-                            const nextUrl = urls.find(u => u !== url);
-                            if (nextUrl) {
-                                tentarTocar(nextUrl);
-                            } else {
-                                showNotification("⏭️ Pulando...", 800);
-                                carregandoMusica = false;
-                                setTimeout(nextTrack, 300);
+                            console.warn(`⏰ Timeout (${tentativas}/${urls.length}) para ${url}`);
+                            const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
+                            if (!falhasAtuais.includes(url)) {
+                                falhasAtuais.push(url);
+                                localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
                             }
+                            tentarUrl();
                         }
-                    }, 2500);
+                    }, 5000);
 
                     audio.oncanplay = () => {
                         if (timeoutId) clearTimeout(timeoutId);
@@ -1067,43 +1065,72 @@
                                 carregandoMusica = false;
                                 showNotification(`✅ Tocando: ${track.title}`, 1200);
                                 
+                                // Salva a URL que funcionou
                                 if (url !== track.src) {
-                                    track.src = url;
                                     try {
                                         localStorage.setItem('src_cache_' + track.id, url);
                                     } catch(e) {}
                                 }
+                                
+                                // Limpa falhas desta URL
+                                const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
+                                const novas = falhasAtuais.filter(f => f !== url);
+                                if (novas.length !== falhasAtuais.length) {
+                                    localStorage.setItem('url_falhas', JSON.stringify(novas));
+                                }
+
+                                // Pré-carrega a próxima música (em background)
+                                preCarregarProxima();
                             })
                             .catch((err) => {
-                                console.warn(`❌ Falha em ${url}:`, err);
-                                const urls = gerarUrlsAlternativas(track);
-                                const nextUrl = urls.find(u => u !== url);
-                                if (nextUrl) {
-                                    tentarTocar(nextUrl);
-                                } else {
-                                    showNotification("⏭️ Pulando...", 800);
-                                    carregandoMusica = false;
-                                    setTimeout(nextTrack, 300);
+                                console.warn(`❌ Falha ao tocar ${url}:`, err);
+                                const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
+                                if (!falhasAtuais.includes(url)) {
+                                    falhasAtuais.push(url);
+                                    localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
                                 }
+                                tentarUrl();
                             });
                     };
 
                     audio.onerror = () => {
                         if (timeoutId) clearTimeout(timeoutId);
-                        console.warn(`❌ Erro em ${url}`);
-                        const urls = gerarUrlsAlternativas(track);
-                        const nextUrl = urls.find(u => u !== url);
-                        if (nextUrl) {
-                            tentarTocar(nextUrl);
-                        } else {
-                            showNotification("⏭️ Pulando...", 800);
-                            carregandoMusica = false;
-                            setTimeout(nextTrack, 300);
+                        console.warn(`❌ Erro de rede em ${url}`);
+                        const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
+                        if (!falhasAtuais.includes(url)) {
+                            falhasAtuais.push(url);
+                            localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
                         }
+                        tentarUrl();
                     };
                 }
 
-                tentarTocar(urlParaTentar);
+                tentarUrl();
+            }
+
+            // ============================================================
+            // PRÉ-CARREGAR PRÓXIMA MÚSICA (evita gaps)
+            // ============================================================
+            let preloadAudio = new Audio();
+            preloadAudio.preload = 'auto';
+
+            function preCarregarProxima() {
+                try {
+                    const proxima = obterProximaMusica();
+                    if (!proxima) return;
+                    const urls = gerarUrlsAlternativas(proxima);
+                    if (urls.length === 0) return;
+                    const url = urls[0];
+                    preloadAudio.src = url;
+                    preloadAudio.load();
+                    preloadAudio.oncanplay = () => {
+                        console.log('✅ Pré-carregado:', proxima.title);
+                        preloadAudio.oncanplay = null;
+                    };
+                    preloadAudio.onerror = () => {
+                        preloadAudio.onerror = null;
+                    };
+                } catch(e) {}
             }
 
             // ============================================================
@@ -1284,7 +1311,6 @@
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
-                // Lista de gêneros que aparecem no grid (todos exceto PADRÃO)
                 const generosGrid = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
                 
                 generosGrid.forEach(genero => {
@@ -1366,7 +1392,7 @@
             }
 
             // ============================================================
-            // INICIALIZAÇÃO - CARREGA A PLAYLIST PADRÃO (BÔNUS) AO ABRIR
+            // INICIALIZAÇÃO
             // ============================================================
             async function iniciar() {
                 if (carregarDoLocalStorage()) {
@@ -1383,11 +1409,9 @@
                 }
 
                 try {
-                    // Carrega a playlist padrão (PADRÃO = play.json)
                     let lista = await carregarPlaylistPorGenero('PADRÃO');
                     let generoInicial = 'PADRÃO';
                     
-                    // Se não tiver músicas, tenta MPB como fallback
                     if (!lista || lista.length === 0) {
                         lista = await carregarPlaylistPorGenero('MPB');
                         generoInicial = 'MPB';
@@ -1405,7 +1429,6 @@
                     if (lista && lista.length > 0) {
                         musicas = lista;
                         modoAtual = generoInicial;
-                        // Exibe o nome do gênero (se for PADRÃO, mostra "PLAYLIST PRINCIPAL")
                         if (modoAtual === 'PADRÃO') {
                             genreBadge.innerHTML = '🎵 PRINCIPAL';
                         } else {
@@ -1446,7 +1469,7 @@
             }
 
             // ============================================================
-            // EVENTOS DOM (mantido igual)
+            // EVENTOS DOM
             // ============================================================
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; equalizer.classList.remove('paused'); startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; equalizer.classList.add('paused'); stopTimer(); });
