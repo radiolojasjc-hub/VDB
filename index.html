@@ -7,7 +7,6 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS COMPLETO ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; width: 100vw; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; }
@@ -470,9 +469,6 @@
             const REPOSITORIOS = ['mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'play12'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
             
-            // HISTÓRICO PARA EVITAR REPETIÇÃO
-            const MAX_HISTORICO = 5;
-
             const GENRE_URLS = {
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
                 'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
@@ -518,12 +514,10 @@
             let sleepTimer = null;
             let hideControlsTimeout = null;
             const playlistCache = {};
-            let ultimoId = null;
             let carregandoMusica = false;
             let teachingTimeout = null;
             let modoTVAtivo = false;
             let trocandoGenero = false;
-            let historicoMusicas = [];
 
             let keepAliveInterval = null;
             let audioContext = null;
@@ -794,10 +788,8 @@
                 
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
-                historicoMusicas = [];
                 currentPlaylist = shuffleArray([...favMusicas]);
                 currentIndex = 0;
-                ultimoId = null;
                 const m = currentPlaylist[0];
                 if (m) {
                     updateNowPlaying(m);
@@ -882,10 +874,8 @@
                         if (data && data.length > 0) {
                             musicas = data;
                             modoAtual = 'EDITADA';
-                            historicoMusicas = [];
                             currentPlaylist = shuffleArray([...musicas]);
                             currentIndex = 0;
-                            ultimoId = null;
                             const primeira = currentPlaylist[0];
                             if (primeira) {
                                 updateNowPlaying(primeira);
@@ -940,8 +930,6 @@
                 
                 musicas = lista;
                 modoAtual = genero;
-                ultimoId = null;
-                historicoMusicas = [];
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 genreBadge.innerHTML = genero;
@@ -968,40 +956,8 @@
             }
 
             // ============================================================
-            // REPRODUÇÃO CORRIGIDA - SEM PULAR MÚSICAS
+            // REPRODUÇÃO SIMPLES E ESTÁVEL
             // ============================================================
-            function obterProximaMusica() {
-                if (!musicas || musicas.length === 0) return null;
-                
-                if (!currentPlaylist || currentPlaylist.length === 0) {
-                    historicoMusicas = [];
-                    currentPlaylist = shuffleArray([...musicas]);
-                    currentIndex = 0;
-                }
-                
-                if (currentIndex >= currentPlaylist.length) {
-                    let novasMusicas = musicas.filter(m => !historicoMusicas.includes(m.id));
-                    if (novasMusicas.length === 0) {
-                        historicoMusicas = [];
-                        novasMusicas = [...musicas];
-                    }
-                    currentPlaylist = shuffleArray(novasMusicas);
-                    currentIndex = 0;
-                }
-
-                const musica = currentPlaylist[currentIndex];
-                currentIndex++;
-                
-                if (musica) {
-                    historicoMusicas.push(musica.id);
-                    if (historicoMusicas.length > MAX_HISTORICO) {
-                        historicoMusicas.shift();
-                    }
-                }
-                
-                return musica || null;
-            }
-
             function updateNowPlaying(track) {
                 if (track) {
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist}`;
@@ -1009,30 +965,34 @@
                 }
             }
 
-            // ============================================================
-            // playMusic - CORRIGIDA (NÃO PULA MÚSICAS)
-            // ============================================================
             function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) return;
                 if (!musicas || !musicas.length) return;
 
+                // Cria playlist se necessário
                 if (!currentPlaylist || currentPlaylist.length === 0) {
-                    historicoMusicas = [];
+                    currentPlaylist = shuffleArray([...musicas]);
+                    currentIndex = 0;
+                }
+
+                // Se chegou ao fim, recria
+                if (currentIndex >= currentPlaylist.length) {
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
                 }
 
                 carregandoMusica = true;
 
-                const track = obterProximaMusica();
+                const track = currentPlaylist[currentIndex];
                 if (!track) {
                     carregandoMusica = false;
                     setTimeout(() => playMusic(), 500);
                     return;
                 }
 
-                ultimoId = track.id;
+                // Incrementa para a próxima
+                currentIndex++;
                 updateNowPlaying(track);
 
                 const urls = gerarUrlsAlternativas(track);
@@ -1043,22 +1003,14 @@
                 }
 
                 let urlIndex = 0;
-                let tentativasFalhas = 0;
-                const MAX_TENTATIVAS = urls.length;
                 let timeoutId = null;
                 let urlCarregada = false;
 
                 function tentarUrl() {
-                    if (urlIndex >= urls.length || tentativasFalhas >= MAX_TENTATIVAS) {
+                    if (urlIndex >= urls.length) {
                         carregandoMusica = false;
-                        console.warn('⚠️ Todas as URLs falharam, pulando música:', track.title);
-                        setTimeout(() => {
-                            if (isPlaying && !carregandoMusica) {
-                                nextTrack();
-                            } else {
-                                playMusic();
-                            }
-                        }, 500);
+                        console.warn('⚠️ Todas as URLs falharam, pulando:', track.title);
+                        setTimeout(() => playMusic(), 500);
                         return;
                     }
 
@@ -1066,6 +1018,7 @@
                     urlIndex++;
                     urlCarregada = false;
 
+                    // Remove listeners antigos
                     audio.oncanplay = null;
                     audio.onerror = null;
                     audio.onended = null;
@@ -1080,11 +1033,10 @@
                     if (timeoutId) clearTimeout(timeoutId);
                     timeoutId = setTimeout(() => {
                         if (!urlCarregada) {
-                            console.warn(`⏰ Timeout para URL: ${url}`);
-                            tentativasFalhas++;
+                            console.warn(`⏰ Timeout para: ${url}`);
                             tentarUrl();
                         }
-                    }, 10000);
+                    }, 8000);
 
                     audio.oncanplay = function() {
                         if (urlCarregada) return;
@@ -1095,9 +1047,8 @@
                             timeoutId = null;
                         }
 
+                        // Verifica se o áudio é válido
                         if (!audio.duration || !isFinite(audio.duration) || audio.duration <= 0) {
-                            console.warn('⚠️ Áudio sem duração válida, tentando próximo...');
-                            tentativasFalhas++;
                             tentarUrl();
                             return;
                         }
@@ -1108,26 +1059,19 @@
                                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                                 startTimer();
                                 carregandoMusica = false;
-                                audio.onerror = null;
-                                tentativasFalhas = 0;
+                                console.log(`🎵 Tocando: ${track.title} (${audio.duration}s)`);
                                 
                                 if (isBackgroundActive && !keepAliveInterval) {
                                     startKeepAlive();
                                 }
-                                
-                                console.log(`🎵 Tocando: ${track.title} | Duração: ${audio.duration}s`);
                             })
-                            .catch((err) => {
-                                console.warn('❌ Erro ao tocar:', err);
-                                tentativasFalhas++;
+                            .catch(() => {
                                 tentarUrl();
                             });
                     };
 
-                    audio.onerror = function(e) {
+                    audio.onerror = function() {
                         if (urlCarregada) return;
-                        console.warn(`❌ Erro na URL ${urlIndex}:`, e);
-                        tentativasFalhas++;
                         if (timeoutId) {
                             clearTimeout(timeoutId);
                             timeoutId = null;
@@ -1145,11 +1089,7 @@
                     audio.onended = function() {
                         if (carregandoMusica) return;
                         if (isPlaying) {
-                            setTimeout(() => {
-                                if (!carregandoMusica && isPlaying) {
-                                    nextTrack();
-                                }
-                            }, 100);
+                            setTimeout(() => playMusic(), 100);
                         }
                     };
 
@@ -1196,44 +1136,21 @@
 
             function nextTrack() {
                 if (carregandoMusica) return;
-                
-                const atual = currentPlaylist[currentIndex - 1] || currentPlaylist[0];
-                if (atual) {
-                    historicoMusicas.push(atual.id);
-                    if (historicoMusicas.length > MAX_HISTORICO) {
-                        historicoMusicas.shift();
-                    }
+                resetarAudio();
+                // Força a próxima música
+                if (currentIndex >= currentPlaylist.length) {
+                    currentPlaylist = shuffleArray([...musicas]);
+                    currentIndex = 0;
                 }
-                
-                try {
-                    audio.pause();
-                    audio.src = '';
-                    audio.load();
-                } catch(e) {}
-                
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                carregandoMusica = false;
-                
-                setTimeout(() => {
-                    if (isBackgroundActive) {
-                        playMusic();
-                    }
-                }, 300);
-                
+                setTimeout(() => playMusic(), 200);
                 showControls();
             }
 
             function prevTrack() {
                 if (carregandoMusica) return;
                 if (!currentPlaylist || currentPlaylist.length === 0) {
-                    nextTrack();
-                    return;
-                }
-                
-                if (historicoMusicas.length > 0) {
-                    historicoMusicas.pop();
+                    currentPlaylist = shuffleArray([...musicas]);
+                    currentIndex = 0;
                 }
                 
                 if (currentIndex <= 1) {
@@ -1246,27 +1163,10 @@
                 
                 const track = currentPlaylist[currentIndex];
                 if (!track) { nextTrack(); return; }
-                ultimoId = track.id;
                 updateNowPlaying(track);
-                
-                try {
-                    audio.pause();
-                    audio.src = '';
-                    audio.load();
-                } catch(e) {}
-                
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                carregandoMusica = false;
+                resetarAudio();
                 currentIndex++;
-                
-                setTimeout(() => {
-                    if (isBackgroundActive) {
-                        playMusic();
-                    }
-                }, 300);
-                
+                setTimeout(() => playMusic(), 200);
                 showControls();
             }
 
@@ -1311,7 +1211,7 @@
                         
                         if (audio.currentTime >= audio.duration - 0.3) {
                             if (!carregandoMusica) {
-                                setTimeout(() => nextTrack(), 100);
+                                setTimeout(() => playMusic(), 100);
                                 return;
                             }
                         }
@@ -1342,12 +1242,10 @@
                 
                 modoFavoritosAtivo = false;
                 modoAtual = musica.genero;
-                historicoMusicas = [];
                 const lista = musicas.filter(m => m.genero === musica.genero);
                 const outras = lista.filter(m => m.id !== musica.id);
                 currentPlaylist = shuffleArray([musica, ...outras]);
                 currentIndex = 0;
-                ultimoId = musica.id;
                 updateNowPlaying(musica);
                 genreBadge.innerHTML = musica.genero;
                 if (modoTVAtivo) genreBadge.classList.add('tv-ativo');
@@ -1483,10 +1381,8 @@
                     if (listaPrincipal && listaPrincipal.length > 0) {
                         musicas = listaPrincipal;
                         modoAtual = 'MPB';
-                        historicoMusicas = [];
                         currentPlaylist = shuffleArray([...musicas]);
                         currentIndex = 0;
-                        ultimoId = null;
                         const primeira = currentPlaylist[0];
                         if (primeira) {
                             updateNowPlaying(primeira);
@@ -1497,10 +1393,8 @@
                         if (listaMPB && listaMPB.length > 0) {
                             musicas = listaMPB;
                             modoAtual = 'MPB';
-                            historicoMusicas = [];
                             currentPlaylist = shuffleArray([...musicas]);
                             currentIndex = 0;
-                            ultimoId = null;
                             const primeira = currentPlaylist[0];
                             if (primeira) {
                                 updateNowPlaying(primeira);
@@ -1570,13 +1464,13 @@
             });
             audio.addEventListener('ended', () => { 
                 if (!carregandoMusica && isPlaying) {
-                    setTimeout(() => nextTrack(), 100);
+                    setTimeout(() => playMusic(), 100);
                 }
             });
 
             audio.addEventListener('error', () => {
                 if (!carregandoMusica) {
-                    setTimeout(() => nextTrack(), 200);
+                    setTimeout(() => playMusic(), 200);
                 }
             });
 
