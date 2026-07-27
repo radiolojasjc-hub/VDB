@@ -462,18 +462,15 @@
             ];
 
             // ============================================================
-            // CONFIGURAÇÕES - LINKS PARA CADA GÊNERO (GitHub Pages)
+            // CONFIGURAÇÕES - TODOS OS GÊNEROS (SEM BÔNUS)
             // ============================================================
             const GENRE_URLS = {
-                // BÔNUS (playlist principal - mantém raw)
-                'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
-                // FLASHBACK
+                // Playlist padrão (não aparece no grid, mas é carregada ao iniciar)
+                'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
+                // Gêneros que aparecem no grid
                 'FLASHBACK': 'https://radiolojasjc-hub.github.io/flashbacktop/flashback.json',
-                // RELIGIOSA
                 'RELIGIOSA': 'https://radiolojasjc-hub.github.io/religiosa/religiosa.json',
-                // ROMÂNTICA
                 'ROMÂNTICA': 'https://radiolojasjc-hub.github.io/romanticatop/romantica.json',
-                // Outros gêneros (usando GitHub Pages)
                 'MPB': 'https://radiolojasjc-hub.github.io/mpbtop/mpb.json',
                 'POP': 'https://radiolojasjc-hub.github.io/poptop/pop.json',
                 'SERTANEJO': 'https://radiolojasjc-hub.github.io/sertanejo/sertanejo.json',
@@ -485,7 +482,7 @@
             };
 
             const CORES_POR_GENERO = {
-                'BÔNUS': '#ffaa00',
+                'PADRÃO': '#ffffff',
                 'FLASHBACK': '#ffaa00',
                 'RELIGIOSA': '#aa55ff',
                 'ROMÂNTICA': '#ff2d7f',
@@ -509,7 +506,7 @@
             let shuffleMode = false;
             let isBackgroundActive = false;
             let timerInterval = null;
-            let modoAtual = "MPB";
+            let modoAtual = "PADRÃO";
             let historicoReproducao = [];
             let favorites = [];
             let modoFavoritosAtivo = false;
@@ -1275,7 +1272,7 @@
             }
 
             // ============================================================
-            // GRID DE GÊNEROS
+            // GRID DE GÊNEROS (sem BÔNUS)
             // ============================================================
             function buildGenresGrid() {
                 const genresGrid = document.getElementById('genresGrid');
@@ -1287,18 +1284,23 @@
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
-                for (const [genero, url] of Object.entries(GENRE_URLS)) {
-                    const card = document.createElement('div');
-                    card.className = 'genre-card';
-                    const cor = CORES_POR_GENERO[genero] || '#ffffff';
-                    card.style.border = `2px solid ${cor}`;
-                    card.style.color = cor;
-                    card.textContent = genero;
-                    card.onclick = () => {
-                        selecionarGenero(genero);
-                    };
-                    genresGrid.appendChild(card);
-                }
+                // Lista de gêneros que aparecem no grid (todos exceto PADRÃO)
+                const generosGrid = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
+                
+                generosGrid.forEach(genero => {
+                    if (GENRE_URLS[genero]) {
+                        const card = document.createElement('div');
+                        card.className = 'genre-card';
+                        const cor = CORES_POR_GENERO[genero] || '#ffffff';
+                        card.style.border = `2px solid ${cor}`;
+                        card.style.color = cor;
+                        card.textContent = genero;
+                        card.onclick = () => {
+                            selecionarGenero(genero);
+                        };
+                        genresGrid.appendChild(card);
+                    }
+                });
             }
 
             // ============================================================
@@ -1364,7 +1366,7 @@
             }
 
             // ============================================================
-            // INICIALIZAÇÃO
+            // INICIALIZAÇÃO - CARREGA A PLAYLIST PADRÃO (BÔNUS) AO ABRIR
             // ============================================================
             async function iniciar() {
                 if (carregarDoLocalStorage()) {
@@ -1381,19 +1383,21 @@
                 }
 
                 try {
-                    // Tenta carregar MPB, depois BÔNUS, depois POP...
-                    let lista = await carregarPlaylistPorGenero('MPB');
-                    let generoInicial = 'MPB';
+                    // Carrega a playlist padrão (PADRÃO = play.json)
+                    let lista = await carregarPlaylistPorGenero('PADRÃO');
+                    let generoInicial = 'PADRÃO';
+                    
+                    // Se não tiver músicas, tenta MPB como fallback
                     if (!lista || lista.length === 0) {
-                        lista = await carregarPlaylistPorGenero('BÔNUS');
-                        generoInicial = 'BÔNUS';
+                        lista = await carregarPlaylistPorGenero('MPB');
+                        generoInicial = 'MPB';
                     }
                     if (!lista || lista.length === 0) {
                         lista = await carregarPlaylistPorGenero('POP');
                         generoInicial = 'POP';
                     }
                     if (!lista || lista.length === 0) {
-                        const primeiroGenero = Object.keys(GENRE_URLS)[0] || 'MPB';
+                        const primeiroGenero = Object.keys(GENRE_URLS).find(k => k !== 'PADRÃO') || 'MPB';
                         lista = await carregarPlaylistPorGenero(primeiroGenero);
                         generoInicial = primeiroGenero;
                     }
@@ -1401,6 +1405,12 @@
                     if (lista && lista.length > 0) {
                         musicas = lista;
                         modoAtual = generoInicial;
+                        // Exibe o nome do gênero (se for PADRÃO, mostra "PLAYLIST PRINCIPAL")
+                        if (modoAtual === 'PADRÃO') {
+                            genreBadge.innerHTML = '🎵 PRINCIPAL';
+                        } else {
+                            genreBadge.innerHTML = modoAtual;
+                        }
                         currentPlaylist = shuffleArray([...musicas]);
                         currentIndex = 0;
                         ultimoId = null;
@@ -1409,7 +1419,6 @@
                             updateNowPlaying(primeira);
                             adicionarAoHistorico(primeira);
                         }
-                        genreBadge.innerHTML = generoInicial;
                     } else {
                         showNotification('❌ Nenhuma playlist carregada', 2000);
                     }
@@ -1437,7 +1446,7 @@
             }
 
             // ============================================================
-            // EVENTOS DOM
+            // EVENTOS DOM (mantido igual)
             // ============================================================
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; equalizer.classList.remove('paused'); startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; equalizer.classList.add('paused'); stopTimer(); });
@@ -1556,7 +1565,7 @@
                         if (modoAtual && GENRE_URLS[modoAtual]) {
                             selecionarGenero(modoAtual);
                         } else {
-                            selecionarGenero('MPB');
+                            selecionarGenero('PADRÃO');
                         }
                         showNotification('📋 Playlist restaurada', 800);
                         return;
