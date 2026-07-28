@@ -24,13 +24,6 @@
         .fav-top-btn:active { transform: scale(0.92); background: #ff2d7f; color: #000; }
         .fav-top-btn .badge { background: #ff2d7f; color: #000; border-radius: 50%; padding: 0 4px; font-size: 0.45rem; font-weight: bold; min-width: 14px; text-align: center; }
         
-        .search-wrapper { position: relative; display: inline-block; flex-shrink: 0; }
-        .search-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 8px; color: white; font-size: 0.5rem; width: 70px; transition: width 0.3s; -webkit-appearance: none; appearance: none; padding-right: 20px; }
-        .search-input:focus { width: 110px; outline: none; border-color: var(--neon-cyan); }
-        .search-input::placeholder { color: #888; }
-        .clear-search { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #888; cursor: pointer; font-size: 0.5rem; display: none; padding: 0 2px; }
-        .clear-search:active { color: #fff; }
-        
         .audio-status { font-size: 0.45rem; color: #aaa; display: flex; align-items: center; gap: 3px; background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
         .audio-status.active { color: #4ade80; border-color: #4ade80; }
         .audio-status .dot { width: 4px; height: 4px; border-radius: 50%; background: #666; display: inline-block; }
@@ -301,8 +294,6 @@
             .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; }
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
             .fab-sub-btn { padding: 5px 10px; font-size: 0.55rem; min-width: 85px; }
-            .search-input { width: 50px; font-size: 0.45rem; padding-right: 18px; }
-            .search-input:focus { width: 85px; }
             .top-bar { padding: 4px 6px; }
             .info-scroll { top: 40px; padding: 4px 10px; }
             .info-scroll p { font-size: 0.7rem; letter-spacing: 1px; }
@@ -318,13 +309,12 @@
             .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
             #tap-to-start { padding: 10px 18px; font-size: 0.9rem; bottom: 25%; }
             .fav-modal, .feedback-modal, .historico-modal { padding: 20px; max-width: 340px; }
-            .clear-search { font-size: 0.45rem; right: 3px; }
         }
     </style>
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="apk300.mp4" type="video/mp4">
+        <source src="abc1.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -341,10 +331,6 @@
             <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
             <div class="top-buttons">
                 <span class="audio-status" id="audioStatus"><span class="dot"></span> Aguardando</span>
-                <div class="search-wrapper">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
-                    <button class="clear-search" id="clearSearchBtn"><i class="fas fa-times"></i></button>
-                </div>
                 <button class="fav-top-btn" id="favTopBtn">
                     <i class="fas fa-heart"></i> <span class="badge" id="favCount">0</span>
                 </button>
@@ -539,8 +525,6 @@
             const nowArtist = document.getElementById('nowArtist');
             const favTopBtn = document.getElementById('favTopBtn');
             const favCount = document.getElementById('favCount');
-            const searchInput = document.getElementById('searchInput');
-            const clearSearchBtn = document.getElementById('clearSearchBtn');
             const equalizer = document.getElementById('equalizer');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const backgroundAudio = document.getElementById('backgroundAudio');
@@ -1134,44 +1118,6 @@
             }
 
             // ============================================================
-            // BUSCA
-            // ============================================================
-            let buscaTimeout = null;
-
-            function buscarMusica(termo) {
-                if (!termo || termo.length < 2) {
-                    showNotification('📋 Digite pelo menos 2 caracteres', 1000);
-                    return;
-                }
-                
-                const termoLower = termo.toLowerCase().trim();
-                const resultados = musicas.filter(m => 
-                    m.title.toLowerCase().includes(termoLower) ||
-                    m.artist.toLowerCase().includes(termoLower)
-                );
-                
-                if (resultados.length === 0) {
-                    showNotification('🔍 Nenhuma música encontrada', 1500);
-                    return;
-                }
-                
-                const primeira = resultados[0];
-                const lista = musicas.filter(m => m.genero === primeira.genero);
-                const outras = lista.filter(m => m.id !== primeira.id);
-                currentPlaylist = shuffleArray([primeira, ...outras]);
-                currentIndex = 0;
-                ultimoId = primeira.id;
-                historicoReproducao = [];
-                updateNowPlaying(primeira);
-                genreBadge.innerHTML = primeira.genero;
-                
-                if (isBackgroundActive) {
-                    setTimeout(() => playMusic(), 200);
-                }
-                showNotification(`🔍 ${resultados.length} resultado(s) - Tocando: ${primeira.title}`, 2000);
-            }
-
-            // ============================================================
             // CONTROLES
             // ============================================================
             function togglePlay() {
@@ -1577,31 +1523,6 @@
                     audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
                     showControls();
                 }
-            });
-
-            searchInput.addEventListener('input', (e) => {
-                const termo = e.target.value.trim();
-                clearSearchBtn.style.display = termo ? 'block' : 'none';
-                if (buscaTimeout) clearTimeout(buscaTimeout);
-                buscaTimeout = setTimeout(() => {
-                    if (termo === '') {
-                        if (modoAtual && GENRE_URLS[modoAtual]) {
-                            selecionarGenero(modoAtual);
-                        } else {
-                            selecionarGenero('PADRÃO');
-                        }
-                        showNotification('📋 Playlist restaurada', 800);
-                        return;
-                    }
-                    buscarMusica(termo);
-                }, 400);
-            });
-
-            clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
-                clearSearchBtn.style.display = 'none';
-                searchInput.focus();
             });
 
             menuButton.addEventListener('click', (e) => { 
