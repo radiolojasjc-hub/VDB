@@ -6,12 +6,11 @@
     <title>PLAY 12 • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS ORIGINAL (mantido) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
-        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 1; } /* REMOVI A OPACIDADE 0.4 */
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 1; }
         .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: nowrap; gap: 4px; flex-shrink: 0; }
@@ -38,17 +37,14 @@
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
         .menu-popup .close-menu-btn { background: rgba(255,45,127,0.2); border: 1px solid #ff2d7f; color: #ff2d7f; }
         
-        /* Ajuste: subir o letreiro */
         .info-scroll { position: fixed; top: 38px; left: 0; right: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 12px; z-index: 30; border-bottom: 1px solid rgba(255,255,255,0.05); overflow: hidden; white-space: nowrap; }
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 2px; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 30px rgba(0,0,0,0.8); text-transform: uppercase; }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
         .now-playing { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 15; width: 90%; max-width: 400px; user-select: none; -webkit-user-select: none; }
-        .now-playing .music-title { color: white; font-size: 1.4rem; font-weight: 700; text-shadow: 0 0 30px rgba(0,0,0,0.9); margin-bottom: 4px; }
-        /* REMOVI O ARTISTA DA TELA CENTRAL */
-        .now-playing .music-artist { display: none; }
-        .fav-heart-center { display: flex; justify-content: center; margin: 10px 0; }
-        .now-playing .fav-heart { font-size: 3.5rem; color: #555; cursor: pointer; transition: all 0.3s; text-shadow: 0 0 30px rgba(0,0,0,0.9); display: inline-block; }
+        .now-playing .music-title, .now-playing .music-artist { display: none; }
+        .fav-heart-center { display: flex; justify-content: center; margin: 0; }
+        .now-playing .fav-heart { font-size: 4rem; color: #555; cursor: pointer; transition: all 0.3s; text-shadow: 0 0 30px rgba(0,0,0,0.9); display: inline-block; }
         .now-playing .fav-heart.active { color: #ff2d7f; text-shadow: 0 0 40px rgba(255,45,127,0.5); }
         .now-playing .fav-heart:active { transform: scale(1.2); }
         
@@ -275,8 +271,7 @@
         }
         
         @media (max-width: 480px) {
-            .now-playing .music-title { font-size: 1.2rem; }
-            .now-playing .fav-heart { font-size: 2.5rem; }
+            .now-playing .fav-heart { font-size: 3rem; }
             .genre-badge { font-size: 0.45rem; max-width: 22%; padding: 2px 6px; }
             .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; }
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
@@ -330,8 +325,6 @@
         </div>
 
         <div class="now-playing" id="nowPlaying">
-            <div class="music-title" id="nowTitle">Carregando...</div>
-            <!-- ARTISTA REMOVIDO DA TELA CENTRAL -->
             <div class="fav-heart-center">
                 <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
             </div>
@@ -416,9 +409,6 @@
         (function() {
             'use strict';
 
-            // ============================================================
-            // PLAYLIST RELIGIOSA (FALLBACK OFFLINE)
-            // ============================================================
             const PLAYLIST_RELIGIOSA_FALLBACK = [
                 {"id":682,"artist":"Churrasco Cerveja e Viola","title":"Nada Mudou","genero":"RELIGIOSA","src":"Valeria-varros.mp3"},
                 {"id":683,"artist":"Cleber Cauan","title":"I Love You Baby","genero":"RELIGIOSA","src":"Cleber-Cauan-Resenha-na-Fazenda.mp3"},
@@ -428,9 +418,6 @@
                 {"id":687,"artist":"Panda Cantor","title":"Onde ela tá","genero":"RELIGIOSA","src":"Panda.mp3"}
             ];
 
-            // ============================================================
-            // CONFIGURAÇÕES - TODOS OS GÊNEROS (SEM BÔNUS)
-            // ============================================================
             const GENRE_URLS = {
                 'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
                 'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -461,9 +448,6 @@
                 'MODA TOP': '#ff4400'
             };
 
-            // ============================================================
-            // VARIÁVEIS
-            // ============================================================
             let musicas = [];
             let currentPlaylist = [];
             let currentIndex = 0;
@@ -497,19 +481,13 @@
             const audioStatus = document.getElementById('audioStatus');
             const bottomControls = document.getElementById('bottomControls');
             const shuffleBtn = document.getElementById('shuffleBtn');
-            const bgVideo = document.getElementById('bgVideo');
             const heartBtn = document.getElementById('heartBtn');
-            const nowTitle = document.getElementById('nowTitle');
-            const nowArtist = document.getElementById('nowArtist');
             const favTopBtn = document.getElementById('favTopBtn');
             const favCount = document.getElementById('favCount');
             const loadingOverlay = document.getElementById('loadingOverlay');
             const backgroundAudio = document.getElementById('backgroundAudio');
             const menuPopup = document.getElementById('menuPopup');
 
-            // ============================================================
-            // FUNÇÕES AUXILIARES
-            // ============================================================
             function showNotification(msg, duration = 1500) {
                 notification.textContent = msg;
                 notification.classList.add('show');
@@ -556,9 +534,6 @@
                 } catch(e) {}
             }
 
-            // ============================================================
-            // FUNÇÃO PARA GERAR URL COMPLETA
-            // ============================================================
             function gerarUrlCompleta(nomeArquivo, repo = 'play12') {
                 if (!nomeArquivo || !nomeArquivo.trim()) return '';
                 if (nomeArquivo.startsWith('http://') || nomeArquivo.startsWith('https://')) {
@@ -570,9 +545,6 @@
                 return `https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}`;
             }
 
-            // ============================================================
-            // FUNÇÃO PARA GERAR URLs ALTERNATIVAS
-            // ============================================================
             const REPOSITORIOS = ['play12', 'mpbtop', 'poptop', 'sertanejo', 'forrotop', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop'];
             const EXTENSOES = ['mp3', 'm4a', 'mp4', 'aac', 'ogg', 'opus', 'wav', 'flac'];
 
@@ -628,9 +600,6 @@
                 return Array.from(urls);
             }
 
-            // ============================================================
-            // FAVORITOS
-            // ============================================================
             function updateFavCount() {
                 favCount.textContent = favorites.length;
             }
@@ -721,16 +690,11 @@
                 showNotification(`❤️ ${favMusicas.length} favoritas`, 1000);
             }
 
-            // ============================================================
-            // CARREGAMENTO DE PLAYLIST
-            // ============================================================
             async function carregarPlaylistPorGenero(genero) {
                 if (genero === 'RELIGIOSA') {
-                    console.log('🔄 Carregando RELIGIOSA...');
                     if (playlistCache['RELIGIOSA']) {
                         return playlistCache['RELIGIOSA'];
                     }
-                    
                     try {
                         const url = GENRE_URLS['RELIGIOSA'];
                         const response = await fetch(url);
@@ -743,14 +707,10 @@
                                     m.genero = 'RELIGIOSA';
                                 });
                                 playlistCache['RELIGIOSA'] = lista;
-                                console.log(`✅ RELIGIOSA carregou ${lista.length} músicas do JSON`);
                                 return lista;
                             }
                         }
-                    } catch (e) {
-                        console.warn('⚠️ Falha ao carregar JSON RELIGIOSA, usando fallback', e);
-                    }
-                    
+                    } catch (e) {}
                     const lista = PLAYLIST_RELIGIOSA_FALLBACK;
                     playlistCache['RELIGIOSA'] = lista;
                     showNotification(`🎵 RELIGIOSA (${lista.length} músicas - modo offline)`, 1500);
@@ -767,7 +727,6 @@
                 }
                 try {
                     showLoading(true);
-                    console.log(`🔄 Carregando ${genero} de: ${url}`);
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
                     let data = await response.json();
@@ -786,13 +745,11 @@
                         m.genero = genero;
                     });
                     playlistCache[genero] = lista;
-                    console.log(`✅ ${genero} carregou ${lista.length} músicas`);
                     showLoading(false);
                     return lista;
                 } catch (error) {
                     showLoading(false);
                     showNotification(`❌ Erro ao carregar ${genero}: ${error.message}`, 2000);
-                    console.error(`❌ Erro ao carregar ${genero}:`, error);
                     return null;
                 }
             }
@@ -828,7 +785,6 @@
                     }
                     return false;
                 } catch (e) {
-                    console.warn('Erro ao carregar do localStorage:', e);
                     return false;
                 }
             }
@@ -872,9 +828,6 @@
                 goFullscreen();
             }
 
-            // ============================================================
-            // REPRODUÇÃO
-            // ============================================================
             function obterProximaMusica() {
                 if (!currentPlaylist || currentPlaylist.length === 0) {
                     if (musicas.length === 0) return null;
@@ -913,16 +866,12 @@
 
             function updateNowPlaying(track) {
                 if (track) {
-                    nowTitle.textContent = track.title;
-                    // AGORA O ARTISTA SÓ APARECE NO LETREIRO, NÃO MAIS NO CENTRO
+                    // Apenas atualiza o coração e o letreiro
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist} [${track.genero || 'POP'}] 🎵`;
                     updateHeartIcon(track.id);
                 }
             }
 
-            // ============================================================
-            // playMusic - CORRIGIDA: falha limpa e pula para próxima
-            // ============================================================
             async function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) {
@@ -959,7 +908,6 @@
                     return;
                 }
 
-                // Filtra URLs que já falharam
                 const falhas = JSON.parse(localStorage.getItem('url_falhas') || '[]');
                 urls = urls.filter(u => !falhas.includes(u));
 
@@ -967,11 +915,9 @@
                 let timeoutId = null;
                 let sucesso = false;
                 let tentativas = 0;
-                const MAX_TENTATIVAS = urls.length;
 
                 function tentarUrl() {
                     if (urlIndex >= urls.length) {
-                        // Todas as URLs falharam
                         const novasFalhas = [...new Set([...falhas, ...urls])];
                         localStorage.setItem('url_falhas', JSON.stringify(novasFalhas));
                         showNotification("⏭️ Pulando...", 800);
@@ -1054,9 +1000,6 @@
                 tentarUrl();
             }
 
-            // ============================================================
-            // PRÉ-CARREGAR PRÓXIMA
-            // ============================================================
             let preloadAudio = new Audio();
             preloadAudio.preload = 'auto';
 
@@ -1079,9 +1022,6 @@
                 } catch(e) {}
             }
 
-            // ============================================================
-            // CONTROLES
-            // ============================================================
             function togglePlay() {
                 if (!isBackgroundActive) { showNotification("Clique em ATIVAR RÁDIO!", 1000); return; }
                 if (audio.paused) {
@@ -1206,9 +1146,6 @@
                 showNotification(`🎵 ${musica.title} - ${musica.artist}`, 2000);
             }
 
-            // ============================================================
-            // GRID DE GÊNEROS
-            // ============================================================
             function buildGenresGrid() {
                 const genresGrid = document.getElementById('genresGrid');
                 genresGrid.innerHTML = '';
@@ -1237,9 +1174,6 @@
                 });
             }
 
-            // ============================================================
-            // ÁUDIO SILENCIOSO
-            // ============================================================
             function createSilentAudio() {
                 try {
                     const sampleRate = 44100, duration = 1, numSamples = sampleRate * duration;
@@ -1284,9 +1218,6 @@
                 }
             }
 
-            // ============================================================
-            // RECARREGAR PLAYLIST
-            // ============================================================
             async function recarregarPlaylist() {
                 const genero = modoAtual;
                 if (!genero || !GENRE_URLS[genero]) {
@@ -1299,9 +1230,6 @@
                 showNotification(`✅ Playlist recarregada (${musicas.length} músicas)`, 2000);
             }
 
-            // ============================================================
-            // INICIALIZAÇÃO
-            // ============================================================
             async function iniciar() {
                 if (carregarDoLocalStorage()) {
                     setTimeout(() => {
@@ -1376,9 +1304,7 @@
                 }
             }
 
-            // ============================================================
-            // EVENTOS DOM
-            // ============================================================
+            // EVENTOS
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
             audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
