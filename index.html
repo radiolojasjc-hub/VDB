@@ -22,7 +22,6 @@
             z-index: -1;
         }
         
-        /* Container de mídia (vídeos e imagens) */
         .media-container {
             position: fixed;
             top: 0;
@@ -52,7 +51,6 @@
             z-index: 0;
         }
         
-        /* Overlay escuro para legibilidade */
         .overlay {
             position: fixed;
             top: 0;
@@ -64,7 +62,6 @@
             pointer-events: none;
         }
         
-        /* Título do projeto */
         .project-title {
             position: fixed;
             top: 10%;
@@ -86,7 +83,6 @@
         }
         .project-title span { color: var(--neon-cyan); }
         
-        /* BOTÃO ATIVAR RÁDIO - moderno */
         .btn-ativar {
             position: fixed;
             bottom: 30%;
@@ -130,7 +126,6 @@
             100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
         }
         
-        /* APP */
         .app { 
             position: relative; 
             z-index: 10; 
@@ -177,7 +172,7 @@
         .now-playing .fav-heart.active { color: #ff2d7f; text-shadow: 0 0 40px rgba(255,45,127,0.5); }
         .now-playing .fav-heart:active { transform: scale(1.2); }
         
-        /* BARRA DE ENSINO REMOVIDA - não há .teaching-bar */
+        /* BARRA DE ENSINO REMOVIDA */
         
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); padding: 6px 12px 10px; z-index: 20; transform: translateY(100%); transition: transform 0.3s ease; }
         .bottom-controls.visible { transform: translateY(0); }
@@ -289,7 +284,6 @@
         }
         .fav-modal .close-btn:active, .historico-modal .close-btn:active { transform: scale(0.95); }
         
-        /* Busca nos favoritos */
         .search-fav {
             width: 100%;
             padding: 8px 12px;
@@ -536,14 +530,14 @@
 </head>
 <body>
 
-    <!-- Container de mídia (vídeos e imagens) -->
+    <!-- Container de mídia -->
     <div class="media-container" id="mediaContainer"></div>
     <div class="overlay"></div>
 
-    <!-- Título do projeto -->
+    <!-- Título -->
     <div class="project-title" id="projectTitle">🎵 <span>Vai de Boa!</span> Music</div>
 
-    <!-- Botão ATIVAR RÁDIO moderno -->
+    <!-- Botão ATIVAR RÁDIO -->
     <button class="btn-ativar" id="btnAtivar">
         ▶ ATIVAR RÁDIO
         <span class="subtitulo">Vai de Boa! Music</span>
@@ -571,11 +565,10 @@
                 <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
             </div>
         </div>
-
         <!-- BARRA DE ENSINO REMOVIDA -->
     </div>
 
-    <!-- MODAL DE PASTAS -->
+    <!-- MODAIS (mesmos de antes) -->
     <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
         <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
@@ -593,7 +586,6 @@
         <button class="close-btn" id="closePlaylistsBtn">FECHAR</button>
     </div>
 
-    <!-- MODAL DE FAVORITOS (detalhes da pasta) -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Músicas</h3>
@@ -678,16 +670,15 @@
             'use strict';
 
             // ==============================
-            // CONFIGURAÇÃO DE MÍDIAS (vídeos e imagens)
-            // A PRIMEIRA É A IMAGEM vai1.png (aparece em tela cheia)
-            // Depois alterna entre os demais
+            // TODAS AS MÍDIAS ATIVAS (vídeos e imagens)
+            // A primeira é a imagem vai1.png (abre em tela cheia)
             const midias = [
-                { tipo: 'imagem', src: 'vai1.png' },      // <-- PRIMEIRA (abre com esta)
+                { tipo: 'imagem', src: 'vai1.png' },
                 { tipo: 'video', src: 'vai1.mp4' },
                 { tipo: 'imagem', src: 'gusta.png' },
-                // { tipo: 'video', src: 'ivete.mp4' },
-                // { tipo: 'imagem', src: 'emi.png' },
-                // { tipo: 'video', src: 'micha.mp4' },
+                { tipo: 'video', src: 'ivete.mp4' },
+                { tipo: 'imagem', src: 'emi.png' },
+                { tipo: 'video', src: 'micha.mp4' },
             ];
             // ==============================
 
@@ -826,7 +817,6 @@
                 showNotification(`🗑️ Removida de "${nomePasta}"`, 1000);
             }
 
-            // Toggle favorito (pasta "Favoritos")
             function toggleFavorito(musicId) {
                 const pasta = 'Favoritos';
                 if (!playlists[pasta]) playlists[pasta] = [];
@@ -966,7 +956,7 @@
                 document.getElementById('favModal').classList.add('open');
             }
 
-            // ---------- FAVORITOS (para a pasta "Favoritos" com busca e ações) ----------
+            // ---------- FAVORITOS ----------
             function renderFavList(termo = '') {
                 const list = document.getElementById('favList');
                 list.innerHTML = '';
@@ -976,7 +966,6 @@
                     list.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
                     return;
                 }
-                // Ordenar por ordem de adição (mais recente primeiro)
                 const ordenadas = [];
                 for (let i = ids.length - 1; i >= 0; i--) {
                     const id = ids[i];
@@ -1053,10 +1042,22 @@
                         el.loop = false;
                         el.preload = 'auto';
                         el.load();
+                        // Força o carregamento do vídeo
+                        el.addEventListener('loadedmetadata', function() {
+                            console.log('Vídeo carregado:', m.src);
+                        });
                     } else {
                         el = document.createElement('img');
                         el.src = m.src;
                         el.alt = 'Mídia ' + index;
+                        el.addEventListener('load', function() {
+                            console.log('Imagem carregada:', m.src);
+                        });
+                        el.addEventListener('error', function() {
+                            console.warn('Erro ao carregar imagem:', m.src);
+                            // Fallback: se imagem não carregar, mostra fundo escuro
+                            el.style.background = '#0a0a0a';
+                        });
                     }
                     el.className = 'inactive';
                     el.dataset.index = index;
@@ -1091,13 +1092,30 @@
 
                 // Se for vídeo, tenta reproduzir
                 if (proximo.tagName === 'VIDEO') {
-                    proximo.play().catch(() => {});
+                    proximo.play().catch(err => {
+                        console.warn('Erro ao reproduzir vídeo:', err);
+                        // Se falhar, força troca após 2s
+                        setTimeout(() => {
+                            alternarMidia();
+                        }, 2000);
+                    });
+                    // Quando o vídeo terminar, força a troca
                     proximo.onended = function() {
                         if (intervaloTroca) clearTimeout(intervaloTroca);
                         intervaloTroca = setTimeout(() => {
                             alternarMidia();
-                        }, 3000);
+                        }, 2000); // 2s após o vídeo terminar
                     };
+                    // Se o vídeo demorar mais de 10s, força troca (segurança)
+                    setTimeout(() => {
+                        if (proximo.classList.contains('active')) {
+                            // Verifica se o vídeo está travado
+                            if (proximo.currentTime === 0 && !proximo.paused) {
+                                console.warn('Vídeo travado, forçando troca');
+                                alternarMidia();
+                            }
+                        }
+                    }, 10000);
                 } else {
                     // Imagem: fica 5 segundos
                     if (intervaloTroca) clearTimeout(intervaloTroca);
@@ -1111,12 +1129,18 @@
                 if (elementosMidia.length <= 1) return;
                 const primeiro = elementosMidia[0];
                 if (primeiro.tagName === 'VIDEO') {
-                    primeiro.play().catch(() => {});
+                    primeiro.play().catch(err => {
+                        console.warn('Erro ao iniciar vídeo:', err);
+                        // Se falhar, força troca após 2s
+                        setTimeout(() => {
+                            alternarMidia();
+                        }, 2000);
+                    });
                     primeiro.onended = function() {
                         if (intervaloTroca) clearTimeout(intervaloTroca);
                         intervaloTroca = setTimeout(() => {
                             alternarMidia();
-                        }, 3000);
+                        }, 2000);
                     };
                 } else {
                     // A primeira é imagem, então programa a troca após 5s
