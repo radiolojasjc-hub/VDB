@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Vai de Boa! Music • Teste 5 min</title>
+    <title>Vai de Boa! Music</title>
+    <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS DO PLAYER (original, sem alterações) ===== */
+        /* ===== CSS COMPLETO (mantido do player original) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; position: fixed; width: 100%; top: 0; left: 0; }
         body { background: #000; overflow: hidden; }
@@ -116,14 +117,39 @@
         .feedback-modal button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 0.95rem; }
         .feedback-modal button:active { transform: scale(0.95); }
         .feedback-modal .close-feedback { background: rgba(255,255,255,0.1) !important; color: white !important; margin-top: 5px; }
-        @media (max-width: 480px) { .btn-ativar { padding: 14px 24px; font-size: 1rem; bottom: 25%; } .btn-ativar .subtitulo { font-size: 0.5rem; } .project-title { font-size: 1.6rem; top: 8%; padding: 8px 16px; letter-spacing: 3px; } .now-playing .fav-heart { font-size: 3rem; } .genre-badge { font-size: 0.45rem; max-width: 22%; padding: 2px 6px; } .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; } .fab-main { width: 42px; height: 42px; font-size: 1rem; } .fab-sub-btn { padding: 5px 10px; font-size: 0.55rem; min-width: 85px; } .top-bar { padding: 4px 6px; height: 38px; } .info-scroll { top: 32px; height: 28px; padding: 2px 10px; } .info-scroll p { font-size: 0.7rem; letter-spacing: 1px; } .ctrl-btn { width: 28px; height: 28px; font-size: 0.65rem; } .play-big { width: 36px; height: 36px; font-size: 0.9rem; } .buttons-row { gap: 8px; } .bottom-controls { padding: 4px 8px 8px; } .genres-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .genre-card { font-size: 0.6rem; aspect-ratio: 4/2.2; } .audio-status { font-size: 0.4rem; padding: 1px 4px; } .fab-container { bottom: 80px; right: 8px; } .menu-button { width: 24px; height: 24px; font-size: 0.6rem; } .fav-modal, .feedback-modal, .historico-modal { padding: 20px; max-width: 340px; } .feedback-modal .star { font-size: 1.5rem; } }
+        @media (max-width: 480px) {
+            .btn-ativar { padding: 14px 24px; font-size: 1rem; bottom: 25%; }
+            .btn-ativar .subtitulo { font-size: 0.5rem; }
+            .project-title { font-size: 1.6rem; top: 8%; padding: 8px 16px; letter-spacing: 3px; }
+            .now-playing .fav-heart { font-size: 3rem; }
+            .genre-badge { font-size: 0.45rem; max-width: 22%; padding: 2px 6px; }
+            .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; }
+            .fab-main { width: 42px; height: 42px; font-size: 1rem; }
+            .fab-sub-btn { padding: 5px 10px; font-size: 0.55rem; min-width: 85px; }
+            .top-bar { padding: 4px 6px; height: 38px; }
+            .info-scroll { top: 32px; height: 28px; padding: 2px 10px; }
+            .info-scroll p { font-size: 0.7rem; letter-spacing: 1px; }
+            .ctrl-btn { width: 28px; height: 28px; font-size: 0.65rem; }
+            .play-big { width: 36px; height: 36px; font-size: 0.9rem; }
+            .buttons-row { gap: 8px; }
+            .bottom-controls { padding: 4px 8px 8px; }
+            .genres-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .genre-card { font-size: 0.6rem; aspect-ratio: 4/2.2; }
+            .audio-status { font-size: 0.4rem; padding: 1px 4px; }
+            .fab-container { bottom: 80px; right: 8px; }
+            .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
+            .fav-modal, .feedback-modal, .historico-modal { padding: 20px; max-width: 340px; }
+            .feedback-modal .star { font-size: 1.5rem; }
+        }
 
-        /* ===== TELA DE BLOQUEIO ===== */
+        /* ===== OVERLAY DE LICENÇA ===== */
         #licenseOverlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(20px);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
             z-index: 99999;
             display: none;
             align-items: center;
@@ -131,59 +157,107 @@
             flex-direction: column;
             color: white;
             padding: 20px;
+            text-align: center;
         }
         #licenseOverlay.show { display: flex; }
-        #licenseOverlay h2 { font-size: 2rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #licenseOverlay p { color: #aaa; margin-bottom: 20px; font-size: 0.9rem; text-align: center; max-width: 400px; }
-        #licenseOverlay .timer { font-size: 3rem; font-weight: 900; color: var(--neon-cyan); margin-bottom: 20px; font-family: monospace; }
-        #licenseOverlay input { background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); border-radius: 30px; padding: 12px 20px; color: white; font-size: 1rem; width: 80%; max-width: 300px; text-align: center; outline: none; margin-bottom: 12px; }
-        #licenseOverlay input:focus { border-color: var(--neon-cyan); }
-        #licenseOverlay button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px 40px; border-radius: 30px; color: #000; font-weight: 900; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
-        #licenseOverlay button:active { transform: scale(0.95); }
-        #licenseOverlay .status { margin-top: 10px; font-size: 0.8rem; color: #888; }
+        #licenseOverlay h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #licenseOverlay p {
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        #licenseOverlay input {
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid #00f3ff;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 1rem;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+        }
+        #licenseOverlay input:focus { border-color: #ff2d7f; }
+        #licenseOverlay .btn-ativar-licenca {
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #licenseOverlay .btn-ativar-licenca:active { transform: scale(0.95); }
+        #licenseOverlay .timer-info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        #licenseOverlay .timer-info span {
+            color: #00f3ff;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ===== Mídia ===== -->
+    <!-- Mídia -->
     <div class="media-container" id="mediaContainer"></div>
 
-    <!-- ===== Título ===== -->
+    <!-- Título -->
     <div class="project-title" id="projectTitle">🎵 <span>Vai de Boa!</span> Music</div>
 
-    <!-- ===== Botão Ativar ===== -->
+    <!-- Botão Ativar -->
     <button class="btn-ativar" id="btnAtivar">
         ▶ ATIVAR RÁDIO
         <span class="subtitulo">Vai de Boa! Music</span>
     </button>
 
-    <!-- ===== App ===== -->
+    <!-- App -->
     <div class="app" id="appContainer">
         <div class="top-bar" id="topBar">
             <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
             <div class="top-buttons">
                 <span class="audio-status" id="audioStatus"><span class="dot"></span> Aguardando</span>
-                <button class="fav-top-btn" id="favTopBtn"><i class="fas fa-heart"></i> <span class="badge" id="favCount">0</span></button>
+                <button class="fav-top-btn" id="favTopBtn">
+                    <i class="fas fa-heart"></i> <span class="badge" id="favCount">0</span>
+                </button>
                 <div class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></div>
             </div>
         </div>
-        <div class="info-scroll" id="infoScroll"><p id="scrollText">🎵 VAI DE BOA! MUSIC - TOCANDO AGORA! 🎵</p></div>
+        
+        <!-- Letreiro -->
+        <div class="info-scroll" id="infoScroll">
+            <p id="scrollText">🎵 VAI DE BOA! MUSIC - TOCANDO AGORA! 🎵</p>
+        </div>
+
         <div class="now-playing" id="nowPlaying">
-            <div class="fav-heart-center"><div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div></div>
+            <div class="fav-heart-center">
+                <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
+            </div>
         </div>
     </div>
 
-    <!-- ===== TELA DE BLOQUEIO (LICENÇA) ===== -->
+    <!-- Overlay de Licença -->
     <div id="licenseOverlay">
         <h2>🔒 Ative o App</h2>
-        <p id="licenseMessage">Seu período de teste expirou. Insira seu código de ativação.</p>
-        <div class="timer" id="countdownTimer">05:00</div>
-        <input type="text" id="licenseKey" placeholder="Código de ativação (ex: ABC12345)" maxlength="20">
-        <button id="activateBtn">ATIVAR</button>
-        <div class="status" id="licenseStatus"></div>
+        <p id="licenseMsg">Seu período de teste expirou.<br>Insira seu código de ativação para continuar.</p>
+        <input type="text" id="licenseKey" placeholder="Código de ativação" autocomplete="off">
+        <button class="btn-ativar-licenca" id="activateBtn">▶ ATIVAR</button>
+        <div class="timer-info" id="timerInfo"></div>
     </div>
 
-    <!-- ===== Modais ===== -->
+    <!-- Modais (Favoritos, Gêneros, Feedback, Histórico) -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color:#ff2d7f;"></i> Músicas Favoritas</h3>
@@ -225,7 +299,7 @@
         <button class="close-btn" id="closeHistBtn">FECHAR</button>
     </div>
 
-    <!-- ===== Controles ===== -->
+    <!-- Controles -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -237,7 +311,7 @@
         </div>
     </div>
 
-    <!-- ===== FAB ===== -->
+    <!-- FAB -->
     <div class="fab-container" id="fabContainer">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
@@ -249,7 +323,7 @@
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
-    <!-- ===== Menu ===== -->
+    <!-- Menu -->
     <div class="menu-popup" id="menuPopup">
         <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
@@ -260,11 +334,11 @@
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
     </div>
 
-    <!-- ===== Notificação ===== -->
+    <!-- Notificação -->
     <div class="notification" id="notification">Mensagem</div>
     <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-    <!-- ===== Áudio ===== -->
+    <!-- Áudio -->
     <audio id="musicPlayer" preload="auto"></audio>
     <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
@@ -272,148 +346,141 @@
         (function() {
             'use strict';
 
-            // ============================================================
-            // SISTEMA DE LICENÇA / TESTE 5 MINUTOS
-            // ============================================================
+            // ========== SISTEMA DE LICENÇA ==========
+            const TRIAL_MINUTES = 5; // 5 minutos de teste
 
-            const LICENSE_KEY = 'license_valid';
-            const TRIAL_START_KEY = 'trial_start';
-            const TRIAL_DURATION = 5 * 60; // 5 minutos em segundos
-
-            function getFingerprint() {
-                return navigator.userAgent + screen.width + screen.height + navigator.language;
-            }
-
-            function isLicenseValid() {
-                return localStorage.getItem(LICENSE_KEY) === 'true';
-            }
-
-            function getTrialStart() {
-                let start = localStorage.getItem(TRIAL_START_KEY);
-                if (!start) {
-                    start = Date.now();
-                    localStorage.setItem(TRIAL_START_KEY, start);
+            function getInstallDate() {
+                let install = localStorage.getItem('install_date');
+                if (!install) {
+                    install = new Date().toISOString();
+                    localStorage.setItem('install_date', install);
                 }
-                return parseInt(start);
+                return new Date(install);
             }
 
             function getTrialRemaining() {
-                const start = getTrialStart();
-                const elapsed = (Date.now() - start) / 1000;
-                const remaining = TRIAL_DURATION - elapsed;
-                return Math.max(0, Math.floor(remaining));
+                const install = getInstallDate();
+                const now = new Date();
+                const elapsed = (now - install) / 1000 / 60; // minutos
+                return Math.max(0, TRIAL_MINUTES - elapsed);
             }
 
             function isTrialExpired() {
                 return getTrialRemaining() <= 0;
             }
 
-            function formatTime(seconds) {
-                const m = Math.floor(seconds / 60);
-                const s = seconds % 60;
-                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            function getFingerprint() {
+                return navigator.userAgent + screen.width + screen.height + navigator.language;
             }
 
-            // ============================================================
-            // ELEMENTOS DA TELA DE BLOQUEIO
-            // ============================================================
-
-            const licenseOverlay = document.getElementById('licenseOverlay');
-            const licenseMessage = document.getElementById('licenseMessage');
-            const countdownTimer = document.getElementById('countdownTimer');
-            const licenseKeyInput = document.getElementById('licenseKey');
-            const activateBtn = document.getElementById('activateBtn');
-            const licenseStatus = document.getElementById('licenseStatus');
-
-            let countdownInterval = null;
-
-            function showLicenseScreen(expired = true) {
-                licenseOverlay.classList.add('show');
-                if (expired) {
-                    licenseMessage.textContent = '⏰ Seu teste de 5 minutos expirou. Insira seu código de ativação.';
+            function showLicenseOverlay(remainingMinutes) {
+                const overlay = document.getElementById('licenseOverlay');
+                overlay.classList.add('show');
+                const msg = document.getElementById('licenseMsg');
+                if (remainingMinutes > 0) {
+                    msg.innerHTML = `⏳ Período de teste: <strong>${Math.ceil(remainingMinutes)} minutos</strong> restantes`;
+                    document.getElementById('timerInfo').innerHTML = `Aproveite o teste grátis!`;
                 } else {
-                    licenseMessage.textContent = '🔑 Este app precisa ser ativado. Insira seu código.';
+                    msg.innerHTML = 'Seu período de teste expirou.<br>Insira seu código de ativação para continuar.';
+                    document.getElementById('timerInfo').innerHTML = '⏰ Teste expirado. Ative o app!';
                 }
-                // Mostra o timer também na tela de bloqueio (já expirado ou não)
-                const remaining = getTrialRemaining();
-                if (remaining > 0) {
-                    countdownTimer.textContent = formatTime(remaining);
-                    startCountdown();
-                } else {
-                    countdownTimer.textContent = '00:00';
-                }
-                licenseKeyInput.value = '';
-                licenseStatus.textContent = '';
+                // Esconde elementos do player
                 document.getElementById('appContainer').style.display = 'none';
                 document.getElementById('btnAtivar').style.display = 'none';
                 document.getElementById('projectTitle').style.display = 'none';
             }
 
-            function hideLicenseScreen() {
-                licenseOverlay.classList.remove('show');
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
-                }
+            function hideLicenseOverlay() {
+                document.getElementById('licenseOverlay').classList.remove('show');
                 document.getElementById('appContainer').style.display = 'block';
-                document.getElementById('btnAtivar').style.display = 'block';
-                document.getElementById('projectTitle').style.display = 'block';
+                // Mostra o botão de ativar áudio se ainda não tiver sido ativado
+                if (!isBackgroundActive) {
+                    document.getElementById('btnAtivar').style.display = 'block';
+                    document.getElementById('projectTitle').style.display = 'block';
+                }
             }
 
-            function startCountdown() {
-                if (countdownInterval) clearInterval(countdownInterval);
-                countdownInterval = setInterval(() => {
-                    const remaining = getTrialRemaining();
-                    if (remaining <= 0) {
-                        clearInterval(countdownInterval);
-                        countdownInterval = null;
-                        countdownTimer.textContent = '00:00';
-                        licenseMessage.textContent = '⏰ Teste expirado! Insira seu código.';
-                        // Se o teste expirar enquanto a tela está aberta, atualiza
-                        if (!isLicenseValid()) {
-                            // Já está na tela de bloqueio
+            function validateLicense(code) {
+                const fingerprint = getFingerprint();
+                fetch('validate.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, fingerprint })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.valid) {
+                        localStorage.setItem('license_valid', 'true');
+                        localStorage.setItem('license_fingerprint', fingerprint);
+                        hideLicenseOverlay();
+                        showNotification('✅ Ativado com sucesso!', 2000);
+                        // Se não tiver ativado o áudio ainda, mostra o botão
+                        if (!isBackgroundActive) {
+                            document.getElementById('btnAtivar').style.display = 'block';
+                            document.getElementById('projectTitle').style.display = 'block';
                         }
+                        // Recarrega para iniciar o player completamente
+                        setTimeout(() => location.reload(), 500);
                     } else {
-                        countdownTimer.textContent = formatTime(remaining);
+                        alert('❌ ' + (data.message || 'Código inválido'));
                     }
-                }, 1000);
+                })
+                .catch(() => alert('Erro ao validar. Verifique sua conexão.'));
             }
 
-            // ============================================================
-            // VALIDAÇÃO DA LICENÇA (SIMULADA PARA TESTE)
-            // ============================================================
+            // ========== INICIALIZAÇÃO DA LICENÇA ==========
+            function initLicense() {
+                // Se já tiver licença válida e fingerprint bater, libera
+                if (localStorage.getItem('license_valid') === 'true') {
+                    const savedFingerprint = localStorage.getItem('license_fingerprint');
+                    if (savedFingerprint && savedFingerprint === getFingerprint()) {
+                        // Licença válida, libera o player
+                        document.getElementById('appContainer').style.display = 'block';
+                        document.getElementById('btnAtivar').style.display = 'block';
+                        document.getElementById('projectTitle').style.display = 'block';
+                        return;
+                    } else {
+                        // Fingerprint diferente, pede reativação
+                        localStorage.removeItem('license_valid');
+                        localStorage.removeItem('license_fingerprint');
+                    }
+                }
 
-            function activateLicense() {
-                const code = licenseKeyInput.value.trim();
-                if (!code) {
-                    licenseStatus.textContent = '❌ Digite um código.';
-                    licenseStatus.style.color = '#ff2d7f';
+                // Verifica teste
+                const remaining = getTrialRemaining();
+                if (remaining > 0) {
+                    // Mostra o player normalmente, mas com aviso de tempo restante
+                    document.getElementById('appContainer').style.display = 'block';
+                    document.getElementById('btnAtivar').style.display = 'block';
+                    document.getElementById('projectTitle').style.display = 'block';
+                    // Opcional: mostrar contador no canto
+                    console.log(`Teste grátis: ${Math.ceil(remaining)} minutos restantes`);
+                    // Aviso sutil (pode ser removido)
+                    showNotification(`⏳ Teste grátis: ${Math.ceil(remaining)} min restantes`, 3000);
                     return;
                 }
 
-                // SIMULAÇÃO: qualquer código com 8 caracteres ou mais funciona no teste
-                // No sistema real, você faria uma requisição para o backend (validate.php)
-                if (code.length >= 8) {
-                    localStorage.setItem(LICENSE_KEY, 'true');
-                    licenseStatus.textContent = '✅ Ativado com sucesso!';
-                    licenseStatus.style.color = '#4ade80';
-                    setTimeout(() => {
-                        hideLicenseScreen();
-                        // Recarrega o player (ativa o áudio etc)
-                        if (typeof iniciarApp === 'function') {
-                            iniciarApp();
-                        } else {
-                            location.reload();
-                        }
-                    }, 1000);
-                } else {
-                    licenseStatus.textContent = '❌ Código inválido (mínimo 8 caracteres).';
-                    licenseStatus.style.color = '#ff2d7f';
-                }
+                // Teste expirado: mostra overlay de ativação
+                showLicenseOverlay(0);
+
+                // Evento do botão ativar
+                document.getElementById('activateBtn').addEventListener('click', function() {
+                    const code = document.getElementById('licenseKey').value.trim();
+                    if (!code) { alert('Digite o código de ativação'); return; }
+                    validateLicense(code);
+                });
+
+                // Permitir Enter no campo
+                document.getElementById('licenseKey').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') document.getElementById('activateBtn').click();
+                });
             }
 
+            // Chama a inicialização da licença antes de qualquer outra coisa
+            initLicense();
+
             // ============================================================
-            // INICIALIZAÇÃO DO PLAYER (mantido do código original)
+            // RESTO DO CÓDIGO DO PLAYER (mantido do original, com ajustes)
             // ============================================================
 
             // ========== MÍDIAS ==========
@@ -474,7 +541,9 @@
             const playlistCache = {};
             let ultimoId = null;
             let carregandoMusica = false;
-            let audioTimeout = null;
+            let audioTimeout = null; // timeout da tentativa
+
+            // Favoritos simples (apenas IDs)
             let favorites = [];
 
             // Elementos DOM
@@ -504,8 +573,11 @@
             function carregarFavoritos() {
                 const saved = localStorage.getItem('radio_favorites_simple');
                 if (saved) {
-                    try { favorites = JSON.parse(saved); } catch(e) { favorites = []; }
-                } else { favorites = []; }
+                    try { favorites = JSON.parse(saved); }
+                    catch(e) { favorites = []; }
+                } else {
+                    favorites = [];
+                }
                 favorites = [...new Set(favorites)];
                 salvarFavoritos();
             }
@@ -682,7 +754,7 @@
                 setTimeout(() => notification.classList.remove('show'), duration);
             }
 
-            function formatTimeSec(sec) {
+            function formatTime(sec) {
                 if (!sec || isNaN(sec)) return "0:00";
                 const m = Math.floor(sec / 60);
                 const s = Math.floor(sec % 60);
@@ -948,6 +1020,7 @@
                 });
             }
 
+            // playMusic com loop e limpeza
             async function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) {
@@ -977,10 +1050,15 @@
 
                 // LIMPEZA ANTES DE TOCAR
                 stopTimer();
-                if (audioTimeout) { clearTimeout(audioTimeout); audioTimeout = null; }
+                if (audioTimeout) {
+                    clearTimeout(audioTimeout);
+                    audioTimeout = null;
+                }
+                // Remove listeners antigos
                 audio.oncanplay = null;
                 audio.onerror = null;
                 audio.onended = null;
+
                 audio.pause();
                 audio.src = '';
                 audio.load();
@@ -1026,6 +1104,7 @@
                 }
             }
 
+            // Pré-carregamento
             let preloadAudio = new Audio();
             preloadAudio.preload = 'auto';
 
@@ -1050,13 +1129,14 @@
                 } catch(e) {}
             }
 
+            // Timer
             function startTimer() {
                 stopTimer();
                 timerInterval = setInterval(() => {
                     if (isPlaying && audio.duration && !audio.paused && audio.duration !== Infinity) {
                         progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
-                        currentTimeEl.textContent = formatTimeSec(audio.currentTime);
-                        totalTimeEl.textContent = formatTimeSec(audio.duration);
+                        currentTimeEl.textContent = formatTime(audio.currentTime);
+                        totalTimeEl.textContent = formatTime(audio.duration);
                         if (audio.currentTime >= audio.duration - 0.5) {
                             if (!carregandoMusica) nextTrack();
                         }
@@ -1065,7 +1145,10 @@
             }
 
             function stopTimer() {
-                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
             }
 
             // ========== CONTROLES ==========
@@ -1239,57 +1322,18 @@
                 showNotification(`✅ Playlist recarregada (${musicas.length} músicas)`, 2000);
             }
 
-            // ========== INICIALIZAÇÃO COM VERIFICAÇÃO DE LICENÇA ==========
-            async function iniciarApp() {
-                // 1. Verifica se a licença é válida
-                if (isLicenseValid()) {
-                    // Licença válida, inicia o player normalmente
-                    await iniciarPlayer();
-                    return;
-                }
-
-                // 2. Verifica se o teste expirou
-                if (isTrialExpired()) {
-                    // Teste expirado, mostra tela de bloqueio
-                    showLicenseScreen(true);
-                    return;
-                }
-
-                // 3. Teste ativo: inicia o player e mostra o timer
-                await iniciarPlayer();
-
-                // Mostra um timer discreto no canto (opcional)
-                // E inicia a contagem regressiva para bloquear quando acabar
-                const remaining = getTrialRemaining();
-                if (remaining > 0) {
-                    showNotification(`⏳ Teste grátis: ${formatTime(remaining)} restantes`, 3000);
-                    // Inicia um timer que verifica a cada 5 segundos se expirou
-                    const checkInterval = setInterval(() => {
-                        if (isTrialExpired()) {
-                            clearInterval(checkInterval);
-                            if (!isLicenseValid()) {
-                                // Bloqueia o player
-                                showLicenseScreen(true);
-                                // Pausa a música se estiver tocando
-                                audio.pause();
-                                isPlaying = false;
-                                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                                stopTimer();
-                            }
-                        }
-                    }, 5000);
-                    // Armazena o intervalo para limpar depois se necessário
-                    window._trialCheck = checkInterval;
-                }
-            }
-
-            // ========== INICIALIZAÇÃO DO PLAYER (sem verificação de licença) ==========
-            async function iniciarPlayer() {
+            // ========== INICIALIZAÇÃO ==========
+            async function iniciar() {
                 criarElementosMidia();
-                projectTitle.style.display = 'block';
-                btnAtivar.style.display = 'block';
                 carregarFavoritos();
                 atualizarBadgeFavoritos();
+
+                // Se licença já foi validada, mostra o player
+                if (localStorage.getItem('license_valid') === 'true') {
+                    document.getElementById('appContainer').style.display = 'block';
+                    document.getElementById('btnAtivar').style.display = 'block';
+                    document.getElementById('projectTitle').style.display = 'block';
+                }
 
                 let lista = await carregarPlaylistPorGenero('PADRÃO');
                 let generoInicial = 'PADRÃO';
@@ -1329,23 +1373,10 @@
                     if (audioTimeout) clearTimeout(audioTimeout);
                     audio.pause();
                     audio.src = '';
-                    if (window._trialCheck) clearInterval(window._trialCheck);
                 });
             }
 
-            // ============================================================
-            // EVENTOS DA TELA DE BLOQUEIO
-            // ============================================================
-
-            activateBtn.addEventListener('click', activateLicense);
-            licenseKeyInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') activateLicense();
-            });
-
-            // ============================================================
-            // EVENTOS DO PLAYER (idênticos ao original)
-            // ============================================================
-
+            // ========== EVENTOS ==========
             btnAtivar.addEventListener('click', async function() {
                 btnAtivar.style.display = 'none';
                 projectTitle.style.display = 'none';
@@ -1600,7 +1631,7 @@
                 showControls();
             }
 
-            // Eventos do áudio
+            // Eventos do áudio (reatribuídos após limpeza)
             audio.addEventListener('play', () => {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1615,11 +1646,8 @@
                 if (!carregandoMusica) nextTrack();
             });
 
-            // ============================================================
-            // INICIALIZAÇÃO PRINCIPAL
-            // ============================================================
-
-            window.addEventListener('load', iniciarApp);
+            // Inicializa o player (já temos a licença tratada)
+            window.addEventListener('load', iniciar);
         })();
     </script>
 </body>
