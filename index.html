@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; margin: 0; padding: 0; background: #0a0a0a; overflow: hidden; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
@@ -126,18 +127,39 @@
             100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
         }
         
+        /* APP - ocupando toda a tela */
         .app { 
-            position: relative; 
-            z-index: 10; 
-            width: 100%; 
-            height: 100vh; 
-            display: none; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            background: transparent; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+            display: none;
+            flex-direction: column;
+            background: transparent;
+            padding-top: 42px; /* altura da top-bar + borda */
         }
         
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: nowrap; gap: 4px; flex-shrink: 0; }
+        /* TOP BAR - fixa no topo */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 35;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            flex-wrap: nowrap;
+            gap: 4px;
+            flex-shrink: 0;
+            height: 42px; /* fixa altura */
+        }
         .genre-badge { background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 30px; font-size: 0.55rem; font-weight: bold; color: #fff; border-left: 2px solid #00f3ff; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30%; cursor: pointer; flex-shrink: 1; min-width: 40px; }
         .genre-badge:active { transform: scale(0.95); }
         .genre-badge.favoritos { border-left-color: #ff2d7f; color: #ff2d7f; background: rgba(255,45,127,0.15); }
@@ -161,20 +183,69 @@
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
         .menu-popup .close-menu-btn { background: rgba(255,45,127,0.2); border: 1px solid #ff2d7f; color: #ff2d7f; }
         
-        .info-scroll { position: fixed; top: 34px; left: 0; right: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 12px; z-index: 30; border-bottom: 1px solid rgba(255,255,255,0.05); overflow: hidden; white-space: nowrap; }
-        .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 2px; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 30px rgba(0,0,0,0.8); text-transform: uppercase; }
+        /* LETREIRO - fixo logo abaixo da top-bar */
+        .info-scroll {
+            position: fixed;
+            top: 42px; /* mesma altura da top-bar */
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            white-space: nowrap;
+            height: 34px;
+            display: flex;
+            align-items: center;
+        }
+        .info-scroll p {
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            animation: scrollText 20s linear infinite;
+            display: inline-block;
+            padding-right: 50px;
+            text-shadow: 0 0 30px rgba(0,0,0,0.8);
+            text-transform: uppercase;
+            margin: 0;
+        }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        .now-playing { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 15; width: 90%; max-width: 400px; user-select: none; -webkit-user-select: none; }
+        .now-playing {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 15;
+            width: 90%;
+            max-width: 400px;
+            user-select: none;
+            -webkit-user-select: none;
+            margin-top: -20px; /* centraliza melhor */
+        }
         .now-playing .music-title, .now-playing .music-artist { display: none; }
         .fav-heart-center { display: flex; justify-content: center; margin: 0; }
         .now-playing .fav-heart { font-size: 4rem; color: #555; cursor: pointer; transition: all 0.3s; text-shadow: 0 0 30px rgba(0,0,0,0.9); display: inline-block; }
         .now-playing .fav-heart.active { color: #ff2d7f; text-shadow: 0 0 40px rgba(255,45,127,0.5); }
         .now-playing .fav-heart:active { transform: scale(1.2); }
         
-        /* BARRA DE ENSINO REMOVIDA */
-        
-        .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); padding: 6px 12px 10px; z-index: 20; transform: translateY(100%); transition: transform 0.3s ease; }
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 6px 12px 10px;
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
         .bottom-controls.visible { transform: translateY(0); }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.5rem; color: #aaa; margin-bottom: 2px; }
         .progress-bar { height: 3px; background: rgba(255,255,255,0.15); cursor: pointer; border-radius: 4px; overflow: hidden; }
@@ -197,7 +268,7 @@
         .fab-sub-btn i { font-size: 0.85rem; width: 18px; text-align: center; pointer-events: none; }
         .fab-sub-btn .fab-icon-youtube { color: #FF0000; }
         
-        .notification { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); color: var(--neon-cyan); padding: 3px 12px; border-radius: 30px; font-size: 0.55rem; z-index: 10001; opacity: 0; transition: opacity 0.3s; pointer-events: none; border-left: 3px solid var(--neon-cyan); }
+        .notification { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); color: var(--neon-cyan); padding: 3px 12px; border-radius: 30px; font-size: 0.55rem; z-index: 10001; opacity: 0; transition: opacity 0.3s; pointer-events: none; border-left: 3px solid var(--neon-cyan); }
         .notification.show { opacity: 1; }
         
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9998; align-items: center; justify-content: center; }
@@ -510,8 +581,8 @@
             .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; }
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
             .fab-sub-btn { padding: 5px 10px; font-size: 0.55rem; min-width: 85px; }
-            .top-bar { padding: 4px 6px; }
-            .info-scroll { top: 32px; padding: 4px 10px; }
+            .top-bar { padding: 4px 6px; height: 38px; }
+            .info-scroll { top: 38px; height: 30px; padding: 3px 10px; }
             .info-scroll p { font-size: 0.7rem; letter-spacing: 1px; }
             .ctrl-btn { width: 28px; height: 28px; font-size: 0.65rem; }
             .play-big { width: 36px; height: 36px; font-size: 0.9rem; }
@@ -525,6 +596,7 @@
             .fav-modal, .feedback-modal, .historico-modal, #playlistsModal { padding: 20px; max-width: 340px; }
             .sugestoes-pastas button { font-size: 0.55rem; padding: 3px 10px; }
             .feedback-modal .star { font-size: 1.5rem; }
+            .app { padding-top: 38px; }
         }
     </style>
 </head>
@@ -545,6 +617,7 @@
 
     <!-- APP -->
     <div class="app" id="appContainer">
+        <!-- TOP BAR (fixa) -->
         <div class="top-bar" id="topBar">
             <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
             <div class="top-buttons">
@@ -556,6 +629,7 @@
             </div>
         </div>
         
+        <!-- LETREIRO (fixo) -->
         <div class="info-scroll" id="infoScroll">
             <p id="scrollText">🎵 VAI DE BOA! MUSIC - TOCANDO AGORA! 🎵</p>
         </div>
@@ -670,8 +744,7 @@
             'use strict';
 
             // ==============================
-            // TODAS AS MÍDIAS ATIVAS (vídeos e imagens)
-            // A primeira é a imagem vai1.png (abre em tela cheia)
+            // TODAS AS MÍDIAS ATIVAS
             const midias = [
                 { tipo: 'imagem', src: 'vai1.png' },
                 { tipo: 'video', src: 'vai1.mp4' },
@@ -1042,7 +1115,6 @@
                         el.loop = false;
                         el.preload = 'auto';
                         el.load();
-                        // Força o carregamento do vídeo
                         el.addEventListener('loadedmetadata', function() {
                             console.log('Vídeo carregado:', m.src);
                         });
@@ -1055,7 +1127,6 @@
                         });
                         el.addEventListener('error', function() {
                             console.warn('Erro ao carregar imagem:', m.src);
-                            // Fallback: se imagem não carregar, mostra fundo escuro
                             el.style.background = '#0a0a0a';
                         });
                     }
@@ -1064,7 +1135,6 @@
                     mediaContainer.appendChild(el);
                     elementosMidia.push(el);
                 });
-                // Ativa o primeiro (será a imagem vai1.png)
                 if (elementosMidia.length > 0) {
                     elementosMidia[0].classList.remove('inactive');
                     elementosMidia[0].classList.add('active');
@@ -1076,7 +1146,6 @@
                 const atual = elementosMidia[midiaAtual];
                 if (!atual) return;
 
-                // Desativa o atual
                 atual.classList.remove('active');
                 atual.classList.add('inactive');
                 if (atual.tagName === 'VIDEO') {
@@ -1084,32 +1153,22 @@
                     atual.currentTime = 0;
                 }
 
-                // Próximo índice
                 midiaAtual = (midiaAtual + 1) % elementosMidia.length;
                 const proximo = elementosMidia[midiaAtual];
                 proximo.classList.remove('inactive');
                 proximo.classList.add('active');
 
-                // Se for vídeo, tenta reproduzir
                 if (proximo.tagName === 'VIDEO') {
                     proximo.play().catch(err => {
                         console.warn('Erro ao reproduzir vídeo:', err);
-                        // Se falhar, força troca após 2s
-                        setTimeout(() => {
-                            alternarMidia();
-                        }, 2000);
+                        setTimeout(() => alternarMidia(), 2000);
                     });
-                    // Quando o vídeo terminar, força a troca
                     proximo.onended = function() {
                         if (intervaloTroca) clearTimeout(intervaloTroca);
-                        intervaloTroca = setTimeout(() => {
-                            alternarMidia();
-                        }, 2000); // 2s após o vídeo terminar
+                        intervaloTroca = setTimeout(() => alternarMidia(), 2000);
                     };
-                    // Se o vídeo demorar mais de 10s, força troca (segurança)
                     setTimeout(() => {
                         if (proximo.classList.contains('active')) {
-                            // Verifica se o vídeo está travado
                             if (proximo.currentTime === 0 && !proximo.paused) {
                                 console.warn('Vídeo travado, forçando troca');
                                 alternarMidia();
@@ -1117,11 +1176,8 @@
                         }
                     }, 10000);
                 } else {
-                    // Imagem: fica 5 segundos
                     if (intervaloTroca) clearTimeout(intervaloTroca);
-                    intervaloTroca = setTimeout(() => {
-                        alternarMidia();
-                    }, 5000);
+                    intervaloTroca = setTimeout(() => alternarMidia(), 5000);
                 }
             }
 
@@ -1131,23 +1187,15 @@
                 if (primeiro.tagName === 'VIDEO') {
                     primeiro.play().catch(err => {
                         console.warn('Erro ao iniciar vídeo:', err);
-                        // Se falhar, força troca após 2s
-                        setTimeout(() => {
-                            alternarMidia();
-                        }, 2000);
+                        setTimeout(() => alternarMidia(), 2000);
                     });
                     primeiro.onended = function() {
                         if (intervaloTroca) clearTimeout(intervaloTroca);
-                        intervaloTroca = setTimeout(() => {
-                            alternarMidia();
-                        }, 2000);
+                        intervaloTroca = setTimeout(() => alternarMidia(), 2000);
                     };
                 } else {
-                    // A primeira é imagem, então programa a troca após 5s
                     if (intervaloTroca) clearTimeout(intervaloTroca);
-                    intervaloTroca = setTimeout(() => {
-                        alternarMidia();
-                    }, 5000);
+                    intervaloTroca = setTimeout(() => alternarMidia(), 5000);
                 }
             }
 
@@ -1892,7 +1940,7 @@
                 buildGenresGrid();
                 renderFavList();
 
-                // Inicia alternância de mídia (se houver mais de um item)
+                // Inicia alternância de mídia
                 if (elementosMidia.length > 1) {
                     iniciarAlternancia();
                 }
@@ -1906,11 +1954,10 @@
             btnAtivar.addEventListener('click', async function() {
                 btnAtivar.style.display = 'none';
                 projectTitle.style.display = 'none';
-                appContainer.style.display = 'flex';
+                appContainer.style.display = 'block';
                 showNotification('🔊 Ativando áudio...', 1000);
                 await ativarAudio();
                 goFullscreen();
-                // Inicia a alternância se ainda não tiver começado
                 if (elementosMidia.length > 1) {
                     iniciarAlternancia();
                 }
