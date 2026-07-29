@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PLAY 12 • Player</title>
+    <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
-        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 1; }
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0; transition: opacity 0.8s ease; }
+        .video-bg.show { opacity: 1; }
+        
         .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: nowrap; gap: 4px; flex-shrink: 0; }
@@ -74,9 +77,11 @@
         .fab-sub-btn i { font-size: 0.85rem; width: 18px; text-align: center; pointer-events: none; }
         .fab-sub-btn .fab-icon-youtube { color: #FF0000; }
         
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        /* SPLASH COM IMAGEM */
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s ease; }
         #splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-loading { text-align: center; color: white; }
+        #splash img { max-width: 90%; max-height: 80%; object-fit: contain; border-radius: 20px; box-shadow: 0 0 60px rgba(0,243,255,0.2); }
+        .splash-loading { text-align: center; color: white; display: none; }
         .splash-loading i { font-size: 2rem; color: var(--neon-cyan); }
         .splash-loading p { margin-top: 10px; font-size: 0.85rem; }
         
@@ -91,6 +96,7 @@
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Modais */
         .fav-modal, .feedback-modal, .historico-modal {
             position: fixed;
             top: 50%;
@@ -270,6 +276,60 @@
             margin-top: 5px;
         }
         
+        /* Modal de Pastas (Playlists) */
+        #playlistsModal .pasta-input-area {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+        #playlistsModal .pasta-input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 0.8rem;
+        }
+        #playlistsModal .pasta-input-area button {
+            background: var(--neon-cyan);
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .playlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: white;
+        }
+        .playlist-item .info { flex: 1; cursor: pointer; min-width: 0; }
+        .playlist-item .info .title { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .playlist-item .info .sub { font-size: 0.6rem; color: #666; }
+        .playlist-item .actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+        .playlist-item .actions button {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .playlist-item .actions button.play-btn { background: var(--neon-cyan); color: #000; }
+        .playlist-item .actions button.del-btn { color: #ff2d7f; }
+        .playlist-item .actions button:active { transform: scale(0.9); }
+        
         @media (max-width: 480px) {
             .now-playing .fav-heart { font-size: 3rem; }
             .genre-badge { font-size: 0.45rem; max-width: 22%; padding: 2px 6px; }
@@ -290,7 +350,7 @@
             .fab-container { bottom: 80px; right: 8px; }
             .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
             #tap-to-start { padding: 10px 18px; font-size: 0.9rem; bottom: 25%; }
-            .fav-modal, .feedback-modal, .historico-modal { padding: 20px; max-width: 340px; }
+            .fav-modal, .feedback-modal, .historico-modal, #playlistsModal { padding: 20px; max-width: 340px; }
         }
     </style>
 </head>
@@ -299,7 +359,9 @@
         <source src="abc1.mp4" type="video/mp4">
     </video>
 
+    <!-- SPLASH COM IMAGEM -->
     <div id="splash">
+        <img src="vai1.png" alt="Bem-vindo ao PLAY 12" id="splashImg">
         <div class="splash-loading">
             <i class="fas fa-circle-notch fa-spin"></i>
             <p>Carregando playlist...</p>
@@ -333,11 +395,27 @@
         <div class="teaching-bar">👆 Toque na tela para <span class="cyan">controles</span></div>
     </div>
 
-    <!-- Modais -->
+    <!-- MODAL DE PASTAS (PLAYLISTS) -->
+    <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
+        <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
+        <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
+        
+        <div class="pasta-input-area">
+            <input type="text" id="novaPastaInput" placeholder="Ex: Treino, Festa...">
+            <button id="criarPastaBtn">+ Criar</button>
+        </div>
+        
+        <div class="fav-list" id="playlistsList">
+            <!-- Renderizado pelo JS -->
+        </div>
+        <button class="close-btn" id="closePlaylistsBtn">FECHAR</button>
+    </div>
+
+    <!-- MODAL DE FAVORITOS (reutilizado para mostrar músicas de uma pasta) -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
-        <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Suas Favoritas</h3>
-        <div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música favorita</div></div>
+        <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Músicas</h3>
+        <div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música</div></div>
         <button class="close-btn" id="closeFavBtn">FECHAR</button>
     </div>
 
@@ -409,6 +487,7 @@
         (function() {
             'use strict';
 
+            // ---------- PLAYLISTS E CONFIGURAÇÕES ----------
             const PLAYLIST_RELIGIOSA_FALLBACK = [
                 {"id":682,"artist":"Churrasco Cerveja e Viola","title":"Nada Mudou","genero":"RELIGIOSA","src":"Valeria-varros.mp3"},
                 {"id":683,"artist":"Cleber Cauan","title":"I Love You Baby","genero":"RELIGIOSA","src":"Cleber-Cauan-Resenha-na-Fazenda.mp3"},
@@ -448,6 +527,7 @@
                 'MODA TOP': '#ff4400'
             };
 
+            // Variáveis globais
             let musicas = [];
             let currentPlaylist = [];
             let currentIndex = 0;
@@ -457,7 +537,6 @@
             let timerInterval = null;
             let modoAtual = "PADRÃO";
             let historicoReproducao = [];
-            let favorites = [];
             let modoFavoritosAtivo = false;
             let fabOpen = false;
             let sleepTimer = null;
@@ -466,6 +545,224 @@
             let ultimoId = null;
             let carregandoMusica = false;
 
+            // ---------- NOVO SISTEMA DE PASTAS (PLAYLISTS) ----------
+            let playlists = {};         // { nomePasta: [id1, id2, ...] }
+            let pastaAtiva = 'Favoritos';
+
+            function carregarPlaylists() {
+                const saved = localStorage.getItem('radio_user_playlists');
+                if (saved) {
+                    try {
+                        playlists = JSON.parse(saved);
+                        if (!playlists['Favoritos']) playlists['Favoritos'] = [];
+                    } catch(e) {
+                        playlists = { 'Favoritos': [] };
+                    }
+                } else {
+                    playlists = { 'Favoritos': [] };
+                }
+                // Remove duplicatas
+                for (let key in playlists) {
+                    playlists[key] = [...new Set(playlists[key])];
+                }
+                salvarPlaylists();
+            }
+
+            function salvarPlaylists() {
+                localStorage.setItem('radio_user_playlists', JSON.stringify(playlists));
+            }
+
+            function criarPasta(nome) {
+                nome = nome.trim();
+                if (!nome) { showNotification('Digite um nome!', 1000); return false; }
+                if (playlists[nome]) { showNotification('⚠️ Pasta já existe!', 1000); return false; }
+                playlists[nome] = [];
+                salvarPlaylists();
+                renderizarListaPastas();
+                showNotification(`✅ Pasta "${nome}" criada!`, 1500);
+                return true;
+            }
+
+            function excluirPasta(nome) {
+                if (nome === 'Favoritos') { showNotification('Não pode excluir a padrão', 1000); return; }
+                if (!confirm(`Deletar a pasta "${nome}" e todas as músicas dentro dela?`)) return;
+                delete playlists[nome];
+                salvarPlaylists();
+                renderizarListaPastas();
+                showNotification(`🗑️ Pasta "${nome}" excluída`, 1500);
+            }
+
+            function adicionarMusicaNaPasta(musicId, nomePasta) {
+                if (!playlists[nomePasta]) {
+                    showNotification('Pasta não encontrada', 1000);
+                    return;
+                }
+                if (playlists[nomePasta].includes(musicId)) {
+                    showNotification('⚠️ Música já está nesta pasta', 1000);
+                    return;
+                }
+                playlists[nomePasta].push(musicId);
+                salvarPlaylists();
+                renderizarListaPastas();
+                showNotification(`✅ Adicionada em "${nomePasta}"`, 1000);
+            }
+
+            function removerMusicaDaPasta(musicId, nomePasta) {
+                if (!playlists[nomePasta]) return;
+                playlists[nomePasta] = playlists[nomePasta].filter(id => id !== musicId);
+                salvarPlaylists();
+                renderizarListaPastas();
+                showNotification(`🗑️ Removida de "${nomePasta}"`, 1000);
+            }
+
+            function toggleFavorito(musicId) {
+                // Adiciona/remove na pasta padrão "Favoritos"
+                const pasta = 'Favoritos';
+                if (!playlists[pasta]) playlists[pasta] = [];
+                const index = playlists[pasta].indexOf(musicId);
+                if (index > -1) {
+                    playlists[pasta].splice(index, 1);
+                    showNotification('❤️ Removido dos favoritos', 1000);
+                } else {
+                    playlists[pasta].push(musicId);
+                    showNotification('❤️ Adicionado aos favoritos!', 1000);
+                }
+                salvarPlaylists();
+                updateHeartIcon(musicId);
+                renderizarListaPastas();
+                atualizarBadgeFavoritos();
+            }
+
+            function atualizarBadgeFavoritos() {
+                const qtd = (playlists['Favoritos'] || []).length;
+                document.getElementById('favCount').textContent = qtd;
+            }
+
+            function tocarPasta(nomePasta) {
+                const ids = playlists[nomePasta] || [];
+                if (ids.length === 0) { showNotification(`⚠️ "${nomePasta}" está vazia!`, 1500); return; }
+                
+                const musicasDaPasta = ids.map(id => musicas.find(m => m.id === id)).filter(Boolean);
+                if (musicasDaPasta.length === 0) { showNotification('Nenhuma música válida', 1000); return; }
+                
+                pastaAtiva = nomePasta;
+                modoFavoritosAtivo = false;
+                modoAtual = `📁 ${nomePasta}`;
+                
+                currentPlaylist = shuffleArray([...musicasDaPasta]);
+                currentIndex = 0;
+                historicoReproducao = [];
+                ultimoId = null;
+                
+                const primeira = currentPlaylist[0];
+                if (primeira) {
+                    updateNowPlaying(primeira);
+                    adicionarAoHistorico(primeira);
+                }
+                
+                document.getElementById('genreBadge').innerHTML = `📁 ${nomePasta} (${musicasDaPasta.length})`;
+                document.getElementById('genreBadge').className = 'genre-badge';
+                document.getElementById('playlistsModal').classList.remove('open');
+                
+                if (isBackgroundActive) {
+                    setTimeout(() => playMusic(), 200);
+                }
+                showNotification(`🎵 Tocando: ${nomePasta}`, 2000);
+            }
+
+            // Renderiza a lista de pastas no modal
+            function renderizarListaPastas() {
+                const container = document.getElementById('playlistsList');
+                container.innerHTML = '';
+                const nomes = Object.keys(playlists);
+                if (nomes.length === 0) {
+                    container.innerHTML = '<div class="fav-empty">Crie sua primeira pasta!</div>';
+                    return;
+                }
+                nomes.forEach(nome => {
+                    const ids = playlists[nome] || [];
+                    const qtd = ids.length;
+                    const div = document.createElement('div');
+                    div.className = 'playlist-item';
+                    // Preview dos títulos
+                    let preview = '';
+                    const primeiras = ids.slice(0, 2).map(id => {
+                        const m = musicas.find(mus => mus.id === id);
+                        return m ? m.title : '?';
+                    });
+                    preview = primeiras.join(', ');
+                    if (ids.length > 2) preview += ` +${ids.length - 2}`;
+                    
+                    div.innerHTML = `
+                        <div class="info" data-pasta="${nome}">
+                            <div class="title">📁 ${nome} <span style="font-size:0.6rem; color:#888;">(${qtd})</span></div>
+                            <div class="sub">${preview || 'Vazia'}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="play-btn" data-pasta="${nome}"><i class="fas fa-play"></i></button>
+                            ${nome !== 'Favoritos' ? `<button class="del-btn" data-pasta="${nome}"><i class="fas fa-trash-alt"></i></button>` : ''}
+                        </div>
+                    `;
+                    // Click no nome abre os detalhes da pasta
+                    div.querySelector('.info').addEventListener('click', () => {
+                        abrirDetalhesPasta(nome);
+                    });
+                    // Botão play
+                    div.querySelector('.play-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        tocarPasta(nome);
+                    });
+                    // Botão deletar
+                    const del = div.querySelector('.del-btn');
+                    if (del) {
+                        del.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            excluirPasta(nome);
+                        });
+                    }
+                    container.appendChild(div);
+                });
+            }
+
+            // Abre o modal de favoritos (reutilizado) para mostrar músicas de uma pasta
+            function abrirDetalhesPasta(nome) {
+                const ids = playlists[nome] || [];
+                if (ids.length === 0) { showNotification('Pasta vazia', 1000); return; }
+                const musicasDaPasta = ids.map(id => musicas.find(m => m.id === id)).filter(Boolean);
+                const favList = document.getElementById('favList');
+                favList.innerHTML = '';
+                if (musicasDaPasta.length === 0) {
+                    favList.innerHTML = '<div class="fav-empty">Nenhuma música</div>';
+                } else {
+                    musicasDaPasta.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'fav-item';
+                        div.innerHTML = `
+                            <div class="info" data-id="${m.id}" style="cursor:pointer;">
+                                <div class="title">${m.title}</div>
+                                <div class="artist">${m.artist}</div>
+                            </div>
+                            <button class="remove" data-id="${m.id}" data-pasta="${nome}"><i class="fas fa-times-circle"></i></button>
+                        `;
+                        div.querySelector('.info').addEventListener('click', () => {
+                            playSongById(m.id);
+                            document.getElementById('favModal').classList.remove('open');
+                        });
+                        div.querySelector('.remove').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            removerMusicaDaPasta(m.id, nome);
+                            abrirDetalhesPasta(nome); // re-renderiza
+                        });
+                        favList.appendChild(div);
+                    });
+                }
+                document.getElementById('favModal').querySelector('h3').innerHTML = `📁 ${nome} (${musicasDaPasta.length})`;
+                document.getElementById('favModal').classList.add('open');
+            }
+
+            // ---------- FIM DO SISTEMA DE PASTAS ----------
+
+            // Elementos DOM
             const audio = document.getElementById('musicPlayer');
             const playBtn = document.getElementById('playBtn');
             const progressFill = document.getElementById('progressFill');
@@ -487,7 +784,9 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             const backgroundAudio = document.getElementById('backgroundAudio');
             const menuPopup = document.getElementById('menuPopup');
+            const bgVideo = document.getElementById('bgVideo');
 
+            // Funções auxiliares
             function showNotification(msg, duration = 1500) {
                 notification.textContent = msg;
                 notification.classList.add('show');
@@ -600,82 +899,29 @@
                 return Array.from(urls);
             }
 
-            function updateFavCount() {
-                favCount.textContent = favorites.length;
-            }
-
-            function toggleFavorito(musicId) {
-                const index = favorites.indexOf(musicId);
-                if (index > -1) {
-                    favorites.splice(index, 1);
-                    showNotification('❤️ Removido dos favoritos', 1000);
-                } else {
-                    favorites.push(musicId);
-                    showNotification('❤️ Adicionado aos favoritos!', 1000);
-                }
-                localStorage.setItem('radio_favorites_simple', JSON.stringify(favorites));
-                updateHeartIcon(musicId);
-                renderFavList();
-                buildGenresGrid();
-            }
-
             function updateHeartIcon(musicId) {
-                if (favorites.includes(musicId)) {
+                const pastaFav = 'Favoritos';
+                const favs = playlists[pastaFav] || [];
+                if (favs.includes(musicId)) {
                     heartBtn.className = 'fav-heart active';
                     heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
                 } else {
                     heartBtn.className = 'fav-heart';
                     heartBtn.innerHTML = '<i class="far fa-heart"></i>';
                 }
-                updateFavCount();
-            }
-
-            function renderFavList() {
-                const favList = document.getElementById('favList');
-                favList.innerHTML = '';
-                if (favorites.length === 0) {
-                    favList.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
-                    return;
-                }
-                const favMusicas = favorites.map(id => musicas.find(m => m.id === id)).filter(Boolean);
-                favMusicas.forEach(m => {
-                    const div = document.createElement('div');
-                    div.className = 'fav-item';
-                    div.innerHTML = `
-                        <div class="info" data-id="${m.id}">
-                            <div class="title">${m.title}</div>
-                            <div class="artist">${m.artist}</div>
-                        </div>
-                        <button class="remove" data-id="${m.id}"><i class="fas fa-times-circle"></i></button>
-                    `;
-                    div.querySelector('.info').addEventListener('click', () => {
-                        playSongById(m.id);
-                        document.getElementById('favModal').classList.remove('open');
-                    });
-                    div.querySelector('.remove').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleFavorito(m.id);
-                        renderFavList();
-                        updateFavCount();
-                        buildGenresGrid();
-                    });
-                    favList.appendChild(div);
-                });
-            }
-
-            function openFavModal() {
-                renderFavList();
-                document.getElementById('favModal').classList.add('open');
+                atualizarBadgeFavoritos();
             }
 
             function entrarModoFavoritos() {
-                if (favorites.length === 0) { showNotification('⚠️ Nenhuma favorita!', 1500); return; }
-                const favMusicas = favorites.map(id => musicas.find(m => m.id === id)).filter(Boolean);
-                if (favMusicas.length === 0) { showNotification('⚠️ Favoritas não encontradas', 1500); return; }
+                const pasta = 'Favoritos';
+                const ids = playlists[pasta] || [];
+                if (ids.length === 0) { showNotification('⚠️ Nenhuma favorita!', 1500); return; }
+                const musicasDaPasta = ids.map(id => musicas.find(m => m.id === id)).filter(Boolean);
+                if (musicasDaPasta.length === 0) { showNotification('⚠️ Favoritas não encontradas', 1500); return; }
                 
                 modoFavoritosAtivo = true;
                 modoAtual = "FAVORITOS";
-                currentPlaylist = shuffleArray([...favMusicas]);
+                currentPlaylist = shuffleArray([...musicasDaPasta]);
                 currentIndex = 0;
                 historicoReproducao = [];
                 ultimoId = null;
@@ -684,10 +930,11 @@
                     updateNowPlaying(m);
                     adicionarAoHistorico(m);
                 }
-                genreBadge.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;"></i> ❤️ FAVORITOS (${favorites.length})`;
+                genreBadge.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;"></i> ❤️ FAVORITOS (${ids.length})`;
                 genreBadge.className = 'genre-badge favoritos';
                 if (isBackgroundActive) setTimeout(() => playMusic(), 200);
-                showNotification(`❤️ ${favMusicas.length} favoritas`, 1000);
+                showNotification(`❤️ ${ids.length} favoritas`, 1000);
+                document.getElementById('playlistsModal').classList.remove('open');
             }
 
             async function carregarPlaylistPorGenero(genero) {
@@ -772,12 +1019,9 @@
                             }
                             genreBadge.innerHTML = '📝 EDITADA';
                             genreBadge.className = 'genre-badge';
-                            try {
-                                const savedFav = localStorage.getItem('radio_favorites_simple');
-                                if (savedFav) favorites = JSON.parse(savedFav);
-                            } catch(e) { favorites = []; }
-                            updateFavCount();
-                            renderFavList();
+                            carregarPlaylists();
+                            atualizarBadgeFavoritos();
+                            renderizarListaPastas();
                             buildGenresGrid();
                             showNotification(`🎵 Playlist editada (${musicas.length} músicas)`, 2000);
                             return true;
@@ -866,7 +1110,6 @@
 
             function updateNowPlaying(track) {
                 if (track) {
-                    // Apenas atualiza o coração e o letreiro
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist} [${track.genero || 'POP'}] 🎵`;
                     updateHeartIcon(track.id);
                 }
@@ -1150,9 +1393,11 @@
                 const genresGrid = document.getElementById('genresGrid');
                 genresGrid.innerHTML = '';
 
+                // Card Favoritos (usa a pasta padrão)
+                const qtdFav = (playlists['Favoritos'] || []).length;
                 const favCard = document.createElement('div');
                 favCard.className = 'genre-card fav-card';
-                favCard.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;margin-right:3px;"></i> FAVORITOS (${favorites.length})`;
+                favCard.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;margin-right:3px;"></i> FAVORITOS (${qtdFav})`;
                 favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
                 genresGrid.appendChild(favCard);
 
@@ -1230,17 +1475,30 @@
                 showNotification(`✅ Playlist recarregada (${musicas.length} músicas)`, 2000);
             }
 
+            // ---------- INICIALIZAÇÃO ----------
             async function iniciar() {
-                if (carregarDoLocalStorage()) {
+                // Exibe o splash com a imagem por 20 segundos
+                // A imagem já está visível, mas vamos esconder após 20s
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    // Mostra o vídeo com fade
+                    bgVideo.classList.add('show');
+                    // Após o fade do splash, mostra o app
                     setTimeout(() => {
-                        splash.classList.add('hidden');
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            appContainer.style.display = 'block';
-                            tapToStart.style.display = 'block';
-                            goFullscreen();
-                        }, 500);
-                    }, 500);
+                        splash.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        tapToStart.style.display = 'block';
+                        goFullscreen();
+                    }, 800);
+                }, 20000); // 20 segundos
+
+                // Carrega playlists e dados
+                carregarPlaylists();
+                atualizarBadgeFavoritos();
+
+                if (carregarDoLocalStorage()) {
+                    renderizarListaPastas();
+                    buildGenresGrid();
                     return;
                 }
 
@@ -1282,39 +1540,52 @@
                         showNotification('❌ Nenhuma playlist carregada', 2000);
                     }
 
-                    try {
-                        const saved = localStorage.getItem('radio_favorites_simple');
-                        if (saved) favorites = JSON.parse(saved);
-                    } catch(e) { favorites = []; }
-                    updateFavCount();
-                    renderFavList();
+                    renderizarListaPastas();
                     buildGenresGrid();
-
-                    setTimeout(() => {
-                        splash.classList.add('hidden');
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            appContainer.style.display = 'block';
-                            tapToStart.style.display = 'block';
-                            goFullscreen();
-                        }, 500);
-                    }, 500);
                 } catch (err) {
-                    splash.innerHTML = `<div class="splash-loading"><i class="fas fa-exclamation-triangle"></i><p>Erro: ${err.message}</p><button onclick="location.reload()" style="margin-top:10px;padding:8px 20px;border-radius:20px;border:none;background:#00f3ff;color:#000;font-weight:bold;">Recarregar</button></div>`;
+                    console.error(err);
+                    // Fallback: tenta carregar MPB
+                    const lista = await carregarPlaylistPorGenero('MPB');
+                    if (lista && lista.length > 0) {
+                        musicas = lista;
+                        modoAtual = 'MPB';
+                        genreBadge.innerHTML = 'MPB';
+                        currentPlaylist = shuffleArray([...musicas]);
+                        currentIndex = 0;
+                        const primeira = currentPlaylist[0];
+                        if (primeira) {
+                            updateNowPlaying(primeira);
+                            adicionarAoHistorico(primeira);
+                        }
+                        renderizarListaPastas();
+                        buildGenresGrid();
+                    }
                 }
             }
 
-            // EVENTOS
+            // ---------- EVENTOS ----------
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
             audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
 
             heartBtn.addEventListener('click', () => {
                 const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
-                if (music) { toggleFavorito(music.id); buildGenresGrid(); }
+                if (music) { 
+                    toggleFavorito(music.id); 
+                    updateHeartIcon(music.id);
+                    buildGenresGrid();
+                }
             });
 
-            document.getElementById('favTopBtn').addEventListener('click', openFavModal);
+            // Botão favoritos no topo abre o modal de pastas
+            favTopBtn.addEventListener('click', () => {
+                renderizarListaPastas();
+                document.getElementById('playlistsModal').classList.add('open');
+            });
+
+            // Fechar modais
+            document.getElementById('closePlaylistsModal').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
+            document.getElementById('closePlaylistsBtn').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
             document.getElementById('closeFavModal').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
             document.getElementById('closeFavBtn').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
             document.getElementById('closeGenresBtn').addEventListener('click', () => document.getElementById('genresModal').classList.remove('open'));
@@ -1322,6 +1593,18 @@
             document.getElementById('closeHistModal').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
             document.getElementById('closeHistBtn').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
 
+            // Criar pasta
+            document.getElementById('criarPastaBtn').addEventListener('click', () => {
+                const input = document.getElementById('novaPastaInput');
+                if (criarPasta(input.value)) {
+                    input.value = '';
+                }
+            });
+            document.getElementById('novaPastaInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('criarPastaBtn').click();
+            });
+
+            // FAB
             const fabMain = document.getElementById('fabMain');
             const fabSub = document.getElementById('fabSub');
             fabMain.addEventListener('click', () => {
@@ -1450,11 +1733,14 @@
                 goFullscreen();
             });
 
+            // Fechar modais clicando fora
+            document.getElementById('playlistsModal').addEventListener('click', (e) => { if (e.target === document.getElementById('playlistsModal')) document.getElementById('playlistsModal').classList.remove('open'); });
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
             document.getElementById('feedbackModal').addEventListener('click', (e) => { if (e.target === document.getElementById('feedbackModal')) document.getElementById('feedbackModal').classList.remove('open'); });
             document.getElementById('historicoModal').addEventListener('click', (e) => { if (e.target === document.getElementById('historicoModal')) document.getElementById('historicoModal').classList.remove('open'); });
             document.getElementById('genresModal').addEventListener('click', (e) => { if (e.target === document.getElementById('genresModal')) document.getElementById('genresModal').classList.remove('open'); });
 
+            // Feedback stars
             document.querySelectorAll('.star').forEach(star => {
                 star.addEventListener('click', () => {
                     const rating = parseInt(star.dataset.rating);
@@ -1495,6 +1781,7 @@
                 showControls();
             }
 
+            // Inicia a aplicação
             window.addEventListener('load', iniciar);
         })();
     </script>
