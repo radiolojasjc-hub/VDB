@@ -22,7 +22,6 @@
         body { background: #000; overflow: hidden; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
-        /* CONTAINER DE MÍDIA - ocupa 100% da tela, sem espaços */
         .media-container {
             position: fixed;
             top: 0;
@@ -53,9 +52,6 @@
             z-index: 0;
         }
         
-        /* OVERLAY REMOVIDO - tela totalmente limpa */
-        
-        /* Título do projeto (aparece antes de ativar) */
         .project-title {
             position: fixed;
             top: 12%;
@@ -77,7 +73,6 @@
         }
         .project-title span { color: var(--neon-cyan); }
         
-        /* Botão ATIVAR RÁDIO */
         .btn-ativar {
             position: fixed;
             bottom: 30%;
@@ -121,7 +116,6 @@
             100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
         }
         
-        /* APP - ocupa toda a tela, sem padding */
         .app { 
             position: fixed;
             top: 0;
@@ -135,7 +129,6 @@
             padding-top: 0;
         }
         
-        /* TOP BAR - transparente, sem filtro escuro */
         .top-bar {
             position: fixed;
             top: 0;
@@ -146,15 +139,15 @@
             justify-content: space-between;
             align-items: center;
             padding: 6px 10px;
-            background: transparent; /* fundo transparente */
-            border-bottom: none; /* remove a linha escura */
+            background: transparent;
+            border-bottom: none;
             flex-wrap: nowrap;
             gap: 4px;
             flex-shrink: 0;
             height: 42px;
         }
         .genre-badge { 
-            background: rgba(0,0,0,0.3); /* leve fundo para legibilidade */
+            background: rgba(0,0,0,0.3);
             padding: 3px 8px; 
             border-radius: 30px; 
             font-size: 0.55rem; 
@@ -230,16 +223,15 @@
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
         .menu-popup .close-menu-btn { background: rgba(255,45,127,0.2); border: 1px solid #ff2d7f; color: #ff2d7f; }
         
-        /* LETREIRO - transparente, sem filtro escuro */
         .info-scroll {
             position: fixed;
             top: 42px;
             left: 0;
             right: 0;
             z-index: 30;
-            background: transparent; /* fundo transparente */
+            background: transparent;
             padding: 6px 12px;
-            border-bottom: none; /* remove linha escura */
+            border-bottom: none;
             overflow: hidden;
             white-space: nowrap;
             height: 34px;
@@ -322,7 +314,6 @@
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* MODAIS - mantidos */
         .fav-modal, .feedback-modal, .historico-modal {
             position: fixed;
             top: 50%;
@@ -537,7 +528,6 @@
             margin-top: 5px;
         }
         
-        /* Modal de Pastas */
         #playlistsModal .pasta-input-area {
             display: flex;
             gap: 6px;
@@ -649,7 +639,6 @@
 
     <!-- Container de mídia -->
     <div class="media-container" id="mediaContainer"></div>
-    <!-- OVERLAY REMOVIDO -->
 
     <!-- Título -->
     <div class="project-title" id="projectTitle">🎵 <span>Vai de Boa!</span> Music</div>
@@ -686,7 +675,7 @@
         </div>
     </div>
 
-    <!-- MODAIS (mesmos de antes) -->
+    <!-- MODAIS -->
     <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
         <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
@@ -856,6 +845,8 @@
             const playlistCache = {};
             let ultimoId = null;
             let carregandoMusica = false;
+            let audioTimeout = null;    // NOVO: controla timeout da reprodução
+            let rafId = null;            // NOVO: para requestAnimationFrame
 
             // ---------- SISTEMA DE PASTAS ----------
             let playlists = {};
@@ -1137,7 +1128,7 @@
             const mediaContainer = document.getElementById('mediaContainer');
             const elementosMidia = [];
             let midiaAtual = 0;
-            let intervaloTroca = null;
+            let mediaTimer = null;   // timeout para alternância
 
             function criarElementosMidia() {
                 midias.forEach((m, index) => {
@@ -1168,43 +1159,63 @@
                 }
             }
 
-            function alternarMidia() {
-                const atual = elementosMidia[midiaAtual];
-                if (!atual) return;
-                atual.classList.remove('active');
-                atual.classList.add('inactive');
-                if (atual.tagName === 'VIDEO') {
-                    atual.pause();
-                    atual.currentTime = 0;
+            function pararAlternancia() {
+                if (mediaTimer) {
+                    clearTimeout(mediaTimer);
+                    mediaTimer = null;
                 }
-                midiaAtual = (midiaAtual + 1) % elementosMidia.length;
-                const proximo = elementosMidia[midiaAtual];
-                proximo.classList.remove('inactive');
-                proximo.classList.add('active');
-                if (proximo.tagName === 'VIDEO') {
-                    proximo.play().catch(() => {});
-                    proximo.onended = function() {
-                        if (intervaloTroca) clearTimeout(intervaloTroca);
-                        intervaloTroca = setTimeout(() => alternarMidia(), 2000);
-                    };
-                } else {
-                    if (intervaloTroca) clearTimeout(intervaloTroca);
-                    intervaloTroca = setTimeout(() => alternarMidia(), 5000);
-                }
+                elementosMidia.forEach(el => {
+                    if (el.tagName === 'VIDEO') {
+                        el.pause();
+                        el.currentTime = 0;
+                        el.onended = null;
+                    }
+                });
             }
 
             function iniciarAlternancia() {
+                pararAlternancia();
                 if (elementosMidia.length <= 1) return;
-                const primeiro = elementosMidia[0];
-                if (primeiro.tagName === 'VIDEO') {
-                    primeiro.play().catch(() => {});
-                    primeiro.onended = function() {
-                        if (intervaloTroca) clearTimeout(intervaloTroca);
-                        intervaloTroca = setTimeout(() => alternarMidia(), 2000);
+
+                let index = 0;
+                function alternar() {
+                    const atual = elementosMidia[index];
+                    const proxIndex = (index + 1) % elementosMidia.length;
+                    const prox = elementosMidia[proxIndex];
+
+                    // Esconde atual
+                    atual.classList.remove('active');
+                    atual.classList.add('inactive');
+                    if (atual.tagName === 'VIDEO') {
+                        atual.pause();
+                        atual.currentTime = 0;
+                        atual.onended = null;
+                    }
+
+                    // Mostra próximo
+                    prox.classList.remove('inactive');
+                    prox.classList.add('active');
+                    if (prox.tagName === 'VIDEO') {
+                        prox.play().catch(() => {});
+                        prox.onended = () => {
+                            mediaTimer = setTimeout(() => alternar(), 2000);
+                        };
+                    } else {
+                        mediaTimer = setTimeout(() => alternar(), 5000);
+                    }
+                    index = proxIndex;
+                }
+
+                // Inicia com a primeira
+                const primeira = elementosMidia[0];
+                primeira.classList.add('active');
+                if (primeira.tagName === 'VIDEO') {
+                    primeira.play().catch(() => {});
+                    primeira.onended = () => {
+                        mediaTimer = setTimeout(() => alternar(), 2000);
                     };
                 } else {
-                    if (intervaloTroca) clearTimeout(intervaloTroca);
-                    intervaloTroca = setTimeout(() => alternarMidia(), 5000);
+                    mediaTimer = setTimeout(() => alternar(), 5000);
                 }
             }
 
@@ -1528,6 +1539,88 @@
                 }
             }
 
+            // ===== NOVAS FUNÇÕES CORRIGIDAS =====
+
+            // Limpeza completa do áudio
+            function limparAudio() {
+                const audioEl = document.getElementById('musicPlayer');
+                audioEl.pause();
+                audioEl.src = '';
+                audioEl.load();
+                // Remove todos os listeners clonando o elemento
+                const novoAudio = audioEl.cloneNode(true);
+                audioEl.parentNode.replaceChild(novoAudio, audioEl);
+                // Reatribui a referência global
+                window.audio = novoAudio;
+                // Reconecta os eventos essenciais
+                novoAudio.addEventListener('play', () => {
+                    isPlaying = true;
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    startTimer();
+                });
+                novoAudio.addEventListener('pause', () => {
+                    isPlaying = false;
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    stopTimer();
+                });
+                novoAudio.addEventListener('ended', () => {
+                    if (!carregandoMusica) nextTrack();
+                });
+                // Atualiza referência para o resto do código
+                document.getElementById('musicPlayer').src = '';
+                // Limpa timeout pendente
+                if (audioTimeout) {
+                    clearTimeout(audioTimeout);
+                    audioTimeout = null;
+                }
+            }
+
+            // Tentativa de URL com timeout via Promise
+            function tentarUrlComTimeout(url, timeoutMs) {
+                return new Promise((resolve) => {
+                    const audioEl = document.getElementById('musicPlayer');
+                    audioEl.pause();
+                    audioEl.src = url;
+                    audioEl.load();
+
+                    let resolved = false;
+                    const timer = setTimeout(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            audioEl.oncanplay = null;
+                            audioEl.onerror = null;
+                            resolve(false);
+                        }
+                    }, timeoutMs);
+
+                    audioEl.oncanplay = () => {
+                        if (resolved) return;
+                        clearTimeout(timer);
+                        audioEl.play()
+                            .then(() => {
+                                if (!resolved) {
+                                    resolved = true;
+                                    resolve(true);
+                                }
+                            })
+                            .catch(() => {
+                                if (!resolved) {
+                                    resolved = true;
+                                    resolve(false);
+                                }
+                            });
+                    };
+
+                    audioEl.onerror = () => {
+                        if (resolved) return;
+                        clearTimeout(timer);
+                        resolved = true;
+                        resolve(false);
+                    };
+                });
+            }
+
+            // playMusic CORRIGIDO (sem recursão)
             async function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) {
@@ -1542,6 +1635,7 @@
                     currentPlaylist = shuffleArray([...musicas]);
                     currentIndex = 0;
                 }
+
                 carregandoMusica = true;
                 const track = obterProximaMusica();
                 if (!track) {
@@ -1549,96 +1643,61 @@
                     carregandoMusica = false;
                     return;
                 }
+
                 ultimoId = track.id;
                 updateNowPlaying(track);
                 adicionarAoHistorico(track);
+
+                // === LIMPEZA COMPLETA ANTES DE TOCAR ===
+                limparAudio();
+                stopTimer();
+                if (audioTimeout) {
+                    clearTimeout(audioTimeout);
+                    audioTimeout = null;
+                }
+
                 let urls = gerarUrlsAlternativas(track);
                 if (urls.length === 0) {
-                    showNotification("❌ Nenhuma URL para esta música", 1000);
+                    showNotification("❌ Nenhuma URL", 1000);
                     carregandoMusica = false;
-                    setTimeout(() => { if (!carregandoMusica) nextTrack(); }, 300);
+                    setTimeout(() => nextTrack(), 300);
                     return;
                 }
+
                 const falhas = JSON.parse(localStorage.getItem('url_falhas') || '[]');
                 urls = urls.filter(u => !falhas.includes(u));
-                let urlIndex = 0;
-                let timeoutId = null;
+
                 let sucesso = false;
-                let tentativas = 0;
-                function tentarUrl() {
-                    if (urlIndex >= urls.length) {
-                        const novasFalhas = [...new Set([...falhas, ...urls])];
-                        localStorage.setItem('url_falhas', JSON.stringify(novasFalhas));
-                        showNotification("⏭️ Pulando...", 800);
-                        carregandoMusica = false;
-                        if (timeoutId) clearTimeout(timeoutId);
-                        setTimeout(() => { if (!carregandoMusica) nextTrack(); }, 300);
-                        return;
+
+                for (let url of urls) {
+                    if (sucesso) break;
+                    try {
+                        const resultado = await tentarUrlComTimeout(url, 5000);
+                        if (resultado) {
+                            sucesso = true;
+                            isPlaying = true;
+                            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            startTimer();
+                            carregandoMusica = false;
+                            showNotification(`✅ Tocando: ${track.title}`, 1200);
+                            preCarregarProxima();
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn('URL falhou:', url);
                     }
-                    const url = urls[urlIndex];
-                    urlIndex++;
-                    tentativas++;
-                    if (timeoutId) clearTimeout(timeoutId);
-                    audio.pause();
-                    audio.src = url;
-                    audio.load();
-                    timeoutId = setTimeout(() => {
-                        if (!sucesso) {
-                            console.warn(`⏰ Timeout (${tentativas}/${urls.length}) para ${url}`);
-                            const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
-                            if (!falhasAtuais.includes(url)) {
-                                falhasAtuais.push(url);
-                                localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
-                            }
-                            tentarUrl();
-                        }
-                    }, 5000);
-                    audio.oncanplay = () => {
-                        if (timeoutId) clearTimeout(timeoutId);
-                        audio.play()
-                            .then(() => {
-                                sucesso = true;
-                                isPlaying = true;
-                                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                                startTimer();
-                                carregandoMusica = false;
-                                showNotification(`✅ Tocando: ${track.title}`, 1200);
-                                if (url !== track.src) {
-                                    try {
-                                        localStorage.setItem('src_cache_' + track.id, url);
-                                    } catch(e) {}
-                                }
-                                const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
-                                const novas = falhasAtuais.filter(f => f !== url);
-                                if (novas.length !== falhasAtuais.length) {
-                                    localStorage.setItem('url_falhas', JSON.stringify(novas));
-                                }
-                                preCarregarProxima();
-                            })
-                            .catch((err) => {
-                                console.warn(`❌ Falha ao tocar ${url}:`, err);
-                                const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
-                                if (!falhasAtuais.includes(url)) {
-                                    falhasAtuais.push(url);
-                                    localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
-                                }
-                                tentarUrl();
-                            });
-                    };
-                    audio.onerror = () => {
-                        if (timeoutId) clearTimeout(timeoutId);
-                        console.warn(`❌ Erro de rede em ${url}`);
-                        const falhasAtuais = JSON.parse(localStorage.getItem('url_falhas') || '[]');
-                        if (!falhasAtuais.includes(url)) {
-                            falhasAtuais.push(url);
-                            localStorage.setItem('url_falhas', JSON.stringify(falhasAtuais));
-                        }
-                        tentarUrl();
-                    };
                 }
-                tentarUrl();
+
+                if (!sucesso) {
+                    const novasFalhas = [...new Set([...falhas, ...urls])];
+                    localStorage.setItem('url_falhas', JSON.stringify(novasFalhas));
+                    showNotification("⏭️ Pulando...", 800);
+                    carregandoMusica = false;
+                    setTimeout(() => nextTrack(), 300);
+                }
             }
 
+            // Pré-carregamento corrigido
             let preloadAudio = new Audio();
             preloadAudio.preload = 'auto';
 
@@ -1649,6 +1708,8 @@
                     const urls = gerarUrlsAlternativas(proxima);
                     if (urls.length === 0) return;
                     const url = urls[0];
+                    preloadAudio.oncanplay = null;
+                    preloadAudio.onerror = null;
                     preloadAudio.src = url;
                     preloadAudio.load();
                     preloadAudio.oncanplay = () => {
@@ -1661,6 +1722,31 @@
                 } catch(e) {}
             }
 
+            // Timer com requestAnimationFrame
+            function startTimer() {
+                stopTimer();
+                function update() {
+                    if (isPlaying && audio.duration && !audio.paused && audio.duration !== Infinity) {
+                        progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+                        currentTimeEl.textContent = formatTime(audio.currentTime);
+                        totalTimeEl.textContent = formatTime(audio.duration);
+                        if (audio.currentTime >= audio.duration - 0.5) {
+                            if (!carregandoMusica) nextTrack();
+                        }
+                    }
+                    rafId = requestAnimationFrame(update);
+                }
+                rafId = requestAnimationFrame(update);
+            }
+
+            function stopTimer() {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            }
+
+            // Controles
             function togglePlay() {
                 if (!isBackgroundActive) { showNotification("Clique em ATIVAR RÁDIO!", 1000); return; }
                 if (audio.paused) {
@@ -1748,21 +1834,6 @@
                 showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 800);
                 showControls();
             }
-
-            function startTimer() {
-                stopTimer();
-                timerInterval = setInterval(() => {
-                    if (isPlaying && audio.duration && !audio.paused && audio.duration !== Infinity) {
-                        progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
-                        currentTimeEl.textContent = formatTime(audio.currentTime);
-                        totalTimeEl.textContent = formatTime(audio.duration);
-                        if (audio.currentTime >= audio.duration - 0.5) {
-                            if (!carregandoMusica) nextTrack();
-                        }
-                    }
-                }, 200);
-            }
-            function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
 
             function playSongById(id) {
                 if (carregandoMusica) return;
@@ -1915,6 +1986,15 @@
                     iniciarAlternancia();
                 }
                 goFullscreen();
+
+                // Limpeza ao sair
+                window.addEventListener('beforeunload', function() {
+                    pararAlternancia();
+                    stopTimer();
+                    if (audioTimeout) clearTimeout(audioTimeout);
+                    audio.pause();
+                    audio.src = '';
+                });
             }
 
             // ---------- EVENTOS ----------
@@ -2216,6 +2296,7 @@
                 showControls();
             }
 
+            // Eventos do áudio (serão sobrescritos pelo clone, mas mantemos como fallback)
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
             audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
