@@ -191,7 +191,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Modais */
-        .fav-modal, .feedback-modal, .historico-modal {
+        .fav-modal, .feedback-modal, .historico-modal, .seletor-modal {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -211,13 +211,13 @@
             border: 2px solid transparent;
             box-shadow: 0 0 40px rgba(0,243,255,0.2), 0 0 80px rgba(255,45,127,0.1);
         }
-        .fav-modal.open, .feedback-modal.open, .historico-modal.open {
+        .fav-modal.open, .feedback-modal.open, .historico-modal.open, .seletor-modal.open {
             display: flex;
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
             border-image: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)) 1;
         }
-        .fav-modal h3, .feedback-modal h3, .historico-modal h3 {
+        .fav-modal h3, .feedback-modal h3, .historico-modal h3, .seletor-modal h3 {
             font-size: 1.2rem;
             margin-bottom: 15px;
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
@@ -225,7 +225,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .fav-modal .close-fav, .historico-modal .close-hist {
+        .fav-modal .close-fav, .historico-modal .close-hist, .seletor-modal .close-seletor {
             position: absolute;
             top: 12px;
             right: 16px;
@@ -235,15 +235,15 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
-        .fav-modal .close-fav:active, .historico-modal .close-hist:active { color: #fff; }
+        .fav-modal .close-fav:active, .historico-modal .close-hist:active, .seletor-modal .close-seletor:active { color: #fff; }
         
-        .fav-list, .historico-list {
+        .fav-list, .historico-list, .seletor-list {
             max-height: 50vh;
             overflow-y: auto;
             text-align: left;
             margin-bottom: 15px;
         }
-        .fav-item, .historico-item {
+        .fav-item, .historico-item, .seletor-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -251,12 +251,12 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
             color: white;
         }
-        .fav-item .info, .historico-item .info { flex: 1; cursor: pointer; min-width: 0; }
-        .fav-item .info .title, .historico-item .info .title { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fav-item .info, .historico-item .info, .seletor-item .info { flex: 1; cursor: pointer; min-width: 0; }
+        .fav-item .info .title, .historico-item .info .title, .seletor-item .info .title { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .fav-item .info .artist, .historico-item .info .artist { font-size: 0.7rem; color: #aaa; }
         .fav-item .remove { background: transparent; border: none; color: #ff2d7f; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
         .fav-empty { color: #888; padding: 30px; text-align: center; }
-        .fav-modal .close-btn, .historico-modal .close-btn {
+        .fav-modal .close-btn, .historico-modal .close-btn, .seletor-modal .close-btn {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
             padding: 12px;
@@ -267,7 +267,7 @@
             margin-top: 0;
             font-size: 0.95rem;
         }
-        .fav-modal .close-btn:active, .historico-modal .close-btn:active { transform: scale(0.95); }
+        .fav-modal .close-btn:active, .historico-modal .close-btn:active, .seletor-modal .close-btn:active { transform: scale(0.95); }
         
         .genres-modal {
             position: fixed;
@@ -370,7 +370,7 @@
             margin-top: 5px;
         }
         
-        /* Modal de Pastas */
+        /* Modal de Pastas (gerenciamento) */
         #playlistsModal .pasta-input-area {
             display: flex;
             gap: 6px;
@@ -395,7 +395,6 @@
             cursor: pointer;
             font-size: 0.8rem;
         }
-        /* Botões de sugestão rápida */
         .sugestoes-pastas {
             display: flex;
             flex-wrap: wrap;
@@ -472,7 +471,7 @@
             .fab-container { bottom: 80px; right: 8px; }
             .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
             #tap-to-start { padding: 12px 20px; font-size: 0.9rem; bottom: 20%; }
-            .fav-modal, .feedback-modal, .historico-modal, #playlistsModal { padding: 20px; max-width: 340px; }
+            .fav-modal, .feedback-modal, .historico-modal, #playlistsModal, .seletor-modal { padding: 20px; max-width: 340px; }
             .sugestoes-pastas button { font-size: 0.55rem; padding: 3px 10px; }
         }
     </style>
@@ -517,24 +516,32 @@
         <div class="teaching-bar">👆 Toque na tela para <span class="cyan">controles</span></div>
     </div>
 
-    <!-- MODAL DE PASTAS (com sugestões) -->
+    <!-- MODAL DE SELEÇÃO DE PASTA (ao clicar no coração) -->
+    <div class="seletor-modal" id="seletorModal">
+        <button class="close-seletor" id="closeSeletorModal"><i class="fas fa-times"></i></button>
+        <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Salvar em qual pasta?</h3>
+        <div class="seletor-list" id="seletorList"></div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+            <input type="text" id="novaPastaSeletor" placeholder="Nova pasta..." style="flex:1; background:rgba(255,255,255,0.1); border:1px solid #333; border-radius:20px; padding:6px 12px; color:white; font-size:0.8rem;">
+            <button id="criarPastaSeletorBtn" style="background:var(--neon-cyan); color:#000; border:none; border-radius:20px; padding:6px 14px; font-weight:bold; cursor:pointer; font-size:0.8rem;">+ Criar</button>
+        </div>
+        <button class="close-btn" id="closeSeletorBtn">FECHAR</button>
+    </div>
+
+    <!-- MODAL DE PASTAS (gerenciamento) -->
     <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
         <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
-        
-        <!-- Sugestões rápidas -->
         <div class="sugestoes-pastas" id="sugestoesContainer">
             <button data-pasta="Festa"><i class="fas fa-glass-cheers"></i> Festa</button>
             <button data-pasta="Treino"><i class="fas fa-dumbbell"></i> Treino</button>
             <button data-pasta="Dormir"><i class="fas fa-bed"></i> Dormir</button>
             <button data-pasta="Viagem"><i class="fas fa-plane"></i> Viagem</button>
         </div>
-        
         <div class="pasta-input-area">
             <input type="text" id="novaPastaInput" placeholder="Ou digite um nome personalizado...">
             <button id="criarPastaBtn">+ Criar</button>
         </div>
-        
         <div class="fav-list" id="playlistsList"></div>
         <button class="close-btn" id="closePlaylistsBtn">FECHAR</button>
     </div>
@@ -672,6 +679,7 @@
             const playlistCache = {};
             let ultimoId = null;
             let carregandoMusica = false;
+            let musicIdSelecionado = null; // para o seletor
 
             // ---------- SISTEMA DE PASTAS ----------
             let playlists = {};
@@ -731,6 +739,11 @@
                 playlists[nomePasta].push(musicId);
                 salvarPlaylists();
                 renderizarListaPastas();
+                // Atualiza o coração se for a pasta "Favoritos"
+                if (nomePasta === 'Favoritos') {
+                    updateHeartIcon(musicId);
+                    atualizarBadgeFavoritos();
+                }
                 showNotification(`✅ Adicionada em "${nomePasta}"`, 1000);
             }
 
@@ -739,23 +752,73 @@
                 playlists[nomePasta] = playlists[nomePasta].filter(id => id !== musicId);
                 salvarPlaylists();
                 renderizarListaPastas();
+                if (nomePasta === 'Favoritos') {
+                    updateHeartIcon(musicId);
+                    atualizarBadgeFavoritos();
+                }
                 showNotification(`🗑️ Removida de "${nomePasta}"`, 1000);
             }
 
-            function toggleFavorito(musicId) {
-                const pasta = 'Favoritos';
-                if (!playlists[pasta]) playlists[pasta] = [];
-                const index = playlists[pasta].indexOf(musicId);
-                if (index > -1) {
-                    playlists[pasta].splice(index, 1);
-                    showNotification('❤️ Removido dos favoritos', 1000);
+            // Função que será chamada quando o usuário escolher uma pasta no seletor
+            function favoritarEmPasta(musicId, nomePasta) {
+                if (!musicId) return;
+                // Verifica se já está na pasta
+                if (playlists[nomePasta] && playlists[nomePasta].includes(musicId)) {
+                    // Se já estiver, pergunta se quer remover
+                    if (confirm(`"${musicId}" já está na pasta "${nomePasta}". Remover?`)) {
+                        removerMusicaDaPasta(musicId, nomePasta);
+                    }
                 } else {
-                    playlists[pasta].push(musicId);
-                    showNotification('❤️ Adicionado aos favoritos!', 1000);
+                    adicionarMusicaNaPasta(musicId, nomePasta);
                 }
-                salvarPlaylists();
-                updateHeartIcon(musicId);
-                renderizarListaPastas();
+                document.getElementById('seletorModal').classList.remove('open');
+            }
+
+            // Abre o seletor de pastas para uma música
+            function abrirSeletorPasta(musicId) {
+                if (!musicId) return;
+                musicIdSelecionado = musicId;
+                const lista = document.getElementById('seletorList');
+                lista.innerHTML = '';
+                const nomes = Object.keys(playlists);
+                if (nomes.length === 0) {
+                    lista.innerHTML = '<div class="fav-empty">Nenhuma pasta. Crie uma!</div>';
+                } else {
+                    nomes.forEach(nome => {
+                        const div = document.createElement('div');
+                        div.className = 'seletor-item';
+                        const tem = playlists[nome].includes(musicId);
+                        div.innerHTML = `
+                            <div class="info" style="cursor:pointer;">
+                                <div class="title">📁 ${nome} ${tem ? '❤️' : ''}</div>
+                                <div class="artist" style="font-size:0.6rem; color:#666;">${tem ? 'Já adicionada' : 'Clique para adicionar'}</div>
+                            </div>
+                            <button class="remove" style="background:transparent; border:none; color:${tem ? '#ff2d7f' : '#888'}; font-size:1rem; cursor:pointer;"><i class="fas ${tem ? 'fa-heart' : 'fa-plus-circle'}"></i></button>
+                        `;
+                        div.querySelector('.info').addEventListener('click', () => {
+                            favoritarEmPasta(musicId, nome);
+                        });
+                        div.querySelector('.remove').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            favoritarEmPasta(musicId, nome);
+                        });
+                        lista.appendChild(div);
+                    });
+                }
+                document.getElementById('seletorModal').classList.add('open');
+            }
+
+            // Atualiza o ícone do coração principal conforme a pasta "Favoritos"
+            function updateHeartIcon(musicId) {
+                const pastaFav = 'Favoritos';
+                const favs = playlists[pastaFav] || [];
+                if (favs.includes(musicId)) {
+                    heartBtn.className = 'fav-heart active';
+                    heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                } else {
+                    heartBtn.className = 'fav-heart';
+                    heartBtn.innerHTML = '<i class="far fa-heart"></i>';
+                }
                 atualizarBadgeFavoritos();
             }
 
@@ -1017,19 +1080,6 @@
                 });
                 
                 return Array.from(urls);
-            }
-
-            function updateHeartIcon(musicId) {
-                const pastaFav = 'Favoritos';
-                const favs = playlists[pastaFav] || [];
-                if (favs.includes(musicId)) {
-                    heartBtn.className = 'fav-heart active';
-                    heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
-                } else {
-                    heartBtn.className = 'fav-heart';
-                    heartBtn.innerHTML = '<i class="far fa-heart"></i>';
-                }
-                atualizarBadgeFavoritos();
             }
 
             function entrarModoFavoritos() {
@@ -1650,7 +1700,7 @@
                 goFullscreen();
             });
 
-            // Botões de sugestão rápida
+            // Botões de sugestão rápida (criar pastas)
             document.querySelectorAll('#sugestoesContainer button').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const nome = this.dataset.pasta;
@@ -1658,25 +1708,47 @@
                 });
             });
 
-            // Demais eventos
-            audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
-            audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
-            audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
+            // Seletor de pasta: criar nova pasta
+            document.getElementById('criarPastaSeletorBtn').addEventListener('click', () => {
+                const input = document.getElementById('novaPastaSeletor');
+                const nome = input.value.trim();
+                if (criarPasta(nome)) {
+                    input.value = '';
+                    // Reabre o seletor com a nova pasta
+                    if (musicIdSelecionado) abrirSeletorPasta(musicIdSelecionado);
+                }
+            });
+            document.getElementById('novaPastaSeletor').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') document.getElementById('criarPastaSeletorBtn').click();
+            });
 
+            // Coração principal: abre o seletor de pastas
             heartBtn.addEventListener('click', () => {
                 const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
-                if (music) { 
-                    toggleFavorito(music.id); 
-                    updateHeartIcon(music.id);
-                    buildGenresGrid();
+                if (music) {
+                    abrirSeletorPasta(music.id);
+                } else {
+                    showNotification('Nenhuma música tocando', 1000);
                 }
             });
 
-            favTopBtn.addEventListener('click', () => {
-                renderizarListaPastas();
-                document.getElementById('playlistsModal').classList.add('open');
+            // Duplo toque na tela também abre o seletor (opcional)
+            let lastTap = 0;
+            document.getElementById('nowPlaying').addEventListener('click', (e) => {
+                const now = Date.now();
+                if (now - lastTap < 300 && now - lastTap > 50) {
+                    const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
+                    if (music) {
+                        abrirSeletorPasta(music.id);
+                    }
+                }
+                lastTap = now;
+                showControls();
             });
 
+            // Fechar modais
+            document.getElementById('closeSeletorModal').addEventListener('click', () => document.getElementById('seletorModal').classList.remove('open'));
+            document.getElementById('closeSeletorBtn').addEventListener('click', () => document.getElementById('seletorModal').classList.remove('open'));
             document.getElementById('closePlaylistsModal').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
             document.getElementById('closePlaylistsBtn').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
             document.getElementById('closeFavModal').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
@@ -1686,6 +1758,7 @@
             document.getElementById('closeHistModal').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
             document.getElementById('closeHistBtn').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
 
+            // Modal de gerenciamento de pastas: criar pasta
             document.getElementById('criarPastaBtn').addEventListener('click', () => {
                 const input = document.getElementById('novaPastaInput');
                 if (criarPasta(input.value)) {
@@ -1696,6 +1769,7 @@
                 if (e.key === 'Enter') document.getElementById('criarPastaBtn').click();
             });
 
+            // FAB
             const fabMain = document.getElementById('fabMain');
             const fabSub = document.getElementById('fabSub');
             fabMain.addEventListener('click', () => {
@@ -1812,11 +1886,13 @@
                     case 's': case 'S': toggleShuffle(); break;
                     case 'f': case 'F': 
                         const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
-                        if (music) { toggleFavorito(music.id); buildGenresGrid(); }
+                        if (music) { abrirSeletorPasta(music.id); }
                         break;
                 }
             });
 
+            // Fechar modais clicando fora
+            document.getElementById('seletorModal').addEventListener('click', (e) => { if (e.target === document.getElementById('seletorModal')) document.getElementById('seletorModal').classList.remove('open'); });
             document.getElementById('playlistsModal').addEventListener('click', (e) => { if (e.target === document.getElementById('playlistsModal')) document.getElementById('playlistsModal').classList.remove('open'); });
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
             document.getElementById('feedbackModal').addEventListener('click', (e) => { if (e.target === document.getElementById('feedbackModal')) document.getElementById('feedbackModal').classList.remove('open'); });
@@ -1846,22 +1922,17 @@
                 document.getElementById('feedbackModal').classList.add('open');
             }
 
-            let lastTap = 0;
-            document.getElementById('nowPlaying').addEventListener('click', (e) => {
-                const now = Date.now();
-                if (now - lastTap < 300 && now - lastTap > 50) {
-                    const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
-                    if (music) { toggleFavorito(music.id); buildGenresGrid(); showNotification('❤️ Adicionado!', 1000); }
-                }
-                lastTap = now;
-                showControls();
-            });
-
             function openGenres() {
                 buildGenresGrid();
                 document.getElementById('genresModal').classList.add('open');
                 showControls();
             }
+
+            // Favoritos no topo abre o gerenciador de pastas
+            favTopBtn.addEventListener('click', () => {
+                renderizarListaPastas();
+                document.getElementById('playlistsModal').classList.add('open');
+            });
 
             window.addEventListener('load', iniciar);
         })();
