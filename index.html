@@ -11,10 +11,119 @@
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
-        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0; transition: opacity 0.8s ease; }
+        /* Fundo gradiente caso a imagem não carregue */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a2e, #0a0a0a);
+            z-index: -1;
+        }
+        
+        .video-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            z-index: 0; 
+            opacity: 0; 
+            transition: opacity 0.8s ease; 
+        }
         .video-bg.show { opacity: 1; }
         
-        .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
+        /* SPLASH - imagem de fundo com overlay */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+            flex-direction: column;
+        }
+        #splash.hidden { 
+            opacity: 0; 
+            pointer-events: none; 
+        }
+        #splashContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        #splashImg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* fallback se a imagem não existir */
+        }
+        #splashFallback {
+            display: none;
+            font-size: 4rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 30px var(--neon-cyan), 0 0 60px var(--neon-pink);
+            letter-spacing: 4px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Botão ATIVAR RÁDIO fica sobre a imagem */
+        #tap-to-start {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #000;
+            padding: 16px 32px;
+            border-radius: 60px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            z-index: 10000;
+            cursor: pointer;
+            animation: btnPulse 1.5s infinite;
+            border: none;
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.6);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        @keyframes btnPulse { 
+            0% { transform: translateX(-50%) scale(1); opacity: 0.9; box-shadow: 0 0 25px rgba(74, 222, 128, 0.3); } 
+            50% { transform: translateX(-50%) scale(1.04); opacity: 1; box-shadow: 0 0 50px rgba(74, 222, 128, 0.8); } 
+            100% { transform: translateX(-50%) scale(1); opacity: 0.9; box-shadow: 0 0 25px rgba(74, 222, 128, 0.3); } 
+        }
+        
+        .app { 
+            position: relative; 
+            z-index: 10; 
+            width: 100%; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            background: transparent; 
+            display: none; /* só aparece após ativar o rádio */
+        }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: nowrap; gap: 4px; flex-shrink: 0; }
         .genre-badge { background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 30px; font-size: 0.55rem; font-weight: bold; color: #fff; border-left: 2px solid #00f3ff; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30%; cursor: pointer; flex-shrink: 1; min-width: 40px; }
@@ -76,17 +185,6 @@
         .fab-sub-btn:active { background: var(--neon-cyan); color: #000; }
         .fab-sub-btn i { font-size: 0.85rem; width: 18px; text-align: center; pointer-events: none; }
         .fab-sub-btn .fab-icon-youtube { color: #FF0000; }
-        
-        /* SPLASH COM IMAGEM */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s ease; }
-        #splash.hidden { opacity: 0; pointer-events: none; }
-        #splash img { max-width: 90%; max-height: 80%; object-fit: contain; border-radius: 20px; box-shadow: 0 0 60px rgba(0,243,255,0.2); }
-        .splash-loading { text-align: center; color: white; display: none; }
-        .splash-loading i { font-size: 2rem; color: var(--neon-cyan); }
-        .splash-loading p { margin-top: 10px; font-size: 0.85rem; }
-        
-        #tap-to-start { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #4ade80, #22c55e); color: #000; padding: 14px 28px; border-radius: 60px; font-weight: 900; font-size: 1.1rem; z-index: 10000; cursor: pointer; display: none; animation: btnPulse 1.5s infinite; border: none; box-shadow: 0 0 40px rgba(74, 222, 128, 0.6); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
-        @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); opacity: 0.9; box-shadow: 0 0 25px rgba(74, 222, 128, 0.3); } 50% { transform: translateX(-50%) scale(1.04); opacity: 1; box-shadow: 0 0 50px rgba(74, 222, 128, 0.8); } 100% { transform: translateX(-50%) scale(1); opacity: 0.9; box-shadow: 0 0 25px rgba(74, 222, 128, 0.3); } }
         
         .notification { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); color: var(--neon-cyan); padding: 3px 12px; border-radius: 30px; font-size: 0.55rem; z-index: 10001; opacity: 0; transition: opacity 0.3s; pointer-events: none; border-left: 3px solid var(--neon-cyan); }
         .notification.show { opacity: 1; }
@@ -276,7 +374,7 @@
             margin-top: 5px;
         }
         
-        /* Modal de Pastas (Playlists) */
+        /* Modal de Pastas */
         #playlistsModal .pasta-input-area {
             display: flex;
             gap: 6px;
@@ -349,28 +447,27 @@
             .audio-status { font-size: 0.4rem; padding: 1px 4px; }
             .fab-container { bottom: 80px; right: 8px; }
             .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
-            #tap-to-start { padding: 10px 18px; font-size: 0.9rem; bottom: 25%; }
+            #tap-to-start { padding: 12px 20px; font-size: 0.9rem; bottom: 20%; }
             .fav-modal, .feedback-modal, .historico-modal, #playlistsModal { padding: 20px; max-width: 340px; }
         }
     </style>
 </head>
 <body>
-    <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
+    <video id="bgVideo" class="video-bg" autoplay loop muted playsinline poster="vai1.png">
         <source src="abc1.mp4" type="video/mp4">
     </video>
 
-    <!-- SPLASH COM IMAGEM -->
+    <!-- SPLASH: imagem de fundo + botão ATIVAR RÁDIO -->
     <div id="splash">
-        <img src="vai1.png" alt="Bem-vindo ao PLAY 12" id="splashImg">
-        <div class="splash-loading">
-            <i class="fas fa-circle-notch fa-spin"></i>
-            <p>Carregando playlist...</p>
+        <div id="splashContent">
+            <img id="splashImg" src="vai1.png" alt="PLAY 12" onerror="this.style.display='none'; document.getElementById('splashFallback').style.display='block';">
+            <div id="splashFallback">PLAY 12</div>
+            <div id="tap-to-start">▶ ATIVAR RÁDIO</div>
         </div>
     </div>
 
-    <div id="tap-to-start">▶ ATIVAR RÁDIO</div>
-
-    <div class="app" id="appContainer" style="display: none;">
+    <!-- APP (escondido até ativar o rádio) -->
+    <div class="app" id="appContainer">
         <div class="top-bar" id="topBar">
             <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
             <div class="top-buttons">
@@ -395,23 +492,19 @@
         <div class="teaching-bar">👆 Toque na tela para <span class="cyan">controles</span></div>
     </div>
 
-    <!-- MODAL DE PASTAS (PLAYLISTS) -->
+    <!-- MODAL DE PASTAS -->
     <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
         <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
-        
         <div class="pasta-input-area">
             <input type="text" id="novaPastaInput" placeholder="Ex: Treino, Festa...">
             <button id="criarPastaBtn">+ Criar</button>
         </div>
-        
-        <div class="fav-list" id="playlistsList">
-            <!-- Renderizado pelo JS -->
-        </div>
+        <div class="fav-list" id="playlistsList"></div>
         <button class="close-btn" id="closePlaylistsBtn">FECHAR</button>
     </div>
 
-    <!-- MODAL DE FAVORITOS (reutilizado para mostrar músicas de uma pasta) -->
+    <!-- MODAL DE FAVORITOS (detalhes da pasta) -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Músicas</h3>
@@ -545,8 +638,8 @@
             let ultimoId = null;
             let carregandoMusica = false;
 
-            // ---------- NOVO SISTEMA DE PASTAS (PLAYLISTS) ----------
-            let playlists = {};         // { nomePasta: [id1, id2, ...] }
+            // ---------- SISTEMA DE PASTAS ----------
+            let playlists = {};
             let pastaAtiva = 'Favoritos';
 
             function carregarPlaylists() {
@@ -561,7 +654,6 @@
                 } else {
                     playlists = { 'Favoritos': [] };
                 }
-                // Remove duplicatas
                 for (let key in playlists) {
                     playlists[key] = [...new Set(playlists[key])];
                 }
@@ -585,7 +677,7 @@
 
             function excluirPasta(nome) {
                 if (nome === 'Favoritos') { showNotification('Não pode excluir a padrão', 1000); return; }
-                if (!confirm(`Deletar a pasta "${nome}" e todas as músicas dentro dela?`)) return;
+                if (!confirm(`Deletar a pasta "${nome}" e todas as músicas?`)) return;
                 delete playlists[nome];
                 salvarPlaylists();
                 renderizarListaPastas();
@@ -616,7 +708,6 @@
             }
 
             function toggleFavorito(musicId) {
-                // Adiciona/remove na pasta padrão "Favoritos"
                 const pasta = 'Favoritos';
                 if (!playlists[pasta]) playlists[pasta] = [];
                 const index = playlists[pasta].indexOf(musicId);
@@ -670,7 +761,6 @@
                 showNotification(`🎵 Tocando: ${nomePasta}`, 2000);
             }
 
-            // Renderiza a lista de pastas no modal
             function renderizarListaPastas() {
                 const container = document.getElementById('playlistsList');
                 container.innerHTML = '';
@@ -684,7 +774,6 @@
                     const qtd = ids.length;
                     const div = document.createElement('div');
                     div.className = 'playlist-item';
-                    // Preview dos títulos
                     let preview = '';
                     const primeiras = ids.slice(0, 2).map(id => {
                         const m = musicas.find(mus => mus.id === id);
@@ -703,16 +792,13 @@
                             ${nome !== 'Favoritos' ? `<button class="del-btn" data-pasta="${nome}"><i class="fas fa-trash-alt"></i></button>` : ''}
                         </div>
                     `;
-                    // Click no nome abre os detalhes da pasta
                     div.querySelector('.info').addEventListener('click', () => {
                         abrirDetalhesPasta(nome);
                     });
-                    // Botão play
                     div.querySelector('.play-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         tocarPasta(nome);
                     });
-                    // Botão deletar
                     const del = div.querySelector('.del-btn');
                     if (del) {
                         del.addEventListener('click', (e) => {
@@ -724,7 +810,6 @@
                 });
             }
 
-            // Abre o modal de favoritos (reutilizado) para mostrar músicas de uma pasta
             function abrirDetalhesPasta(nome) {
                 const ids = playlists[nome] || [];
                 if (ids.length === 0) { showNotification('Pasta vazia', 1000); return; }
@@ -751,7 +836,7 @@
                         div.querySelector('.remove').addEventListener('click', (e) => {
                             e.stopPropagation();
                             removerMusicaDaPasta(m.id, nome);
-                            abrirDetalhesPasta(nome); // re-renderiza
+                            abrirDetalhesPasta(nome);
                         });
                         favList.appendChild(div);
                     });
@@ -760,7 +845,7 @@
                 document.getElementById('favModal').classList.add('open');
             }
 
-            // ---------- FIM DO SISTEMA DE PASTAS ----------
+            // ---------- FIM SISTEMA DE PASTAS ----------
 
             // Elementos DOM
             const audio = document.getElementById('musicPlayer');
@@ -1393,7 +1478,6 @@
                 const genresGrid = document.getElementById('genresGrid');
                 genresGrid.innerHTML = '';
 
-                // Card Favoritos (usa a pasta padrão)
                 const qtdFav = (playlists['Favoritos'] || []).length;
                 const favCard = document.createElement('div');
                 favCard.className = 'genre-card fav-card';
@@ -1477,93 +1561,72 @@
 
             // ---------- INICIALIZAÇÃO ----------
             async function iniciar() {
-                // Exibe o splash com a imagem por 20 segundos
-                // A imagem já está visível, mas vamos esconder após 20s
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    // Mostra o vídeo com fade
-                    bgVideo.classList.add('show');
-                    // Após o fade do splash, mostra o app
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                        appContainer.style.display = 'block';
-                        tapToStart.style.display = 'block';
-                        goFullscreen();
-                    }, 800);
-                }, 20000); // 20 segundos
-
-                // Carrega playlists e dados
+                // Carregar playlists do usuário
                 carregarPlaylists();
                 atualizarBadgeFavoritos();
 
-                if (carregarDoLocalStorage()) {
-                    renderizarListaPastas();
-                    buildGenresGrid();
-                    return;
+                // Carregar a playlist principal (tenta PADRÃO, depois MPB, etc.)
+                let lista = await carregarPlaylistPorGenero('PADRÃO');
+                let generoInicial = 'PADRÃO';
+                if (!lista || lista.length === 0) {
+                    lista = await carregarPlaylistPorGenero('MPB');
+                    generoInicial = 'MPB';
+                }
+                if (!lista || lista.length === 0) {
+                    lista = await carregarPlaylistPorGenero('POP');
+                    generoInicial = 'POP';
+                }
+                if (!lista || lista.length === 0) {
+                    const primeiroGenero = Object.keys(GENRE_URLS).find(k => k !== 'PADRÃO') || 'MPB';
+                    lista = await carregarPlaylistPorGenero(primeiroGenero);
+                    generoInicial = primeiroGenero;
                 }
 
-                try {
-                    let lista = await carregarPlaylistPorGenero('PADRÃO');
-                    let generoInicial = 'PADRÃO';
-                    
-                    if (!lista || lista.length === 0) {
-                        lista = await carregarPlaylistPorGenero('MPB');
-                        generoInicial = 'MPB';
-                    }
-                    if (!lista || lista.length === 0) {
-                        lista = await carregarPlaylistPorGenero('POP');
-                        generoInicial = 'POP';
-                    }
-                    if (!lista || lista.length === 0) {
-                        const primeiroGenero = Object.keys(GENRE_URLS).find(k => k !== 'PADRÃO') || 'MPB';
-                        lista = await carregarPlaylistPorGenero(primeiroGenero);
-                        generoInicial = primeiroGenero;
-                    }
-                    
-                    if (lista && lista.length > 0) {
-                        musicas = lista;
-                        modoAtual = generoInicial;
-                        if (modoAtual === 'PADRÃO') {
-                            genreBadge.innerHTML = '🎵 PRINCIPAL';
-                        } else {
-                            genreBadge.innerHTML = modoAtual;
-                        }
-                        currentPlaylist = shuffleArray([...musicas]);
-                        currentIndex = 0;
-                        ultimoId = null;
-                        const primeira = currentPlaylist[0];
-                        if (primeira) {
-                            updateNowPlaying(primeira);
-                            adicionarAoHistorico(primeira);
-                        }
+                if (lista && lista.length > 0) {
+                    musicas = lista;
+                    modoAtual = generoInicial;
+                    if (modoAtual === 'PADRÃO') {
+                        genreBadge.innerHTML = '🎵 PRINCIPAL';
                     } else {
-                        showNotification('❌ Nenhuma playlist carregada', 2000);
+                        genreBadge.innerHTML = modoAtual;
                     }
-
-                    renderizarListaPastas();
-                    buildGenresGrid();
-                } catch (err) {
-                    console.error(err);
-                    // Fallback: tenta carregar MPB
-                    const lista = await carregarPlaylistPorGenero('MPB');
-                    if (lista && lista.length > 0) {
-                        musicas = lista;
-                        modoAtual = 'MPB';
-                        genreBadge.innerHTML = 'MPB';
-                        currentPlaylist = shuffleArray([...musicas]);
-                        currentIndex = 0;
-                        const primeira = currentPlaylist[0];
-                        if (primeira) {
-                            updateNowPlaying(primeira);
-                            adicionarAoHistorico(primeira);
-                        }
-                        renderizarListaPastas();
-                        buildGenresGrid();
+                    currentPlaylist = shuffleArray([...musicas]);
+                    currentIndex = 0;
+                    ultimoId = null;
+                    const primeira = currentPlaylist[0];
+                    if (primeira) {
+                        updateNowPlaying(primeira);
+                        adicionarAoHistorico(primeira);
                     }
+                } else {
+                    showNotification('❌ Nenhuma playlist carregada', 2000);
                 }
+
+                renderizarListaPastas();
+                buildGenresGrid();
+
+                // O splash (imagem + botão) fica visível até o usuário clicar em ATIVAR RÁDIO
+                // O vídeo só aparece depois do clique
             }
 
             // ---------- EVENTOS ----------
+            // Clique no botão ATIVAR RÁDIO
+            tapToStart.addEventListener('click', async function() {
+                // Esconde o splash (imagem) com fade
+                splash.classList.add('hidden');
+                // Mostra o vídeo de fundo
+                bgVideo.classList.add('show');
+                // Mostra o app
+                appContainer.style.display = 'flex';
+                // Ativa o áudio e começa a tocar
+                showNotification('🔊 Ativando áudio...', 1000);
+                await ativarAudio();
+                // Esconde o botão (já está dentro do splash, que sumiu)
+                // Vai para tela cheia
+                goFullscreen();
+            });
+
+            // Demais eventos (play, next, etc.) mantidos
             audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); });
             audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); });
             audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
@@ -1577,13 +1640,11 @@
                 }
             });
 
-            // Botão favoritos no topo abre o modal de pastas
             favTopBtn.addEventListener('click', () => {
                 renderizarListaPastas();
                 document.getElementById('playlistsModal').classList.add('open');
             });
 
-            // Fechar modais
             document.getElementById('closePlaylistsModal').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
             document.getElementById('closePlaylistsBtn').addEventListener('click', () => document.getElementById('playlistsModal').classList.remove('open'));
             document.getElementById('closeFavModal').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
@@ -1593,7 +1654,6 @@
             document.getElementById('closeHistModal').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
             document.getElementById('closeHistBtn').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
 
-            // Criar pasta
             document.getElementById('criarPastaBtn').addEventListener('click', () => {
                 const input = document.getElementById('novaPastaInput');
                 if (criarPasta(input.value)) {
@@ -1604,7 +1664,6 @@
                 if (e.key === 'Enter') document.getElementById('criarPastaBtn').click();
             });
 
-            // FAB
             const fabMain = document.getElementById('fabMain');
             const fabSub = document.getElementById('fabSub');
             fabMain.addEventListener('click', () => {
@@ -1726,13 +1785,6 @@
                 }
             });
 
-            tapToStart.addEventListener('click', async () => {
-                showNotification('🔊 Ativando áudio...', 1000);
-                await ativarAudio();
-                tapToStart.style.display = 'none';
-                goFullscreen();
-            });
-
             // Fechar modais clicando fora
             document.getElementById('playlistsModal').addEventListener('click', (e) => { if (e.target === document.getElementById('playlistsModal')) document.getElementById('playlistsModal').classList.remove('open'); });
             document.getElementById('favModal').addEventListener('click', (e) => { if (e.target === document.getElementById('favModal')) document.getElementById('favModal').classList.remove('open'); });
@@ -1740,7 +1792,6 @@
             document.getElementById('historicoModal').addEventListener('click', (e) => { if (e.target === document.getElementById('historicoModal')) document.getElementById('historicoModal').classList.remove('open'); });
             document.getElementById('genresModal').addEventListener('click', (e) => { if (e.target === document.getElementById('genresModal')) document.getElementById('genresModal').classList.remove('open'); });
 
-            // Feedback stars
             document.querySelectorAll('.star').forEach(star => {
                 star.addEventListener('click', () => {
                     const rating = parseInt(star.dataset.rating);
@@ -1781,7 +1832,7 @@
                 showControls();
             }
 
-            // Inicia a aplicação
+            // Inicia a aplicação (carrega playlists, etc.)
             window.addEventListener('load', iniciar);
         })();
     </script>
