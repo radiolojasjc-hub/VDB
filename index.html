@@ -11,7 +11,6 @@
         body { background: #0a0a0a; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
         
-        /* Fundo escuro */
         body::before {
             content: '';
             position: fixed;
@@ -23,7 +22,7 @@
             z-index: -1;
         }
         
-        /* Mídia: imagem e vídeo alternam */
+        /* Container de mídia (vídeos e imagens) */
         .media-container {
             position: fixed;
             top: 0;
@@ -32,7 +31,8 @@
             height: 100%;
             z-index: 0;
         }
-        #bgVideo, #bgImage {
+        .media-container video,
+        .media-container img {
             position: absolute;
             top: 0;
             left: 0;
@@ -40,22 +40,27 @@
             height: 100%;
             object-fit: cover;
             transition: opacity 1s ease;
+            opacity: 0;
+            z-index: 1;
         }
-        #bgImage { opacity: 1; z-index: 2; }
-        #bgVideo { opacity: 0; z-index: 1; }
-        #bgImage.hide { opacity: 0; z-index: 0; }
-        #bgVideo.show { opacity: 1; z-index: 2; }
-        #bgVideo.hide { opacity: 0; z-index: 0; }
+        .media-container .active {
+            opacity: 1;
+            z-index: 3;
+        }
+        .media-container .inactive {
+            opacity: 0;
+            z-index: 0;
+        }
         
-        /* Overlay escuro */
+        /* Overlay escuro para legibilidade */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 3;
+            background: rgba(0,0,0,0.25);
+            z-index: 4;
             pointer-events: none;
         }
         
@@ -67,13 +72,13 @@
             transform: translateX(-50%);
             z-index: 9999;
             color: white;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 900;
             text-shadow: 0 0 30px rgba(0, 243, 255, 0.5), 0 0 60px rgba(255, 45, 127, 0.3);
             letter-spacing: 6px;
             text-align: center;
             background: rgba(0,0,0,0.3);
-            padding: 10px 30px;
+            padding: 10px 25px;
             border-radius: 20px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -81,7 +86,7 @@
         }
         .project-title span { color: var(--neon-cyan); }
         
-        /* BOTÃO ATIVAR RÁDIO - moderno com gradiente e subtítulo */
+        /* BOTÃO ATIVAR RÁDIO - moderno */
         .btn-ativar {
             position: fixed;
             bottom: 30%;
@@ -125,7 +130,7 @@
             100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
         }
         
-        /* APP - aparece após clicar no botão */
+        /* APP */
         .app { 
             position: relative; 
             z-index: 10; 
@@ -161,7 +166,7 @@
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
         .menu-popup .close-menu-btn { background: rgba(255,45,127,0.2); border: 1px solid #ff2d7f; color: #ff2d7f; }
         
-        .info-scroll { position: fixed; top: 38px; left: 0; right: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 12px; z-index: 30; border-bottom: 1px solid rgba(255,255,255,0.05); overflow: hidden; white-space: nowrap; }
+        .info-scroll { position: fixed; top: 34px; left: 0; right: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 12px; z-index: 30; border-bottom: 1px solid rgba(255,255,255,0.05); overflow: hidden; white-space: nowrap; }
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 2px; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 30px rgba(0,0,0,0.8); text-transform: uppercase; }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
@@ -206,7 +211,7 @@
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* MODAIS - igual à versão anterior com busca, exportar, etc. */
+        /* MODAIS */
         .fav-modal, .feedback-modal, .historico-modal {
             position: fixed;
             top: 50%;
@@ -389,8 +394,8 @@
         }
         .close-genres:active { transform: scale(0.95); }
         
-        .feedback-modal .stars { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
-        .feedback-modal .star { font-size: 2.2rem; color: #555; cursor: pointer; transition: 0.15s; }
+        .feedback-modal .stars { display: flex; justify-content: center; gap: 6px; margin: 10px 0; }
+        .feedback-modal .star { font-size: 1.8rem; color: #555; cursor: pointer; transition: 0.15s; }
         .feedback-modal .star.active { color: #ffd700; text-shadow: 0 0 15px #ffd700; }
         .feedback-modal textarea {
             width: 100%;
@@ -422,7 +427,7 @@
             margin-top: 5px;
         }
         
-        /* Modal de Pastas (gerenciamento) */
+        /* Modal de Pastas */
         #playlistsModal .pasta-input-area {
             display: flex;
             gap: 6px;
@@ -513,7 +518,7 @@
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
             .fab-sub-btn { padding: 5px 10px; font-size: 0.55rem; min-width: 85px; }
             .top-bar { padding: 4px 6px; }
-            .info-scroll { top: 36px; padding: 4px 10px; }
+            .info-scroll { top: 32px; padding: 4px 10px; }
             .info-scroll p { font-size: 0.7rem; letter-spacing: 1px; }
             .ctrl-btn { width: 28px; height: 28px; font-size: 0.65rem; }
             .play-big { width: 36px; height: 36px; font-size: 0.9rem; }
@@ -527,18 +532,14 @@
             .menu-button { width: 24px; height: 24px; font-size: 0.6rem; }
             .fav-modal, .feedback-modal, .historico-modal, #playlistsModal { padding: 20px; max-width: 340px; }
             .sugestoes-pastas button { font-size: 0.55rem; padding: 3px 10px; }
+            .feedback-modal .star { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Mídia: Imagem e Vídeo -->
-    <div class="media-container">
-        <img id="bgImage" src="vai1.png" alt="Vai de Boa! Music">
-        <video id="bgVideo" playsinline muted>
-            <source src="vai1.mp4" type="video/mp4">
-        </video>
-    </div>
+    <!-- Container de mídia (vídeos e imagens) -->
+    <div class="media-container" id="mediaContainer"></div>
     <div class="overlay"></div>
 
     <!-- Título do projeto -->
@@ -598,9 +599,7 @@
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Músicas</h3>
-        <!-- Busca -->
         <input type="text" class="search-fav" id="searchFav" placeholder="🔍 Buscar música...">
-        <!-- Ações: Exportar, Importar, Limpar -->
         <div class="fav-actions">
             <button id="exportFavBtn"><i class="fas fa-download"></i> Exportar</button>
             <button id="importFavBtn"><i class="fas fa-upload"></i> Importar</button>
@@ -679,6 +678,18 @@
     <script>
         (function() {
             'use strict';
+
+            // ==============================
+            // CONFIGURAÇÃO DE MÍDIAS (vídeos e imagens)
+            // Adicione quantos arquivos quiser aqui!
+            const midias = [
+                { tipo: 'video', src: 'vai1.mp4' },
+                { tipo: 'imagem', src: 'vai1.png' },
+                // { tipo: 'video', src: 'video2.mp4' },
+                // { tipo: 'imagem', src: 'imagem2.jpg' },
+                // { tipo: 'video', src: 'video3.mp4' },
+            ];
+            // ==============================
 
             // ---------- PLAYLISTS E CONFIGURAÇÕES ----------
             const PLAYLIST_RELIGIOSA_FALLBACK = [
@@ -831,7 +842,7 @@
                 updateHeartIcon(musicId);
                 renderizarListaPastas();
                 atualizarBadgeFavoritos();
-                renderFavList(); // atualiza lista de favoritos com busca
+                renderFavList();
             }
 
             function atualizarBadgeFavoritos() {
@@ -965,7 +976,7 @@
                     list.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
                     return;
                 }
-                // Ordenar por ordem de adição (mais recente primeiro) – usamos a ordem inversa do array
+                // Ordenar por ordem de adição (mais recente primeiro)
                 const ordenadas = [];
                 for (let i = ids.length - 1; i >= 0; i--) {
                     const id = ids[i];
@@ -1022,35 +1033,99 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             const backgroundAudio = document.getElementById('backgroundAudio');
             const menuPopup = document.getElementById('menuPopup');
-            const bgImage = document.getElementById('bgImage');
-            const bgVideo = document.getElementById('bgVideo');
             const btnAtivar = document.getElementById('btnAtivar');
             const projectTitle = document.getElementById('projectTitle');
 
-            // ---------- ALTERNÂNCIA IMAGEM/VIDEO ----------
-            let mediaTimeout = null;
+            // ---- GERENCIAMENTO DE MÍDIAS ----
+            const mediaContainer = document.getElementById('mediaContainer');
+            const elementosMidia = [];
+            let midiaAtual = 0;
+            let intervaloTroca = null;
+
+            function criarElementosMidia() {
+                midias.forEach((m, index) => {
+                    let el;
+                    if (m.tipo === 'video') {
+                        el = document.createElement('video');
+                        el.src = m.src;
+                        el.muted = true;
+                        el.playsInline = true;
+                        el.loop = false;
+                        el.preload = 'auto';
+                        // Garantir que o vídeo seja carregado
+                        el.load();
+                    } else {
+                        el = document.createElement('img');
+                        el.src = m.src;
+                        el.alt = 'Mídia ' + index;
+                    }
+                    el.className = 'inactive';
+                    el.dataset.index = index;
+                    mediaContainer.appendChild(el);
+                    elementosMidia.push(el);
+                });
+                // Ativa o primeiro
+                if (elementosMidia.length > 0) {
+                    elementosMidia[0].classList.remove('inactive');
+                    elementosMidia[0].classList.add('active');
+                    midiaAtual = 0;
+                }
+            }
+
+            function alternarMidia() {
+                const atual = elementosMidia[midiaAtual];
+                if (!atual) return;
+
+                // Desativa o atual
+                atual.classList.remove('active');
+                atual.classList.add('inactive');
+                if (atual.tagName === 'VIDEO') {
+                    atual.pause();
+                    atual.currentTime = 0;
+                }
+
+                // Próximo índice
+                midiaAtual = (midiaAtual + 1) % elementosMidia.length;
+                const proximo = elementosMidia[midiaAtual];
+                proximo.classList.remove('inactive');
+                proximo.classList.add('active');
+
+                // Se for vídeo, tenta reproduzir
+                if (proximo.tagName === 'VIDEO') {
+                    proximo.play().catch(() => {});
+                    // Quando o vídeo terminar, força a troca
+                    proximo.onended = function() {
+                        if (intervaloTroca) clearTimeout(intervaloTroca);
+                        intervaloTroca = setTimeout(() => {
+                            alternarMidia();
+                        }, 3000);
+                    };
+                } else {
+                    // Imagem: fica 5 segundos
+                    if (intervaloTroca) clearTimeout(intervaloTroca);
+                    intervaloTroca = setTimeout(() => {
+                        alternarMidia();
+                    }, 5000);
+                }
+            }
 
             function iniciarAlternancia() {
-                bgImage.classList.remove('hide');
-                bgVideo.classList.add('hide');
-                // Após 3 segundos, toca vídeo
-                setTimeout(() => {
-                    bgImage.classList.add('hide');
-                    bgVideo.classList.remove('hide');
-                    bgVideo.play().catch(() => {});
-                    // Quando o vídeo terminar, volta para a imagem
-                    bgVideo.onended = function() {
-                        bgVideo.classList.add('hide');
-                        bgImage.classList.remove('hide');
-                        // Após 5 segundos, volta ao vídeo
-                        clearTimeout(mediaTimeout);
-                        mediaTimeout = setTimeout(() => {
-                            bgImage.classList.add('hide');
-                            bgVideo.classList.remove('hide');
-                            bgVideo.play().catch(() => {});
-                        }, 5000);
+                if (elementosMidia.length <= 1) return;
+                const primeiro = elementosMidia[0];
+                if (primeiro.tagName === 'VIDEO') {
+                    primeiro.play().catch(() => {});
+                    primeiro.onended = function() {
+                        if (intervaloTroca) clearTimeout(intervaloTroca);
+                        intervaloTroca = setTimeout(() => {
+                            alternarMidia();
+                        }, 3000);
                     };
-                }, 3000);
+                } else {
+                    if (intervaloTroca) clearTimeout(intervaloTroca);
+                    intervaloTroca = setTimeout(() => {
+                        alternarMidia();
+                    }, 5000);
+                }
             }
 
             // ---------- FUNÇÕES DO PLAYER ----------
@@ -1743,7 +1818,10 @@
 
             // ---------- INICIALIZAÇÃO ----------
             async function iniciar() {
-                // Mostra título e botão
+                // Criar elementos de mídia
+                criarElementosMidia();
+
+                // Mostrar título e botão
                 projectTitle.style.display = 'block';
                 btnAtivar.style.display = 'block';
 
@@ -1791,25 +1869,31 @@
                 buildGenresGrid();
                 renderFavList();
 
-                // Inicia alternância imagem/vídeo
-                iniciarAlternancia();
+                // Inicia alternância de mídia (se houver mais de um item)
+                if (elementosMidia.length > 1) {
+                    iniciarAlternancia();
+                }
+
+                // Tela cheia no início
+                goFullscreen();
             }
 
             // ---------- EVENTOS ----------
             // Botão ATIVAR RÁDIO
             btnAtivar.addEventListener('click', async function() {
-                // Esconde o botão e o título
                 btnAtivar.style.display = 'none';
                 projectTitle.style.display = 'none';
-                // Mostra o app
                 appContainer.style.display = 'flex';
-                // Ativa áudio
                 showNotification('🔊 Ativando áudio...', 1000);
                 await ativarAudio();
                 goFullscreen();
+                // Inicia a alternância se ainda não tiver começado
+                if (elementosMidia.length > 1) {
+                    iniciarAlternancia();
+                }
             });
 
-            // Coração: apenas favoritos (pasta padrão)
+            // Coração: favoritos (pasta padrão)
             heartBtn.addEventListener('click', () => {
                 const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
                 if (music) {
@@ -1821,7 +1905,7 @@
                 showControls();
             });
 
-            // Duplo toque na tela: também favorita (igual ao coração)
+            // Duplo toque na tela: também favorita
             let lastTap = 0;
             document.getElementById('nowPlaying').addEventListener('click', (e) => {
                 const now = Date.now();
@@ -1852,7 +1936,7 @@
             document.getElementById('closeHistModal').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
             document.getElementById('closeHistBtn').addEventListener('click', () => document.getElementById('historicoModal').classList.remove('open'));
 
-            // Botões de sugestão rápida (criar pastas)
+            // Sugestões de pastas
             document.querySelectorAll('#sugestoesContainer button').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const nome = this.dataset.pasta;
