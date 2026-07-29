@@ -23,7 +23,7 @@
             z-index: -1;
         }
         
-        /* Vídeo e imagem (alternam) */
+        /* Mídia: imagem e vídeo alternam */
         .media-container {
             position: fixed;
             top: 0;
@@ -41,20 +41,13 @@
             object-fit: cover;
             transition: opacity 1s ease;
         }
-        #bgImage {
-            opacity: 1;
-            z-index: 2;
-        }
-        #bgVideo {
-            opacity: 0;
-            z-index: 1;
-        }
-        #bgImage.show { opacity: 1; z-index: 2; }
+        #bgImage { opacity: 1; z-index: 2; }
+        #bgVideo { opacity: 0; z-index: 1; }
         #bgImage.hide { opacity: 0; z-index: 0; }
         #bgVideo.show { opacity: 1; z-index: 2; }
         #bgVideo.hide { opacity: 0; z-index: 0; }
         
-        /* Sobreposição escura para legibilidade */
+        /* Overlay escuro */
         .overlay {
             position: fixed;
             top: 0;
@@ -66,7 +59,73 @@
             pointer-events: none;
         }
         
-        /* App */
+        /* Título do projeto */
+        .project-title {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.5), 0 0 60px rgba(255, 45, 127, 0.3);
+            letter-spacing: 6px;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+        .project-title span { color: var(--neon-cyan); }
+        
+        /* BOTÃO ATIVAR RÁDIO - moderno com gradiente e subtítulo */
+        .btn-ativar {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #00f3ff, #00d4ff);
+            color: #000;
+            padding: 18px 40px;
+            border-radius: 60px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            z-index: 10000;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.5), 0 0 80px rgba(0, 243, 255, 0.2);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            display: none;
+            animation: pulseModern 2s infinite;
+        }
+        .btn-ativar:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.8);
+        }
+        .btn-ativar:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+        .btn-ativar .subtitulo {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+        @keyframes pulseModern {
+            0% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
+            50% { box-shadow: 0 0 60px rgba(0, 243, 255, 0.7), 0 0 120px rgba(0, 243, 255, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
+        }
+        
+        /* APP - aparece após clicar no botão */
         .app { 
             position: relative; 
             z-index: 10; 
@@ -147,7 +206,7 @@
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Modais */
+        /* MODAIS - igual à versão anterior com busca, exportar, etc. */
         .fav-modal, .feedback-modal, .historico-modal {
             position: fixed;
             top: 50%;
@@ -225,6 +284,42 @@
             font-size: 0.95rem;
         }
         .fav-modal .close-btn:active, .historico-modal .close-btn:active { transform: scale(0.95); }
+        
+        /* Busca nos favoritos */
+        .search-fav {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .search-fav::placeholder { color: #666; }
+        .search-fav:focus { border-color: var(--neon-cyan); }
+        
+        .fav-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .fav-actions button {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #ccc;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .fav-actions button:active { background: var(--neon-cyan); color: #000; }
         
         .genres-modal {
             position: fixed;
@@ -408,72 +503,6 @@
         .playlist-item .actions button.del-btn { color: #ff2d7f; }
         .playlist-item .actions button:active { transform: scale(0.9); }
         
-        /* Botão ATIVAR RÁDIO - Moderno */
-        .btn-ativar {
-            position: fixed;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #00f3ff, #00d4ff);
-            color: #000;
-            padding: 18px 40px;
-            border-radius: 60px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            z-index: 10000;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.5), 0 0 80px rgba(0, 243, 255, 0.2);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            display: none;
-            animation: pulseModern 2s infinite;
-        }
-        .btn-ativar:hover {
-            transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 0 60px rgba(0, 243, 255, 0.8);
-        }
-        .btn-ativar:active {
-            transform: translateX(-50%) scale(0.95);
-        }
-        .btn-ativar .subtitulo {
-            display: block;
-            font-size: 0.6rem;
-            font-weight: 400;
-            letter-spacing: 4px;
-            opacity: 0.7;
-            margin-top: 2px;
-        }
-        @keyframes pulseModern {
-            0% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
-            50% { box-shadow: 0 0 60px rgba(0, 243, 255, 0.7), 0 0 120px rgba(0, 243, 255, 0.3); }
-            100% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 60px rgba(0, 243, 255, 0.1); }
-        }
-        
-        /* Título do projeto */
-        .project-title {
-            position: fixed;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 900;
-            text-shadow: 0 0 30px rgba(0, 243, 255, 0.5), 0 0 60px rgba(255, 45, 127, 0.3);
-            letter-spacing: 6px;
-            display: none;
-            text-align: center;
-            background: rgba(0,0,0,0.3);
-            padding: 10px 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .project-title span { color: var(--neon-cyan); }
-        
         @media (max-width: 480px) {
             .btn-ativar { padding: 14px 24px; font-size: 1rem; bottom: 25%; }
             .btn-ativar .subtitulo { font-size: 0.5rem; }
@@ -503,11 +532,11 @@
 </head>
 <body>
 
-    <!-- Mídia: Imagem e Vídeo alternam -->
+    <!-- Mídia: Imagem e Vídeo -->
     <div class="media-container">
         <img id="bgImage" src="vai1.png" alt="Vai de Boa! Music">
         <video id="bgVideo" playsinline muted>
-            <source src="abc1.mp4" type="video/mp4">
+            <source src="vai1.mp4" type="video/mp4">
         </video>
     </div>
     <div class="overlay"></div>
@@ -547,7 +576,7 @@
         <div class="teaching-bar">👆 Toque na tela para <span class="cyan">controles</span></div>
     </div>
 
-    <!-- MODAL DE PASTAS (gerenciamento) -->
+    <!-- MODAL DE PASTAS -->
     <div class="fav-modal" id="playlistsModal" style="max-width: 420px;">
         <button class="close-fav" id="closePlaylistsModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-folder-open" style="color:#00f3ff;"></i> Minhas Pastas</h3>
@@ -569,6 +598,14 @@
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color: #ff2d7f;"></i> Músicas</h3>
+        <!-- Busca -->
+        <input type="text" class="search-fav" id="searchFav" placeholder="🔍 Buscar música...">
+        <!-- Ações: Exportar, Importar, Limpar -->
+        <div class="fav-actions">
+            <button id="exportFavBtn"><i class="fas fa-download"></i> Exportar</button>
+            <button id="importFavBtn"><i class="fas fa-upload"></i> Importar</button>
+            <button id="clearFavBtn" style="color:#ff2d7f;"><i class="fas fa-trash"></i> Limpar</button>
+        </div>
         <div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música</div></div>
         <button class="close-btn" id="closeFavBtn">FECHAR</button>
     </div>
@@ -618,6 +655,7 @@
             <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
             <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube fab-icon-youtube"></i> Vídeo YouTube</button>
             <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i> Compartilhar</button>
+            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i> QR Code</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
@@ -629,6 +667,7 @@
         <button id="btStatusMenuBtn"><i class="fab fa-bluetooth"></i> Procurar Bluetooth</button>
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
+        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
     </div>
 
     <div class="notification" id="notification">Mensagem</div>
@@ -699,7 +738,7 @@
             let ultimoId = null;
             let carregandoMusica = false;
 
-            // ---------- SISTEMA DE PASTAS ----------
+            // ---------- SISTEMA DE PASTAS (com Favoritos) ----------
             let playlists = {};
             let pastaAtiva = 'Favoritos';
 
@@ -776,7 +815,7 @@
                 showNotification(`🗑️ Removida de "${nomePasta}"`, 1000);
             }
 
-            // Função toggleFavorito: adiciona/remove da pasta Favoritos (comportamento original)
+            // Toggle favorito (pasta "Favoritos")
             function toggleFavorito(musicId) {
                 const pasta = 'Favoritos';
                 if (!playlists[pasta]) playlists[pasta] = [];
@@ -792,6 +831,7 @@
                 updateHeartIcon(musicId);
                 renderizarListaPastas();
                 atualizarBadgeFavoritos();
+                renderFavList(); // atualiza lista de favoritos com busca
             }
 
             function atualizarBadgeFavoritos() {
@@ -915,6 +955,51 @@
                 document.getElementById('favModal').classList.add('open');
             }
 
+            // ---------- FAVORITOS (para a pasta "Favoritos" com busca e ações) ----------
+            function renderFavList(termo = '') {
+                const list = document.getElementById('favList');
+                list.innerHTML = '';
+                const ids = playlists['Favoritos'] || [];
+                const favMusicas = ids.map(id => musicas.find(m => m.id === id)).filter(Boolean);
+                if (favMusicas.length === 0) {
+                    list.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
+                    return;
+                }
+                // Ordenar por ordem de adição (mais recente primeiro) – usamos a ordem inversa do array
+                const ordenadas = [];
+                for (let i = ids.length - 1; i >= 0; i--) {
+                    const id = ids[i];
+                    const m = musicas.find(mus => mus.id === id);
+                    if (m) ordenadas.push(m);
+                }
+                const term = termo.toLowerCase().trim();
+                const filtradas = term ? ordenadas.filter(m => m.title.toLowerCase().includes(term) || m.artist.toLowerCase().includes(term)) : ordenadas;
+                if (filtradas.length === 0) {
+                    list.innerHTML = '<div class="fav-empty">Nenhuma música encontrada</div>';
+                    return;
+                }
+                filtradas.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'fav-item';
+                    div.innerHTML = `
+                        <div class="info" data-id="${m.id}">
+                            <div class="title">${m.title}</div>
+                            <div class="artist">${m.artist}</div>
+                        </div>
+                        <button class="remove" data-id="${m.id}"><i class="fas fa-times-circle"></i></button>
+                    `;
+                    div.querySelector('.info').addEventListener('click', () => {
+                        playSongById(m.id);
+                        document.getElementById('favModal').classList.remove('open');
+                    });
+                    div.querySelector('.remove').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleFavorito(m.id);
+                    });
+                    list.appendChild(div);
+                });
+            }
+
             // ---------- FIM SISTEMA DE PASTAS ----------
 
             // Elementos DOM
@@ -943,46 +1028,28 @@
             const projectTitle = document.getElementById('projectTitle');
 
             // ---------- ALTERNÂNCIA IMAGEM/VIDEO ----------
-            let mediaIndex = 0; // 0 = imagem, 1 = vídeo
             let mediaTimeout = null;
 
-            function alternarMedia() {
-                if (mediaIndex === 0) {
-                    // Mostrar vídeo, esconder imagem
-                    bgImage.classList.remove('show');
+            function iniciarAlternancia() {
+                bgImage.classList.remove('hide');
+                bgVideo.classList.add('hide');
+                // Após 3 segundos, toca vídeo
+                setTimeout(() => {
                     bgImage.classList.add('hide');
                     bgVideo.classList.remove('hide');
-                    bgVideo.classList.add('show');
                     bgVideo.play().catch(() => {});
-                    mediaIndex = 1;
-                    // Duração do vídeo (assumindo que o vídeo tem duração finita)
-                    // Vamos detectar quando o vídeo terminar
+                    // Quando o vídeo terminar, volta para a imagem
                     bgVideo.onended = function() {
-                        // Vídeo terminou, volta para a imagem
-                        bgVideo.classList.remove('show');
                         bgVideo.classList.add('hide');
                         bgImage.classList.remove('hide');
-                        bgImage.classList.add('show');
-                        mediaIndex = 0;
-                        // Após 5 segundos na imagem, volta ao vídeo
+                        // Após 5 segundos, volta ao vídeo
                         clearTimeout(mediaTimeout);
                         mediaTimeout = setTimeout(() => {
-                            alternarMedia();
+                            bgImage.classList.add('hide');
+                            bgVideo.classList.remove('hide');
+                            bgVideo.play().catch(() => {});
                         }, 5000);
                     };
-                } else {
-                    // Se estiver no vídeo, não faz nada (o evento onended cuida)
-                }
-            }
-
-            // Inicia a alternância: mostra a imagem primeiro, depois vídeo após 3s
-            function iniciarAlternancia() {
-                bgImage.classList.add('show');
-                bgVideo.classList.add('hide');
-                mediaIndex = 0;
-                // Após 3 segundos, começa a tocar o vídeo
-                setTimeout(() => {
-                    alternarMedia();
                 }, 3000);
             }
 
@@ -1722,6 +1789,7 @@
 
                 renderizarListaPastas();
                 buildGenresGrid();
+                renderFavList();
 
                 // Inicia alternância imagem/vídeo
                 iniciarAlternancia();
@@ -1750,6 +1818,7 @@
                 } else {
                     showNotification('Nenhuma música tocando', 1000);
                 }
+                showControls();
             });
 
             // Duplo toque na tela: também favorita (igual ao coração)
@@ -1801,6 +1870,70 @@
                 if (e.key === 'Enter') document.getElementById('criarPastaBtn').click();
             });
 
+            // Busca nos favoritos
+            document.getElementById('searchFav').addEventListener('input', function() {
+                renderFavList(this.value);
+            });
+
+            // Exportar favoritos
+            document.getElementById('exportFavBtn').addEventListener('click', () => {
+                const ids = playlists['Favoritos'] || [];
+                const nomes = ids.map(id => {
+                    const m = musicas.find(mus => mus.id === id);
+                    return m ? `${m.title} - ${m.artist}` : null;
+                }).filter(Boolean).join('\n');
+                if (!nomes) { showNotification('Nenhum favorito para exportar', 1000); return; }
+                navigator.clipboard.writeText(nomes).then(() => {
+                    showNotification('📋 Lista copiada!', 1500);
+                }).catch(() => {
+                    alert('Copie a lista:\n\n' + nomes);
+                });
+            });
+
+            // Importar favoritos
+            document.getElementById('importFavBtn').addEventListener('click', () => {
+                const input = prompt('Cole a lista de músicas (uma por linha, formato "Título - Artista"):');
+                if (!input) return;
+                const linhas = input.split('\n').filter(l => l.trim());
+                let importados = 0;
+                linhas.forEach(linha => {
+                    const parts = linha.split('-').map(s => s.trim());
+                    if (parts.length >= 2) {
+                        const titulo = parts[0].trim();
+                        const artista = parts.slice(1).join(' - ').trim();
+                        const m = musicas.find(mus => mus.title.toLowerCase() === titulo.toLowerCase() && mus.artist.toLowerCase() === artista.toLowerCase());
+                        if (m && !playlists['Favoritos'].includes(m.id)) {
+                            playlists['Favoritos'].push(m.id);
+                            importados++;
+                        }
+                    }
+                });
+                if (importados > 0) {
+                    salvarPlaylists();
+                    renderizarListaPastas();
+                    renderFavList();
+                    buildGenresGrid();
+                    showNotification(`✅ ${importados} músicas importadas!`, 2000);
+                } else {
+                    showNotification('Nenhuma música encontrada para importar', 1500);
+                }
+            });
+
+            // Limpar favoritos
+            document.getElementById('clearFavBtn').addEventListener('click', () => {
+                const ids = playlists['Favoritos'] || [];
+                if (ids.length === 0) { showNotification('Nenhum favorito', 1000); return; }
+                if (confirm('Remover todos os favoritos?')) {
+                    playlists['Favoritos'] = [];
+                    salvarPlaylists();
+                    renderizarListaPastas();
+                    renderFavList();
+                    buildGenresGrid();
+                    updateHeartIcon(null);
+                    showNotification('🗑️ Favoritos limpos', 1500);
+                }
+            });
+
             // FAB
             const fabMain = document.getElementById('fabMain');
             const fabSub = document.getElementById('fabSub');
@@ -1827,6 +1960,14 @@
                         showNotification('Compartilhamento não disponível', 1000);
                     });
                 }
+                fabMain.click();
+            });
+
+            document.getElementById('fabQrCode').addEventListener('click', () => {
+                const url = encodeURIComponent(location.href);
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${url}&size=300x300&bgcolor=0a0a0a&color=00f3ff`;
+                window.open(qrUrl, '_blank');
+                showNotification('📲 QR Code gerado!', 1500);
                 fabMain.click();
             });
 
@@ -1886,6 +2027,14 @@
                 openFeedback(); 
             });
 
+            document.getElementById('qrCodeMenuBtn').addEventListener('click', () => {
+                menuPopup.classList.remove('open');
+                const url = encodeURIComponent(location.href);
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${url}&size=300x300&bgcolor=0a0a0a&color=00f3ff`;
+                window.open(qrUrl, '_blank');
+                showNotification('📲 QR Code gerado!', 1500);
+            });
+
             document.getElementById('progressBar').addEventListener('click', (e) => {
                 if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
                     const rect = e.currentTarget.getBoundingClientRect();
@@ -1904,10 +2053,9 @@
                 menuPopup.classList.remove('open'); 
             });
 
+            // Toque em qualquer lugar para mostrar controles (exceto em botões e modais)
             document.addEventListener('click', (e) => {
-                if (menuPopup.classList.contains('open') && !menuPopup.contains(e.target) && e.target !== menuButton) {
-                    menuPopup.classList.remove('open');
-                }
+                if (e.target.closest('button') || e.target.closest('.fav-modal') || e.target.closest('.genres-modal') || e.target.closest('.menu-popup') || e.target.closest('.fab-container')) return;
                 showControls();
             });
 
