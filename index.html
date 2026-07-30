@@ -363,7 +363,7 @@
         
         .now-playing {
             position: fixed;
-            top: 65%;
+            top: 70%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
@@ -644,10 +644,11 @@
             max-width: 380px;
             margin-top: 10px;
             display: flex;
+            flex-direction: column;
             gap: 10px;
         }
         .senha-input-area input {
-            flex: 1;
+            width: 100%;
             padding: 14px 16px;
             border-radius: 30px;
             border: 2px solid var(--neon-cyan);
@@ -678,7 +679,7 @@
             color: #000;
             font-weight: 900;
             cursor: pointer;
-            white-space: nowrap;
+            width: 100%;
             font-size: 1rem;
             box-shadow: 0 0 20px rgba(0,243,255,0.2);
         }
@@ -1265,6 +1266,7 @@
             <i class="fas fa-qrcode"></i> PIX: 12 98846-1978
         </button>
         
+        <!-- ===== CAMPO DE SENHA NA TELA DE BLOQUEIO ===== -->
         <div class="senha-input-area">
             <input type="text" id="senhaInput" placeholder="🔑 DIGITE SUA SENHA" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
             <button id="btnAtivarSenha">▶ ATIVAR</button>
@@ -1442,7 +1444,7 @@
             }
 
             // ============================================================
-            // 🔑 SISTEMA DE SENHAS DOS PLANOS
+            // 🔑 SISTEMA DE SENHAS DOS PLANOS (CORRIGIDO - SEM DEVICE ID)
             // ============================================================
             const PLANOS = {
                 teste1dia: { nome: 'Teste 1 Dia', dias: 1, valor: 'R$ 0,00' },
@@ -1451,8 +1453,6 @@
             };
 
             let senhasGeradas = JSON.parse(localStorage.getItem('senhas_geradas') || '[]');
-            let deviceId = localStorage.getItem('device_id') || 'device_' + Math.random().toString(36).substr(2, 8);
-            let appLiberadoPorSenha = localStorage.getItem('app_liberado_por_senha') === 'true';
 
             function salvarSenhas() {
                 localStorage.setItem('senhas_geradas', JSON.stringify(senhasGeradas));
@@ -1480,8 +1480,8 @@
                     plano: plano,
                     criado: data.toISOString(),
                     expiracao: expiracao ? expiracao.toISOString() : null,
-                    ativo: true,
-                    deviceId: deviceId
+                    ativo: true
+                    // ===== REMOVIDO: deviceId =====
                 };
                 senhasGeradas.push(novaSenha);
                 salvarSenhas();
@@ -1489,10 +1489,10 @@
             }
 
             function validarSenha(senha) {
+                // ===== SEM DEVICE ID - FUNCIONA EM QUALQUER DISPOSITIVO =====
                 const senhaEncontrada = senhasGeradas.find(s => 
                     s.senha === senha.toUpperCase() && 
-                    s.ativo === true &&
-                    s.deviceId === deviceId
+                    s.ativo === true
                 );
                 if (!senhaEncontrada) return { valido: false, motivo: 'Senha inválida' };
                 if (senhaEncontrada.expiracao) {
@@ -1659,14 +1659,12 @@
             const btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
             const btnPix = document.getElementById('btnPix');
             
-            // Elementos da senha na tela do app
             const appSenhaInput = document.getElementById('appSenhaInput');
             const appBtnAtivarSenha = document.getElementById('appBtnAtivarSenha');
             const appMsgErro = document.getElementById('appMsgErro');
             const appMsgSucesso = document.getElementById('appMsgSucesso');
             const appTentativasContador = document.getElementById('appTentativasContador');
             
-            // Elementos da senha na tela de bloqueio
             const senhaInput = document.getElementById('senhaInput');
             const btnAtivarSenha = document.getElementById('btnAtivarSenha');
             const msgErro = document.getElementById('msgErro');
@@ -1715,9 +1713,6 @@
                 return { sucesso: false, mensagem: `❌ Senha inválida! ${tentativasRestantes} restante(s).` };
             }
 
-            // ============================================================
-            // FUNÇÃO PARA ATUALIZAR CONTADORES DE TENTATIVAS
-            // ============================================================
             function atualizarTentativas() {
                 tentativasContador.textContent = tentativasRestantes;
                 appTentativasContador.textContent = tentativasRestantes;
@@ -2507,6 +2502,8 @@
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 showNotification('⏰ Teste finalizado!', 2000);
             }
+
+            let appLiberadoPorSenha = localStorage.getItem('app_liberado_por_senha') === 'true';
 
             function liberarApp(plano = null) {
                 appLiberado = true;
