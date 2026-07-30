@@ -7,6 +7,7 @@
     <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== TODO O CSS AQUI (MANTENHA O MESMO DO CÓDIGO ANTERIOR) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; position: fixed; width: 100%; top: 0; left: 0; }
         body { background: #000; overflow: hidden; }
@@ -36,7 +37,6 @@
         .media-container .active { opacity: 1; z-index: 3; }
         .media-container .inactive { opacity: 0; z-index: 0; }
         
-        /* ===== TÍTULO - REMOVIDO DA TELA INICIAL ===== */
         .project-title { display: none; }
         
         .btn-ativar {
@@ -58,7 +58,7 @@
             text-transform: uppercase;
             white-space: nowrap;
             transition: all 0.3s ease;
-            display: block;
+            display: none;
             animation: pulseModern 2s infinite;
         }
         .btn-ativar:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 60px rgba(0,243,255,0.8); }
@@ -84,7 +84,7 @@
             width: 100vw;
             height: 100vh;
             z-index: 10;
-            display: none;
+            display: flex;
             flex-direction: column;
             background: transparent;
             padding-top: 0;
@@ -102,7 +102,7 @@
             border: 2px solid var(--neon-cyan);
             border-radius: 16px;
             padding: 4px 18px;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 8px;
             box-shadow: 0 0 30px rgba(0,243,255,0.2);
@@ -562,10 +562,6 @@
             text-align: center;
         }
         .plan-card:active { transform: scale(0.97); }
-        .plan-card.test-plan {
-            border-color: var(--neon-cyan);
-            background: rgba(0,243,255,0.08);
-        }
         .plan-card.monthly-plan {
             border-color: var(--neon-yellow);
             background: rgba(255,215,0,0.08);
@@ -706,6 +702,7 @@
         }
         .tentativas span { color: var(--neon-yellow); font-weight: bold; }
         
+        /* ===== MODAIS ===== */
         .fav-modal, .feedback-modal, .historico-modal {
             position: fixed;
             top: 50%;
@@ -1217,8 +1214,8 @@
     <!-- Mídia -->
     <div class="media-container" id="mediaContainer"></div>
 
-    <!-- Botão Ativar (tela inicial) -->
-    <button class="btn-ativar" id="btnAtivar">
+    <!-- Botão Ativar (tela inicial) - AGORA OCULTO, INICIA AUTOMÁTICO -->
+    <button class="btn-ativar" id="btnAtivar" style="display:none;">
         ▶ ATIVAR RÁDIO
         <span class="subtitulo">Vai de Boa! Music</span>
     </button>
@@ -1236,15 +1233,17 @@
             </div>
         </div>
         
+        <!-- Timer -->
         <div class="timer-float" id="timerFloat">
-            <span class="timer-label">⏱️ TESTE</span>
-            <span class="timer-display" id="timerDisplay">05:00</span>
+            <span class="timer-label">⏱️ TESTE GRÁTIS</span>
+            <span class="timer-display" id="timerDisplay">3d 00:00:00</span>
         </div>
         
         <div class="info-scroll" id="infoScroll">
             <p id="scrollText">🎵 TOCANDO AGORA! 🎵</p>
         </div>
 
+        <!-- Campo de senha na tela do app -->
         <div class="app-senha-area" id="appSenhaArea">
             <span class="senha-label">🔑 ATIVE SUA SENHA</span>
             <div class="senha-input-wrap">
@@ -1256,6 +1255,7 @@
             <div class="tentativas-app">🔑 Tentativas: <span id="appTentativasContador">3</span></div>
         </div>
 
+        <!-- Coração -->
         <div class="now-playing" id="nowPlaying">
             <div class="fav-heart-center">
                 <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
@@ -1263,19 +1263,10 @@
         </div>
     </div>
 
+    <!-- TELA DE BLOQUEIO -->
     <div id="blockScreen">
         <div class="block-logo">🎵 <span>Vai de Boa!</span> Music</div>
-        <div class="block-sub">⏰ Seu teste acabou! Escolha um plano:</div>
-        
-        <div class="plan-card test-plan" id="planTest1dia">
-            <div class="plan-title">⏱️ TESTE 1 DIA</div>
-            <div class="plan-price">R$ 0,00</div>
-            <div class="plan-desc">Acesso total por 1 dia!</div>
-            <div class="plan-features">
-                <i class="fas fa-check"></i> Todas as músicas<br>
-                <i class="fas fa-check"></i> Sem anúncios
-            </div>
-        </div>
+        <div class="block-sub">⏰ Seu teste de 3 dias acabou! Escolha um plano:</div>
         
         <div class="plan-card monthly-plan" id="planMonthly">
             <div class="plan-title">📅 Plano Mensal</div>
@@ -1290,7 +1281,7 @@
         
         <div class="plan-card lifetime-plan" id="planLifetime">
             <div class="plan-title">♾️ Plano Vitalício</div>
-            <div class="plan-price">R$ 59,00</div>
+            <div class="plan-price">R$ 49,90</div>
             <div class="plan-desc">Acesso PARA SEMPRE!</div>
             <div class="plan-features">
                 <i class="fas fa-check"></i> Acesso vitalício<br>
@@ -1347,9 +1338,8 @@
                 <div class="admin-form-row">
                     <input type="text" id="adminCelular" placeholder="📱 Celular do comprador" maxlength="15">
                     <select id="adminPlano">
-                        <option value="teste1dia">⏱️ Teste 1 Dia - R$ 0,00</option>
-                        <option value="mensal">📅 Mensal - R$ 9,90</option>
-                        <option value="vitalicio">♾️ Vitalício - R$ 59,00</option>
+                        <option value="mensal">📅 Mensal - R$ 9,90 (30 dias)</option>
+                        <option value="vitalicio">♾️ Vitalício - R$ 49,90 (pra sempre)</option>
                     </select>
                     <button class="admin-btn" id="btnGerarSenha">🔐 GERAR</button>
                 </div>
@@ -1487,9 +1477,8 @@
             // 🔑 SISTEMA DE SENHAS DOS PLANOS
             // ============================================================
             const PLANOS = {
-                teste1dia: { nome: 'Teste 1 Dia', dias: 1, valor: 'R$ 0,00' },
                 mensal: { nome: 'Mensal', dias: 30, valor: 'R$ 9,90' },
-                vitalicio: { nome: 'Vitalício', dias: 0, valor: 'R$ 59,00' }
+                vitalicio: { nome: 'Vitalício', dias: 0, valor: 'R$ 49,90' }
             };
 
             let senhasGeradas = JSON.parse(localStorage.getItem('senhas_geradas') || '[]');
@@ -1500,21 +1489,21 @@
             }
 
             function gerarSenhaUnica() {
-                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-                let senha = '';
-                for (let i = 0; i < 8; i++) {
+                var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                var senha = '';
+                for (var i = 0; i < 8; i++) {
                     senha += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 return senha;
             }
 
             function gerarNovaSenha(celular, plano) {
-                const senha = gerarSenhaUnica();
-                const data = new Date();
-                const dias = PLANOS[plano]?.dias || 30;
-                const expiracao = dias > 0 ? new Date(data.getTime() + dias * 24 * 60 * 60 * 1000) : null;
+                var senha = gerarSenhaUnica();
+                var data = new Date();
+                var dias = PLANOS[plano]?.dias || 30;
+                var expiracao = dias > 0 ? new Date(data.getTime() + dias * 24 * 60 * 60 * 1000) : null;
                 
-                const novaSenha = {
+                var novaSenha = {
                     senha: senha,
                     celular: celular.replace(/\D/g, ''),
                     plano: plano,
@@ -1528,13 +1517,12 @@
             }
 
             function validarSenha(senha) {
-                const senhaEncontrada = senhasGeradas.find(s => 
-                    s.senha === senha.toUpperCase() && 
-                    s.ativo === true
-                );
+                var senhaEncontrada = senhasGeradas.find(function(s) {
+                    return s.senha === senha.toUpperCase() && s.ativo === true;
+                });
                 if (!senhaEncontrada) return { valido: false, motivo: 'Senha inválida' };
                 if (senhaEncontrada.expiracao) {
-                    const expiracao = new Date(senhaEncontrada.expiracao);
+                    var expiracao = new Date(senhaEncontrada.expiracao);
                     if (expiracao < new Date()) {
                         senhaEncontrada.ativo = false;
                         salvarSenhas();
@@ -1548,10 +1536,10 @@
             // ADMIN
             // ============================================================
             function atualizarAdminStats() {
-                const total = senhasGeradas.length;
-                const ativas = senhasGeradas.filter(s => s.ativo).length;
-                const mensais = senhasGeradas.filter(s => s.plano === 'mensal' && s.ativo).length;
-                const vitalicios = senhasGeradas.filter(s => s.plano === 'vitalicio' && s.ativo).length;
+                var total = senhasGeradas.length;
+                var ativas = senhasGeradas.filter(function(s) { return s.ativo; }).length;
+                var mensais = senhasGeradas.filter(function(s) { return s.plano === 'mensal' && s.ativo; }).length;
+                var vitalicios = senhasGeradas.filter(function(s) { return s.plano === 'vitalicio' && s.ativo; }).length;
                 document.getElementById('statTotal').textContent = total;
                 document.getElementById('statAtivas').textContent = ativas;
                 document.getElementById('statMensais').textContent = mensais;
@@ -1560,28 +1548,20 @@
             }
 
             function renderizarTabelaSenhas() {
-                const tbody = document.getElementById('adminTabelaSenhas');
-                const semSenhas = document.getElementById('adminSemSenhas');
+                var tbody = document.getElementById('adminTabelaSenhas');
+                var semSenhas = document.getElementById('adminSemSenhas');
                 if (senhasGeradas.length === 0) {
                     tbody.innerHTML = '';
                     semSenhas.style.display = 'block';
                     return;
                 }
                 semSenhas.style.display = 'none';
-                tbody.innerHTML = senhasGeradas.map((s, i) => {
-                    const statusClass = s.ativo ? 'status-active' : 'status-expired';
-                    const statusText = s.ativo ? '✅ Ativo' : '❌ Expirado';
-                    const expiracao = s.expiracao ? new Date(s.expiracao).toLocaleDateString() : '♾️ Vitalício';
-                    const planoNome = PLANOS[s.plano]?.nome || s.plano;
-                    return `<tr>
-                        <td style="padding:6px;">${s.celular}</td>
-                        <td style="padding:6px;">${planoNome}</td>
-                        <td style="padding:6px;">${expiracao}</td>
-                        <td style="padding:6px;" class="${statusClass}">${statusText}</td>
-                        <td style="padding:6px;text-align:center;">
-                            ${s.ativo ? `<button class="btn-sm btn-cancel" onclick="window.cancelarSenhaAdmin(${i})">✕ Cancelar</button>` : '-'}
-                        </td>
-                    </tr>`;
+                tbody.innerHTML = senhasGeradas.map(function(s, i) {
+                    var statusClass = s.ativo ? 'status-active' : 'status-expired';
+                    var statusText = s.ativo ? '✅ Ativo' : '❌ Expirado';
+                    var expiracao = s.expiracao ? new Date(s.expiracao).toLocaleDateString() : '♾️ Vitalício';
+                    var planoNome = PLANOS[s.plano]?.nome || s.plano;
+                    return '<tr><td style="padding:6px;">' + s.celular + '</td><td style="padding:6px;">' + planoNome + '</td><td style="padding:6px;">' + expiracao + '</td><td style="padding:6px;" class="' + statusClass + '">' + statusText + '</td><td style="padding:6px;text-align:center;">' + (s.ativo ? '<button class="btn-sm btn-cancel" onclick="window.cancelarSenhaAdmin(' + i + ')">✕ Cancelar</button>' : '-') + '</td></tr>';
                 }).join('');
             }
 
@@ -1609,7 +1589,7 @@
             // ============================================================
             // MÍDIAS
             // ============================================================
-            const midias = [
+            var midias = [
                 { tipo: 'imagem', src: 'vai1.png' },
                 { tipo: 'video', src: 'vai1.mp4' },
                 { tipo: 'imagem', src: 'gusta.png' },
@@ -1621,7 +1601,7 @@
             // ============================================================
             // PLAYLIST
             // ============================================================
-            const GENRE_URLS = {
+            var GENRE_URLS = {
                 'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
                 'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
                 'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
@@ -1636,7 +1616,7 @@
                 'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
             };
 
-            const CORES_POR_GENERO = {
+            var CORES_POR_GENERO = {
                 'PADRÃO': '#ffffff', 'FLASHBACK': '#ffaa00', 'RELIGIOSA': '#aa55ff', 'ROMÂNTICA': '#ff2d7f',
                 'MPB': '#00ff88', 'POP': '#ff3366', 'SERTANEJO': '#ff8800', 'FORRÓ': '#ff00aa',
                 'SAMBA': '#ffdd00', 'BREGA': '#ff66aa', 'REGGAE': '#00ffaa', 'MODA TOP': '#ff4400'
@@ -1645,78 +1625,76 @@
             // ============================================================
             // VARIÁVEIS
             // ============================================================
-            let musicas = [];
-            let currentPlaylist = [];
-            let currentIndex = 0;
-            let isPlaying = false;
-            let shuffleMode = false;
-            let isBackgroundActive = false;
-            let timerInterval = null;
-            let modoAtual = "PADRÃO";
-            let historicoReproducao = [];
-            let modoFavoritosAtivo = false;
-            let fabOpen = false;
-            let sleepTimer = null;
-            let hideControlsTimeout = null;
-            const playlistCache = {};
-            let ultimoId = null;
-            let carregandoMusica = false;
-            let audioTimeout = null;
-            let favorites = [];
-            let testMode = false;
-            let testEndTime = 0;
-            let testTimerInterval = null;
-            let appLiberado = false;
-            let tentativasRestantes = 3;
-            let bloqueioAte = 0;
+            var musicas = [];
+            var currentPlaylist = [];
+            var currentIndex = 0;
+            var isPlaying = false;
+            var shuffleMode = false;
+            var isBackgroundActive = false;
+            var timerInterval = null;
+            var modoAtual = "PADRÃO";
+            var historicoReproducao = [];
+            var modoFavoritosAtivo = false;
+            var fabOpen = false;
+            var sleepTimer = null;
+            var hideControlsTimeout = null;
+            var playlistCache = {};
+            var ultimoId = null;
+            var carregandoMusica = false;
+            var audioTimeout = null;
+            var favorites = [];
+            var testMode = false;
+            var testEndTime = 0;
+            var testTimerInterval = null;
+            var appLiberado = false;
+            var tentativasRestantes = 3;
+            var bloqueioAte = 0;
 
-            const audio = document.getElementById('musicPlayer');
-            const playBtn = document.getElementById('playBtn');
-            const progressFill = document.getElementById('progressFill');
-            const currentTimeEl = document.getElementById('currentTime');
-            const totalTimeEl = document.getElementById('totalTime');
-            const genreBadge = document.getElementById('genreBadge');
-            const scrollText = document.getElementById('scrollText');
-            const appContainer = document.getElementById('appContainer');
-            const menuButton = document.getElementById('menuButton');
-            const notification = document.getElementById('notification');
-            const audioStatus = document.getElementById('audioStatus');
-            const bottomControls = document.getElementById('bottomControls');
-            const shuffleBtn = document.getElementById('shuffleBtn');
-            const heartBtn = document.getElementById('heartBtn');
-            const favTopBtn = document.getElementById('favTopBtn');
-            const favCount = document.getElementById('favCount');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const backgroundAudio = document.getElementById('backgroundAudio');
-            const menuPopup = document.getElementById('menuPopup');
-            const btnAtivar = document.getElementById('btnAtivar');
-            const timerFloat = document.getElementById('timerFloat');
-            const timerDisplay = document.getElementById('timerDisplay');
-            const blockScreen = document.getElementById('blockScreen');
-            const btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
-            const btnPix = document.getElementById('btnPix');
+            var audio = document.getElementById('musicPlayer');
+            var playBtn = document.getElementById('playBtn');
+            var progressFill = document.getElementById('progressFill');
+            var currentTimeEl = document.getElementById('currentTime');
+            var totalTimeEl = document.getElementById('totalTime');
+            var genreBadge = document.getElementById('genreBadge');
+            var scrollText = document.getElementById('scrollText');
+            var appContainer = document.getElementById('appContainer');
+            var menuButton = document.getElementById('menuButton');
+            var notification = document.getElementById('notification');
+            var audioStatus = document.getElementById('audioStatus');
+            var bottomControls = document.getElementById('bottomControls');
+            var shuffleBtn = document.getElementById('shuffleBtn');
+            var heartBtn = document.getElementById('heartBtn');
+            var favTopBtn = document.getElementById('favTopBtn');
+            var favCount = document.getElementById('favCount');
+            var loadingOverlay = document.getElementById('loadingOverlay');
+            var backgroundAudio = document.getElementById('backgroundAudio');
+            var menuPopup = document.getElementById('menuPopup');
+            var btnAtivar = document.getElementById('btnAtivar');
+            var timerFloat = document.getElementById('timerFloat');
+            var timerDisplay = document.getElementById('timerDisplay');
+            var blockScreen = document.getElementById('blockScreen');
+            var btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
+            var btnPix = document.getElementById('btnPix');
             
-            const appSenhaInput = document.getElementById('appSenhaInput');
-            const appBtnAtivarSenha = document.getElementById('appBtnAtivarSenha');
-            const appMsgErro = document.getElementById('appMsgErro');
-            const appMsgSucesso = document.getElementById('appMsgSucesso');
-            const appTentativasContador = document.getElementById('appTentativasContador');
+            var appSenhaInput = document.getElementById('appSenhaInput');
+            var appBtnAtivarSenha = document.getElementById('appBtnAtivarSenha');
+            var appMsgErro = document.getElementById('appMsgErro');
+            var appMsgSucesso = document.getElementById('appMsgSucesso');
+            var appTentativasContador = document.getElementById('appTentativasContador');
             
-            const senhaInput = document.getElementById('senhaInput');
-            const btnAtivarSenha = document.getElementById('btnAtivarSenha');
-            const msgErro = document.getElementById('msgErro');
-            const msgSucesso = document.getElementById('msgSucesso');
-            const tentativasContador = document.getElementById('tentativasContador');
+            var senhaInput = document.getElementById('senhaInput');
+            var btnAtivarSenha = document.getElementById('btnAtivarSenha');
+            var msgErro = document.getElementById('msgErro');
+            var msgSucesso = document.getElementById('msgSucesso');
+            var tentativasContador = document.getElementById('tentativasContador');
             
-            const mediaContainer = document.getElementById('mediaContainer');
+            var mediaContainer = document.getElementById('mediaContainer');
 
-            let appLiberadoPorSenha = localStorage.getItem('app_liberado_por_senha') === 'true';
+            var appLiberadoPorSenha = localStorage.getItem('app_liberado_por_senha') === 'true';
 
-            function atualizarTentativas() {
-                tentativasContador.textContent = tentativasRestantes;
-                appTentativasContador.textContent = tentativasRestantes;
-            }
-
+            // ============================================================
+            // FUNÇÕES AUXILIARES
+            // ============================================================
             function showNotification(msg, duration) {
                 duration = duration || 1500;
                 notification.textContent = msg;
@@ -1724,6 +1702,50 @@
                 setTimeout(function() {
                     notification.classList.remove('show');
                 }, duration);
+            }
+
+            function showLoading(show) {
+                loadingOverlay.classList.toggle('active', show);
+            }
+
+            function showControls() {
+                bottomControls.classList.add('visible');
+                if (hideControlsTimeout) clearTimeout(hideControlsTimeout);
+                hideControlsTimeout = setTimeout(function() {
+                    bottomControls.classList.remove('visible');
+                }, 5000);
+            }
+
+            function shuffleArray(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = a[i];
+                    a[i] = a[j];
+                    a[j] = temp;
+                }
+                return a;
+            }
+
+            function goFullscreen() {
+                try {
+                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function() {});
+                    else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+                    else if (document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen();
+                    else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
+                } catch(e) {}
+            }
+
+            function formatTime(sec) {
+                if (!sec || isNaN(sec)) return "0:00";
+                var m = Math.floor(sec / 60);
+                var s = Math.floor(sec % 60);
+                return m + ':' + (s < 10 ? '0' : '') + s;
+            }
+
+            function atualizarTentativas() {
+                tentativasContador.textContent = tentativasRestantes;
+                appTentativasContador.textContent = tentativasRestantes;
             }
 
             // ============================================================
@@ -1909,42 +1931,9 @@
                 }
             }
 
-            function showLoading(show) {
-                if (show) {
-                    loadingOverlay.classList.add('active');
-                } else {
-                    loadingOverlay.classList.remove('active');
-                }
-            }
-
-            function showControls() {
-                bottomControls.classList.add('visible');
-                if (hideControlsTimeout) clearTimeout(hideControlsTimeout);
-                hideControlsTimeout = setTimeout(function() {
-                    bottomControls.classList.remove('visible');
-                }, 5000);
-            }
-
-            function shuffleArray(arr) {
-                var a = arr.slice();
-                for (var i = a.length - 1; i > 0; i--) {
-                    var j = Math.floor(Math.random() * (i + 1));
-                    var temp = a[i];
-                    a[i] = a[j];
-                    a[j] = temp;
-                }
-                return a;
-            }
-
-            function goFullscreen() {
-                try {
-                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function() {});
-                    else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
-                    else if (document.documentElement.mozRequestFullScreen) document.documentElement.mozRequestFullScreen();
-                    else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
-                } catch(e) {}
-            }
-
+            // ============================================================
+            // PLAYLIST E REPRODUÇÃO
+            // ============================================================
             function gerarUrlCompleta(nomeArquivo, repo) {
                 repo = repo || 'play12';
                 if (!nomeArquivo || !nomeArquivo.trim()) return '';
@@ -2038,9 +2027,6 @@
                 }
             }
 
-            // ============================================================
-            // REPRODUÇÃO
-            // ============================================================
             function tentarUrlComTimeout(url, timeoutMs) {
                 return new Promise(function(resolve) {
                     var audioEl = document.getElementById('musicPlayer');
@@ -2207,13 +2193,6 @@
                 }
             }
 
-            function formatTime(sec) {
-                if (!sec || isNaN(sec)) return "0:00";
-                var m = Math.floor(sec / 60);
-                var s = Math.floor(sec % 60);
-                return m + ':' + (s < 10 ? '0' : '') + s;
-            }
-
             // ============================================================
             // CONTROLES
             // ============================================================
@@ -2222,7 +2201,7 @@
                     showNotification('⚠️ App bloqueado!', 1000);
                     return;
                 }
-                if (!isBackgroundActive) { showNotification("Clique em ATIVAR RÁDIO!", 1000); return; }
+                if (!isBackgroundActive) { showNotification("Ative o áudio!", 1000); return; }
                 if (audio.paused) { playMusic(); } else { audio.pause(); }
                 showControls();
             }
@@ -2457,24 +2436,34 @@
             }
 
             // ============================================================
-            // TIMER E BLOQUEIO
+            // TIMER DE 3 DIAS
             // ============================================================
             
-            function iniciarTimer() {
+            function iniciarTimer3Dias() {
                 if (appLiberadoPorSenha) {
                     timerFloat.style.display = 'none';
                     return;
                 }
-                if (testMode) return;
-                if (localStorage.getItem('teste_usado') === 'true') return;
                 
+                // Verifica se já tem um timer salvo
+                var timerSalvo = localStorage.getItem('teste_3dias_inicio');
+                var dataInicio;
+                
+                if (timerSalvo) {
+                    dataInicio = new Date(parseInt(timerSalvo));
+                } else {
+                    dataInicio = new Date();
+                    localStorage.setItem('teste_3dias_inicio', dataInicio.getTime().toString());
+                }
+                
+                var dataFim = new Date(dataInicio.getTime() + 3 * 24 * 60 * 60 * 1000);
+                testEndTime = dataFim.getTime();
                 testMode = true;
-                testEndTime = Date.now() + 5 * 60 * 1000;
-                localStorage.setItem('teste_usado', 'true');
                 appLiberado = true;
                 
                 timerFloat.style.display = 'flex';
-                atualizarTimer();
+                atualizarTimer3Dias();
+                
                 testTimerInterval = setInterval(function() {
                     var restante = testEndTime - Date.now();
                     if (restante <= 0) {
@@ -2485,20 +2474,27 @@
                             pararTimer();
                         }
                     } else {
-                        atualizarTimer();
+                        atualizarTimer3Dias();
                     }
                 }, 1000);
             }
 
-            function atualizarTimer() {
+            function atualizarTimer3Dias() {
                 var restante = Math.max(0, testEndTime - Date.now());
-                var minutos = Math.floor(restante / 60000);
-                var segundos = Math.floor((restante % 60000) / 1000);
-                var tempoStr = (minutos < 10 ? '0' : '') + minutos + ':' + (segundos < 10 ? '0' : '') + segundos;
+                var dias = Math.floor(restante / (24 * 60 * 60 * 1000));
+                var horas = Math.floor((restante % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                var minutos = Math.floor((restante % (60 * 60 * 1000)) / (60 * 1000));
+                var segundos = Math.floor((restante % (60 * 1000)) / 1000);
+                
+                var tempoStr = dias + 'd ' + 
+                              (horas < 10 ? '0' : '') + horas + ':' + 
+                              (minutos < 10 ? '0' : '') + minutos + ':' + 
+                              (segundos < 10 ? '0' : '') + segundos;
                 timerDisplay.textContent = tempoStr;
-                if (restante < 60000) {
+                
+                if (restante < 3600000) { // menos de 1 hora
                     timerDisplay.className = 'timer-display danger';
-                } else if (restante < 180000) {
+                } else if (restante < 86400000) { // menos de 1 dia
                     timerDisplay.className = 'timer-display warning';
                 } else {
                     timerDisplay.className = 'timer-display';
@@ -2511,7 +2507,7 @@
                     clearInterval(testTimerInterval);
                     testTimerInterval = null;
                 }
-                timerDisplay.textContent = '05:00';
+                timerDisplay.textContent = '3d 00:00:00';
                 timerDisplay.className = 'timer-display';
                 timerFloat.style.display = 'none';
             }
@@ -2524,7 +2520,7 @@
                 audio.pause();
                 isPlaying = false;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                showNotification('⏰ Teste finalizado!', 2000);
+                showNotification('⏰ Teste de 3 dias finalizado!', 2000);
             }
 
             function liberarApp(plano) {
@@ -2599,6 +2595,36 @@
             }
 
             // ============================================================
+            // DETECTAR SENHA NA URL
+            // ============================================================
+            function detectarSenhaNaURL() {
+                try {
+                    var params = new URLSearchParams(window.location.search);
+                    var senha = params.get('senha');
+                    
+                    if (senha) {
+                        console.log('🔑 Senha detectada na URL:', senha);
+                        showNotification('🔑 Ativando senha...', 1500);
+                        
+                        setTimeout(function() {
+                            var resultado = ativarSenha(senha);
+                            if (resultado.sucesso) {
+                                showNotification('✅ App liberado!', 2000);
+                                window.history.replaceState({}, document.title, window.location.pathname);
+                            } else {
+                                showNotification('❌ ' + resultado.mensagem, 2000);
+                            }
+                        }, 1000);
+                        
+                        return true;
+                    }
+                } catch(e) {
+                    console.log('Erro ao detectar senha na URL:', e);
+                }
+                return false;
+            }
+
+            // ============================================================
             // FUNÇÕES GLOBAIS
             // ============================================================
             window.openGenres = function() {
@@ -2621,8 +2647,11 @@
                 atualizarBadgeFavoritos();
                 atualizarTentativas();
 
-                btnAtivar.style.display = 'block';
-
+                // ===== INICIA AUTOMATICAMENTE =====
+                btnAtivar.style.display = 'none';
+                appContainer.style.display = 'flex';
+                
+                // Carrega playlist
                 var lista = await carregarPlaylistPorGenero('PADRÃO');
                 var generoInicial = 'PADRÃO';
                 if (!lista || lista.length === 0) {
@@ -2655,6 +2684,20 @@
                 if (elementosMidia.length > 1) iniciarAlternancia();
                 goFullscreen();
 
+                // ===== ATIVA ÁUDIO =====
+                await ativarAudio();
+                
+                // ===== INICIA TIMER DE 3 DIAS =====
+                if (!appLiberadoPorSenha) {
+                    iniciarTimer3Dias();
+                } else {
+                    timerFloat.style.display = 'none';
+                    appLiberado = true;
+                }
+
+                // ===== DETECTA SENHA NA URL =====
+                detectarSenhaNaURL();
+
                 window.addEventListener('beforeunload', function() {
                     pararAlternancia();
                     stopTimer();
@@ -2668,23 +2711,7 @@
             // EVENTOS
             // ============================================================
             
-            btnAtivar.addEventListener('click', async function() {
-                btnAtivar.style.display = 'none';
-                appContainer.style.display = 'flex';
-                showNotification('🔊 Ativando áudio...', 1000);
-                await ativarAudio();
-                goFullscreen();
-                if (elementosMidia.length > 1) iniciarAlternancia();
-                
-                if (!appLiberadoPorSenha) {
-                    iniciarTimer();
-                } else {
-                    timerFloat.style.display = 'none';
-                    appLiberado = true;
-                }
-            });
-
-            // ===== ATIVAR SENHA - TELA DO APP =====
+            // ATIVAR SENHA - TELA DO APP
             appBtnAtivarSenha.addEventListener('click', function() {
                 var senha = appSenhaInput.value.trim();
                 var resultado = ativarSenha(senha);
@@ -2708,7 +2735,7 @@
                 if (e.key === 'Enter') appBtnAtivarSenha.click();
             });
 
-            // ===== ATIVAR SENHA - TELA DE BLOQUEIO =====
+            // ATIVAR SENHA - TELA DE BLOQUEIO
             btnAtivarSenha.addEventListener('click', function() {
                 var senha = senhaInput.value.trim();
                 var resultado = ativarSenha(senha);
@@ -2732,7 +2759,7 @@
                 if (e.key === 'Enter') btnAtivarSenha.click();
             });
 
-            // ===== PAINEL ADMIN =====
+            // PAINEL ADMIN
             document.getElementById('menuAdminBtn').addEventListener('click', function() {
                 menuPopup.classList.remove('open');
                 abrirAdmin();
@@ -2804,18 +2831,14 @@
                 window.open('https://wa.me/55' + celular + '?text=' + msg, '_blank');
             });
 
-            document.getElementById('planTest1dia').addEventListener('click', function() {
-                var msg = encodeURIComponent('🎵 Olá! Quero o Teste Grátis de 1 Dia do Vai de Boa! Music.');
-                window.open('https://wa.me/5512988461978?text=' + msg, '_blank');
-            });
-
+            // PLANOS
             document.getElementById('planMonthly').addEventListener('click', function() {
                 var msg = encodeURIComponent('🎵 Olá! Quero comprar o Plano Mensal (R$ 9,90) do Vai de Boa! Music.');
                 window.open('https://wa.me/5512988461978?text=' + msg, '_blank');
             });
 
             document.getElementById('planLifetime').addEventListener('click', function() {
-                var msg = encodeURIComponent('🎵 Olá! Quero comprar o Plano Vitalício (R$ 59,00) do Vai de Boa! Music.');
+                var msg = encodeURIComponent('🎵 Olá! Quero comprar o Plano Vitalício (R$ 49,90) do Vai de Boa! Music.');
                 window.open('https://wa.me/5512988461978?text=' + msg, '_blank');
             });
 
