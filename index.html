@@ -4,35 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vai de Boa! Music</title>
-    <link rel="icon" href="va.png" type="image/png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== RESET E BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; position: fixed; width: 100%; top: 0; left: 0; }
         body { background: #000; overflow: hidden; }
-        :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; --neon-yellow: #ffd700; --neon-purple: #aa55ff; }
+        :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-green: #4ade80; --neon-yellow: #ffd700; }
         
-        /* ===== MÍDIA ===== */
         .media-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; background: #000; }
         .media-container video, .media-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 1s ease; opacity: 0; z-index: 1; }
         .media-container .active { opacity: 1; z-index: 3; }
         .media-container .inactive { opacity: 0; z-index: 0; }
         
-        /* ===== TÍTULO (OCULTO) ===== */
         .project-title { display: none; }
-        
-        /* ===== BOTÃO ATIVAR ===== */
         .btn-ativar { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #00f3ff, #00d4ff); color: #000; padding: 18px 40px; border-radius: 60px; font-weight: 900; font-size: 1.4rem; z-index: 10000; cursor: pointer; border: none; box-shadow: 0 0 40px rgba(0,243,255,0.5), 0 0 80px rgba(0,243,255,0.2); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; transition: all 0.3s ease; display: none; animation: pulseModern 2s infinite; }
         .btn-ativar:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 60px rgba(0,243,255,0.8); }
         .btn-ativar:active { transform: translateX(-50%) scale(0.95); }
         .btn-ativar .subtitulo { display: block; font-size: 0.6rem; font-weight: 400; letter-spacing: 4px; opacity: 0.7; margin-top: 2px; }
         @keyframes pulseModern { 0% { box-shadow: 0 0 30px rgba(0,243,255,0.3), 0 0 60px rgba(0,243,255,0.1); } 50% { box-shadow: 0 0 60px rgba(0,243,255,0.7), 0 0 120px rgba(0,243,255,0.3); } 100% { box-shadow: 0 0 30px rgba(0,243,255,0.3), 0 0 60px rgba(0,243,255,0.1); } }
         
-        /* ===== APP ===== */
         .app { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; display: none; flex-direction: column; background: transparent; padding-top: 0; align-items: center; }
         
-        /* ===== TIMER ===== */
         .timer-float { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 25; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border: 2px solid var(--neon-cyan); border-radius: 16px; padding: 4px 18px; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 30px rgba(0,243,255,0.2); }
         .timer-float .timer-label { color: #888; font-size: 0.45rem; text-transform: uppercase; letter-spacing: 1px; }
         .timer-float .timer-display { font-size: 1.2rem; font-weight: 900; color: var(--neon-cyan); font-family: 'Courier New', monospace; min-width: 80px; text-align: center; }
@@ -40,7 +33,6 @@
         .timer-float .timer-display.danger { color: var(--neon-pink); animation: blink 0.5s infinite; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
         
-        /* ===== TOP BAR ===== */
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; z-index: 35; display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: transparent; border-bottom: none; flex-wrap: nowrap; gap: 4px; flex-shrink: 0; height: 42px; }
         .genre-badge { background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 30px; font-size: 0.5rem; font-weight: bold; color: #fff; border-left: 2px solid #00f3ff; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30%; cursor: pointer; flex-shrink: 1; min-width: 40px; }
         .genre-badge:active { transform: scale(0.95); }
@@ -57,7 +49,6 @@
         .menu-button { background: rgba(0,0,0,0.3); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
         .menu-button:active { background: var(--neon-cyan); color: #000; }
         
-        /* ===== MENU POPUP ===== */
         .menu-popup { position: absolute; top: 42px; right: 8px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 6px; z-index: 32; display: none; flex-direction: column; gap: 4px; border: 1px solid var(--neon-cyan); min-width: 130px; }
         .menu-popup.open { display: flex; }
         .menu-popup button { background: rgba(255,255,255,0.08); border: none; color: white; padding: 5px 12px; border-radius: 30px; font-size: 0.6rem; display: flex; align-items: center; gap: 6px; cursor: pointer; text-align: left; }
@@ -65,34 +56,33 @@
         .menu-popup .close-menu-btn { background: rgba(255,45,127,0.2); border: 1px solid #ff2d7f; color: #ff2d7f; }
         .menu-popup .admin-btn { background: rgba(0,243,255,0.15); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
         
-        /* ===== LETREIRO ===== */
         .info-scroll { position: fixed; top: 55px; left: 0; right: 0; z-index: 30; background: transparent; padding: 2px 12px; border-bottom: none; overflow: hidden; white-space: nowrap; height: 28px; display: flex; align-items: center; }
         .info-scroll p { color: white; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7); text-transform: uppercase; margin: 0; }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* ===== CAMPO DE SENHA NO APP ===== */
-        .app-senha-area { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; width: 90%; max-width: 380px; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 20px; }
-        .app-senha-area .senha-label { color: #888; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; }
-        .app-senha-area .senha-input-wrap { display: flex; gap: 10px; width: 100%; }
-        .app-senha-area .senha-input-wrap input { flex: 1; padding: 12px 16px; border-radius: 30px; border: 2px solid var(--neon-cyan); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; outline: none; text-align: center; letter-spacing: 4px; text-transform: uppercase; font-weight: bold; }
-        .app-senha-area .senha-input-wrap input:focus { border-color: var(--neon-pink); box-shadow: 0 0 30px rgba(0,243,255,0.3); }
-        .app-senha-area .senha-input-wrap input::placeholder { color: #555; text-transform: none; letter-spacing: 0; font-weight: normal; }
-        .app-senha-area .senha-input-wrap button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px 24px; border-radius: 30px; color: #000; font-weight: 900; cursor: pointer; white-space: nowrap; font-size: 1rem; box-shadow: 0 0 20px rgba(0,243,255,0.2); }
-        .app-senha-area .senha-input-wrap button:active { transform: scale(0.95); }
-        .app-senha-area .msg-erro-app { color: var(--neon-pink); font-size: 0.7rem; display: none; text-align: center; }
-        .app-senha-area .msg-erro-app.show { display: block; }
-        .app-senha-area .msg-sucesso-app { color: var(--neon-green); font-size: 0.7rem; display: none; text-align: center; }
-        .app-senha-area .msg-sucesso-app.show { display: block; }
-        .app-senha-area .tentativas-app { color: #888; font-size: 0.6rem; }
-        .app-senha-area .tentativas-app span { color: var(--neon-yellow); font-weight: bold; }
+        /* ===== MENSAGEM SOBRE O LINK ===== */
+        .link-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            width: 90%;
+            max-width: 380px;
+            margin-top: -20px;
+            line-height: 1.6;
+        }
+        .link-message .icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+        .link-message .highlight { color: var(--neon-cyan); font-weight: bold; }
         
-        /* ===== CORAÇÃO (NOW PLAYING) ===== */
-        .now-playing { position: fixed; top: 70%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 15; width: 90%; max-width: 400px; user-select: none; -webkit-user-select: none; }
+        .now-playing { position: fixed; top: 72%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 15; width: 90%; max-width: 400px; user-select: none; -webkit-user-select: none; }
         .now-playing .fav-heart { font-size: 3.5rem; color: #555; cursor: pointer; transition: all 0.3s; text-shadow: 0 0 30px rgba(0,0,0,0.9); display: inline-block; }
         .now-playing .fav-heart.active { color: #ff2d7f; text-shadow: 0 0 40px rgba(255,45,127,0.5); }
         .now-playing .fav-heart:active { transform: scale(1.2); }
         
-        /* ===== CONTROLES ===== */
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.1); padding: 6px 12px 10px; z-index: 20; transform: translateY(100%); transition: transform 0.3s ease; }
         .bottom-controls.visible { transform: translateY(0); }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.5rem; color: #ccc; margin-bottom: 2px; }
@@ -105,7 +95,6 @@
         .shuffle-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.7rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; }
         .shuffle-btn.active { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); }
         
-        /* ===== FAB ===== */
         .fab-container { position: fixed; bottom: 100px; right: 12px; z-index: 40; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         .fab-main { background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.2rem; box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
         .fab-main:active { transform: scale(0.92); }
@@ -117,17 +106,14 @@
         .fab-sub-btn i { font-size: 0.85rem; width: 18px; text-align: center; pointer-events: none; }
         .fab-sub-btn .fab-icon-youtube { color: #FF0000; }
         
-        /* ===== NOTIFICAÇÃO ===== */
         .notification { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); color: var(--neon-cyan); padding: 3px 12px; border-radius: 30px; font-size: 0.55rem; z-index: 10001; opacity: 0; transition: opacity 0.3s; pointer-events: none; border-left: 3px solid var(--neon-cyan); }
         .notification.show { opacity: 1; }
         
-        /* ===== LOADING ===== */
         #loadingOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9998; align-items: center; justify-content: center; }
         #loadingOverlay.active { display: flex; }
         #loadingOverlay i { font-size: 3rem; color: var(--neon-cyan); animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* ===== TELA DE BLOQUEIO ===== */
         #blockScreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100000; background: rgba(0,0,0,0.92); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%); }
         #blockScreen.open { display: flex; }
         #blockScreen.hidden { display: none; }
@@ -135,6 +121,8 @@
         .block-logo { font-size: 2.5rem; font-weight: 900; color: white; text-shadow: 0 0 30px rgba(0,243,255,0.5); margin-bottom: 5px; text-align: center; }
         .block-logo span { color: var(--neon-cyan); }
         .block-sub { color: #888; font-size: 0.8rem; margin-bottom: 15px; text-align: center; }
+        .block-info { color: #666; font-size: 0.7rem; margin: 10px 0; text-align: center; }
+        .block-info .highlight { color: var(--neon-cyan); }
         
         .plan-card { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 15px 20px; margin-bottom: 10px; width: 100%; max-width: 380px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
         .plan-card:active { transform: scale(0.97); }
@@ -151,19 +139,6 @@
         
         .btn-pix { background: linear-gradient(135deg, #32BCAD, #1A8C7D); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem; cursor: pointer; width: 100%; max-width: 380px; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-pix:active { transform: scale(0.97); }
-        
-        .senha-input-area { width: 100%; max-width: 380px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .senha-input-area input { width: 100%; padding: 14px 16px; border-radius: 30px; border: 2px solid var(--neon-cyan); background: rgba(0,0,0,0.3); color: white; font-size: 1.1rem; outline: none; text-align: center; letter-spacing: 4px; text-transform: uppercase; font-weight: bold; }
-        .senha-input-area input:focus { border-color: var(--neon-pink); box-shadow: 0 0 30px rgba(0,243,255,0.3); }
-        .senha-input-area input::placeholder { color: #555; text-transform: none; letter-spacing: 0; font-weight: normal; }
-        .senha-input-area button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 14px 24px; border-radius: 30px; color: #000; font-weight: 900; cursor: pointer; width: 100%; font-size: 1rem; box-shadow: 0 0 20px rgba(0,243,255,0.2); }
-        .senha-input-area button:active { transform: scale(0.95); }
-        .msg-erro { color: var(--neon-pink); font-size: 0.8rem; margin-top: 5px; display: none; text-align: center; }
-        .msg-erro.show { display: block; }
-        .msg-sucesso { color: var(--neon-green); font-size: 0.8rem; margin-top: 5px; display: none; text-align: center; }
-        .msg-sucesso.show { display: block; }
-        .tentativas { color: #888; font-size: 0.7rem; margin-top: 5px; text-align: center; }
-        .tentativas span { color: var(--neon-yellow); font-weight: bold; }
         
         /* ===== MODAIS ===== */
         .fav-modal, .feedback-modal, .historico-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(20,20,40,0.95); backdrop-filter: blur(20px); border-radius: 30px; padding: 25px; z-index: 5000; width: 90%; max-width: 420px; text-align: center; display: none; flex-direction: column; opacity: 0; transition: all 0.3s ease; border: 2px solid transparent; box-shadow: 0 0 40px rgba(0,243,255,0.2), 0 0 80px rgba(255,45,127,0.1); }
@@ -253,7 +228,6 @@
         .admin-table .btn-sm.btn-cancel { color: #ff2d7f; border: 1px solid #ff2d7f; }
         .admin-sem-senhas { color: #555; text-align: center; padding: 20px; font-size: 0.8rem; }
         
-        /* ===== RESPONSIVO ===== */
         @media (max-width: 480px) {
             .btn-ativar { padding: 14px 24px; font-size: 1rem; bottom: 25%; }
             .btn-ativar .subtitulo { font-size: 0.5rem; }
@@ -261,10 +235,8 @@
             .info-scroll p { font-size: 0.6rem; letter-spacing: 1px; }
             .now-playing { top: 72%; }
             .now-playing .fav-heart { font-size: 3rem; }
-            .app-senha-area { top: 45%; }
-            .app-senha-area .senha-input-wrap { flex-direction: column; }
-            .app-senha-area .senha-input-wrap input { font-size: 0.9rem; padding: 10px 12px; }
-            .app-senha-area .senha-input-wrap button { font-size: 0.85rem; padding: 10px 16px; width: 100%; }
+            .link-message { font-size: 0.75rem; margin-top: -30px; }
+            .link-message .icon { font-size: 2.5rem; }
             .genre-badge { font-size: 0.4rem; max-width: 22%; padding: 2px 6px; }
             .fav-top-btn { font-size: 0.4rem; padding: 2px 6px; }
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
@@ -286,8 +258,6 @@
             .block-logo { font-size: 2rem; }
             .plan-card .plan-price { font-size: 1.3rem; }
             .plan-card .plan-title { font-size: 0.9rem; }
-            .senha-input-area { flex-direction: column; }
-            .senha-input-area button { width: 100%; font-size: 0.9rem; padding: 12px; }
             .admin-stats { grid-template-columns: repeat(2, 1fr); }
             .admin-form-row { flex-direction: column; }
             .admin-form-row input, .admin-form-row select { min-width: auto; }
@@ -328,16 +298,16 @@
             <p id="scrollText">🎵 TOCANDO AGORA! 🎵</p>
         </div>
 
-        <!-- Campo de senha -->
-        <div class="app-senha-area" id="appSenhaArea">
-            <span class="senha-label">🔑 ATIVE SUA SENHA</span>
-            <div class="senha-input-wrap">
-                <input type="text" id="appSenhaInput" placeholder="DIGITE SUA SENHA" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
-                <button id="appBtnAtivarSenha">▶ ATIVAR</button>
+        <!-- Mensagem sobre o link (SEM CAIXA DE SENHA) -->
+        <div class="link-message" id="linkMessage">
+            <span class="icon">🔗</span>
+            <div>
+                <strong>Recebeu um link de ativação?</strong><br>
+                Clique nele e o app será <span class="highlight">liberado automaticamente</span>!
             </div>
-            <div class="msg-erro-app" id="appMsgErro">❌ Senha inválida!</div>
-            <div class="msg-sucesso-app" id="appMsgSucesso">✅ Senha ativada com sucesso!</div>
-            <div class="tentativas-app">🔑 Tentativas: <span id="appTentativasContador">3</span></div>
+            <div style="margin-top:8px;font-size:0.65rem;color:#555;">
+                Ou compre um plano clicando nos botões abaixo
+            </div>
         </div>
 
         <!-- Coração -->
@@ -348,10 +318,14 @@
         </div>
     </div>
 
-    <!-- TELA DE BLOQUEIO -->
+    <!-- TELA DE BLOQUEIO (SEM CAIXA DE SENHA) -->
     <div id="blockScreen">
         <div class="block-logo">🎵 <span>Vai de Boa!</span> Music</div>
-        <div class="block-sub">⏰ Seu teste de 3 dias acabou! Escolha um plano:</div>
+        <div class="block-sub">⏰ Seu teste de 3 dias acabou!</div>
+        
+        <div class="block-info">
+            💡 <span class="highlight">Já comprou?</span> Clique no link que você recebeu no WhatsApp!
+        </div>
         
         <div class="plan-card monthly-plan" id="planMonthly">
             <div class="plan-title">📅 Plano Mensal</div>
@@ -369,14 +343,6 @@
         
         <button class="btn-whatsapp" id="btnWhatsappCompra"><i class="fab fa-whatsapp"></i> Comprar via WhatsApp</button>
         <button class="btn-pix" id="btnPix"><i class="fas fa-qrcode"></i> PIX: 12 98846-1978</button>
-        
-        <div class="senha-input-area">
-            <input type="text" id="senhaInput" placeholder="🔑 DIGITE SUA SENHA" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
-            <button id="btnAtivarSenha">▶ ATIVAR</button>
-        </div>
-        <div class="msg-erro" id="msgErro">❌ Senha inválida!</div>
-        <div class="msg-sucesso" id="msgSucesso">✅ Senha ativada com sucesso!</div>
-        <div class="tentativas">🔑 Tentativas restantes: <span id="tentativasContador">3</span></div>
     </div>
 
     <!-- PAINEL ADMIN - LOGIN -->
@@ -405,7 +371,7 @@
         </div>
         
         <div class="admin-section">
-            <h3><i class="fas fa-key"></i> GERAR SENHA</h3>
+            <h3><i class="fas fa-key"></i> GERAR SENHA E LINK</h3>
             <div class="admin-form">
                 <div class="admin-form-row">
                     <input type="text" id="adminCelular" placeholder="📱 Celular do comprador" maxlength="15">
@@ -425,9 +391,8 @@
                     <i class="fas fa-calendar"></i> <span id="senhaGeradaValidade">-</span>
                 </div>
                 
-                <!-- ===== LINK GERADO AUTOMATICAMENTE ===== -->
                 <div style="margin:10px 0;padding:10px;background:rgba(0,243,255,0.05);border-radius:10px;border:1px solid var(--neon-cyan);">
-                    <div style="color:#888;font-size:0.7rem;margin-bottom:5px;">🔗 LINK PARA ATIVAR:</div>
+                    <div style="color:#888;font-size:0.7rem;margin-bottom:5px;">🔗 LINK PARA ATIVAR (ENVIE PARA O CLIENTE):</div>
                     <div style="color:var(--neon-cyan);font-size:0.8rem;word-break:break-all;font-family:monospace;" id="senhaLink">https://seuapp.com?senha=XXXXXX</div>
                 </div>
                 
@@ -720,9 +685,6 @@
         // ============================================================
         var GENRE_URLS = {
             'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
-            'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
-            'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
-            'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
             'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
             'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
             'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json',
@@ -730,6 +692,9 @@
             'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json',
             'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
             'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
+            'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
+            'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
+            'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
             'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
         };
 
@@ -793,18 +758,6 @@
         var btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
         var btnPix = document.getElementById('btnPix');
         
-        var appSenhaInput = document.getElementById('appSenhaInput');
-        var appBtnAtivarSenha = document.getElementById('appBtnAtivarSenha');
-        var appMsgErro = document.getElementById('appMsgErro');
-        var appMsgSucesso = document.getElementById('appMsgSucesso');
-        var appTentativasContador = document.getElementById('appTentativasContador');
-        
-        var senhaInput = document.getElementById('senhaInput');
-        var btnAtivarSenha = document.getElementById('btnAtivarSenha');
-        var msgErro = document.getElementById('msgErro');
-        var msgSucesso = document.getElementById('msgSucesso');
-        var tentativasContador = document.getElementById('tentativasContador');
-        
         var mediaContainer = document.getElementById('mediaContainer');
 
         var appLiberadoPorSenha = localStorage.getItem('app_liberado_por_senha') === 'true';
@@ -855,11 +808,6 @@
             var m = Math.floor(sec / 60);
             var s = Math.floor(sec % 60);
             return m + ':' + (s < 10 ? '0' : '') + s;
-        }
-
-        function atualizarTentativas() {
-            tentativasContador.textContent = tentativasRestantes;
-            appTentativasContador.textContent = tentativasRestantes;
         }
 
         // ============================================================
@@ -1115,7 +1063,10 @@
             try {
                 showLoading(true);
                 var response = await fetch(url);
-                if (!response.ok) throw new Error('Erro HTTP ' + response.status);
+                if (!response.ok) {
+                    // Se falhar, usa playlist de exemplo
+                    return carregarPlaylistExemplo();
+                }
                 var data = await response.json();
                 if (!Array.isArray(data)) {
                     if (data.musicas && Array.isArray(data.musicas)) data = data.musicas;
@@ -1136,9 +1087,19 @@
                 return lista;
             } catch (error) {
                 showLoading(false);
-                showNotification('❌ Erro ao carregar ' + genero + ': ' + error.message, 2000);
-                return null;
+                showNotification('⚠️ Usando playlist de exemplo', 1500);
+                return carregarPlaylistExemplo();
             }
+        }
+
+        function carregarPlaylistExemplo() {
+            var exemplo = [
+                { id: 'ex1', title: 'Música de Teste 1', artist: 'SoundHelix', genero: 'MPB', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+                { id: 'ex2', title: 'Música de Teste 2', artist: 'SoundHelix', genero: 'MPB', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+                { id: 'ex3', title: 'Música de Teste 3', artist: 'SoundHelix', genero: 'MPB', src: 'https://file-examples.com/storage/fe4f3c5e7f9e8f4c5e7f9e8f/2017/11/file_example_MP3_700KB.mp3' }
+            ];
+            playlistCache['MPB'] = exemplo;
+            return exemplo;
         }
 
         function tentarUrlComTimeout(url, timeoutMs) {
@@ -1179,7 +1140,7 @@
 
         async function playMusic() {
             if (!appLiberado) {
-                showNotification('⚠️ App bloqueado! Ative sua senha.', 1000);
+                showNotification('⚠️ App bloqueado!', 1000);
                 return;
             }
             if (carregandoMusica) return;
@@ -1657,55 +1618,27 @@
                 scrollText.innerHTML = '🎵 ' + track.title + ' - ' + track.artist;
             }
             
-            tentativasRestantes = 3;
-            atualizarTentativas();
-            
             showNotification('🎉 App liberado!', 2000);
         }
 
         // ============================================================
-        // FUNÇÃO PARA ATIVAR SENHA
+        // FUNÇÃO PARA ATIVAR SENHA (VIA LINK)
         // ============================================================
         function ativarSenha(senha) {
-            if (Date.now() < bloqueioAte) {
-                var restante = Math.ceil((bloqueioAte - Date.now()) / 60000);
-                return { sucesso: false, mensagem: '⛔ Bloqueado! Aguarde ' + restante + ' minuto(s).' };
-            }
-
             if (!senha || senha.trim() === '') {
-                return { sucesso: false, mensagem: '⚠️ Digite a senha!' };
+                return { sucesso: false, mensagem: '⚠️ Senha inválida!' };
             }
 
             var senhaLimpa = senha.trim().toUpperCase();
 
-            // Verifica senha admin
-            if (validarAdmin(senhaLimpa)) {
-                tentativasRestantes = 3;
-                atualizarTentativas();
-                liberarApp('vitalicio');
-                return { sucesso: true, mensagem: '✅ Senha ativada!' };
-            }
-
             // Verifica senhas geradas
             var resultado = validarSenha(senhaLimpa);
             if (resultado.valido) {
-                tentativasRestantes = 3;
-                atualizarTentativas();
                 liberarApp(resultado.dados.plano);
-                return { sucesso: true, mensagem: '✅ Senha ativada!' };
+                return { sucesso: true, mensagem: '✅ App liberado!' };
             }
 
-            tentativasRestantes--;
-            atualizarTentativas();
-            
-            if (tentativasRestantes <= 0) {
-                bloqueioAte = Date.now() + 5 * 60 * 1000;
-                tentativasRestantes = 3;
-                atualizarTentativas();
-                return { sucesso: false, mensagem: '⛔ Muitas tentativas! Bloqueado 5min.' };
-            }
-
-            return { sucesso: false, mensagem: '❌ Senha inválida! ' + tentativasRestantes + ' restante(s).' };
+            return { sucesso: false, mensagem: '❌ Senha inválida ou expirada!' };
         }
 
         // ============================================================
@@ -1718,13 +1651,12 @@
                 
                 if (senha) {
                     console.log('🔑 Senha detectada na URL:', senha);
-                    showNotification('🔑 Ativando senha...', 1500);
+                    showNotification('🔑 Ativando...', 1500);
                     
                     setTimeout(function() {
                         var resultado = ativarSenha(senha);
                         if (resultado.sucesso) {
                             showNotification('✅ App liberado!', 2000);
-                            // Remove a senha da URL (segurança)
                             window.history.replaceState({}, document.title, window.location.pathname);
                         } else {
                             showNotification('❌ ' + resultado.mensagem, 2000);
@@ -1760,7 +1692,6 @@
             criarElementosMidia();
             carregarFavoritos();
             atualizarBadgeFavoritos();
-            atualizarTentativas();
 
             // Inicia automático
             btnAtivar.style.display = 'none';
@@ -1826,54 +1757,6 @@
         // EVENTOS
         // ============================================================
         
-        // ATIVAR SENHA - APP
-        appBtnAtivarSenha.addEventListener('click', function() {
-            var senha = appSenhaInput.value.trim();
-            var resultado = ativarSenha(senha);
-            
-            appMsgErro.classList.remove('show');
-            appMsgSucesso.classList.remove('show');
-            
-            if (resultado.sucesso) {
-                appMsgSucesso.textContent = resultado.mensagem;
-                appMsgSucesso.classList.add('show');
-                appSenhaInput.value = '';
-                setTimeout(function() { appMsgSucesso.classList.remove('show'); }, 2000);
-            } else {
-                appMsgErro.textContent = resultado.mensagem;
-                appMsgErro.classList.add('show');
-                atualizarTentativas();
-            }
-        });
-
-        appSenhaInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') appBtnAtivarSenha.click();
-        });
-
-        // ATIVAR SENHA - BLOQUEIO
-        btnAtivarSenha.addEventListener('click', function() {
-            var senha = senhaInput.value.trim();
-            var resultado = ativarSenha(senha);
-            
-            msgErro.classList.remove('show');
-            msgSucesso.classList.remove('show');
-            
-            if (resultado.sucesso) {
-                msgSucesso.textContent = resultado.mensagem;
-                msgSucesso.classList.add('show');
-                senhaInput.value = '';
-                setTimeout(function() { msgSucesso.classList.remove('show'); }, 2000);
-            } else {
-                msgErro.textContent = resultado.mensagem;
-                msgErro.classList.add('show');
-                atualizarTentativas();
-            }
-        });
-
-        senhaInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') btnAtivarSenha.click();
-        });
-
         // ===== PAINEL ADMIN =====
         document.getElementById('menuAdminBtn').addEventListener('click', function() {
             menuPopup.classList.remove('open');
@@ -1933,7 +1816,6 @@
             document.getElementById('senhaGeradaPlano').textContent = PLANOS[plano].nome;
             document.getElementById('senhaGeradaValidade').textContent = novaSenha.expiracao ? new Date(novaSenha.expiracao).toLocaleDateString() : '♾️ Vitalício';
             
-            // ===== GERAR LINK AUTOMATICAMENTE =====
             var link = window.location.origin + window.location.pathname + '?senha=' + novaSenha.senha;
             document.getElementById('senhaLink').textContent = link;
             
