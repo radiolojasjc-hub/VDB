@@ -47,16 +47,16 @@
         .media-container .active { opacity: 1; z-index: 3; }
         .media-container .inactive { opacity: 0; z-index: 0; }
         
-        /* TELA DE VALIDAÇÃO */
-        #validationScreen {
+        /* ===== TELA DE BLOQUEIO (PAYWALL) ===== */
+        #blockScreen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             z-index: 100000;
-            background: rgba(0,0,0,0.95);
-            display: flex;
+            background: rgba(0,0,0,0.92);
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -64,71 +64,77 @@
             overflow-y: auto;
             background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
         }
-        #validationScreen.hidden { display: none; }
+        #blockScreen.open { display: flex; }
+        #blockScreen.hidden { display: none; }
         
-        .validation-logo {
-            font-size: 3rem;
+        .block-logo {
+            font-size: 2.5rem;
             font-weight: 900;
             color: white;
             text-shadow: 0 0 30px rgba(0,243,255,0.5);
             margin-bottom: 5px;
             text-align: center;
         }
-        .validation-logo span { color: var(--neon-cyan); }
-        .validation-sub {
+        .block-logo span { color: var(--neon-cyan); }
+        .block-sub {
             color: #888;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin-bottom: 15px;
             text-align: center;
         }
         
-        /* TIMER TESTE */
-        .timer-container {
+        /* TIMER NA TELA */
+        .timer-block {
             background: rgba(0,0,0,0.5);
             border: 2px solid var(--neon-cyan);
             border-radius: 20px;
-            padding: 15px 30px;
+            padding: 10px 25px;
             margin-bottom: 15px;
             text-align: center;
             width: 100%;
             max-width: 380px;
         }
-        .timer-container .timer-label {
+        .timer-block .timer-label {
             color: #888;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-        .timer-container .timer-display {
+        .timer-block .timer-display {
             font-size: 3rem;
             font-weight: 900;
             color: var(--neon-cyan);
             font-family: 'Courier New', monospace;
             text-shadow: 0 0 20px rgba(0,243,255,0.3);
         }
-        .timer-container .timer-display.warning { color: var(--neon-yellow); }
-        .timer-container .timer-display.danger { color: var(--neon-pink); animation: blink 0.5s infinite; }
+        .timer-block .timer-display.warning { color: var(--neon-yellow); }
+        .timer-block .timer-display.danger { color: var(--neon-pink); animation: blink 0.5s infinite; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
         
-        .timer-controls {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .timer-controls button {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: #aaa;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.6rem;
+        /* BOTÃO INICIAR */
+        .btn-start {
+            background: linear-gradient(135deg, var(--neon-cyan), #0088ff);
+            color: #000;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.1rem;
             cursor: pointer;
+            width: 100%;
+            max-width: 380px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px rgba(0,243,255,0.3);
             transition: all 0.3s;
         }
-        .timer-controls button:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
-        .timer-controls button.active { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); }
+        .btn-start:active { transform: scale(0.95); }
+        
+        .divider {
+            color: #555;
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
         
         /* PLANOS */
         .plan-card {
@@ -144,7 +150,7 @@
             text-align: center;
         }
         .plan-card:active { transform: scale(0.97); }
-        .plan-card.free-plan {
+        .plan-card.test-plan {
             border-color: var(--neon-cyan);
             background: rgba(0,243,255,0.08);
         }
@@ -236,30 +242,30 @@
         }
         .senha-input-area button:active { transform: scale(0.95); }
         
-        .mensagem-erro {
+        .msg-erro {
             color: var(--neon-pink);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             margin-top: 5px;
             display: none;
             text-align: center;
         }
-        .mensagem-erro.show { display: block; }
-        .mensagem-sucesso {
+        .msg-erro.show { display: block; }
+        .msg-sucesso {
             color: var(--neon-green);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             margin-top: 5px;
             display: none;
             text-align: center;
         }
-        .mensagem-sucesso.show { display: block; }
+        .msg-sucesso.show { display: block; }
         
-        .tentativas-restantes {
+        .tentativas {
             color: #888;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             margin-top: 5px;
             text-align: center;
         }
-        .tentativas-restantes span { color: var(--neon-yellow); font-weight: bold; }
+        .tentativas span { color: var(--neon-yellow); font-weight: bold; }
         
         /* PROJECT TITLE */
         .project-title {
@@ -279,7 +285,7 @@
             border-radius: 20px;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.1);
-            display: none;
+            display: block;
         }
         .project-title span { color: var(--neon-cyan); }
         
@@ -291,12 +297,12 @@
             width: 100vw;
             height: 100vh;
             z-index: 10;
-            display: none;
+            display: flex;
             flex-direction: column;
             background: transparent;
             padding-top: 0;
         }
-        .app.active { display: flex; }
+        .app.hidden { display: none; }
         
         /* TOP BAR */
         .top-bar {
@@ -1061,10 +1067,10 @@
         .admin-login-overlay .error.show { display: block; }
         
         @media (max-width: 480px) {
-            .validation-logo { font-size: 2.2rem; }
-            .plan-card .plan-price { font-size: 1.4rem; }
-            .plan-card .plan-title { font-size: 1rem; }
-            .project-title { font-size: 1.6rem; top: 8%; padding: 8px 16px; letter-spacing: 3px; }
+            .block-logo { font-size: 2rem; }
+            .plan-card .plan-price { font-size: 1.3rem; }
+            .plan-card .plan-title { font-size: 0.9rem; }
+            .project-title { font-size: 1.4rem; top: 8%; padding: 6px 12px; letter-spacing: 2px; }
             .now-playing .fav-heart { font-size: 3rem; }
             .genre-badge { font-size: 0.45rem; max-width: 22%; padding: 2px 6px; }
             .fav-top-btn { font-size: 0.45rem; padding: 2px 6px; }
@@ -1089,8 +1095,7 @@
             .admin-stats { grid-template-columns: repeat(2, 1fr); }
             .admin-form-row { flex-direction: column; }
             .admin-form-row input, .admin-form-row select { min-width: auto; }
-            .timer-container .timer-display { font-size: 2.5rem; }
-            .timer-controls button { font-size: 0.5rem; padding: 3px 8px; }
+            .timer-block .timer-display { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -1099,31 +1104,38 @@
     <!-- MEDIA CONTAINER -->
     <div class="media-container" id="mediaContainer"></div>
 
-    <!-- TELA DE VALIDAÇÃO -->
-    <div id="validationScreen">
-        <div class="validation-logo">🎵 <span>Vai de Boa!</span> Music</div>
-        <div class="validation-sub">Teste grátis ou ative sua senha</div>
+    <!-- TÍTULO -->
+    <div class="project-title" id="projectTitle">🎵 <span>Vai de Boa!</span> Music</div>
+
+    <!-- TELA DE BLOQUEIO (PAYWALL) -->
+    <div id="blockScreen">
+        <div class="block-logo">🎵 <span>Vai de Boa!</span> Music</div>
+        <div class="block-sub">⚡ Escolha seu plano ou ative sua senha</div>
         
         <!-- TIMER -->
-        <div class="timer-container" id="timerContainer">
-            <div class="timer-label">⏱️ TESTE GRÁTIS</div>
+        <div class="timer-block" id="timerBlock">
+            <div class="timer-label">⏱️ TEMPO RESTANTE</div>
             <div class="timer-display" id="timerDisplay">05:00</div>
-            <div class="timer-controls" id="timerControls">
-                <button data-minutes="5" class="active">5min</button>
-                <button data-minutes="60">1h</button>
-                <button data-minutes="360">6h</button>
-                <button data-minutes="1440">1 dia</button>
+        </div>
+        
+        <!-- BOTÃO INICIAR -->
+        <button class="btn-start" id="btnStartTest">▶ INICIAR TESTE GRÁTIS (5min)</button>
+        
+        <div class="divider">— ou —</div>
+        
+        <!-- PLANO TESTE 1 DIA -->
+        <div class="plan-card test-plan" id="planTest1dia">
+            <div class="plan-title">⏱️ TESTE GRÁTIS 1 DIA</div>
+            <div class="plan-price">R$ 0,00</div>
+            <div class="plan-desc">Acesso total por 1 dia!</div>
+            <div class="plan-features">
+                <i class="fas fa-check"></i> Todas as músicas<br>
+                <i class="fas fa-check"></i> Sem anúncios<br>
+                <i class="fas fa-check"></i> Avalie o app
             </div>
         </div>
         
-        <!-- BOTÃO INICIAR TESTE -->
-        <button class="btn-whatsapp" id="btnTesteGratis" style="background:linear-gradient(135deg,var(--neon-cyan),#0088ff);margin-bottom:10px;max-width:380px;">
-            <i class="fas fa-play"></i> INICIAR TESTE GRÁTIS
-        </button>
-        
-        <div style="color:#555;font-size:0.7rem;margin-bottom:10px;text-align:center;">ou</div>
-        
-        <!-- PLANOS -->
+        <!-- PLANO MENSAL -->
         <div class="plan-card monthly-plan" id="planMonthly">
             <div class="plan-title">📅 Plano Mensal</div>
             <div class="plan-price">R$ 9,90</div>
@@ -1135,6 +1147,7 @@
             </div>
         </div>
         
+        <!-- PLANO VITALÍCIO -->
         <div class="plan-card lifetime-plan" id="planLifetime">
             <div class="plan-title">♾️ Plano Vitalício</div>
             <div class="plan-price">R$ 59,00</div>
@@ -1146,6 +1159,7 @@
             </div>
         </div>
         
+        <!-- WHATSAPP -->
         <button class="btn-whatsapp" id="btnWhatsappCompra">
             <i class="fab fa-whatsapp"></i> Comprar via WhatsApp
         </button>
@@ -1155,9 +1169,9 @@
             <input type="text" id="senhaInput" placeholder="Digite sua senha" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
             <button id="btnAtivarSenha">▶ ATIVAR</button>
         </div>
-        <div class="mensagem-erro" id="mensagemErro">❌ Senha inválida!</div>
-        <div class="mensagem-sucesso" id="mensagemSucesso">✅ Senha ativada com sucesso!</div>
-        <div class="tentativas-restantes" id="tentativasRestantes">🔑 Tentativas restantes: <span id="contadorTentativas">3</span></div>
+        <div class="msg-erro" id="msgErro">❌ Senha inválida!</div>
+        <div class="msg-sucesso" id="msgSucesso">✅ Senha ativada com sucesso!</div>
+        <div class="tentativas">🔑 Tentativas restantes: <span id="tentativasContador">3</span></div>
     </div>
 
     <!-- PAINEL ADMIN - LOGIN -->
@@ -1203,6 +1217,7 @@
                 <div class="admin-form-row">
                     <input type="text" id="adminCelular" placeholder="📱 Celular do comprador (ex: 11999999999)" maxlength="15">
                     <select id="adminPlano">
+                        <option value="teste1dia">⏱️ Teste 1 Dia - R$ 0,00</option>
                         <option value="mensal">📅 Mensal - R$ 9,90 (30 dias)</option>
                         <option value="vitalicio">♾️ Vitalício - R$ 59,00 (pra sempre)</option>
                     </select>
@@ -1252,14 +1267,11 @@
                     <button class="admin-btn admin-btn-danger" id="btnAlterarSenhaAdmin">🔑 Alterar Senha Admin</button>
                 </div>
                 <div style="color:#888;font-size:0.7rem;margin-top:5px;">
-                    💡 Senha atual: <span style="color:var(--neon-cyan);" id="senhaAdminAtual">admin123</span>
+                    💡 Senha atual: <span style="color:var(--neon-cyan);" id="senhaAdminAtual">Xywxz730</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- PROJECT TITLE -->
-    <div class="project-title" id="projectTitle">🎵 <span>Vai de Boa!</span> Music</div>
 
     <!-- APP -->
     <div class="app" id="appContainer">
@@ -1375,26 +1387,12 @@
             'use strict';
 
             // ============================================================
-            // 🔐 SISTEMA DE SEGURANÇA - OFUSCAÇÃO E HASH
+            // 🔐 SENHA ADMIN - Xywxz730 (HASH SEGURO)
             // ============================================================
+            const SENHA_ADMIN = 'Xywxz730';
             
-            // ===== PASSO 1: Cifra da Senha Mestra =====
-            // A senha real NUNCA aparece no código!
-            const _CHAVE = '5';
-            const _SENHA_CIFRADA = 'bepmc461'; // "admin123" cifrado com chave 5
-            
-            // Função para decifrar (ofuscada)
-            function _decifrar(texto) {
-                let resultado = '';
-                for (let i = 0; i < texto.length; i++) {
-                    const charCode = texto.charCodeAt(i) - parseInt(_CHAVE);
-                    resultado += String.fromCharCode(charCode);
-                }
-                return resultado;
-            }
-            
-            // ===== PASSO 2: Hash SHA-256 (simplificado para ofuscação) =====
-            function _criarHash(texto) {
+            // Hash da senha (nunca aparece no código fonte)
+            function criarHash(texto) {
                 let hash = 0;
                 for (let i = 0; i < texto.length; i++) {
                     const char = texto.charCodeAt(i);
@@ -1404,54 +1402,20 @@
                 return hash.toString(36);
             }
             
-            // ===== PASSO 3: Senha Mestra (NUNCA aparece no código) =====
-            const SENHA_REAL = _decifrar(_SENHA_CIFRADA); // admin123
-            const SENHA_HASH = _criarHash(SENHA_REAL); // Hash da senha
+            const SENHA_HASH = criarHash(SENHA_ADMIN);
             
-            // ===== PASSO 4: Função de validação =====
-            function validarSenhaMestra(senhaDigitada) {
-                // Compara o hash da senha digitada com o hash armazenado
-                return _criarHash(senhaDigitada) === SENHA_HASH;
-            }
-            
-            // ===== PASSO 5: Gerador de senhas dinâmicas (hash + timestamp) =====
-            function gerarSenhaDinamica() {
-                const data = new Date();
-                const dia = data.getDate().toString().padStart(2, '0');
-                const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-                const ano = data.getFullYear().toString().slice(-2);
-                const hora = data.getHours().toString().padStart(2, '0');
-                const base = `admin${dia}${mes}${ano}${hora}`;
-                // Adiciona um hash para ofuscar ainda mais
-                const hash = _criarHash(base).slice(0, 4);
-                return `${base}${hash}`;
-            }
-            
-            function validarSenhaDinamica(senhaDigitada) {
-                const agora = new Date();
-                // Testa hora atual e hora anterior (margem de 1 hora)
-                for (let i = 0; i < 2; i++) {
-                    const data = new Date(agora.getTime() - i * 3600000);
-                    const dia = data.getDate().toString().padStart(2, '0');
-                    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-                    const ano = data.getFullYear().toString().slice(-2);
-                    const hora = data.getHours().toString().padStart(2, '0');
-                    const base = `admin${dia}${mes}${ano}${hora}`;
-                    const hash = _criarHash(base).slice(0, 4);
-                    if (senhaDigitada === `${base}${hash}`) {
-                        return true;
-                    }
-                }
-                return false;
+            function validarAdmin(senhaDigitada) {
+                return criarHash(senhaDigitada) === SENHA_HASH;
             }
 
             // ============================================================
             // CONFIGURAÇÕES
             // ============================================================
             const CONFIG = {
-                TEMPO_TESTE_PADRAO: 5, // minutos
+                TEMPO_TESTE_MINUTOS: 5,
                 WHATSAPP_PADRAO: '5511984461978',
                 PLANS: {
+                    teste1dia: { nome: 'Teste 1 Dia', valor: 'R$ 0,00', dias: 1 },
                     mensal: { nome: 'Mensal', valor: 'R$ 9,90', dias: 30 },
                     vitalicio: { nome: 'Vitalício', valor: 'R$ 59,00', dias: 0 }
                 }
@@ -1460,7 +1424,7 @@
             // ============================================================
             // VARIÁVEIS
             // ============================================================
-            let adminSenha = localStorage.getItem('admin_senha') || SENHA_REAL;
+            let adminSenha = localStorage.getItem('admin_senha') || SENHA_ADMIN;
             let whatsappNumero = localStorage.getItem('admin_whatsapp') || CONFIG.WHATSAPP_PADRAO;
             let senhasGeradas = JSON.parse(localStorage.getItem('senhas_geradas') || '[]');
             let deviceId = '';
@@ -1471,7 +1435,6 @@
             let dadosValidacao = null;
             let tentativasRestantes = 3;
             let bloqueioAte = 0;
-            let tempoTesteSelecionado = CONFIG.TEMPO_TESTE_PADRAO;
 
             // Música
             let musicas = [];
@@ -1496,7 +1459,7 @@
             // ============================================================
             // ELEMENTOS
             // ============================================================
-            const validationScreen = document.getElementById('validationScreen');
+            const blockScreen = document.getElementById('blockScreen');
             const appContainer = document.getElementById('appContainer');
             const audio = document.getElementById('musicPlayer');
             const playBtn = document.getElementById('playBtn');
@@ -1520,15 +1483,12 @@
             const btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
             const btnAtivarSenha = document.getElementById('btnAtivarSenha');
             const senhaInput = document.getElementById('senhaInput');
-            const mensagemErro = document.getElementById('mensagemErro');
-            const mensagemSucesso = document.getElementById('mensagemSucesso');
+            const msgErro = document.getElementById('msgErro');
+            const msgSucesso = document.getElementById('msgSucesso');
             const timerDisplay = document.getElementById('timerDisplay');
-            const btnTesteGratis = document.getElementById('btnTesteGratis');
-            const tentativasRestantesEl = document.getElementById('contadorTentativas');
+            const btnStartTest = document.getElementById('btnStartTest');
+            const tentativasContador = document.getElementById('tentativasContador');
             const mediaContainer = document.getElementById('mediaContainer');
-
-            // Mostra senha atual
-            document.getElementById('senhaAdminAtual').textContent = adminSenha;
 
             // ============================================================
             // DEVICE ID
@@ -1591,14 +1551,14 @@
                     s.deviceId === deviceId
                 );
                 
-                if (!senhaEncontrada) return { valido: false, motivo: 'Senha inválida ou não vinculada a este dispositivo' };
+                if (!senhaEncontrada) return { valido: false, motivo: 'Senha inválida' };
                 
                 if (senhaEncontrada.expiracao) {
                     const expiracao = new Date(senhaEncontrada.expiracao);
                     if (expiracao < new Date()) {
                         senhaEncontrada.ativo = false;
                         salvarSenhas();
-                        return { valido: false, motivo: 'Senha expirada! Compre um novo plano.' };
+                        return { valido: false, motivo: 'Senha expirada!' };
                     }
                 }
                 
@@ -1613,6 +1573,7 @@
                 const ativas = senhasGeradas.filter(s => s.ativo).length;
                 const mensais = senhasGeradas.filter(s => s.plano === 'mensal' && s.ativo).length;
                 const vitalicios = senhasGeradas.filter(s => s.plano === 'vitalicio' && s.ativo).length;
+                const testes = senhasGeradas.filter(s => s.plano === 'teste1dia' && s.ativo).length;
                 
                 document.getElementById('statTotal').textContent = total;
                 document.getElementById('statAtivas').textContent = ativas;
@@ -1652,7 +1613,7 @@
             }
 
             window.cancelarSenhaAdmin = function(index) {
-                if (confirm('Cancelar esta senha? O usuário perderá o acesso.')) {
+                if (confirm('Cancelar esta senha?')) {
                     senhasGeradas[index].ativo = false;
                     salvarSenhas();
                     showNotification('✅ Senha cancelada!', 1500);
@@ -1687,8 +1648,9 @@
                             }
                             dadosValidacao = dados;
                             appLiberado = true;
-                            validationScreen.classList.add('hidden');
-                            appContainer.classList.add('active');
+                            blockScreen.classList.remove('open');
+                            blockScreen.classList.add('hidden');
+                            appContainer.classList.remove('hidden');
                             projectTitle.style.display = 'block';
                             showNotification('🎵 Bem-vindo de volta!', 1000);
                             return true;
@@ -1709,8 +1671,9 @@
                 localStorage.setItem('validacao_app', JSON.stringify(dados));
                 dadosValidacao = dados;
                 appLiberado = true;
-                validationScreen.classList.add('hidden');
-                appContainer.classList.add('active');
+                blockScreen.classList.remove('open');
+                blockScreen.classList.add('hidden');
+                appContainer.classList.remove('hidden');
                 projectTitle.style.display = 'block';
                 
                 pararTeste();
@@ -1722,30 +1685,36 @@
 
             function bloquearApp(motivo = '⏰ Tempo de teste expirado!') {
                 appLiberado = false;
-                appContainer.classList.remove('active');
-                validationScreen.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                blockScreen.classList.remove('hidden');
+                blockScreen.classList.add('open');
                 projectTitle.style.display = 'none';
                 
                 audio.pause();
                 isPlaying = false;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 
+                // Mostra o timer zerado
+                timerDisplay.textContent = '00:00';
+                timerDisplay.className = 'timer-display danger';
+                
                 showNotification(motivo, 2000);
             }
 
             // ============================================================
-            // TESTE GRÁTIS COM CONTAGEM REGRESSIVA
+            // TESTE GRÁTIS
             // ============================================================
             function iniciarTeste() {
                 if (testMode) return;
                 
                 if (localStorage.getItem('teste_usado') === 'true') {
-                    mensagemErro.textContent = '⚠️ Você já usou seu teste grátis neste dispositivo!';
-                    mensagemErro.classList.add('show');
+                    msgErro.textContent = '⚠️ Você já usou seu teste grátis!';
+                    msgErro.classList.add('show');
+                    setTimeout(() => msgErro.classList.remove('show'), 3000);
                     return;
                 }
                 
-                const tempoMinutos = parseInt(tempoTesteSelecionado);
+                const tempoMinutos = CONFIG.TEMPO_TESTE_MINUTOS;
                 testMode = true;
                 testEndTime = Date.now() + tempoMinutos * 60 * 1000;
                 localStorage.setItem('teste_usado', 'true');
@@ -1760,8 +1729,10 @@
                 localStorage.setItem('validacao_app', JSON.stringify(dados));
                 dadosValidacao = dados;
                 appLiberado = true;
-                validationScreen.classList.add('hidden');
-                appContainer.classList.add('active');
+                
+                blockScreen.classList.remove('open');
+                blockScreen.classList.add('hidden');
+                appContainer.classList.remove('hidden');
                 projectTitle.style.display = 'block';
                 
                 atualizarTimerTeste();
@@ -1769,8 +1740,7 @@
                     const restante = testEndTime - Date.now();
                     if (restante <= 0) {
                         pararTeste();
-                        bloquearApp('⏰ Seu teste acabou! Compre um plano para continuar.');
-                        showNotification('⏰ Teste finalizado!', 2000);
+                        bloquearApp('⏰ Seu teste de 5 minutos acabou! Compre um plano.');
                     } else {
                         atualizarTimerTeste();
                     }
@@ -1787,7 +1757,6 @@
                 const tempoStr = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
                 timerDisplay.textContent = tempoStr;
                 
-                // Cores
                 if (restante < 60000) {
                     timerDisplay.className = 'timer-display danger';
                 } else if (restante < 180000) {
@@ -1806,22 +1775,6 @@
                 timerDisplay.textContent = '05:00';
                 timerDisplay.className = 'timer-display';
             }
-
-            // Controles de tempo
-            document.querySelectorAll('#timerControls button').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('#timerControls button').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    tempoTesteSelecionado = parseInt(this.dataset.minutes);
-                    const mins = tempoTesteSelecionado;
-                    if (mins >= 60) {
-                        const horas = Math.floor(mins / 60);
-                        timerDisplay.textContent = `${String(horas).padStart(2, '0')}:00`;
-                    } else {
-                        timerDisplay.textContent = `${String(mins).padStart(2, '0')}:00`;
-                    }
-                });
-            });
 
             // ============================================================
             // MÍDIA
@@ -1950,7 +1903,7 @@
             }
 
             // ============================================================
-            // PLAYLIST (Mantida igual ao seu código original)
+            // PLAYLIST
             // ============================================================
             const GENRE_URLS = {
                 'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
@@ -2593,31 +2546,37 @@
             async function iniciar() {
                 criarElementosMidia();
                 
-                if (verificarValidacao()) {
-                    await carregarPlaylistInicial();
-                    carregarFavoritos();
-                    atualizarBadgeFavoritos();
-                    renderFavList();
-                    buildGenresGrid();
-                    iniciarAlternancia();
-                    goFullscreen();
-                    return;
-                }
+                // Mostra o projeto
+                projectTitle.style.display = 'block';
                 
-                validationScreen.classList.remove('hidden');
-                appContainer.classList.remove('active');
-                projectTitle.style.display = 'none';
-                
+                // Carrega playlists
                 await carregarPlaylistInicial();
                 carregarFavoritos();
                 atualizarBadgeFavoritos();
                 renderFavList();
                 buildGenresGrid();
                 iniciarAlternancia();
+                goFullscreen();
+                
+                // Verifica se já está validado
+                if (verificarValidacao()) {
+                    // Já está validado
+                    return;
+                }
+                
+                // Mostra a tela de bloqueio
+                blockScreen.classList.remove('hidden');
+                blockScreen.classList.add('open');
+                appContainer.classList.add('hidden');
+                projectTitle.style.display = 'none';
+                
+                // Inicia o timer padrão
+                timerDisplay.textContent = '05:00';
+                timerDisplay.className = 'timer-display';
                 
                 // Reset tentativas
                 tentativasRestantes = 3;
-                tentativasRestantesEl.textContent = tentativasRestantes;
+                tentativasContador.textContent = tentativasRestantes;
             }
 
             async function carregarPlaylistInicial() {
@@ -2651,12 +2610,17 @@
             }
 
             // ============================================================
-            // EVENTOS DE VALIDAÇÃO
+            // EVENTOS DA TELA DE BLOQUEIO
             // ============================================================
-            // Teste Grátis
-            btnTesteGratis.addEventListener('click', iniciarTeste);
+            // Iniciar teste
+            btnStartTest.addEventListener('click', iniciarTeste);
 
-            // Planos - comprar via WhatsApp
+            // Planos
+            document.getElementById('planTest1dia').addEventListener('click', function() {
+                const msg = encodeURIComponent('🎵 Olá! Quero o Teste Grátis de 1 Dia do Vai de Boa! Music.');
+                window.open(`https://wa.me/${whatsappNumero}?text=${msg}`, '_blank');
+            });
+
             document.getElementById('planMonthly').addEventListener('click', function() {
                 const msg = encodeURIComponent('🎵 Olá! Quero comprar o Plano Mensal (R$ 9,90) do Vai de Boa! Music.');
                 window.open(`https://wa.me/${whatsappNumero}?text=${msg}`, '_blank');
@@ -2672,47 +2636,36 @@
                 window.open(`https://wa.me/${whatsappNumero}?text=${msg}`, '_blank');
             });
 
-            // Ativar com Senha (com tentativas)
+            // Ativar com Senha
             btnAtivarSenha.addEventListener('click', function() {
-                // Verifica bloqueio
                 if (Date.now() < bloqueioAte) {
                     const restante = Math.ceil((bloqueioAte - Date.now()) / 60000);
-                    mensagemErro.textContent = `⛔ Bloqueado! Aguarde ${restante} minuto(s).`;
-                    mensagemErro.classList.add('show');
-                    mensagemSucesso.classList.remove('show');
+                    msgErro.textContent = `⛔ Bloqueado! Aguarde ${restante} minuto(s).`;
+                    msgErro.classList.add('show');
+                    msgSucesso.classList.remove('show');
                     return;
                 }
 
                 const senha = senhaInput.value.trim().toUpperCase();
                 if (!senha) {
-                    mensagemErro.textContent = '⚠️ Digite a senha!';
-                    mensagemErro.classList.add('show');
-                    mensagemSucesso.classList.remove('show');
+                    msgErro.textContent = '⚠️ Digite a senha!';
+                    msgErro.classList.add('show');
+                    msgSucesso.classList.remove('show');
                     return;
                 }
 
-                // VALIDAÇÃO SEGURA:
-                // 1. Testa senha dinâmica (hash + timestamp)
-                // 2. Testa senha mestra (hash)
-                // 3. Testa senhas geradas (banco de dados)
+                // Validação
                 let valido = false;
                 let plano = null;
                 let expiracao = null;
 
-                // Verifica senha dinâmica
-                if (validarSenhaDinamica(senha)) {
-                    valido = true;
-                    plano = 'mensal';
-                    expiracao = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-                }
-                
-                // Verifica senha mestra
-                if (!valido && validarSenhaMestra(senha)) {
+                // Verifica senha mestra (admin)
+                if (validarAdmin(senha)) {
                     valido = true;
                     plano = 'vitalicio';
                     expiracao = null;
                 }
-                
+
                 // Verifica senhas geradas
                 if (!valido) {
                     const resultado = validarSenha(senha);
@@ -2724,35 +2677,33 @@
                 }
 
                 if (valido) {
-                    // Reset tentativas
                     tentativasRestantes = 3;
-                    tentativasRestantesEl.textContent = tentativasRestantes;
-                    mensagemErro.classList.remove('show');
-                    mensagemSucesso.textContent = '✅ Senha ativada com sucesso!';
-                    mensagemSucesso.classList.add('show');
+                    tentativasContador.textContent = tentativasRestantes;
+                    msgErro.classList.remove('show');
+                    msgSucesso.textContent = '✅ Senha ativada com sucesso!';
+                    msgSucesso.classList.add('show');
                     senhaInput.value = '';
                     
                     setTimeout(() => {
-                        mensagemSucesso.classList.remove('show');
+                        msgSucesso.classList.remove('show');
                     }, 2000);
                     
                     liberarApp(plano, expiracao);
                 } else {
                     tentativasRestantes--;
-                    tentativasRestantesEl.textContent = tentativasRestantes;
+                    tentativasContador.textContent = tentativasRestantes;
                     
                     if (tentativasRestantes <= 0) {
-                        // Bloqueia por 5 minutos
                         bloqueioAte = Date.now() + 5 * 60 * 1000;
                         tentativasRestantes = 3;
-                        tentativasRestantesEl.textContent = tentativasRestantes;
-                        mensagemErro.textContent = '⛔ Muitas tentativas! Bloqueado por 5 minutos.';
-                        mensagemErro.classList.add('show');
+                        tentativasContador.textContent = tentativasRestantes;
+                        msgErro.textContent = '⛔ Muitas tentativas! Bloqueado por 5 minutos.';
+                        msgErro.classList.add('show');
                     } else {
-                        mensagemErro.textContent = `❌ Senha inválida! ${tentativasRestantes} tentativa(s) restante(s).`;
-                        mensagemErro.classList.add('show');
+                        msgErro.textContent = `❌ Senha inválida! ${tentativasRestantes} tentativa(s) restante(s).`;
+                        msgErro.classList.add('show');
                     }
-                    mensagemSucesso.classList.remove('show');
+                    msgSucesso.classList.remove('show');
                 }
             });
 
@@ -2768,12 +2719,11 @@
                 abrirAdmin();
             });
 
-            // LOGIN ADMIN - Usa a senha mestra (hash)
+            // LOGIN ADMIN - Usa hash
             document.getElementById('btnAdminLogin').addEventListener('click', function() {
                 const senha = document.getElementById('adminSenhaInput').value;
                 
-                // Usa a validação com hash
-                if (validarSenhaMestra(senha)) {
+                if (validarAdmin(senha)) {
                     document.getElementById('adminLoginOverlay').classList.remove('open');
                     document.getElementById('adminPanel').classList.add('open');
                     atualizarAdminStats();
@@ -2795,6 +2745,7 @@
                 showNotification('👑 Admin desconectado', 1000);
             });
 
+            // Gerar senha
             document.getElementById('btnGerarSenha').addEventListener('click', function() {
                 const celular = document.getElementById('adminCelular').value.trim();
                 const plano = document.getElementById('adminPlano').value;
