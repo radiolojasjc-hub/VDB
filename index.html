@@ -7,6 +7,7 @@
     <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== TODO O CSS AQUI (MANTENHA O MESMO) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; position: fixed; width: 100%; top: 0; left: 0; }
         body { background: #000; overflow: hidden; }
@@ -576,6 +577,7 @@
         }
         .btn-pix:active { transform: scale(0.97); }
         
+        /* ===== CAMPO DE SENHA - DESTAQUE NO CELULAR ===== */
         .senha-input-area {
             width: 100%;
             max-width: 380px;
@@ -585,38 +587,45 @@
         }
         .senha-input-area input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border-radius: 30px;
-            border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--neon-cyan);
+            background: rgba(0,0,0,0.3);
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
             outline: none;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
+            font-weight: bold;
         }
-        .senha-input-area input:focus { border-color: var(--neon-cyan); }
+        .senha-input-area input:focus { 
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 30px rgba(0,243,255,0.3);
+        }
         .senha-input-area input::placeholder {
             color: #555;
             text-transform: none;
             letter-spacing: 0;
+            font-weight: normal;
         }
         .senha-input-area button {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            padding: 12px 20px;
+            padding: 14px 24px;
             border-radius: 30px;
             color: #000;
-            font-weight: bold;
+            font-weight: 900;
             cursor: pointer;
             white-space: nowrap;
+            font-size: 1rem;
+            box-shadow: 0 0 20px rgba(0,243,255,0.2);
         }
         .senha-input-area button:active { transform: scale(0.95); }
         
         .msg-erro {
             color: var(--neon-pink);
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             margin-top: 5px;
             display: none;
             text-align: center;
@@ -624,7 +633,7 @@
         .msg-erro.show { display: block; }
         .msg-sucesso {
             color: var(--neon-green);
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             margin-top: 5px;
             display: none;
             text-align: center;
@@ -633,7 +642,7 @@
         
         .tentativas {
             color: #888;
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             margin-top: 5px;
             text-align: center;
         }
@@ -1084,7 +1093,8 @@
             .plan-card .plan-price { font-size: 1.3rem; }
             .plan-card .plan-title { font-size: 0.9rem; }
             .senha-input-area { flex-direction: column; }
-            .senha-input-area button { width: 100%; }
+            .senha-input-area input { font-size: 1rem; padding: 12px; }
+            .senha-input-area button { width: 100%; font-size: 0.9rem; padding: 12px; }
             .admin-stats { grid-template-columns: repeat(2, 1fr); }
             .admin-form-row { flex-direction: column; }
             .admin-form-row input, .admin-form-row select { min-width: auto; }
@@ -1182,8 +1192,9 @@
             <i class="fas fa-qrcode"></i> PIX: 12 98846-1978
         </button>
         
+        <!-- ===== CAMPO DE SENHA DESTACADO ===== -->
         <div class="senha-input-area">
-            <input type="text" id="senhaInput" placeholder="Digite sua senha" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
+            <input type="text" id="senhaInput" placeholder="🔑 DIGITE SUA SENHA" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
             <button id="btnAtivarSenha">▶ ATIVAR</button>
         </div>
         <div class="msg-erro" id="msgErro">❌ Senha inválida!</div>
@@ -2196,6 +2207,7 @@
 
             function updateNowPlaying(track) {
                 if (track) {
+                    // ===== LETREIRO SEM "VAI DE BOA!" =====
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist}`;
                     updateHeartIcon(track.id);
                 }
@@ -2303,21 +2315,16 @@
             }
 
             // ============================================================
-            // TIMER E BLOQUEIO - CORRIGIDO
+            // TIMER E BLOQUEIO
             // ============================================================
             
             function iniciarTimer() {
-                // Se o app já foi liberado por senha, NÃO inicia o timer
                 if (appLiberadoPorSenha) {
-                    console.log('App já liberado por senha - timer não iniciado');
                     timerFloat.style.display = 'none';
                     return;
                 }
-                
                 if (testMode) return;
-                if (localStorage.getItem('teste_usado') === 'true') {
-                    return;
-                }
+                if (localStorage.getItem('teste_usado') === 'true') return;
                 
                 testMode = true;
                 testEndTime = Date.now() + 5 * 60 * 1000;
@@ -2329,7 +2336,6 @@
                 testTimerInterval = setInterval(() => {
                     const restante = testEndTime - Date.now();
                     if (restante <= 0) {
-                        // Só bloqueia se NÃO tiver senha
                         if (!appLiberadoPorSenha) {
                             pararTimer();
                             bloquearApp();
@@ -2374,37 +2380,27 @@
                 showNotification('⏰ Teste finalizado!', 2000);
             }
 
-            // ===== FUNÇÃO LIBERAR APP CORRIGIDA =====
             function liberarApp(plano = null) {
-                // Marca como liberado por senha
                 appLiberado = true;
                 appLiberadoPorSenha = true;
                 localStorage.setItem('app_liberado_por_senha', 'true');
                 
-                // Fecha a tela de bloqueio
                 blockScreen.classList.remove('open');
                 blockScreen.classList.add('hidden');
-                
-                // Mostra o app
                 appContainer.style.display = 'flex';
                 
-                // PARA O TIMER COMPLETAMENTE
                 if (testTimerInterval) {
                     clearInterval(testTimerInterval);
                     testTimerInterval = null;
                 }
                 testMode = false;
-                
-                // Esconde o timer
                 timerFloat.style.display = 'none';
                 
-                // Atualiza o letreiro
                 const track = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
                 if (track) {
                     scrollText.innerHTML = `🎵 ${track.title} - ${track.artist}`;
                 }
                 
-                // Reseta tentativas
                 tentativasRestantes = 3;
                 tentativasContador.textContent = tentativasRestantes;
                 
@@ -2433,16 +2429,13 @@
                 carregarFavoritos();
                 atualizarBadgeFavoritos();
 
-                // Mostra título e botão
                 projectTitle.style.display = 'block';
                 btnAtivar.style.display = 'block';
                 
-                // Verifica se já foi liberado por senha
                 if (appLiberadoPorSenha) {
                     timerFloat.style.display = 'none';
                 }
 
-                // Carrega playlist
                 let lista = await carregarPlaylistPorGenero('PADRÃO');
                 let generoInicial = 'PADRÃO';
                 if (!lista || lista.length === 0) {
@@ -2488,7 +2481,6 @@
             // EVENTOS
             // ============================================================
             
-            // ATIVAR RÁDIO
             btnAtivar.addEventListener('click', async function() {
                 btnAtivar.style.display = 'none';
                 appContainer.style.display = 'flex';
@@ -2497,7 +2489,6 @@
                 goFullscreen();
                 if (elementosMidia.length > 1) iniciarAlternancia();
                 
-                // Só inicia o timer se NÃO tiver senha
                 if (!appLiberadoPorSenha) {
                     iniciarTimer();
                 } else {
@@ -2506,7 +2497,6 @@
                 }
             });
 
-            // PAINEL ADMIN
             document.getElementById('menuAdminBtn').addEventListener('click', function() {
                 menuPopup.classList.remove('open');
                 abrirAdmin();
@@ -2535,7 +2525,6 @@
                 showNotification('👑 Admin desconectado', 1000);
             });
 
-            // GERAR SENHA
             document.getElementById('btnGerarSenha').addEventListener('click', function() {
                 const celular = document.getElementById('adminCelular').value.trim();
                 const plano = document.getElementById('adminPlano').value;
@@ -2579,7 +2568,6 @@
                 window.open(`https://wa.me/55${celular}?text=${msg}`, '_blank');
             });
 
-            // PLANOS E COMPRA
             document.getElementById('planTest1dia').addEventListener('click', function() {
                 const msg = encodeURIComponent('🎵 Olá! Quero o Teste Grátis de 1 Dia do Vai de Boa! Music.');
                 window.open(`https://wa.me/5512988461978?text=${msg}`, '_blank');
@@ -2608,7 +2596,7 @@
                 });
             });
 
-            // ===== ATIVAR SENHA - CORRIGIDO =====
+            // ===== ATIVAR SENHA =====
             btnAtivarSenha.addEventListener('click', function() {
                 if (Date.now() < bloqueioAte) {
                     const restante = Math.ceil((bloqueioAte - Date.now()) / 60000);
@@ -2624,7 +2612,6 @@
                     return;
                 }
 
-                // Verifica senha admin
                 if (validarAdmin(senha)) {
                     tentativasRestantes = 3;
                     tentativasContador.textContent = tentativasRestantes;
@@ -2637,7 +2624,6 @@
                     return;
                 }
 
-                // Verifica senhas geradas
                 const resultado = validarSenha(senha);
                 if (resultado.valido) {
                     tentativasRestantes = 3;
@@ -2669,7 +2655,6 @@
                 if (e.key === 'Enter') btnAtivarSenha.click();
             });
 
-            // HEART E PLAYER
             heartBtn.addEventListener('click', () => {
                 const music = currentPlaylist[currentIndex % currentPlaylist.length] || currentPlaylist[0];
                 if (music) { toggleFavorito(music.id); buildGenresGrid(); }
@@ -2891,7 +2876,6 @@
                 document.getElementById('feedbackModal').classList.remove('open');
             });
 
-            // EVENTOS DO ÁUDIO
             audio.addEventListener('play', () => {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
