@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vai de Boa! Music</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+        body { background:#0a0a0a; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; }
+        .logo { font-size:2rem; font-weight:900; background:linear-gradient(135deg,#00f3ff,#ff2d7f); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .heart { font-size:4rem; cursor:pointer; transition:0.3s; color:#555; user-select:none; }
+        .heart.active { color:#ff2d7f; }
+        .btn { background:linear-gradient(135deg,#00f3ff,#00d4ff); color:#000; border:none; padding:14px 40px; border-radius:60px; font-weight:bold; font-size:1.2rem; cursor:pointer; margin:10px; }
+        .btn:active { transform:scale(0.95); }
+        .status { position:fixed; top:10px; right:10px; background:rgba(0,0,0,0.6); padding:4px 14px; border-radius:20px; font-size:0.7rem; border:1px solid #facc15; color:#facc15; }
+        .status.active { border-color:#4ade80; color:#4ade80; }
+        .status.blocked { border-color:#ff2d7f; color:#ff2d7f; }
+        .marquee { position:fixed; top:50px; left:0; right:0; background:rgba(0,0,0,0.4); padding:6px 0; overflow:hidden; white-space:nowrap; }
+        .marquee p { display:inline-block; animation: scroll 15s linear infinite; font-weight:bold; letter-spacing:2px; font-size:0.9rem; }
+        @keyframes scroll { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }
+        #overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:9999; align-items:center; justify-content:center; flex-direction:column; padding:20px; }
+        #overlay.show { display:flex; }
+        #overlay h2 { font-size:2rem; background:linear-gradient(135deg,#00f3ff,#ff2d7f); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        #overlay p { color:#aaa; }
+        #overlay input { padding:12px 20px; border-radius:30px; border:2px solid #00f3ff; background:transparent; color:#fff; font-size:1rem; width:80%; max-width:280px; margin:10px 0; text-align:center; }
+        #overlay .btn { background:linear-gradient(135deg,#00f3ff,#ff2d7f); color:#000; }
+        #timerMsg { color:#888; font-size:0.8rem; margin-top:10px; }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <h2>🔒 Ative o App</h2>
+    <p>Digite o código de ativação:</p>
+    <input type="text" id="codeInput" placeholder="Código" autocomplete="off">
+    <button class="btn" id="activateBtn">▶ ATIVAR</button>
+    <div id="timerMsg"></div>
+</div>
+
+<div class="status" id="statusBadge">⏳ Teste</div>
+<div class="marquee"><p id="scrollText">🎵 VAI DE BOA! MUSIC 🎵</p></div>
+
+<div>
+    <div class="logo">🎵 Vai de Boa!</div>
+    <div class="heart" id="heartBtn">❤️</div>
+    <div><button class="btn" id="playBtn">▶ ATIVAR RÁDIO</button></div>
+</div>
+
+<script>
+    // ============================================================
+    // SISTEMA DE ATIVAÇÃO COM 10 CÓDIGOS + FINGERPRINT
+    // ============================================================
+
+    const CODIGOS_VALIDOS = [
+        'ABC123',
+        'DEF456',
+        'GHI789',
+        'JKL012',
+        'MNO345',
+        'PQR678',
+        'STU901',
+        'VWX234',
+        'YZA567',
+        'BCD890'
+    ];
+
+    const TRIAL_MINUTES = 5;
+
+    function getFingerprint() {
+        return navigator.userAgent + screen.width + screen.height + navigator.language;
+    }
+
+    function isLicensed() {
+        return localStorage.getItem('license_valid') === 'true';
+    }
+
+    function getInstallDate() {
+        let d = localStorage.getItem('install_date');
+        if (!d) {
+            d = new Date().toISOString();
+            localStorage.setItem('install_date', d);
+        }
+        return new Date(d);
+    }
+
+    function getRemainingMinutes() {
+        const elapsed = (new Date() - getInstallDate()) / 1000 / 60;
+        return Math.max(0, TRIAL_MINUTES - elapsed);
+    }
+
+    function isTrialExpired() {
+        return getRemainingMinutes() <= 0;
+    }
+
+    function updateStatus() {
+        const badge = document.getElementById('statusBadge');
+        if (isLicensed()) {
+            badge.textContent = '✅ Ativado';
+            badge.className = 'status active';
+            document.getElementById('overlay').classList.remove('show');
+            return;
+        }
+        if (isTrialExpired()) {
+            badge.textContent = '⛔ Bloqueado';
+            badge.className = 'status blocked';
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('timerMsg').textContent = 'Teste expirado. Insira o código.';
+        } else {
+            const rem = Math.ceil(getRemainingMinutes());
+            badge.textContent = `⏳ ${rem} min`;
+            badge.className = 'status';
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('timerMsg').textContent = `Teste grátis: ${rem} min restantes`;
+        }
+    }
+
+    function ativar() {
+        const code = document.getElementById('codeInput').value.trim().toUpperCase();
+        const fingerprint = getFingerprint();
+
+        if (!code) {
+            alert('Digite o código.');
+            return;
+        }
+
+        if (!CODIGOS_VALIDOS.includes(code)) {
+            alert('❌ Código inválido.');
+            return;
+        }
+
+        const usado = localStorage.getItem('codigos_usados');
+        const usados = usado ? JSON.parse(usado) : {};
+
+        if (usados[code] && usados[code] !== fingerprint) {
+            alert('❌ Este código já foi usado em outro dispositivo.');
+            return;
+        }
+
+        usados[code] = fingerprint;
+        localStorage.setItem('codigos_usados', JSON.stringify(usados));
+        localStorage.setItem('license_valid', 'true');
+
+        alert('✅ Ativado com sucesso!');
+        location.reload();
+    }
+
+    document.getElementById('activateBtn').addEventListener('click', ativar);
+    document.getElementById('codeInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') ativar();
+    });
+
+    document.getElementById('playBtn').addEventListener('click', function() {
+        if (isLicensed()) {
+            alert('🔊 Música liberada!');
+        } else if (isTrialExpired()) {
+            document.getElementById('overlay').classList.add('show');
+        } else {
+            alert('🔊 Teste grátis – música tocando!');
+        }
+    });
+
+    document.getElementById('heartBtn').addEventListener('click', function() {
+        this.classList.toggle('active');
+    });
+
+    updateStatus();
+    setInterval(updateStatus, 5000);
+</script>
+
+</body>
+</html>
