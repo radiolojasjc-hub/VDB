@@ -774,7 +774,7 @@
             margin-top: 5px;
         }
         
-        /* ===== PAINEL ADMIN ===== */
+        /* PAINEL ADMIN */
         #adminPanel {
             position: fixed;
             top: 0;
@@ -1097,7 +1097,7 @@
         
         <!-- ÁREA SENHA -->
         <div class="senha-input-area">
-            <input type="text" id="senhaInput" placeholder="Digite sua senha" maxlength="8" autocomplete="off">
+            <input type="text" id="senhaInput" placeholder="Digite sua senha" maxlength="8" autocomplete="off" style="text-transform:uppercase;">
             <button id="btnAtivarSenha">▶ ATIVAR</button>
         </div>
         <div id="mensagemErro" style="color:#ff2d7f;font-size:0.75rem;margin-top:8px;display:none;"></div>
@@ -1202,6 +1202,9 @@
                     <input type="text" id="adminWhatsapp" placeholder="📱 Seu WhatsApp (ex: 5511984461978)" value="5511984461978">
                     <button class="admin-btn" id="btnSalvarWhatsapp">💾 Salvar WhatsApp</button>
                     <button class="admin-btn admin-btn-danger" id="btnAlterarSenhaAdmin">🔑 Alterar Senha Admin</button>
+                </div>
+                <div style="color:#888;font-size:0.7rem;margin-top:5px;">
+                    💡 Senha atual: <span style="color:var(--neon-cyan);" id="senhaAdminAtual">admin123</span>
                 </div>
             </div>
         </div>
@@ -1333,7 +1336,7 @@
                 WHATSAPP_PADRAO: '5511984461978',
                 PLANS: {
                     mensal: { nome: 'Mensal', valor: 'R$ 9,90', dias: 30 },
-                    vitalicio: { nome: 'Vitalício', valor: 'R$ 59,00', dias: 0 } // 0 = nunca expira
+                    vitalicio: { nome: 'Vitalício', valor: 'R$ 59,00', dias: 0 }
                 }
             };
 
@@ -1390,7 +1393,6 @@
             const backgroundAudio = document.getElementById('backgroundAudio');
             const menuPopup = document.getElementById('menuPopup');
             const projectTitle = document.getElementById('projectTitle');
-            const btnAtivar = document.getElementById('btnAtivar');
             const btnWhatsappCompra = document.getElementById('btnWhatsappCompra');
             const btnAtivarSenha = document.getElementById('btnAtivarSenha');
             const senhaInput = document.getElementById('senhaInput');
@@ -1398,6 +1400,9 @@
             const timerTest = document.getElementById('timerTest');
             const mensagemTravada = document.getElementById('mensagemTravada');
             const mediaContainer = document.getElementById('mediaContainer');
+
+            // Mostra senha atual
+            document.getElementById('senhaAdminAtual').textContent = adminSenha;
 
             // ========== DEVICE ID ==========
             function gerarDeviceId() {
@@ -1458,7 +1463,6 @@
                 
                 if (!senhaEncontrada) return { valido: false, motivo: 'Senha inválida ou não vinculada a este dispositivo' };
                 
-                // Verifica se expirou
                 if (senhaEncontrada.expiracao) {
                     const expiracao = new Date(senhaEncontrada.expiracao);
                     if (expiracao < new Date()) {
@@ -1524,7 +1528,6 @@
                 }).join('');
             }
 
-            // Expor função para o onclick
             window.cancelarSenhaAdmin = function(index) {
                 if (confirm('Cancelar esta senha? O usuário perderá o acesso.')) {
                     cancelarSenha(index);
@@ -1552,7 +1555,6 @@
                     try {
                         const dados = JSON.parse(dadosSalvos);
                         if (dados.valido) {
-                            // Verifica se expirou
                             if (dados.expiracao && new Date(dados.expiracao) < new Date()) {
                                 localStorage.removeItem('validacao_app');
                                 return false;
@@ -1585,10 +1587,8 @@
                 appContainer.classList.add('active');
                 projectTitle.style.display = 'block';
                 
-                // Para o timer do teste
                 pararTeste();
                 
-                // Ativa áudio
                 setTimeout(() => ativarAudio(), 500);
                 
                 const planoNome = CONFIG.PLANS[plano]?.nome || plano;
@@ -1601,7 +1601,6 @@
                 validationScreen.classList.remove('hidden');
                 projectTitle.style.display = 'none';
                 
-                // Para o áudio
                 audio.pause();
                 isPlaying = false;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -1615,7 +1614,6 @@
             function iniciarTeste() {
                 if (testMode) return;
                 
-                // Verifica se já usou teste neste dispositivo
                 if (localStorage.getItem('teste_usado') === 'true') {
                     mensagemErro.textContent = '⚠️ Você já usou seu teste grátis neste dispositivo!';
                     mensagemErro.style.display = 'block';
@@ -1626,7 +1624,6 @@
                 testEndTime = Date.now() + CONFIG.TEMPO_TESTE_MINUTOS * 60 * 1000;
                 localStorage.setItem('teste_usado', 'true');
                 
-                // Libera o app
                 const dados = {
                     valido: true,
                     plano: 'teste',
@@ -1641,7 +1638,6 @@
                 appContainer.classList.add('active');
                 projectTitle.style.display = 'block';
                 
-                // Timer do teste
                 atualizarTimerTeste();
                 testTimerInterval = setInterval(() => {
                     const restante = testEndTime - Date.now();
@@ -1654,7 +1650,6 @@
                     }
                 }, 1000);
                 
-                // Ativa áudio
                 setTimeout(() => ativarAudio(), 500);
                 showNotification(`🎵 Teste grátis: ${CONFIG.TEMPO_TESTE_MINUTOS} minutos!`, 2000);
             }
@@ -2418,9 +2413,7 @@
             async function iniciar() {
                 criarElementosMidia();
                 
-                // Verifica se já está validado
                 if (verificarValidacao()) {
-                    // Está validado, carrega a playlist
                     await carregarPlaylistInicial();
                     carregarFavoritos();
                     atualizarBadgeFavoritos();
@@ -2431,12 +2424,10 @@
                     return;
                 }
                 
-                // Mostra tela de validação
                 validationScreen.classList.remove('hidden');
                 appContainer.classList.remove('active');
                 projectTitle.style.display = 'none';
                 
-                // Carrega dados em background
                 await carregarPlaylistInicial();
                 carregarFavoritos();
                 atualizarBadgeFavoritos();
@@ -2476,16 +2467,13 @@
             }
 
             // ========== EVENTOS DA VALIDAÇÃO ==========
-            // Teste Grátis
             document.getElementById('planFree').addEventListener('click', iniciarTeste);
 
-            // Comprar via WhatsApp
             btnWhatsappCompra.addEventListener('click', function() {
                 const msg = encodeURIComponent('🎵 Olá! Quero comprar o Vai de Boa! Music. Me ajuda?');
                 window.open(`https://wa.me/${whatsappNumero}?text=${msg}`, '_blank');
             });
 
-            // Ativar com Senha
             btnAtivarSenha.addEventListener('click', function() {
                 const senha = senhaInput.value.trim().toUpperCase();
                 if (!senha) {
@@ -2513,15 +2501,15 @@
             });
 
             // ========== EVENTOS DO ADMIN ==========
-            // Acesso pelo menu
             document.getElementById('menuAdminBtn').addEventListener('click', function() {
                 menuPopup.classList.remove('open');
                 abrirAdmin();
             });
 
-            // Login admin
+            // *** CORREÇÃO AQUI: SENHA ADMIN NÃO CONVERTE PRA MAIÚSCULA ***
             document.getElementById('btnAdminLogin').addEventListener('click', function() {
                 const senha = document.getElementById('adminSenhaInput').value;
+                // Compara exatamente como foi digitada, sem converter
                 if (senha === adminSenha) {
                     document.getElementById('adminLoginOverlay').classList.remove('open');
                     document.getElementById('adminPanel').classList.add('open');
@@ -2536,14 +2524,12 @@
                 if (e.key === 'Enter') document.getElementById('btnAdminLogin').click();
             });
 
-            // Fechar admin
             document.getElementById('btnAdminClose').addEventListener('click', fecharAdmin);
             document.getElementById('btnAdminSair').addEventListener('click', function() {
                 fecharAdmin();
                 showNotification('👑 Admin desconectado', 1000);
             });
 
-            // Gerar senha
             document.getElementById('btnGerarSenha').addEventListener('click', function() {
                 const celular = document.getElementById('adminCelular').value.trim();
                 const plano = document.getElementById('adminPlano').value;
@@ -2561,27 +2547,23 @@
                 
                 const novaSenha = gerarNovaSenha(celularLimpo, plano);
                 
-                // Mostra a senha gerada
                 const area = document.getElementById('senhaGeradaArea');
                 area.classList.add('show');
                 document.getElementById('senhaGeradaText').textContent = novaSenha.senha;
                 document.getElementById('senhaGeradaCelular').textContent = novaSenha.celular;
                 document.getElementById('senhaGeradaPlano').textContent = CONFIG.PLANS[plano].nome;
                 
-                // Limpa o campo
                 document.getElementById('adminCelular').value = '';
                 
                 atualizarAdminStats();
                 showNotification('✅ Senha gerada com sucesso!', 1500);
             });
 
-            // Copiar senha
             document.getElementById('btnCopiarSenha').addEventListener('click', function() {
                 const senha = document.getElementById('senhaGeradaText').textContent;
                 navigator.clipboard.writeText(senha).then(() => {
                     showNotification('📋 Senha copiada!', 1000);
                 }).catch(() => {
-                    // Fallback
                     const temp = document.createElement('input');
                     temp.value = senha;
                     document.body.appendChild(temp);
@@ -2592,7 +2574,6 @@
                 });
             });
 
-            // Enviar via WhatsApp
             document.getElementById('btnWhatsappEnviar').addEventListener('click', function() {
                 const senha = document.getElementById('senhaGeradaText').textContent;
                 const celular = document.getElementById('senhaGeradaCelular').textContent;
@@ -2601,7 +2582,6 @@
                 window.open(`https://wa.me/55${celular}?text=${msg}`, '_blank');
             });
 
-            // Salvar WhatsApp
             document.getElementById('btnSalvarWhatsapp').addEventListener('click', function() {
                 const whats = document.getElementById('adminWhatsapp').value.trim();
                 if (whats) {
@@ -2611,12 +2591,12 @@
                 }
             });
 
-            // Alterar senha do admin
             document.getElementById('btnAlterarSenhaAdmin').addEventListener('click', function() {
                 const nova = prompt('🔑 Digite a NOVA senha do administrador:', '');
                 if (nova && nova.length >= 4) {
                     adminSenha = nova;
                     localStorage.setItem('admin_senha', adminSenha);
+                    document.getElementById('senhaAdminAtual').textContent = adminSenha;
                     showNotification('✅ Senha do admin alterada!', 1500);
                 } else if (nova !== null) {
                     alert('⚠️ A senha deve ter pelo menos 4 caracteres.');
@@ -2856,7 +2836,6 @@
                 showControls();
             }
 
-            // Eventos do áudio
             audio.addEventListener('play', () => {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -2871,12 +2850,10 @@
                 if (!carregandoMusica) nextTrack();
             });
 
-            // Expõe funções globais
             window.openGenres = openGenres;
             window.openFeedback = openFeedback;
             window.abrirAdmin = abrirAdmin;
 
-            // ========== INICIALIZAÇÃO ==========
             window.addEventListener('load', iniciar);
             window.addEventListener('beforeunload', function() {
                 pararAlternancia();
