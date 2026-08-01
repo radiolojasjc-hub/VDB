@@ -20,7 +20,7 @@
             left: 0; 
         }
         body { background: #000; overflow: hidden; }
-        :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; }
+        :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --cor-forro: #ff8800; }
         
         .media-container {
             position: fixed;
@@ -241,7 +241,7 @@
         /* LETREIRO SUBIDO */
         .info-scroll {
             position: fixed;
-            top: 35px; /* ANTES ERA 42px */
+            top: 35px;
             left: 0;
             right: 0;
             z-index: 30;
@@ -709,7 +709,7 @@
         </div>
     </div>
 
-    <!-- Modal de Favoritos (único, sem pastas) -->
+    <!-- Modal de Favoritos -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3><i class="fas fa-heart" style="color:#ff2d7f; -webkit-text-fill-color:#ff2d7f;"></i> Músicas Favoritas</h3>
@@ -821,6 +821,9 @@
                 {"id":687,"artist":"Panda Cantor","title":"Onde ela tá","genero":"RELIGIOSA","src":"Panda.mp3"}
             ];
 
+            // ============================================================
+            // ADICIONADO: FORRÓ DEZ COM URL CORRETA
+            // ============================================================
             const GENRE_URLS = {
                 'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
                 'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -838,7 +841,7 @@
 
             const CORES_POR_GENERO = {
                 'PADRÃO': '#ffffff', 'FLASHBACK': '#ffaa00', 'RELIGIOSA': '#aa55ff', 'ROMÂNTICA': '#ff2d7f',
-                'MPB': '#00ff88', 'POP': '#ff3366', 'SERTANEJO': '#ff8800', 'FORRÓ': '#ff00aa',
+                'MPB': '#00ff88', 'POP': '#ff3366', 'SERTANEJO': '#ff8800', 'FORRÓ': '#ff8800',
                 'SAMBA': '#ffdd00', 'BREGA': '#ff66aa', 'REGGAE': '#00ffaa', 'MODA TOP': '#ff4400'
             };
 
@@ -859,7 +862,7 @@
             const playlistCache = {};
             let ultimoId = null;
             let carregandoMusica = false;
-            let audioTimeout = null; // timeout da tentativa
+            let audioTimeout = null;
 
             // Favoritos simples (apenas IDs)
             let favorites = [];
@@ -1105,7 +1108,7 @@
                 } catch(e) {}
             }
 
-            function gerarUrlCompleta(nomeArquivo, repo = 'play12') {
+            function gerarUrlCompleta(nomeArquivo, repo = 'forrodez') {
                 if (!nomeArquivo || !nomeArquivo.trim()) return '';
                 if (nomeArquivo.startsWith('http://') || nomeArquivo.startsWith('https://')) return nomeArquivo;
                 let nome = nomeArquivo.replace(/^\.\//, '').replace(/^\/+/, '');
@@ -1114,7 +1117,7 @@
                 return `https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}`;
             }
 
-            const REPOSITORIOS = ['play12','mpbtop','poptop','sertanejo','forrotop','sambatop','bregatop','reggaetop','modatop','religiosa','romanticatop','flashbacktop'];
+            const REPOSITORIOS = ['play12','mpbtop','poptop','sertanejo','forrotop','forrodez','sambatop','bregatop','reggaetop','modatop','religiosa','romanticatop','flashbacktop'];
             const EXTENSOES = ['mp3','m4a','mp4','aac','ogg','opus','wav','flac'];
 
             function gerarUrlsAlternativas(musica) {
@@ -1246,7 +1249,7 @@
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 historicoReproducao = [];
-                genreBadge.innerHTML = genero;
+                genreBadge.innerHTML = genero === 'FORRÓ' ? '🪗 FORRÓ' : genero;
                 genreBadge.className = 'genre-badge';
                 const primeira = currentPlaylist[0];
                 if (primeira) { updateNowPlaying(primeira); adicionarAoHistorico(primeira); }
@@ -1338,7 +1341,6 @@
                 });
             }
 
-            // playMusic com loop e limpeza
             async function playMusic() {
                 if (carregandoMusica) return;
                 if (!isBackgroundActive) {
@@ -1366,13 +1368,11 @@
                 updateNowPlaying(track);
                 adicionarAoHistorico(track);
 
-                // LIMPEZA ANTES DE TOCAR
                 stopTimer();
                 if (audioTimeout) {
                     clearTimeout(audioTimeout);
                     audioTimeout = null;
                 }
-                // Remove listeners antigos
                 audio.oncanplay = null;
                 audio.onerror = null;
                 audio.onended = null;
@@ -1381,16 +1381,23 @@
                 audio.src = '';
                 audio.load();
 
+                // FORÇA O REPOSITÓRIO CORRETO PARA FORRÓ
                 let urls = gerarUrlsAlternativas(track);
+                
+                // Se for FORRÓ, garante que o repositório forrodez seja usado
+                if (track.genero === 'FORRÓ' || modoAtual === 'FORRÓ') {
+                    const nomeArquivo = track.src.replace(/^\.\//, '').replace(/^\/+/, '');
+                    const urlForrodez = `https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/${nomeArquivo}`;
+                    // Adiciona a URL do forrodez no início da lista
+                    urls = [urlForrodez, ...urls.filter(u => u !== urlForrodez)];
+                }
+
                 if (urls.length === 0) {
                     showNotification("❌ Nenhuma URL para esta música", 1000);
                     carregandoMusica = false;
                     setTimeout(() => nextTrack(), 300);
                     return;
                 }
-
-                const falhas = JSON.parse(localStorage.getItem('url_falhas') || '[]');
-                urls = urls.filter(u => !falhas.includes(u));
 
                 let sucesso = false;
 
@@ -1414,15 +1421,12 @@
                 }
 
                 if (!sucesso) {
-                    const novasFalhas = [...new Set([...falhas, ...urls])];
-                    localStorage.setItem('url_falhas', JSON.stringify(novasFalhas));
                     showNotification("⏭️ Pulando...", 800);
                     carregandoMusica = false;
                     setTimeout(() => nextTrack(), 300);
                 }
             }
 
-            // Pré-carregamento
             let preloadAudio = new Audio();
             preloadAudio.preload = 'auto';
 
@@ -1447,7 +1451,6 @@
                 } catch(e) {}
             }
 
-            // Timer
             function startTimer() {
                 stopTimer();
                 timerInterval = setInterval(() => {
@@ -1944,7 +1947,7 @@
                 showControls();
             }
 
-            // Eventos do áudio (reatribuídos após limpeza)
+            // Eventos do áudio
             audio.addEventListener('play', () => {
                 isPlaying = true;
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
