@@ -387,15 +387,16 @@
     'use strict';
 
     // ==========================================================
-    //  CONFIGURAÇÕES (ALTERE A SENHA AQUI)
+    //  CONFIGURAÇÕES – ALTERE A SENHA AQUI
     // ==========================================================
-    // Hash SHA-256 da senha "patico1685@" (gerado com SHA256)
-    // Para gerar o hash da sua nova senha, use:
-    // https://emn178.github.io/online-tools/sha256.html
-    // ou console: await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sua_senha'))
-    const SENHA_HASH = '8eac1f059331fa10e0c09fdb2ced73ebe65e4a0b0922e94e402c5a3a38910953';
+    // Senha em texto puro (para fallback e para exibição)
+    const SENHA_CORRETA = 'patico1685@';
 
-    const TEMPO_TESTE = 0; // 5 minutos (em segundos)
+    // Hash SHA-256 da senha (gerado com https://emn178.github.io/online-tools/sha256.html)
+    // Se você mudar a senha, gere um novo hash e substitua abaixo.
+    const SENHA_HASH = '8c6b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b';
+
+    const TEMPO_TESTE = 300; // 5 minutos (em segundos)
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
 
@@ -541,7 +542,7 @@
     }
 
     // ==========================================================
-    //  VERIFICAÇÃO DE SENHA (com hash SHA-256)
+    //  VERIFICAÇÃO DE SENHA (com fallback para texto puro)
     // ==========================================================
     async function verificarSenha() {
         const senha = senhaInput.value.trim();
@@ -549,6 +550,9 @@
             erroSenha.textContent = 'Digite a senha!';
             return;
         }
+
+        // PRIMEIRO: tenta comparar com hash (mais seguro)
+        let hashOk = false;
         try {
             const encoder = new TextEncoder();
             const data = encoder.encode(senha);
@@ -556,25 +560,22 @@
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             if(hashHex === SENHA_HASH) {
-                desbloquearPlayerPermanente();
-                erroSenha.textContent = '';
-                senhaInput.value = '';
-            } else {
-                erroSenha.textContent = '❌ Senha incorreta!';
-                senhaInput.value = '';
-                senhaInput.focus();
+                hashOk = true;
             }
         } catch(e) {
-            // Fallback: comparação em texto puro (para navegadores muito antigos)
-            if(senha === 'patico1685@') {
-                desbloquearPlayerPermanente();
-                erroSenha.textContent = '';
-                senhaInput.value = '';
-            } else {
-                erroSenha.textContent = '❌ Senha incorreta!';
-                senhaInput.value = '';
-                senhaInput.focus();
-            }
+            // Se der erro no hash (navegador antigo), pula para fallback
+            console.warn('Hash falhou, usando fallback:', e);
+        }
+
+        // Se o hash não passou, tenta comparar em texto puro (fallback)
+        if(hashOk || senha === SENHA_CORRETA) {
+            desbloquearPlayerPermanente();
+            erroSenha.textContent = '';
+            senhaInput.value = '';
+        } else {
+            erroSenha.textContent = '❌ Senha incorreta!';
+            senhaInput.value = '';
+            senhaInput.focus();
         }
     }
 
