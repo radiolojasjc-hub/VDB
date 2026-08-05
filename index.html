@@ -315,68 +315,104 @@
 <script>
 (function(){
     'use strict';
-// =================================================================
-//  CONFIGURAÇÃO DO TESTE GRÁTIS
-//  Altere o valor abaixo para o tempo desejado (em segundos)
-// =================================================================
-const TEMPO_INICIAL = 21600; // 6 horas (6 * 60 * 60)
-// Para outras durações, use:
-// 5 minutos  = 300
-// 30 minutos = 1800
-// 1 hora     = 3600
-// 6 horas    = 21600
-// 12 horas   = 43200
-// 24 horas   = 86400
-// 2 dias     = 172800
 
-// =================================================================
-//  CHAVE SECRETA (use a mesma para gerar e validar)
-// =================================================================
-const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
+    // =================================================================
+    //  CONFIGURAÇÃO DO TESTE GRÁTIS (EM SEGUNDOS)
+    //  Altere aqui para mudar a duração do teste
+    // =================================================================
+    const TEMPO_INICIAL = 21600; // 6 horas (6 * 60 * 60)
+    // Outras opções:
+    // 5 minutos  = 300
+    // 30 minutos = 1800
+    // 1 hora     = 3600
+    // 12 horas   = 43200
+    // 24 horas   = 86400
+    // 2 dias     = 172800
 
-const CHAVE_PIX = '12.988.461-978';
-const NUMERO_WHATSAPP = '5512988461978';
+    // =================================================================
+    //  CHAVE SECRETA (use a mesma para gerar e validar)
+    // =================================================================
+    const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
 
-// =================================================================
-//  ELEMENTOS
-// =================================================================
-const loadingScreen = document.getElementById('loadingScreen');
-const playerContainer = document.getElementById('playerContainer');
-const timerDisplay = document.getElementById('timerDisplay');
-const blockOverlay = document.getElementById('blockOverlay');
-const notification = document.getElementById('notification');
-const senhaInput = document.getElementById('senhaPermanente');
-const erroSenha = document.getElementById('erroSenha');
+    const CHAVE_PIX = '12.988.461-978';
+    const NUMERO_WHATSAPP = '5512988461978';
 
-let tempoRestante = TEMPO_INICIAL;
-let desbloqueado = false;
-let timerInterval = null;
+    // =================================================================
+    //  ELEMENTOS
+    // =================================================================
+    const loadingScreen = document.getElementById('loadingScreen');
+    const playerContainer = document.getElementById('playerContainer');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const blockOverlay = document.getElementById('blockOverlay');
+    const notification = document.getElementById('notification');
+    const senhaInput = document.getElementById('senhaPermanente');
+    const erroSenha = document.getElementById('erroSenha');
 
-// =================================================================
-//  FUNÇÕES HMAC (validação e geração)
-// =================================================================
+    let tempoRestante = TEMPO_INICIAL;
+    let desbloqueado = false;
+    let timerInterval = null;
 
-// Gera uma senha (para o administrador)
-async function gerarSenhaAdmin(email, diasValidade) {
-    const expiracao = Date.now() + (diasValidade * 24 * 60 * 60 * 1000);
-    const data = `${email}:${expiracao}`;
-    const encoder = new TextEncoder();
-    const keyData = encoder.encode(SECRET_KEY);
-    const msgData = encoder.encode(data);
-    const cryptoKey = await crypto.subtle.importKey(
-        'raw',
-        keyData,
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-    );
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-    const hashHex = Array.from(new Uint8Array(signature))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    return `${email}:${expiracao}:${hashHex}`;
-}
-   
+    // =================================================================
+    //  FUNÇÕES HMAC (validação e geração)
+    // =================================================================
+
+    // Gera uma senha (para o administrador)
+    async function gerarSenhaAdmin(email, diasValidade) {
+        const expiracao = Date.now() + (diasValidade * 24 * 60 * 60 * 1000);
+        const data = `${email}:${expiracao}`;
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(SECRET_KEY);
+        const msgData = encoder.encode(data);
+        const cryptoKey = await crypto.subtle.importKey(
+            'raw',
+            keyData,
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+        const hashHex = Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        return `${email}:${expiracao}:${hashHex}`;
+    }
+
+    // Valida uma senha digitada pelo usuário
+    async function validarSenhaHMAC(senhaDigitada) {
+        const partes = senhaDigitada.split(':');
+        if (partes.length !== 3) return { valido: false, email: null, expiracao: null };
+
+        const [email, expiracaoStr, hashFornecido] = partes;
+        const expiracao = parseInt(expiracaoStr, 10);
+        if (isNaN(expiracao) || expiracao < Date.now()) {
+            return { valido: false, email: null, expiracao: null };
+        }
+
+        const data = `${email}:${expiracao}`;
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(SECRET_KEY);
+        const msgData = encoder.encode(data);
+
+        try {
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+            const hashCalculado = Array.from(new Uint8Array(signature))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            const valido = hashCalculado === hashFornecido;
+            return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
+        } catch (e) {
+            return { valido: false, email: null, expiracao: null };
+        }
+    }
+
     // =================================================================
     //  ADMIN PANEL (5 cliques no título)
     // =================================================================
