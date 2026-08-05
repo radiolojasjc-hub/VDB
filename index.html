@@ -7,6 +7,7 @@
     <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== ESTILOS (mantidos do original, com acréscimos para o admin panel) ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
@@ -141,13 +142,90 @@
         #blockOverlay .btn-senha:active{transform:scale(.95)}
         #blockOverlay .erro-senha{color:#ff2d7f;font-size:.8rem;min-height:20px;margin-top:4px}
 
-        @media (max-width:480px){.btn-ativar{padding:14px 24px;font-size:1rem;bottom:25%}.btn-ativar .subtitulo{font-size:.5rem}.now-playing .fav-heart{font-size:3rem}.genre-badge{font-size:.45rem;max-width:22%;padding:2px 6px}.fav-top-btn{font-size:.45rem;padding:2px 6px}.fab-main{width:42px;height:42px;font-size:1rem}.fab-sub-btn{padding:5px 10px;font-size:.55rem;min-width:85px}.top-bar{padding:4px 6px;height:38px}.info-scroll{top:32px;height:28px;padding:2px 10px}.info-scroll p{font-size:.7rem;letter-spacing:1px}.ctrl-btn{width:28px;height:28px;font-size:.65rem}.play-big{width:36px;height:36px;font-size:.9rem}.buttons-row{gap:8px}.bottom-controls{padding:4px 8px 8px}.genres-grid{grid-template-columns:repeat(2,1fr);gap:8px}.genre-card{font-size:.6rem;aspect-ratio:4/2.2}.audio-status{font-size:.4rem;padding:1px 4px}.fab-container{bottom:80px;right:8px}.menu-button{width:24px;height:24px;font-size:.6rem}.fav-modal,.feedback-modal,.historico-modal{padding:20px;max-width:340px}.feedback-modal .star{font-size:1.5rem}.timer-display{font-size:.65rem;padding:2px 6px}#blockOverlay h2{font-size:1.4rem}}
+        /* ===== ADMIN PANEL (oculto, ativado com 5 cliques no título) ===== */
+        #adminPanel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.96);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px;
+            z-index: 99999;
+            width: 90%;
+            max-width: 420px;
+            border: 2px solid #00f3ff;
+            box-shadow: 0 0 60px rgba(0,243,255,0.3);
+            flex-direction: column;
+            gap: 12px;
+            color: white;
+        }
+        #adminPanel.open { display: flex; }
+        #adminPanel h2 {
+            text-align: center;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.4rem;
+        }
+        #adminPanel input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: .9rem;
+            outline: none;
+        }
+        #adminPanel input:focus { border-color: var(--neon-cyan); }
+        #adminPanel .btn-gerar {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 12px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        #adminPanel .btn-gerar:active { transform: scale(.95); }
+        #adminPanel .senha-gerada {
+            background: rgba(0,0,0,0.4);
+            padding: 10px;
+            border-radius: 30px;
+            border: 1px solid #00f3ff;
+            font-size: .7rem;
+            word-break: break-all;
+            color: #00f3ff;
+            cursor: pointer;
+            text-align: center;
+        }
+        #adminPanel .senha-gerada:active { background: rgba(0,243,255,0.2); }
+        #adminPanel .close-admin {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 8px;
+            border-radius: 30px;
+            color: #aaa;
+            cursor: pointer;
+            font-size: .8rem;
+        }
+        #adminPanel .close-admin:active { background: #ff2d7f; color: #000; }
+        #adminPanel .label { font-size: .8rem; color: #aaa; margin-bottom: -6px; }
+
+        @media (max-width:480px){.btn-ativar{padding:14px 24px;font-size:1rem;bottom:25%}.btn-ativar .subtitulo{font-size:.5rem}.now-playing .fav-heart{font-size:3rem}.genre-badge{font-size:.45rem;max-width:22%;padding:2px 6px}.fav-top-btn{font-size:.45rem;padding:2px 6px}.fab-main{width:42px;height:42px;font-size:1rem}.fab-sub-btn{padding:5px 10px;font-size:.55rem;min-width:85px}.top-bar{padding:4px 6px;height:38px}.info-scroll{top:32px;height:28px;padding:2px 10px}.info-scroll p{font-size:.7rem;letter-spacing:1px}.ctrl-btn{width:28px;height:28px;font-size:.65rem}.play-big{width:36px;height:36px;font-size:.9rem}.buttons-row{gap:8px}.bottom-controls{padding:4px 8px 8px}.genres-grid{grid-template-columns:repeat(2,1fr);gap:8px}.genre-card{font-size:.6rem;aspect-ratio:4/2.2}.audio-status{font-size:.4rem;padding:1px 4px}.fab-container{bottom:80px;right:8px}.menu-button{width:24px;height:24px;font-size:.6rem}.fav-modal,.feedback-modal,.historico-modal{padding:20px;max-width:340px}.feedback-modal .star{font-size:1.5rem}.timer-display{font-size:.65rem;padding:2px 6px}#blockOverlay h2{font-size:1.4rem}#adminPanel{max-width:340px;padding:20px}}
     </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loadingScreen"><i class="fas fa-spinner fa-spin"></i><span>Carregando...</span></div>
 
+<!-- PLAYER -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
     <div class="top-bar">
@@ -159,7 +237,7 @@
         </div>
     </div>
     <div class="info-scroll" id="infoScroll">
-        <p id="scrollText">🎵 VDB Music - TOCANDO AGORA! 🎵</p>
+        <p id="scrollText" onclick="ativarAdmin()">🎵 VDB Music - TOCANDO AGORA! 🎵</p>
         <span class="timer-display" id="timerDisplay">⏳ 05:00</span>
     </div>
     <div class="now-playing" id="nowPlaying">
@@ -196,6 +274,7 @@
     </div>
 </div>
 
+<!-- BLOQUEIO -->
 <div id="blockOverlay">
     <h2>⏳<span>Teste Grátis Expirado!</span></h2>
     <p>Compre sua senha permanente e continue ouvindo todas as músicas sem interrupções.</p>
@@ -209,11 +288,25 @@
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
+<!-- ADMIN PANEL (oculto) -->
+<div id="adminPanel">
+    <h2>🔐 ADMIN - Gerar Senha</h2>
+    <div class="label">E-mail do cliente</div>
+    <input type="email" id="adminEmail" placeholder="cliente@email.com" value="cliente@teste.com">
+    <div class="label">Dias de validade</div>
+    <input type="number" id="adminDias" placeholder="30" value="30" min="1">
+    <button class="btn-gerar" id="adminGerarBtn"><i class="fas fa-key"></i> Gerar Senha</button>
+    <div class="senha-gerada" id="adminSenhaGerada" onclick="copiarSenha()">Clique aqui para copiar a senha gerada</div>
+    <button class="close-admin" id="adminCloseBtn"><i class="fas fa-times"></i> Fechar</button>
+</div>
+
+<!-- NOTIFICAÇÃO E OVERLAY -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 <audio id="musicPlayer" preload="auto"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
+<!-- MODAIS EXISTENTES -->
 <div class="fav-modal" id="favModal"><button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button><h3><i class="fas fa-heart" style="color:#ff2d7f;-webkit-text-fill-color:#ff2d7f;"></i>Músicas Favoritas</h3><input type="text" class="search-fav" id="searchFav" placeholder="🔍 Buscar música..."><div class="fav-actions"><button id="exportFavBtn"><i class="fas fa-download"></i>Exportar</button><button id="importFavBtn"><i class="fas fa-upload"></i>Importar</button><button id="clearFavBtn" style="color:#ff2d7f;"><i class="fas fa-trash"></i>Limpar</button></div><div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música favorita</div></div><button class="close-btn" id="closeFavBtn">FECHAR</button></div>
 <div class="genres-modal" id="genresModal"><h3><i class="fas fa-head-side-brain"></i>ESCOLHA SEU ESTILO</h3><div class="genres-grid" id="genresGrid"></div><button class="close-genres" id="closeGenresBtn">FECHAR</button></div>
 <div class="feedback-modal" id="feedbackModal"><h3><i class="fas fa-star"></i>Avalie o App</h3><p>Sua opinião é importante para nós!</p><div class="stars" id="starRating"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Escreva sua opinião ou sugestão..."></textarea><button id="sendFeedbackBtn"><i class="fab fa-whatsapp"></i>Enviar via WhatsApp</button><button id="closeFeedbackBtn" class="close-feedback">Cancelar</button></div>
@@ -223,18 +316,22 @@
 (function(){
     'use strict';
 
-    // ==========================================================
+    // =================================================================
+    //  CHAVE SECRETA (use a mesma para gerar e validar)
+    //  Altere para uma chave forte e única.
+    // =================================================================
+    const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
+
+    // =================================================================
     //  CONFIGURAÇÕES
-    // ==========================================================
-    const SENHA_HASH = '8c6b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b';
-    const SENHA_CORRETA = 'boi1685@';
-    const TEMPO_INICIAL = 300; // 5 minutos
+    // =================================================================
+    const TEMPO_INICIAL = 300; // 5 minutos de teste
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
 
-    // ==========================================================
+    // =================================================================
     //  ELEMENTOS
-    // ==========================================================
+    // =================================================================
     const loadingScreen = document.getElementById('loadingScreen');
     const playerContainer = document.getElementById('playerContainer');
     const timerDisplay = document.getElementById('timerDisplay');
@@ -247,9 +344,133 @@
     let desbloqueado = false;
     let timerInterval = null;
 
-    // ==========================================================
-    //  FUNÇÕES DO TIMER (IGUAL AO TESTE QUE FUNCIONOU)
-    // ==========================================================
+    // =================================================================
+    //  FUNÇÕES HMAC (validação e geração)
+    // =================================================================
+
+    // Gera uma senha (para o administrador)
+    async function gerarSenhaAdmin(email, diasValidade) {
+        const expiracao = Date.now() + (diasValidade * 24 * 60 * 60 * 1000);
+        const data = `${email}:${expiracao}`;
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(SECRET_KEY);
+        const msgData = encoder.encode(data);
+        const cryptoKey = await crypto.subtle.importKey(
+            'raw',
+            keyData,
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+        const hashHex = Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        return `${email}:${expiracao}:${hashHex}`;
+    }
+
+    // Valida uma senha digitada pelo usuário
+    async function validarSenhaHMAC(senhaDigitada) {
+        const partes = senhaDigitada.split(':');
+        if (partes.length !== 3) return { valido: false, email: null, expiracao: null };
+
+        const [email, expiracaoStr, hashFornecido] = partes;
+        const expiracao = parseInt(expiracaoStr, 10);
+        if (isNaN(expiracao) || expiracao < Date.now()) {
+            return { valido: false, email: null, expiracao: null };
+        }
+
+        const data = `${email}:${expiracao}`;
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(SECRET_KEY);
+        const msgData = encoder.encode(data);
+
+        try {
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+            const hashCalculado = Array.from(new Uint8Array(signature))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+
+            const valido = hashCalculado === hashFornecido;
+            return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
+        } catch (e) {
+            return { valido: false, email: null, expiracao: null };
+        }
+    }
+
+    // =================================================================
+    //  ADMIN PANEL (ativado com 5 cliques no título "VDB Music")
+    // =================================================================
+    let adminClicks = 0;
+    let adminTimeout = null;
+
+    window.ativarAdmin = function() {
+        adminClicks++;
+        clearTimeout(adminTimeout);
+        adminTimeout = setTimeout(() => { adminClicks = 0; }, 1000);
+        if (adminClicks >= 5) {
+            adminClicks = 0;
+            document.getElementById('adminPanel').classList.toggle('open');
+            // Preencher com dados atuais se disponível
+            if (document.getElementById('adminPanel').classList.contains('open')) {
+                document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
+            }
+        }
+    };
+
+    document.getElementById('adminCloseBtn').addEventListener('click', () => {
+        document.getElementById('adminPanel').classList.remove('open');
+    });
+
+    document.getElementById('adminGerarBtn').addEventListener('click', async () => {
+        const email = document.getElementById('adminEmail').value.trim();
+        const dias = parseInt(document.getElementById('adminDias').value, 10);
+        if (!email || !dias || dias < 1) {
+            showNotification('Preencha e-mail e dias válidos.', 1500);
+            return;
+        }
+        try {
+            const senha = await gerarSenhaAdmin(email, dias);
+            const el = document.getElementById('adminSenhaGerada');
+            el.textContent = senha;
+            el.style.color = '#4ade80';
+            showNotification('✅ Senha gerada! Clique nela para copiar.', 2000);
+        } catch (e) {
+            showNotification('❌ Erro ao gerar: ' + e.message, 2000);
+        }
+    });
+
+    window.copiarSenha = function() {
+        const el = document.getElementById('adminSenhaGerada');
+        const texto = el.textContent;
+        if (!texto || texto === 'Clique aqui para copiar a senha gerada') {
+            showNotification('Nenhuma senha para copiar.', 1000);
+            return;
+        }
+        navigator.clipboard.writeText(texto)
+            .then(() => showNotification('📋 Senha copiada!', 1500))
+            .catch(() => {
+                // fallback
+                const ta = document.createElement('textarea');
+                ta.value = texto;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showNotification('📋 Senha copiada!', 1500);
+            });
+    };
+
+    // =================================================================
+    //  TIMER (teste grátis)
+    // =================================================================
     function atualizarTimerDisplay() {
         const mins = String(Math.floor(tempoRestante / 60)).padStart(2, '0');
         const segs = String(tempoRestante % 60).padStart(2, '0');
@@ -263,7 +484,6 @@
             timerDisplay.style.borderColor = 'var(--neon-cyan)';
         }
 
-        // Se acabou o tempo
         if (tempoRestante <= 0) {
             timerDisplay.textContent = '⏳ 00:00';
             timerDisplay.style.color = '#ff2d7f';
@@ -303,9 +523,9 @@
         atualizarTimerDisplay();
     }
 
-    // ==========================================================
+    // =================================================================
     //  BLOQUEAR / DESBLOQUEAR
-    // ==========================================================
+    // =================================================================
     function bloquearPlayer() {
         desbloqueado = false;
         blockOverlay.classList.add('active');
@@ -321,10 +541,12 @@
         showNotification('⏳ Teste expirado! Compre a senha.', 3000);
     }
 
-    function desbloquearPlayerPermanente() {
+    function desbloquearPlayerPermanente(email, expiracao) {
         desbloqueado = true;
         blockOverlay.classList.remove('active');
         localStorage.setItem('vdb_desbloqueado', 'true');
+        localStorage.setItem('vdb_email', email || '');
+        localStorage.setItem('vdb_expiracao', expiracao || '');
         document.querySelectorAll('.ctrl-btn, .play-big, .shuffle-btn, #favTopBtn, #heartBtn, .menu-button').forEach(b => {
             b.style.pointerEvents = 'auto';
             b.style.opacity = '1';
@@ -341,11 +563,10 @@
         if (audio.paused) audio.play().catch(() => {});
     }
 
-    // ==========================================================
+    // =================================================================
     //  CARREGAR ESTADO (localStorage)
-    // ==========================================================
+    // =================================================================
     function carregarEstado() {
-        // Se já desbloqueado permanentemente
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             desbloqueado = true;
             playerContainer.classList.add('visible');
@@ -362,7 +583,6 @@
             return;
         }
 
-        // Se tem tempo salvo
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if (salvo) {
             const expira = parseInt(salvo, 10);
@@ -378,7 +598,7 @@
                     b.style.pointerEvents = 'auto';
                     b.style.opacity = '1';
                 });
-                iniciarTimer();   // INICIA O TIMER AQUI
+                iniciarTimer();
                 iniciarPlayer();
                 return;
             } else {
@@ -390,7 +610,6 @@
             }
         }
 
-        // Primeira vez
         const expira = Date.now() + (TEMPO_INICIAL * 1000);
         localStorage.setItem('vdb_tempo_restante', expira.toString());
         tempoRestante = TEMPO_INICIAL;
@@ -402,46 +621,42 @@
             b.style.pointerEvents = 'auto';
             b.style.opacity = '1';
         });
-        iniciarTimer();   // INICIA O TIMER AQUI
+        iniciarTimer();
         iniciarPlayer();
     }
 
-    // ==========================================================
-    //  VERIFICAÇÃO DE SENHA (HASH + FALLBACK)
-    // ==========================================================
-    async function verificarSenha() {
+    // =================================================================
+    //  EVENTO DE VALIDAÇÃO DA SENHA (no blockOverlay)
+    // =================================================================
+    document.getElementById('btnSenhaPermanente').addEventListener('click', async () => {
         const senha = senhaInput.value.trim();
         if (!senha) {
             erroSenha.textContent = 'Digite a senha!';
             return;
         }
 
-        let hashOk = false;
-        try {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(senha);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            if (hashHex === SENHA_HASH) hashOk = true;
-        } catch (e) {}
-
-        if (hashOk || senha === SENHA_CORRETA) {
-            desbloquearPlayerPermanente();
+        const resultado = await validarSenhaHMAC(senha);
+        if (resultado.valido) {
+            desbloquearPlayerPermanente(resultado.email, resultado.expiracao);
             erroSenha.textContent = '';
             senhaInput.value = '';
+            showNotification('🔓 Senha válida! Acesso liberado.', 2000);
         } else {
-            erroSenha.textContent = '❌ Senha incorreta!';
+            erroSenha.textContent = '❌ Senha inválida ou expirada!';
             senhaInput.value = '';
             senhaInput.focus();
         }
-    }
-
-    document.getElementById('btnSenhaPermanente').addEventListener('click', verificarSenha);
-    senhaInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') verificarSenha();
     });
 
+    senhaInput.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('btnSenhaPermanente').click();
+        }
+    });
+
+    // =================================================================
+    //  BOTÕES DE COMPRA E PIX
+    // =================================================================
     document.getElementById('btnWhatsApp').addEventListener('click', () => {
         window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero comprar a senha permanente do VDB Music.`, '_blank');
     });
@@ -459,18 +674,20 @@
             });
     });
 
-    // ==========================================================
+    // =================================================================
     //  FUNÇÕES AUXILIARES
-    // ==========================================================
+    // =================================================================
     function showNotification(msg, dur = 1500) {
         notification.textContent = msg;
         notification.classList.add('show');
         setTimeout(() => notification.classList.remove('show'), dur);
     }
 
-    // ==========================================================
-    //  PLAYER (código completo com mídias, gêneros, etc.)
-    // ==========================================================
+    // =================================================================
+    //  PLAYER COMPLETO (mesmo código original, com todas as funcionalidades)
+    //  Inclui mídias, gêneros, favoritos, etc.
+    //  Mantido inalterado, apenas integrado ao sistema de senha.
+    // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai1.png' },
         { tipo: 'video', src: 'vai1.mp4' },
@@ -654,9 +871,9 @@
         document.body.appendChild(ativarBtn);
     }
 
-    // ==========================================================
-    //  EVENTOS
-    // ==========================================================
+    // =================================================================
+    //  EVENTOS DO PLAYER (originais)
+    // =================================================================
     heartBtn.addEventListener('click',()=>{ const m=currentPlaylist[currentIndex%currentPlaylist.length]||currentPlaylist[0]; if(m){toggleFavorito(m.id);buildGenresGrid();}else{showNotification('Nenhuma música tocando',1000);} showControls(); });
     let lastTap=0; document.getElementById('nowPlaying').addEventListener('click',(e)=>{ const now=Date.now(); if(now-lastTap<300&&now-lastTap>50){ const m=currentPlaylist[currentIndex%currentPlaylist.length]||currentPlaylist[0]; if(m){toggleFavorito(m.id);buildGenresGrid();} } lastTap=now; showControls(); });
     favTopBtn.addEventListener('click',()=>{renderFavList();document.getElementById('favModal').classList.add('open');});
