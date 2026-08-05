@@ -7,7 +7,7 @@
     <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== ESTILOS (mantidos do original) ===== */
+        /* ===== ESTILOS ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
@@ -271,6 +271,8 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
+        <!-- ===== NOVO BOTÃO ADMIN ===== -->
+        <button id="adminMenuBtn"><i class="fas fa-cog"></i> 🔐 ADMIN</button>
     </div>
 </div>
 
@@ -317,10 +319,11 @@
     'use strict';
 
     // =================================================================
-    //  CONFIGURAÇÃO DO TESTE GRÁTIS (EM SEGUNDOS)
-    //  Altere aqui para mudar a duração do teste
+    //  CONFIGURAÇÃO DO TESTE GRÁTIS
+    //  Altere aqui o tempo desejado (em segundos)
     // =================================================================
-    const TEMPO_INICIAL = 300; // 5 minutos (300 segundos)
+    const TEMPO_INICIAL = 300; // 5 MINUTOS
+    // Para 6 horas, use: const TEMPO_INICIAL = 21600;
 
     // =================================================================
     //  CHAVE SECRETA (use a mesma para gerar e validar)
@@ -407,7 +410,7 @@
     }
 
     // =================================================================
-    //  ADMIN PANEL (5 cliques no título)
+    //  ADMIN PANEL (5 cliques no título - mantido)
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
@@ -425,6 +428,27 @@
         }
     };
 
+    // =================================================================
+    //  ADMIN PELO MENU (com senha mestra) - NOVO
+    // =================================================================
+    document.getElementById('adminMenuBtn').addEventListener('click', function() {
+        const senhaMestra = prompt('Digite a senha de administrador:');
+        if (senhaMestra === 'PATIC1685@') {
+            document.getElementById('adminPanel').classList.add('open');
+            // Preenche o e-mail se já tiver algum salvo
+            const emailSalvo = localStorage.getItem('vdb_email') || 'cliente@teste.com';
+            document.getElementById('adminEmail').value = emailSalvo;
+            showNotification('✅ Painel ADMIN liberado!', 1500);
+        } else if (senhaMestra !== null) {
+            showNotification('❌ Senha incorreta!', 1500);
+        }
+        // Fecha o menu
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+
+    // =================================================================
+    //  ADMIN PANEL - EVENTOS
+    // =================================================================
     document.getElementById('adminCloseBtn').addEventListener('click', () => {
         document.getElementById('adminPanel').classList.remove('open');
     });
@@ -468,7 +492,7 @@
     };
 
     // =================================================================
-    //  TIMER (sempre formato MM:SS)
+    //  TIMER (exibe apenas minutos:segundos)
     // =================================================================
     function formatarTempo(segundos) {
         if (segundos < 0) segundos = 0;
