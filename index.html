@@ -271,7 +271,7 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
-        <!-- ===== NOVO BOTÃO ADMIN ===== -->
+        <!-- ===== BOTÃO ADMIN (com senha mestra) ===== -->
         <button id="adminMenuBtn"><i class="fas fa-cog"></i> 🔐 ADMIN</button>
     </div>
 </div>
@@ -319,17 +319,15 @@
     'use strict';
 
     // =================================================================
-    //  CONFIGURAÇÃO DO TESTE GRÁTIS
-    //  Altere aqui o tempo desejado (em segundos)
+    //  CONFIGURAÇÃO DO TESTE GRÁTIS (5 minutos)
     // =================================================================
-    const TEMPO_INICIAL = 300; // 5 MINUTOS
+    const TEMPO_INICIAL = 300; // 5 minutos
     // Para 6 horas, use: const TEMPO_INICIAL = 21600;
 
     // =================================================================
     //  CHAVE SECRETA (use a mesma para gerar e validar)
     // =================================================================
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
-
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
 
@@ -410,7 +408,7 @@
     }
 
     // =================================================================
-    //  ADMIN PANEL (5 cliques no título - mantido)
+    //  ADMIN PANEL (5 cliques no título - fallback)
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
@@ -429,13 +427,12 @@
     };
 
     // =================================================================
-    //  ADMIN PELO MENU (com senha mestra) - NOVO
+    //  ADMIN PELO MENU (com senha mestra) - FUNCIONANDO
     // =================================================================
     document.getElementById('adminMenuBtn').addEventListener('click', function() {
         const senhaMestra = prompt('Digite a senha de administrador:');
         if (senhaMestra === 'PATIC1685@') {
             document.getElementById('adminPanel').classList.add('open');
-            // Preenche o e-mail se já tiver algum salvo
             const emailSalvo = localStorage.getItem('vdb_email') || 'cliente@teste.com';
             document.getElementById('adminEmail').value = emailSalvo;
             showNotification('✅ Painel ADMIN liberado!', 1500);
@@ -606,7 +603,6 @@
     //  CARREGAR ESTADO (localStorage)
     // =================================================================
     function carregarEstado() {
-        // Verifica se já está desbloqueado permanentemente
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             desbloqueado = true;
             playerContainer.classList.add('visible');
@@ -623,7 +619,6 @@
             return;
         }
 
-        // Verifica se há um teste em andamento (tempo salvo)
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if (salvo) {
             const expira = parseInt(salvo, 10);
@@ -651,7 +646,6 @@
             }
         }
 
-        // Primeira vez (início do teste)
         const expira = Date.now() + (TEMPO_INICIAL * 1000);
         localStorage.setItem('vdb_tempo_restante', expira.toString());
         tempoRestante = TEMPO_INICIAL;
