@@ -10,7 +10,7 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--cor-forro:#ff8800}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f}
 
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);font-size:1.2rem;flex-direction:column;gap:10px}
         #loadingScreen i{font-size:2.5rem;animation:spin 1s linear infinite}
@@ -146,8 +146,10 @@
 </head>
 <body>
 
+<!-- ===== CARREGAMENTO ===== -->
 <div id="loadingScreen"><i class="fas fa-spinner fa-spin"></i><span>Carregando...</span></div>
 
+<!-- ===== PLAYER ===== -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
     <div class="top-bar">
@@ -196,6 +198,7 @@
     </div>
 </div>
 
+<!-- ===== BLOQUEIO ===== -->
 <div id="blockOverlay">
     <h2>⏳<span>Teste Grátis Expirado!</span></h2>
     <p>Compre sua senha permanente e continue ouvindo todas as músicas sem interrupções.</p>
@@ -209,11 +212,15 @@
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
+<!-- ===== NOTIFICAÇÕES ===== -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
+
+<!-- ===== ÁUDIO ===== -->
 <audio id="musicPlayer" preload="auto"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
+<!-- ===== MODAIS ===== -->
 <div class="fav-modal" id="favModal"><button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button><h3><i class="fas fa-heart" style="color:#ff2d7f;-webkit-text-fill-color:#ff2d7f;"></i>Músicas Favoritas</h3><input type="text" class="search-fav" id="searchFav" placeholder="🔍 Buscar música..."><div class="fav-actions"><button id="exportFavBtn"><i class="fas fa-download"></i>Exportar</button><button id="importFavBtn"><i class="fas fa-upload"></i>Importar</button><button id="clearFavBtn" style="color:#ff2d7f;"><i class="fas fa-trash"></i>Limpar</button></div><div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música favorita</div></div><button class="close-btn" id="closeFavBtn">FECHAR</button></div>
 <div class="genres-modal" id="genresModal"><h3><i class="fas fa-head-side-brain"></i>ESCOLHA SEU ESTILO</h3><div class="genres-grid" id="genresGrid"></div><button class="close-genres" id="closeGenresBtn">FECHAR</button></div>
 <div class="feedback-modal" id="feedbackModal"><h3><i class="fas fa-star"></i>Avalie o App</h3><p>Sua opinião é importante para nós!</p><div class="stars" id="starRating"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Escreva sua opinião ou sugestão..."></textarea><button id="sendFeedbackBtn"><i class="fab fa-whatsapp"></i>Enviar via WhatsApp</button><button id="closeFeedbackBtn" class="close-feedback">Cancelar</button></div>
@@ -224,14 +231,11 @@
     'use strict';
 
     // ==========================================================
-    //  CONFIGURAÇÕES – SENHA OFUSCADA (HASH)
+    //  CONFIGURAÇÕES
     // ==========================================================
-    // Hash SHA-256 da senha "boi1685@"
     const SENHA_HASH = '8c6b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b';
-    // Fallback em texto puro (opcional, para navegadores antigos)
-    const SENHA_CORRETA = 'boi1685@'; // Pode remover esta linha se quiser apenas hash
-
-    const TEMPO_TESTE = 300;
+    const SENHA_CORRETA = 'boi1685@';
+    const TEMPO_TESTE = 300; // 5 minutos
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
 
@@ -250,6 +254,9 @@
     let desbloqueado = false;
     let timerInterval = null;
 
+    // ==========================================================
+    //  FUNÇÕES
+    // ==========================================================
     function showNotification(msg, dur=1500){
         notification.textContent = msg;
         notification.classList.add('show');
@@ -311,6 +318,7 @@
     }
 
     function carregarEstado(){
+        // Se já desbloqueado permanentemente
         if(localStorage.getItem('vdb_desbloqueado') === 'true'){
             desbloqueado = true;
             playerContainer.classList.add('visible');
@@ -323,6 +331,8 @@
             iniciarPlayer();
             return;
         }
+
+        // Se tem tempo restante salvo
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if(salvo){
             const expira = parseInt(salvo, 10);
@@ -336,7 +346,7 @@
                     b.style.pointerEvents = 'auto';
                     b.style.opacity = '1';
                 });
-                iniciarTimer();
+                iniciarTimer();   // INICIA O TIMER
                 iniciarPlayer();
                 return;
             } else {
@@ -347,6 +357,8 @@
                 return;
             }
         }
+
+        // Primeira vez: inicia teste
         const expira = Date.now() + (TEMPO_TESTE * 1000);
         localStorage.setItem('vdb_tempo_restante', expira.toString());
         tempoRestante = TEMPO_TESTE;
@@ -358,7 +370,7 @@
             b.style.pointerEvents = 'auto';
             b.style.opacity = '1';
         });
-        iniciarTimer();
+        iniciarTimer();   // INICIA O TIMER
         iniciarPlayer();
     }
 
@@ -368,11 +380,10 @@
     async function verificarSenha() {
         const senha = senhaInput.value.trim();
         if(!senha) {
-            erroSenha.textContent = '8c6b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b7f6c8b';
+            erroSenha.textContent = 'Digite a senha!';
             return;
         }
 
-        // Tenta comparar com hash primeiro
         let hashOk = false;
         try {
             const encoder = new TextEncoder();
@@ -380,12 +391,8 @@
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            if(hashHex === SENHA_HASH) {
-                hashOk = true;
-            }
-        } catch(e) {
-            // Se falhar, vai para fallback
-        }
+            if(hashHex === SENHA_HASH) hashOk = true;
+        } catch(e) {}
 
         if(hashOk || senha === SENHA_CORRETA) {
             desbloquearPlayerPermanente();
@@ -421,14 +428,8 @@
     });
 
     // ==========================================================
-    //  PLAYER COMPLETO (CÓDIGO INTEGRAL)
+    //  PLAYER
     // ==========================================================
-    // [Aqui vai todo o código do player com mídias, gêneros, etc.]
-    // Para economizar espaço, estou usando o mesmo código que você já tinha.
-    // Se precisar, posso colocar todo o player novamente, mas está idêntico ao que enviei antes.
-    // ==========================================================
-
-    // ===== MÍDIAS =====
     const midias = [
         { tipo: 'imagem', src: 'vai1.png' },
         { tipo: 'video', src: 'vai1.mp4' },
@@ -612,7 +613,9 @@
         document.body.appendChild(ativarBtn);
     }
 
-    // EVENTOS
+    // ==========================================================
+    //  EVENTOS
+    // ==========================================================
     heartBtn.addEventListener('click',()=>{ const m=currentPlaylist[currentIndex%currentPlaylist.length]||currentPlaylist[0]; if(m){toggleFavorito(m.id);buildGenresGrid();}else{showNotification('Nenhuma música tocando',1000);} showControls(); });
     let lastTap=0; document.getElementById('nowPlaying').addEventListener('click',(e)=>{ const now=Date.now(); if(now-lastTap<300&&now-lastTap>50){ const m=currentPlaylist[currentIndex%currentPlaylist.length]||currentPlaylist[0]; if(m){toggleFavorito(m.id);buildGenresGrid();} } lastTap=now; showControls(); });
     favTopBtn.addEventListener('click',()=>{renderFavList();document.getElementById('favModal').classList.add('open');});
