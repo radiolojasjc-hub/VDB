@@ -7,7 +7,7 @@
     <link rel="icon" href="va.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== ESTILOS (mantidos do original, com acréscimos para o admin panel) ===== */
+        /* ===== ESTILOS (mantidos do original) ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
@@ -142,7 +142,7 @@
         #blockOverlay .btn-senha:active{transform:scale(.95)}
         #blockOverlay .erro-senha{color:#ff2d7f;font-size:.8rem;min-height:20px;margin-top:4px}
 
-        /* ===== ADMIN PANEL (oculto, ativado com 5 cliques no título) ===== */
+        /* ===== ADMIN PANEL ===== */
         #adminPanel {
             display: none;
             position: fixed;
@@ -238,7 +238,7 @@
     </div>
     <div class="info-scroll" id="infoScroll">
         <p id="scrollText" onclick="ativarAdmin()">🎵 VDB Music - TOCANDO AGORA! 🎵</p>
-        <span class="timer-display" id="timerDisplay">⏳ 05:00</span>
+        <span class="timer-display" id="timerDisplay">⏳ 06:00:00</span>
     </div>
     <div class="now-playing" id="nowPlaying">
         <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
@@ -288,7 +288,7 @@
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
-<!-- ADMIN PANEL (oculto) -->
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
     <h2>🔐 ADMIN - Gerar Senha</h2>
     <div class="label">E-mail do cliente</div>
@@ -317,15 +317,17 @@
     'use strict';
 
     // =================================================================
+    //  CONFIGURAÇÃO DO TESTE GRÁTIS
+    //  Altere aqui o tempo desejado (em segundos)
+    // =================================================================
+    const TEMPO_INICIAL = 21600; // 6 horas (6 * 60 * 60)
+    // Para 24 horas, use: const TEMPO_INICIAL = 86400;
+
+    // =================================================================
     //  CHAVE SECRETA (use a mesma para gerar e validar)
-    //  Altere para uma chave forte e única.
     // =================================================================
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
 
-    // =================================================================
-    //  CONFIGURAÇÕES
-    // =================================================================
-    const TEMPO_INICIAL = 300; // 5 minutos de teste
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
 
@@ -406,7 +408,7 @@
     }
 
     // =================================================================
-    //  ADMIN PANEL (ativado com 5 cliques no título "VDB Music")
+    //  ADMIN PANEL (5 cliques no título)
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
@@ -418,7 +420,6 @@
         if (adminClicks >= 5) {
             adminClicks = 0;
             document.getElementById('adminPanel').classList.toggle('open');
-            // Preencher com dados atuais se disponível
             if (document.getElementById('adminPanel').classList.contains('open')) {
                 document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
             }
@@ -457,7 +458,6 @@
         navigator.clipboard.writeText(texto)
             .then(() => showNotification('📋 Senha copiada!', 1500))
             .catch(() => {
-                // fallback
                 const ta = document.createElement('textarea');
                 ta.value = texto;
                 document.body.appendChild(ta);
@@ -469,12 +469,29 @@
     };
 
     // =================================================================
-    //  TIMER (teste grátis)
+    //  TIMER (exibe horas:minutos:segundos)
     // =================================================================
+    function formatarTempo(segundos) {
+        if (segundos < 0) segundos = 0;
+        const h = Math.floor(segundos / 3600);
+        const m = Math.floor((segundos % 3600) / 60);
+        const s = Math.floor(segundos % 60);
+        if (h > 0) {
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        } else {
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+    }
+
     function atualizarTimerDisplay() {
-        const mins = String(Math.floor(tempoRestante / 60)).padStart(2, '0');
-        const segs = String(tempoRestante % 60).padStart(2, '0');
-        timerDisplay.textContent = `⏳ ${mins}:${segs}`;
+        if (desbloqueado) {
+            timerDisplay.textContent = '🔓 LIBERADO';
+            timerDisplay.style.color = '#4ade80';
+            timerDisplay.style.borderColor = '#4ade80';
+            return;
+        }
+
+        timerDisplay.textContent = `⏳ ${formatarTempo(tempoRestante)}`;
 
         if (tempoRestante <= 60) {
             timerDisplay.style.color = '#ff2d7f';
@@ -512,11 +529,15 @@
         }
 
         timerInterval = setInterval(() => {
-            tempoRestante--;
-            atualizarTimerDisplay();
-            if (tempoRestante <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            if (!desbloqueado) {
+                tempoRestante--;
+                if (tempoRestante <= 0) {
+                    tempoRestante = 0;
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    bloquearPlayer();
+                }
+                atualizarTimerDisplay();
             }
         }, 1000);
 
@@ -567,6 +588,7 @@
     //  CARREGAR ESTADO (localStorage)
     // =================================================================
     function carregarEstado() {
+        // Verifica se já está desbloqueado permanentemente
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             desbloqueado = true;
             playerContainer.classList.add('visible');
@@ -583,6 +605,7 @@
             return;
         }
 
+        // Verifica se há um teste em andamento (tempo salvo)
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if (salvo) {
             const expira = parseInt(salvo, 10);
@@ -590,7 +613,7 @@
             if (expira > agora) {
                 tempoRestante = Math.floor((expira - agora) / 1000);
                 if (tempoRestante < 0) tempoRestante = 0;
-                desbloqueado = true;
+                desbloqueado = false;
                 playerContainer.classList.add('visible');
                 loadingScreen.style.display = 'none';
                 blockOverlay.classList.remove('active');
@@ -610,10 +633,11 @@
             }
         }
 
+        // Primeira vez (início do teste)
         const expira = Date.now() + (TEMPO_INICIAL * 1000);
         localStorage.setItem('vdb_tempo_restante', expira.toString());
         tempoRestante = TEMPO_INICIAL;
-        desbloqueado = true;
+        desbloqueado = false;
         playerContainer.classList.add('visible');
         loadingScreen.style.display = 'none';
         blockOverlay.classList.remove('active');
@@ -686,7 +710,6 @@
     // =================================================================
     //  PLAYER COMPLETO (mesmo código original, com todas as funcionalidades)
     //  Inclui mídias, gêneros, favoritos, etc.
-    //  Mantido inalterado, apenas integrado ao sistema de senha.
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai1.png' },
