@@ -3,73 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VDB Music</title>
+    <title>VDB 21 Music</title>
     
-    <!-- ===== FAVICON ===== -->
     <link rel="icon" href="facon.png" type="image/png">
     <link rel="apple-touch-icon" href="facon.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== RESET ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f}
 
-        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);font-size:1.4rem;flex-direction:column;gap:12px}
         #loadingScreen i{font-size:3rem;animation:spin 1s linear infinite}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
-        /* ===== PLAYER CONTAINER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none;flex-direction:column;background:transparent}
         #playerContainer.visible{display:flex}
 
-        /* ===== MÍDIA ===== */
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s ease;opacity:0;z-index:1}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
-        /* ===== TOP BAR ===== */
         .top-bar{position:fixed;top:0;left:0;width:100%;z-index:35;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);flex-wrap:nowrap;gap:8px;height:50px;border-bottom:1px solid rgba(255,255,255,0.05)}
-        
         .genre-badge{background:rgba(0,0,0,0.3);padding:5px 12px;border-radius:30px;font-size:.85rem;font-weight:bold;color:#fff;border-left:2px solid #00f3ff;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28%;cursor:pointer;flex-shrink:1;min-width:50px}
         .genre-badge:active{transform:scale(.95)}
         .genre-badge.favoritos{border-left-color:#ff2d7f;color:#ff2d7f;background:rgba(255,45,127,0.15)}
-        
         .top-buttons{display:flex;gap:8px;align-items:center;flex-wrap:nowrap;flex-shrink:0}
-        
         .audio-status{font-size:.7rem;color:#fff;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);flex-shrink:0}
         .audio-status.active{color:#4ade80;border-color:#4ade80}
         .audio-status .dot{width:6px;height:6px;border-radius:50%;background:#666;display:inline-block}
         .audio-status.active .dot{background:#4ade80;animation:pulse-dot 1s infinite}
         @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
-        
         .fav-top-btn{background:rgba(255,45,127,0.15);border:1px solid #ff2d7f;color:#ff2d7f;padding:4px 12px;border-radius:30px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:4px;flex-shrink:0}
         .fav-top-btn:active{transform:scale(.92);background:#ff2d7f;color:#000}
         .fav-top-btn .badge{background:#ff2d7f;color:#000;border-radius:50%;padding:0 5px;font-size:.6rem;font-weight:bold;min-width:18px;text-align:center}
-        
         .menu-button{background:rgba(0,0,0,0.3);color:white;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;border:1px solid rgba(255,255,255,0.15);flex-shrink:0}
         .menu-button:active{background:var(--neon-cyan);color:#000}
 
-        /* ===== INFO SCROLL - LETREIRO CORRIGIDO ===== */
         .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;background:transparent;padding:10px 14px;overflow:hidden;white-space:nowrap;height:50px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(255,255,255,0.05);flex-direction:column;gap:2px}
         .info-scroll .letreiro{color:white;font-size:1.1rem;font-weight:900;letter-spacing:1px;animation:scrollText 15s linear infinite;display:inline-block;padding-right:40px;text-shadow:0 0 20px rgba(0,0,0,0.9);text-transform:uppercase;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
         .info-scroll .letreiro span{display:inline-block;animation:scrollText 15s linear infinite}
         @keyframes scrollText{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-        
         .timer-display{color:var(--neon-cyan);font-size:.85rem;font-weight:bold;background:rgba(0,0,0,0.4);padding:4px 16px;border-radius:30px;border:1px solid var(--neon-cyan);flex-shrink:0;display:inline-block;text-align:center;margin-top:2px}
         .timer-display.liberado{color:#4ade80;border-color:#4ade80}
 
-        /* ===== NOW PLAYING ===== */
         .now-playing{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:15;width:90%;max-width:450px;user-select:none;margin-top:-10px}
         .now-playing .fav-heart{font-size:4.5rem;color:#555;cursor:pointer;transition:all .3s;text-shadow:0 0 30px rgba(0,0,0,0.9);display:inline-block}
         .now-playing .fav-heart.active{color:#ff2d7f;text-shadow:0 0 40px rgba(255,45,127,0.5)}
         .now-playing .fav-heart:active{transform:scale(1.2)}
 
-        /* ===== CONTROLES ===== */
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.1);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform .3s ease}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:.7rem;color:#ccc;margin-bottom:4px}
@@ -83,7 +68,6 @@
         .shuffle-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:.85rem;width:44px;height:44px;border-radius:50%;cursor:pointer}
         .shuffle-btn.active{background:var(--neon-cyan);color:#000;border-color:var(--neon-cyan)}
 
-        /* ===== FAB - BOTÃO MAIOR ===== */
         .fab-container{position:fixed;bottom:110px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
         .fab-main{background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.5rem;box-shadow:0 0 30px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.15)}
         .fab-main:active{transform:scale(.92);background:var(--neon-cyan);color:#000}
@@ -94,7 +78,6 @@
         .fab-sub-btn i{font-size:1rem;width:22px;text-align:center;pointer-events:none}
         .fab-sub-btn .fab-icon-youtube{color:#FF0000}
 
-        /* ===== GENRES MODAL - LISTA ÚNICA ===== */
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,40,0.95);backdrop-filter:blur(20px);border-radius:30px 30px 0 0;padding:20px 16px 25px;z-index:2000;transform:translateY(100%);transition:transform .3s ease;max-height:65vh;overflow-y:auto;border-top:2px solid transparent;border-image:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink)) 1;box-shadow:0 -10px 40px rgba(0,243,255,0.15)}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:16px;font-size:1.2rem;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -105,7 +88,6 @@
         .close-genres{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:30px;color:#000;font-size:1rem;cursor:pointer;font-weight:bold}
         .close-genres:active{transform:scale(.95)}
 
-        /* ===== MODAIS ===== */
         .fav-modal,.feedback-modal,.historico-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);background:rgba(20,20,40,0.95);backdrop-filter:blur(20px);border-radius:30px;padding:25px;z-index:5000;width:90%;max-width:420px;text-align:center;display:none;flex-direction:column;opacity:0;transition:all .3s ease;border:2px solid transparent;box-shadow:0 0 40px rgba(0,243,255,0.2)}
         .fav-modal.open,.feedback-modal.open,.historico-modal.open{display:flex;opacity:1;transform:translate(-50%,-50%) scale(1);border-image:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink)) 1}
         .fav-modal h3,.feedback-modal h3,.historico-modal h3{font-size:1.3rem;margin-bottom:15px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -127,7 +109,6 @@
         .fav-actions button{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#ccc;padding:5px 14px;border-radius:30px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:4px}
         .fav-actions button:active{background:var(--neon-cyan);color:#000}
 
-        /* ===== FEEDBACK MODAL ===== */
         .feedback-modal .stars{display:flex;justify-content:center;gap:10px;margin:12px 0}
         .feedback-modal .star{font-size:2.2rem;color:#555;cursor:pointer;transition:.15s}
         .feedback-modal .star.active{color:#ffd700;text-shadow:0 0 20px #ffd700}
@@ -137,24 +118,20 @@
         .feedback-modal .btn-feedback:active{transform:scale(.95)}
         .feedback-modal .close-feedback{background:rgba(255,255,255,0.1)!important;color:#fff!important;margin-top:5px;font-size:.9rem}
 
-        /* ===== NOTIFICAÇÃO ===== */
         .notification{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);color:var(--neon-cyan);padding:6px 18px;border-radius:30px;font-size:.7rem;z-index:10001;opacity:0;transition:opacity .3s;pointer-events:none;border-left:3px solid var(--neon-cyan)}
         .notification.show{opacity:1}
 
-        /* ===== OVERLAY ===== */
         #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9998;align-items:center;justify-content:center}
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:3rem;color:var(--neon-cyan);animation:spin 1s linear infinite}
 
-        /* ===== MENU POPUP ===== */
         .menu-popup{position:absolute;top:50px;right:8px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);border-radius:16px;padding:8px;z-index:32;display:none;flex-direction:column;gap:4px;border:1px solid var(--neon-cyan);min-width:140px}
         .menu-popup.open{display:flex}
         .menu-popup button{background:rgba(255,255,255,0.08);border:none;color:white;padding:6px 14px;border-radius:30px;font-size:.7rem;display:flex;align-items:center;gap:6px;cursor:pointer;text-align:left}
         .menu-popup button:active{background:var(--neon-cyan);color:#000}
         .menu-popup .close-menu-btn{background:rgba(255,45,127,0.2);border:1px solid #ff2d7f;color:#ff2d7f}
 
-        /* ===== BLOQUEIO ===== */
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
         #blockOverlay.active{display:flex}
         #blockOverlay h2{color:#fff;font-size:2rem;margin-bottom:12px}
         #blockOverlay h2 span{color:var(--neon-pink)}
@@ -169,39 +146,13 @@
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:14px 35px;border-radius:60px;color:#000;font-weight:bold;font-size:1.1rem;cursor:pointer}
         #blockOverlay .btn-senha:active{transform:scale(.95)}
         #blockOverlay .erro-senha{color:#ff2d7f;font-size:.9rem;min-height:20px;margin-top:4px}
+        #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;padding:8px 16px;border-radius:30px;font-weight:bold;font-size:1rem;display:inline-block;margin:2px 0}
 
-        /* ===== ADMIN PANEL ===== */
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.96);backdrop-filter:blur(20px);border-radius:30px;padding:30px;z-index:99999;width:90%;max-width:420px;border:2px solid #00f3ff;box-shadow:0 0 60px rgba(0,243,255,0.3);flex-direction:column;gap:12px;color:white}
-        #adminPanel.open{display:flex}
-        #adminPanel h2{text-align:center;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.5rem}
-        #adminPanel input{width:100%;padding:12px 16px;border-radius:30px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:white;font-size:1rem;outline:none}
-        #adminPanel input:focus{border-color:var(--neon-cyan)}
-        
-        /* GRUPO CELULAR E BOTÃO COPIAR */
-        .admin-group{display:flex;flex-direction:column;gap:8px;width:100%}
-        .admin-row{display:flex;gap:8px;width:100%;flex-wrap:wrap}
-        .admin-row input{flex:2;min-width:120px}
-        .admin-row .btn-copiar{flex:1;min-width:80px;background:rgba(0,243,255,0.2);border:1px solid #00f3ff;color:#00f3ff;padding:10px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:.85rem}
-        .admin-row .btn-copiar:active{background:#00f3ff;color:#000}
-        
-        #adminSenhaGerada{background:rgba(0,0,0,0.4);padding:12px;border-radius:30px;border:1px solid #00f3ff;font-size:.75rem;word-break:break-all;color:#00f3ff;cursor:pointer;text-align:center;margin-top:4px}
-        #adminSenhaGerada:active{background:rgba(0,243,255,0.2)}
-        
-        #adminCelular{width:100%;padding:12px 16px;border-radius:30px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:white;font-size:1rem;outline:none}
-        #adminCelular:focus{border-color:var(--neon-cyan)}
-        #adminCelular::placeholder{color:#666;font-size:.85rem}
-        
-        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:14px;border-radius:30px;color:#000;font-weight:bold;font-size:1.1rem;cursor:pointer;width:100%}
-        .admin-btn:active{transform:scale(.95)}
-        
-        .admin-close{background:rgba(255,255,255,0.1);border:none;padding:10px;border-radius:30px;color:#aaa;cursor:pointer;font-size:.9rem;width:100%;margin-top:4px}
-        .admin-close:active{background:#ff2d7f;color:#000}
-        .admin-label{font-size:.9rem;color:#aaa;margin-bottom:-4px;text-align:left}
+        .btn-ativar-player{position:fixed;bottom:30%;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00f3ff,#00d4ff);color:#000;padding:18px 40px;border-radius:60px;font-weight:900;font-size:1.4rem;z-index:50;cursor:pointer;border:none;box-shadow:0 0 40px rgba(0,243,255,0.5);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;animation:pulseModern 2s infinite}
+        .btn-ativar-player span{display:block;font-size:0.6rem;font-weight:400;letter-spacing:4px;opacity:0.7}
+        @keyframes pulseModern{0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 0 40px rgba(0,243,255,0.5)}50%{transform:translateX(-50%) scale(1.02);box-shadow:0 0 60px rgba(0,243,255,0.8)}}
+        .btn-ativar-player:active{transform:translateX(-50%) scale(.95)}
 
-        /* ===== PREÇO VITALÍCIO ===== */
-        .preco-vitalicio{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;padding:8px 16px;border-radius:30px;font-weight:bold;font-size:1rem;display:inline-block;margin:2px 0}
-
-        /* ===== RESPONSIVO ===== */
         @media (max-width:480px){
             .top-bar{padding:8px 10px;height:46px}
             .genre-badge{font-size:.7rem;padding:4px 10px;max-width:25%;min-width:40px}
@@ -223,29 +174,9 @@
             .genre-card{font-size:.85rem;padding:8px;aspect-ratio:4/1.8}
             .fav-modal,.feedback-modal,.historico-modal{padding:20px;max-width:340px}
             .feedback-modal .star{font-size:1.8rem}
-            .feedback-modal textarea{height:60px;font-size:.8rem}
-            .feedback-modal textarea::placeholder{font-size:.75rem}
             #blockOverlay h2{font-size:1.6rem}
             #blockOverlay .btn-comprar{font-size:1.1rem;padding:14px 24px}
-            #adminPanel{max-width:340px;padding:20px}
-            .notification{font-size:.6rem;padding:4px 12px;top:80px}
-            .admin-row{flex-direction:column}
-            .admin-row input{min-width:auto}
-            .admin-row .btn-copiar{min-width:auto}
-        }
-
-        @media (max-width:380px){
-            .genre-badge{font-size:.6rem;max-width:20%;min-width:35px}
-            .audio-status{font-size:.45rem;padding:2px 6px}
-            .info-scroll .letreiro{font-size:.7rem}
-            .timer-display{font-size:.6rem;padding:2px 10px}
-            .ctrl-btn{width:32px;height:32px;font-size:.7rem}
-            .play-big{width:40px;height:40px;font-size:1rem}
-            .buttons-row{gap:8px}
-            .fab-main{width:44px;height:44px;font-size:1.1rem}
-            .fab-sub-btn{font-size:.65rem;min-width:85px}
-            .genres-grid{grid-template-columns:1fr 1fr;gap:8px}
-            .genre-card{font-size:.75rem;padding:6px}
+            .btn-ativar-player{font-size:1.1rem;padding:14px 30px}
         }
     </style>
 </head>
@@ -311,7 +242,7 @@
     <div style="margin:10px 0;"><span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span></div>
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i>Comprar Agora</button>
     <button class="btn-pix" id="btnPix"><i class="fas fa-copy"></i>Copiar Chave PIX</button>
-    <div class="chave-pix">Chave: 12.988.461-978</div>
+    <div class="chave-pix" id="chavePixDisplay">Chave: 12.988.461-978</div>
     <hr style="width:80%;max-width:300px;border-color:rgba(255,255,255,0.1);margin:16px 0;">
     <p style="color:#888;font-size:.9rem;">Digite sua senha vitalícia:</p>
     <input type="password" class="senha-input" id="senhaPermanente" placeholder="Digite sua senha" autocomplete="off">
@@ -319,33 +250,10 @@
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-    <h2>🔐 ADMIN - Gerar Senha Vitalícia</h2>
-    
-    <div class="admin-label">📱 Celular do cliente</div>
-    <input type="text" id="adminCelular" placeholder="Ex: 12988461978" maxlength="15" value="12988461978">
-    
-    <div class="admin-label">📧 E-mail do cliente (opcional)</div>
-    <input type="email" id="adminEmail" placeholder="cliente@email.com" value="cliente@teste.com">
-    
-    <div style="text-align:center;margin:8px 0;"><span class="preco-vitalicio" style="font-size:1.1rem;">♾️ VITALÍCIO - R$ 39,90</span></div>
-    
-    <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" placeholder="Clique em GERAR para criar a senha" readonly style="flex:2;background:rgba(255,255,255,0.05);cursor:default">
-        <button class="btn-copiar" id="btnCopiarSenha"><i class="fas fa-copy"></i> Copiar</button>
-    </div>
-    
-    <button class="admin-btn" id="adminGerarBtn"><i class="fas fa-key"></i> 🔐 GERAR SENHA</button>
-    
-    <button class="admin-close" id="adminCloseBtn"><i class="fas fa-times"></i> Fechar</button>
-</div>
-
 <!-- NOTIFICAÇÃO E OVERLAY -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 <audio id="musicPlayer" preload="auto"></audio>
-<audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
 <!-- MODAIS -->
 <div class="fav-modal" id="favModal"><button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button><h3><i class="fas fa-heart" style="color:#ff2d7f;-webkit-text-fill-color:#ff2d7f;"></i>Músicas Favoritas</h3><input type="text" class="search-fav" id="searchFav" placeholder="🔍 Buscar música..."><div class="fav-actions"><button id="exportFavBtn"><i class="fas fa-download"></i>Exportar</button><button id="importFavBtn"><i class="fas fa-upload"></i>Importar</button><button id="clearFavBtn" style="color:#ff2d7f;"><i class="fas fa-trash"></i>Limpar</button></div><div class="fav-list" id="favList"><div class="fav-empty">Nenhuma música favorita</div></div><button class="close-btn" id="closeFavBtn">FECHAR</button></div>
@@ -360,13 +268,11 @@
     // =================================================================
     //  CONFIGURAÇÕES
     // =================================================================
-    const TEMPO_INICIAL = 300;
+    const TEMPO_INICIAL = 300; // 5 minutos
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
-
-    // 🔑 SENHA FIXA
     const SENHA_FIXA = 'VDB2024';
 
     // =================================================================
@@ -379,6 +285,7 @@
     const notification = document.getElementById('notification');
     const senhaInput = document.getElementById('senhaPermanente');
     const erroSenha = document.getElementById('erroSenha');
+    const chavePixDisplay = document.getElementById('chavePixDisplay');
 
     let tempoRestante = TEMPO_INICIAL;
     let desbloqueado = false;
@@ -466,65 +373,6 @@
             }
         }
     };
-
-    document.getElementById('adminMenuBtn').addEventListener('click', function() {
-        const senhaMestra = prompt('Digite a senha de administrador:');
-        if (senhaMestra === 'PATICO1685@') {
-            document.getElementById('adminPanel').classList.add('open');
-            document.getElementById('adminCelular').value = localStorage.getItem('vdb_celular') || '12988461978';
-            document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
-            showNotification('✅ Painel ADMIN liberado!', 1500);
-        } else if (senhaMestra !== null) {
-            showNotification('❌ Senha incorreta!', 1500);
-        }
-        document.getElementById('menuPopup').classList.remove('open');
-    });
-
-    document.getElementById('adminCloseBtn').addEventListener('click', () => {
-        document.getElementById('adminPanel').classList.remove('open');
-    });
-
-    document.getElementById('adminGerarBtn').addEventListener('click', async () => {
-        const celular = document.getElementById('adminCelular').value.trim();
-        const email = document.getElementById('adminEmail').value.trim();
-        
-        if (!celular) {
-            showNotification('⚠️ Digite o celular do cliente!', 1500);
-            return;
-        }
-        
-        try {
-            const senha = await gerarSenhaAdmin(email || 'cliente', celular);
-            const el = document.getElementById('adminSenhaGerada');
-            el.value = senha;
-            el.style.color = '#4ade80';
-            localStorage.setItem('vdb_celular', celular);
-            localStorage.setItem('vdb_email', email);
-            showNotification('✅ Senha gerada! Clique em "Copiar" para enviar.', 2000);
-        } catch (e) {
-            showNotification('❌ Erro ao gerar: ' + e.message, 2000);
-        }
-    });
-
-    document.getElementById('btnCopiarSenha').addEventListener('click', function() {
-        const el = document.getElementById('adminSenhaGerada');
-        const texto = el.value;
-        if (!texto || texto === 'Clique em GERAR para criar a senha') {
-            showNotification('⚠️ Gere uma senha primeiro!', 1500);
-            return;
-        }
-        navigator.clipboard.writeText(texto)
-            .then(() => showNotification('📋 Senha copiada!', 1500))
-            .catch(() => {
-                const ta = document.createElement('textarea');
-                ta.value = texto;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showNotification('📋 Senha copiada!', 1500);
-            });
-    });
 
     // =================================================================
     //  TIMER
@@ -716,7 +564,7 @@
             senhaInput.value = '';
             showNotification('🔓 Senha válida! Acesso liberado.', 2000);
         } else {
-            erroSenha.textContent = '❌ Senha inválida!';
+            erroSenha.textContent = '❌ Senha inválida! Entre em contato pelo WhatsApp para comprar.';
             senhaInput.value = '';
             senhaInput.focus();
         }
@@ -825,7 +673,6 @@
     const favTopBtn = document.getElementById('favTopBtn');
     const favCount = document.getElementById('favCount');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const backgroundAudio = document.getElementById('backgroundAudio');
     const menuPopup = document.getElementById('menuPopup');
     const mediaContainer = document.getElementById('mediaContainer');
 
@@ -875,7 +722,7 @@
     function startTimer(){ stopTimer(); timerMusica=setInterval(()=>{ if(isPlaying&&audio.duration&&!audio.paused&&audio.duration!==Infinity){ progressFill.style.width=(audio.currentTime/audio.duration*100)+'%'; currentTimeEl.textContent=formatTime(audio.currentTime); totalTimeEl.textContent=formatTime(audio.duration); if(audio.currentTime>=audio.duration-0.5){ if(!carregandoMusica)nextTrack(); } } },200); }
     function stopTimer(){ if(timerMusica){clearInterval(timerMusica);timerMusica=null;} }
 
-    function togglePlay(){ if(!isBackgroundActive){showNotification("Clique em ATIVAR RÁDIO!",1000);return;} if(audio.paused){playMusic();}else{audio.pause();} showControls(); }
+    function togglePlay(){ if(!isBackgroundActive){showNotification("Clique em ATIVAR MÚSICAS!",1000);return;} if(audio.paused){playMusic();}else{audio.pause();} showControls(); }
     function nextTrack(){ if(carregandoMusica)return; if(!currentPlaylist||currentPlaylist.length===0){currentPlaylist=shuffleArray([...musicas]);currentIndex=0;} if(isPlaying){playMusic();}else{const t=obterProxima();if(t){ultimoId=t.id;updateNowPlaying(t);adicionarHistorico(t);const url=t.src.startsWith('http')?t.src:gerarUrlCompleta(t.src);audio.src=url||t.src;audio.load();}} showControls(); }
     function gerarUrlCompleta(nome,repo='forrodez'){ if(!nome||!nome.trim())return ''; if(nome.startsWith('http'))return nome; let n=nome.replace(/^\.\//,'').replace(/^\/+/,''); n=n.replace(/[^a-zA-Z0-9\-_.]/g,''); if(!n)return ''; return `https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${n}`; }
     function prevTrack(){ if(carregandoMusica)return; if(!currentPlaylist||currentPlaylist.length===0){nextTrack();return;} if(currentIndex<=0){currentIndex=currentPlaylist.length-1;}else{currentIndex-=2;if(currentIndex<0)currentIndex=0;} if(currentIndex>=currentPlaylist.length)currentIndex=currentPlaylist.length-1; const t=currentPlaylist[currentIndex]; if(!t){nextTrack();return;} ultimoId=t.id; updateNowPlaying(t); adicionarHistorico(t); if(isPlaying){audio.pause();const url=t.src.startsWith('http')?t.src:gerarUrlCompleta(t.src);audio.src=url||t.src;audio.load();audio.play().catch(()=>{});}else{const url=t.src.startsWith('http')?t.src:gerarUrlCompleta(t.src);audio.src=url||t.src;audio.load();} currentIndex++; showControls(); }
@@ -886,7 +733,7 @@
 
     function createSilentAudio(){ try{ const sr=44100,dur=1,ns=sr*dur; const buf=new ArrayBuffer(44+ns*2); const v=new DataView(buf); const ws=(v,o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}; ws(v,0,'RIFF'); v.setUint32(4,36+ns*2,true); ws(v,8,'WAVE'); ws(v,12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); ws(v,36,'data'); v.setUint32(40,ns*2,true); let off=44; for(let i=0;i<ns;i++){v.setInt16(off,0,true);off+=2;} return URL.createObjectURL(new Blob([buf],{type:'audio/wav'})); }catch(e){return '';} }
 
-    async function ativarAudio(){ try{ showLoad(true); const su=createSilentAudio(); if(!su)throw new Error('Erro'); backgroundAudio.src=su; backgroundAudio.loop=true; backgroundAudio.volume=0.001; await backgroundAudio.play(); isBackgroundActive=true; audioStatus.classList.add('active'); audioStatus.innerHTML='<span class="dot"></span> Ativado'; if('wakeLock' in navigator)try{await navigator.wakeLock.request('screen');}catch(e){} await playMusic(); showLoad(false); return true; }catch(error){ isBackgroundActive=true; audioStatus.classList.add('active'); audioStatus.innerHTML='<span class="dot"></span> Ativado'; await playMusic(); showLoad(false); return true; } }
+    async function ativarAudio(){ try{ showLoad(true); const su=createSilentAudio(); if(!su)throw new Error('Erro'); const bgAudio=document.createElement('audio'); bgAudio.src=su; bgAudio.loop=true; bgAudio.volume=0.001; await bgAudio.play(); isBackgroundActive=true; audioStatus.classList.add('active'); audioStatus.innerHTML='<span class="dot"></span> Ativado'; if('wakeLock' in navigator)try{await navigator.wakeLock.request('screen');}catch(e){} await playMusic(); showLoad(false); return true; }catch(error){ isBackgroundActive=true; audioStatus.classList.add('active'); audioStatus.innerHTML='<span class="dot"></span> Ativado'; await playMusic(); showLoad(false); return true; } }
 
     async function recarregarPlaylist(){ const g=modoAtual; if(!g||!GENRE_URLS[g]){showNotification('⚠️ Gênero atual inválido',1000);return;} delete playlistCache[g]; showNotification(`🔄 Recarregando ${g}...`,1000); await selecionarGenero(g); showNotification(`✅ Playlist recarregada (${musicas.length} músicas)`,2000); }
 
@@ -923,10 +770,10 @@
             goFullscreen();
         })();
 
+        // Botão ATIVAR MÚSICAS
         const ativarBtn = document.createElement('button');
-        ativarBtn.id = 'btnAtivarPlayer';
-        ativarBtn.style.cssText = 'position:fixed;bottom:30%;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00f3ff,#00d4ff);color:#000;padding:18px 40px;border-radius:60px;font-weight:900;font-size:1.4rem;z-index:50;cursor:pointer;border:none;box-shadow:0 0 40px rgba(0,243,255,0.5);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;animation:pulseModern 2s infinite;';
-        ativarBtn.innerHTML = '▶ ATIVAR RÁDIO <span style="display:block;font-size:0.6rem;font-weight:400;letter-spacing:4px;opacity:0.7;">VDB Music</span>';
+        ativarBtn.className = 'btn-ativar-player';
+        ativarBtn.innerHTML = '▶ ATIVAR MÚSICAS <span>VDB Music</span>';
         ativarBtn.onclick = async () => {
             ativarBtn.style.display = 'none';
             await ativarAudio();
