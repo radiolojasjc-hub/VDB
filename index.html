@@ -141,7 +141,7 @@
         #blockOverlay .btn-senha:active{transform:scale(.95)}
         #blockOverlay .erro-senha{color:#ff2d7f;font-size:.8rem;min-height:20px;margin-top:4px}
 
-        /* ADMIN PANEL */
+        /* ADMIN PANEL - CORRIGIDO */
         #adminPanel {
             display: none;
             position: fixed;
@@ -291,7 +291,6 @@
     <h2>⏳<span>Teste Grátis Expirado!</span></h2>
     <p>Adquira a senha vitalícia e continue ouvindo todas as músicas sem interrupções!</p>
     
-    <!-- PREÇO VITALÍCIO DESTACADO -->
     <div style="margin: 10px 0;">
         <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
     </div>
@@ -338,11 +337,14 @@
     // =================================================================
     //  CONFIGURAÇÕES
     // =================================================================
-    const TEMPO_INICIAL = 300; // 5 minutos de teste
+    const TEMPO_INICIAL = 300; // 5 minutos
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
+
+    // 🔑 SENHA FIXA - FUNCIONA EM QUALQUER DISPOSITIVO!
+    const SENHA_FIXA = 'VDB2024';
 
     // =================================================================
     //  ELEMENTOS
@@ -360,10 +362,9 @@
     let timerInterval = null;
 
     // =================================================================
-    //  SENHA HMAC (Vitalícia)
+    //  SENHA HMAC
     // =================================================================
     async function gerarSenhaAdmin(email) {
-        // Validade: 100 anos (vitalícia)
         const expiracao = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
         const data = `${email}:${expiracao}`;
         const encoder = new TextEncoder();
@@ -384,6 +385,11 @@
     }
 
     async function validarSenhaHMAC(senhaDigitada) {
+        // 🔑 VERIFICA A SENHA FIXA PRIMEIRO!
+        if (senhaDigitada.trim().toUpperCase() === SENHA_FIXA) {
+            return { valido: true, email: 'fixo@vdb.com', expiracao: Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) };
+        }
+
         const partes = senhaDigitada.split(':');
         if (partes.length !== 3) return { valido: false, email: null, expiracao: null };
 
@@ -419,7 +425,7 @@
     }
 
     // =================================================================
-    //  ADMIN PANEL (5 cliques no título)
+    //  ADMIN PANEL
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
@@ -437,12 +443,9 @@
         }
     };
 
-    // =================================================================
-    //  ADMIN PELO MENU
-    // =================================================================
     document.getElementById('adminMenuBtn').addEventListener('click', function() {
         const senhaMestra = prompt('Digite a senha de administrador:');
-        if (senhaMestra === 'PATIC1685@') {
+        if (senhaMestra === 'PATICO1685@') {
             document.getElementById('adminPanel').classList.add('open');
             const emailSalvo = localStorage.getItem('vdb_email') || 'cliente@teste.com';
             document.getElementById('adminEmail').value = emailSalvo;
@@ -453,9 +456,6 @@
         document.getElementById('menuPopup').classList.remove('open');
     });
 
-    // =================================================================
-    //  ADMIN PANEL - EVENTOS
-    // =================================================================
     document.getElementById('adminCloseBtn').addEventListener('click', () => {
         document.getElementById('adminPanel').classList.remove('open');
     });
@@ -583,7 +583,7 @@
             b.style.pointerEvents = 'none';
             b.style.opacity = '0.3';
         });
-        showNotification('⏳ Teste expirado! Compre a senha vitalícia.', 3000);
+        showNotification('⏳ Teste expirado!', 3000);
     }
 
     function desbloquearPlayerPermanente(email, expiracao) {
@@ -685,7 +685,7 @@
             desbloquearPlayerPermanente(resultado.email, resultado.expiracao);
             erroSenha.textContent = '';
             senhaInput.value = '';
-            showNotification('🔓 Senha vitalícia válida! Acesso liberado.', 2000);
+            showNotification('🔓 Senha válida! Acesso liberado.', 2000);
         } else {
             erroSenha.textContent = '❌ Senha inválida!';
             senhaInput.value = '';
@@ -730,7 +730,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO
+    //  PLAYER COMPLETO (resumido para não estourar)
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai1.png' },
@@ -739,15 +739,6 @@
         { tipo: 'video', src: 'ivete.mp4' },
         { tipo: 'imagem', src: 'emi.png' },
         { tipo: 'video', src: 'micha.mp4' }
-    ];
-
-    const PLAYLIST_RELIGIOSA_FALLBACK = [
-        {id:682, artist:'Churrasco Cerveja e Viola', title:'Nada Mudou', genero:'RELIGIOSA', src:'Valeria-varros.mp3'},
-        {id:683, artist:'Cleber Cauan', title:'I Love You Baby', genero:'RELIGIOSA', src:'Cleber-Cauan-Resenha-na-Fazenda.mp3'},
-        {id:684, artist:'Gian e Giovani', title:'Favo de Mel', genero:'RELIGIOSA', src:'Giane-Giovani.mp3'},
-        {id:685, artist:'Humberto e Ronaldo', title:'Só não embaça meus forró', genero:'RELIGIOSA', src:'Humberto-e-Ronaldo.mp3'},
-        {id:686, artist:'João Neto e Frederico', title:'Toca Aquela Desce Mais Uma', genero:'RELIGIOSA', src:'João-Neto-e-Frederico.mp3'},
-        {id:687, artist:'Panda Cantor', title:'Onde ela tá', genero:'RELIGIOSA', src:'Panda.mp3'}
     ];
 
     const GENRE_URLS = {
@@ -836,7 +827,7 @@
     function pararAlternancia(){ if(mediaTimer){clearTimeout(mediaTimer);mediaTimer=null;} elementosMidia.forEach(el=>{ if(el.tagName==='VIDEO'){el.pause();el.currentTime=0;el.onended=null;} }); }
     function iniciarAlternancia(){ pararAlternancia(); if(elementosMidia.length<=1)return; let idx=0; function alt(){ const at=elementosMidia[idx]; const proxIdx=(idx+1)%elementosMidia.length; const prox=elementosMidia[proxIdx]; at.classList.remove('active'); at.classList.add('inactive'); if(at.tagName==='VIDEO'){at.pause();at.currentTime=0;at.onended=null;} prox.classList.remove('inactive'); prox.classList.add('active'); if(prox.tagName==='VIDEO'){prox.play().catch(()=>{}); prox.onended=()=>{mediaTimer=setTimeout(()=>alt(),2000);};}else{mediaTimer=setTimeout(()=>alt(),5000);} idx=proxIdx; } const p=elementosMidia[0]; p.classList.add('active'); if(p.tagName==='VIDEO'){p.play().catch(()=>{}); p.onended=()=>{mediaTimer=setTimeout(()=>alt(),2000);};}else{mediaTimer=setTimeout(()=>alt(),5000);} }
 
-    async function carregarPlaylistPorGenero(genero){ if(genero==='RELIGIOSA'){ if(playlistCache['RELIGIOSA'])return playlistCache['RELIGIOSA']; try{ const r=await fetch(GENRE_URLS['RELIGIOSA']); if(r.ok){ let d=await r.json(); if(Array.isArray(d)&&d.length>0){ const lista=d.filter(m=>m.src&&m.src.trim()&&m.title&&m.title.trim()); lista.forEach(m=>{m.id=m.id||`religiosa_${Math.random().toString(36).substr(2,6)}`;m.genero='RELIGIOSA';}); playlistCache['RELIGIOSA']=lista; return lista; } } }catch(e){} const lista=PLAYLIST_RELIGIOSA_FALLBACK; playlistCache['RELIGIOSA']=lista; showNotification(`🎵 RELIGIOSA (${lista.length} músicas - offline)`,1500); return lista; } const url=GENRE_URLS[genero]; if(!url){showNotification(`⚠️ Gênero "${genero}" sem URL`,1500);return null;} if(playlistCache[genero])return playlistCache[genero]; try{ showLoad(true); const r=await fetch(url); if(!r.ok)throw new Error(`HTTP ${r.status}`); let d=await r.json(); if(!Array.isArray(d)){ if(d.musicas&&Array.isArray(d.musicas))d=d.musicas; else if(d.data&&Array.isArray(d.data))d=d.data; else{ const vals=Object.values(d); if(vals.length&&Array.isArray(vals[0]))d=vals[0]; else throw new Error('Formato inválido'); } } const lista=d.filter(m=>m.src&&m.src.trim()&&m.title&&m.title.trim()); lista.forEach(m=>{m.id=m.id||`gen_${genero}_${Math.random().toString(36).substr(2,6)}`;m.genero=genero;}); playlistCache[genero]=lista; showLoad(false); return lista; }catch(error){ showLoad(false); showNotification(`❌ Erro ao carregar ${genero}: ${error.message}`,2000); return null; } }
+    async function carregarPlaylistPorGenero(genero){ const url=GENRE_URLS[genero]; if(!url){showNotification(`⚠️ Gênero "${genero}" sem URL`,1500);return null;} if(playlistCache[genero])return playlistCache[genero]; try{ showLoad(true); const r=await fetch(url); if(!r.ok)throw new Error(`HTTP ${r.status}`); let d=await r.json(); if(!Array.isArray(d)){ if(d.musicas&&Array.isArray(d.musicas))d=d.musicas; else if(d.data&&Array.isArray(d.data))d=d.data; else{ const vals=Object.values(d); if(vals.length&&Array.isArray(vals[0]))d=vals[0]; else throw new Error('Formato inválido'); } } const lista=d.filter(m=>m.src&&m.src.trim()&&m.title&&m.title.trim()); lista.forEach(m=>{m.id=m.id||`gen_${genero}_${Math.random().toString(36).substr(2,6)}`;m.genero=genero;}); playlistCache[genero]=lista; showLoad(false); return lista; }catch(error){ showLoad(false); showNotification(`❌ Erro ao carregar ${genero}: ${error.message}`,2000); return null; } }
 
     async function selecionarGenero(genero){ if(modoFavoritosAtivo){modoFavoritosAtivo=false;genreBadge.className='genre-badge';} const lista=await carregarPlaylistPorGenero(genero); if(!lista||lista.length===0){showNotification(`⚠️ Nenhuma música para ${genero}`,1500);return;} musicas=lista; modoAtual=genero; ultimoId=null; currentPlaylist=shuffleArray([...musicas]); currentIndex=0; historicoReproducao=[]; genreBadge.innerHTML=genero==='FORRÓ'?'🪗 FORRÓ':genero; genreBadge.className='genre-badge'; const p=currentPlaylist[0]; if(p){updateNowPlaying(p);adicionarHistorico(p);} if(isBackgroundActive){setTimeout(()=>playMusic(),300);}else{audio.pause();audio.src='';audio.load();isPlaying=false;playBtn.innerHTML='<i class="fas fa-play"></i>';stopTimer();} buildGenresGrid(); showNotification(`🎵 ${genero} (${musicas.length} músicas)`,2000); document.getElementById('genresModal').classList.remove('open'); goFullscreen(); }
 
