@@ -292,17 +292,40 @@
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
-    <h2>🔐 ADMIN - Gerar Senha Vitalícia</h2>
+    <h2>🔐 ADMIN - GERENCIADOR DE SENHAS</h2>
+    
+    <!-- Gerar Senha -->
     <div class="admin-label">📱 Celular do cliente</div>
     <input type="text" id="adminCelular" placeholder="Ex: 12988461978" maxlength="15" value="12988461978">
+    
     <div class="admin-label">📧 E-mail do cliente (opcional)</div>
     <input type="email" id="adminEmail" placeholder="cliente@email.com" value="cliente@teste.com">
-    <div style="text-align:center;margin:8px 0;"><span class="preco-vitalicio" style="font-size:1.1rem;">♾️ VITALÍCIO - R$ 39,90</span></div>
+    
+    <div class="admin-label">📝 Observação</div>
+    <input type="text" id="adminObs" placeholder="Ex: Cliente VIP - Comprou dia 10/08">
+    
+    <div style="text-align:center;margin:8px 0;">
+        <span class="preco-vitalicio" style="font-size:1.1rem;">♾️ VITALÍCIO - R$ 39,90</span>
+    </div>
+    
+    <!-- Senha Gerada -->
     <div class="admin-row">
         <input type="text" id="adminSenhaGerada" placeholder="Clique em GERAR para criar a senha" readonly style="flex:2;background:rgba(255,255,255,0.05);cursor:default">
         <button class="btn-copiar" id="btnCopiarSenha"><i class="fas fa-copy"></i> Copiar</button>
     </div>
+    
+    <!-- Botões -->
     <button class="admin-btn" id="adminGerarBtn"><i class="fas fa-key"></i> 🔐 GERAR SENHA</button>
+    <button class="admin-btn" id="adminEnviarWhatsApp" style="background:linear-gradient(135deg,#25d366,#128C7E);"><i class="fab fa-whatsapp"></i> ENVIAR WHATSAPP</button>
+    
+    <hr style="border-color:rgba(255,255,255,0.1);margin:10px 0;">
+    
+    <!-- Lista de Senhas -->
+    <div class="admin-label" style="font-size:1rem;color:#00f3ff;">📋 SENHAS GERADAS</div>
+    <div id="listaSenhasAdmin" style="max-height:200px;overflow-y:auto;font-size:.75rem;background:rgba(0,0,0,0.3);border-radius:8px;padding:8px;">
+        <div style="color:#666;text-align:center;padding:20px;">Nenhuma senha gerada ainda</div>
+    </div>
+    
     <button class="admin-close" id="adminCloseBtn"><i class="fas fa-times"></i> Fechar</button>
 </div>
 
@@ -337,14 +360,134 @@
     'use strict';
 
     // =================================================================
+    //  SISTEMA DE SENHAS COMPLETO
+    // =================================================================
+    
+    let bancoSenhas = {
+        senhas: {},
+        proximoId: 1
+    };
+
+    // Carregar senhas salvas
+    function carregarBancoSenhas() {
+        try {
+            const salvo = localStorage.getItem('vdb_banco_senhas');
+            if (salvo) {
+                bancoSenhas = JSON.parse(salvo);
+                console.log('📋 Senhas carregadas:', Object.keys(bancoSenhas.senhas).length);
+            }
+        } catch (e) {
+            console.warn('Erro ao carregar banco de senhas:', e);
+        }
+    }
+
+    // Salvar senhas
+    function salvarBancoSenhas() {
+        try {
+            localStorage.setItem('vdb_banco_senhas', JSON.stringify(bancoSenhas));
+        } catch (e) {
+            console.warn('Erro ao salvar banco de senhas:', e);
+        }
+    }
+
+    // Gerar senha única
+    function gerarSenhaUnica() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let senha;
+        let tentativas = 0;
+        
+        do {
+            senha = 'VDB';
+            for (let i = 0; i < 6; i++) {
+                senha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            tentativas++;
+        } while (bancoSenhas.senhas[senha] && tentativas < 100);
+        
+        return senha;
+    }
+
+    // Criar nova senha
+    function criarNovaSenha(celular, email, observacao = '') {
+        if (!celular || celular.trim() === '') {
+            return { sucesso: false, erro: 'Celular é obrigatório!' };
+        }
+        
+        celular = celular.replace(/\D/g, '');
+        const senha = gerarSenhaUnica();
+        const agora = new Date().toISOString();
+        
+        bancoSenhas.senhas[senha] = {
+            celular: celular,
+            email: email || 'não informado',
+            data: agora,
+            ativa: true,
+            usos: 0,
+            ultimoUso: null,
+            observacao: observacao || '',
+            id: bancoSenhas.proximoId++
+        };
+        
+        salvarBancoSenhas();
+        
+        return {
+            sucesso: true,
+            senha: senha,
+            dados: bancoSenhas.senhas[senha]
+        };
+    }
+
+    // Validar senha
+    function validarSenhaCompleta(senhaDigitada) {
+        senhaDigitada = senhaDigitada.trim().toUpperCase();
+        const dados = bancoSenhas.senhas[senhaDigitada];
+        
+        if (!dados) {
+            return { valido: false, mensagem: '❌ Senha inválida!' };
+        }
+        
+        if (!dados.ativa) {
+            return { valido: false, mensagem: '❌ Senha desativada!' };
+        }
+        
+        const dataCriacao = new Date(dados.data);
+        const dataExpiracao = new Date(dataCriacao);
+        dataExpiracao.setDate(dataExpiracao.getDate() + 365);
+        
+        if (new Date() > dataExpiracao) {
+            return { valido: false, mensagem: '❌ Senha expirada!' };
+        }
+        
+        dados.usos++;
+        dados.ultimoUso = new Date().toISOString();
+        salvarBancoSenhas();
+        
+        return {
+            valido: true,
+            email: dados.email,
+            celular: dados.celular,
+            usos: dados.usos,
+            mensagem: `✅ Senha válida! (${dados.usos}º uso)`
+        };
+    }
+
+    // Listar senhas
+    function listarSenhasAdmin() {
+        const lista = [];
+        Object.entries(bancoSenhas.senhas).forEach(([senha, dados]) => {
+            lista.push({ senha, ...dados });
+        });
+        lista.sort((a, b) => new Date(b.data) - new Date(a.data));
+        return lista;
+    }
+
+    // =================================================================
     //  CONFIGURAÇÕES
     // =================================================================
     const TEMPO_INICIAL = 300;
-    const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
-    const SENHA_FIXA = 'VDB2024';
 
     // =================================================================
     //  ELEMENTOS
@@ -382,6 +525,7 @@
             if (document.getElementById('adminPanel').classList.contains('open')) {
                 document.getElementById('adminCelular').value = localStorage.getItem('vdb_celular') || '12988461978';
                 document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
+                atualizarListaSenhasAdmin();
                 showNotification('🔐 ADMIN ABERTO!', 1500);
             } else {
                 showNotification('🔐 ADMIN FECHADO!', 1500);
@@ -390,68 +534,6 @@
             showNotification(`👆 ${adminClicks}/5 cliques`, 800);
         }
     };
-
-    // =================================================================
-    //  SENHA HMAC
-    // =================================================================
-    async function gerarSenhaAdmin(email, celular) {
-        const expiracao = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
-        const data = `${email}:${celular}:${expiracao}`;
-        const encoder = new TextEncoder();
-        const keyData = encoder.encode(SECRET_KEY);
-        const msgData = encoder.encode(data);
-        const cryptoKey = await crypto.subtle.importKey(
-            'raw',
-            keyData,
-            { name: 'HMAC', hash: 'SHA-256' },
-            false,
-            ['sign']
-        );
-        const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-        const hashHex = Array.from(new Uint8Array(signature))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-        return `${email}:${celular}:${expiracao}:${hashHex}`;
-    }
-
-    async function validarSenhaHMAC(senhaDigitada) {
-        if (senhaDigitada.trim().toUpperCase() === SENHA_FIXA) {
-            return { valido: true, email: 'fixo@vdb.com', expiracao: Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) };
-        }
-
-        const partes = senhaDigitada.split(':');
-        if (partes.length !== 4) return { valido: false, email: null, expiracao: null };
-
-        const [email, celular, expiracaoStr, hashFornecido] = partes;
-        const expiracao = parseInt(expiracaoStr, 10);
-        if (isNaN(expiracao) || expiracao < Date.now()) {
-            return { valido: false, email: null, expiracao: null };
-        }
-
-        const data = `${email}:${celular}:${expiracao}`;
-        const encoder = new TextEncoder();
-        const keyData = encoder.encode(SECRET_KEY);
-        const msgData = encoder.encode(data);
-
-        try {
-            const cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
-                ['sign']
-            );
-            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-            const hashCalculado = Array.from(new Uint8Array(signature))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-
-            const valido = hashCalculado === hashFornecido;
-            return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
-        } catch (e) {
-            return { valido: false, email: null, expiracao: null };
-        }
-    }
 
     // =================================================================
     //  TIMER
@@ -542,12 +624,11 @@
         showNotification('⏳ Teste expirado!', 3000);
     }
 
-    function desbloquearPlayerPermanente(email, expiracao) {
+    function desbloquearPlayerPermanente(email) {
         desbloqueado = true;
         blockOverlay.classList.remove('active');
         localStorage.setItem('vdb_desbloqueado', 'true');
         localStorage.setItem('vdb_email', email || '');
-        localStorage.setItem('vdb_expiracao', expiracao || '');
         document.querySelectorAll('.ctrl-btn, .play-big, .shuffle-btn, #favTopBtn, #heartBtn, .menu-button').forEach(b => {
             b.style.pointerEvents = 'auto';
             b.style.opacity = '1';
@@ -560,7 +641,7 @@
         timerTop.className = 'timer-top liberado';
         showNotification('🔓 Acesso vitalício liberado!', 2000);
         const audio = document.getElementById('musicPlayer');
-        if (audio.paused && window.isBackgroundActive) audio.play().catch(() => {});
+        if (audio.paused && isBackgroundActive) audio.play().catch(() => {});
     }
 
     // =================================================================
@@ -568,6 +649,8 @@
     // =================================================================
     function carregarEstado() {
         document.documentElement.requestFullscreen().catch(() => {});
+
+        carregarBancoSenhas();
 
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             desbloqueado = true;
@@ -627,29 +710,31 @@
     }
 
     // =================================================================
-    //  EVENTO DE VALIDAÇÃO DA SENHA
+    //  EVENTO DE VALIDAÇÃO DA SENHA - USA SISTEMA DE SENHAS
     // =================================================================
-    document.getElementById('btnSenhaPermanente').addEventListener('click', async () => {
+    document.getElementById('btnSenhaPermanente').addEventListener('click', () => {
         const senha = senhaInput.value.trim();
         if (!senha) {
             erroSenha.textContent = 'Digite a senha!';
             return;
         }
 
-        const resultado = await validarSenhaHMAC(senha);
+        const resultado = validarSenhaCompleta(senha);
+        
         if (resultado.valido) {
-            desbloquearPlayerPermanente(resultado.email, resultado.expiracao);
+            desbloquearPlayerPermanente(resultado.email);
             erroSenha.textContent = '';
             senhaInput.value = '';
             showNotification('🔓 Senha válida! Acesso liberado.', 2000);
+            atualizarListaSenhasAdmin();
         } else {
-            erroSenha.textContent = '❌ Senha inválida! Entre em contato pelo WhatsApp para comprar.';
+            erroSenha.textContent = resultado.mensagem;
             senhaInput.value = '';
             senhaInput.focus();
         }
     });
 
-    senhaInput.addEventListener('keydown', async (e) => {
+    senhaInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             document.getElementById('btnSenhaPermanente').click();
         }
@@ -677,27 +762,30 @@
     });
 
     // =================================================================
-    //  BOTÕES ADMIN
+    //  ADMIN - GERADOR DE SENHAS
     // =================================================================
-    document.getElementById('adminGerarBtn').addEventListener('click', async () => {
+    document.getElementById('adminGerarBtn').addEventListener('click', () => {
         const celular = document.getElementById('adminCelular').value.trim();
         const email = document.getElementById('adminEmail').value.trim();
+        const obs = document.getElementById('adminObs').value.trim();
         
         if (!celular) {
             showNotification('⚠️ Digite o celular do cliente!', 1500);
             return;
         }
         
-        try {
-            const senha = await gerarSenhaAdmin(email || 'cliente', celular);
-            const el = document.getElementById('adminSenhaGerada');
-            el.value = senha;
-            el.style.color = '#4ade80';
+        const resultado = criarNovaSenha(celular, email, obs);
+        
+        if (resultado.sucesso) {
+            document.getElementById('adminSenhaGerada').value = resultado.senha;
+            document.getElementById('adminSenhaGerada').style.color = '#4ade80';
+            document.getElementById('adminSenhaGerada').style.borderColor = '#4ade80';
+            showNotification(`✅ Senha gerada: ${resultado.senha}`, 3000);
+            atualizarListaSenhasAdmin();
             localStorage.setItem('vdb_celular', celular);
             localStorage.setItem('vdb_email', email);
-            showNotification('✅ Senha gerada! Clique em "Copiar" para enviar.', 2000);
-        } catch (e) {
-            showNotification('❌ Erro ao gerar: ' + e.message, 2000);
+        } else {
+            showNotification(`❌ ${resultado.erro}`, 2000);
         }
     });
 
@@ -721,6 +809,27 @@
             });
     });
 
+    document.getElementById('adminEnviarWhatsApp').addEventListener('click', function() {
+        const senha = document.getElementById('adminSenhaGerada').value;
+        const celular = document.getElementById('adminCelular').value.trim();
+        const email = document.getElementById('adminEmail').value.trim();
+        
+        if (!senha || senha === 'Clique em GERAR para criar a senha') {
+            showNotification('⚠️ Gere uma senha primeiro!', 1500);
+            return;
+        }
+        
+        if (!celular) {
+            showNotification('⚠️ Digite o celular do cliente!', 1500);
+            return;
+        }
+        
+        const mensagem = `🎵 *VDB MUSIC - SENHA VITALÍCIA*%0A%0A🔑 Sua senha: *${senha}*%0A%0A📱 Acesse: ${window.location.href}%0A%0A✅ Digite a senha no site e tenha acesso completo a todas as músicas!%0A%0A🎶 Aproveite sem interrupções!`;
+        
+        window.open(`https://wa.me/55${celular.replace(/\D/g, '')}?text=${mensagem}`, '_blank');
+        showNotification('📱 Abrindo WhatsApp...', 1500);
+    });
+
     document.getElementById('adminCloseBtn').addEventListener('click', () => {
         document.getElementById('adminPanel').classList.remove('open');
     });
@@ -731,12 +840,39 @@
             document.getElementById('adminPanel').classList.add('open');
             document.getElementById('adminCelular').value = localStorage.getItem('vdb_celular') || '12988461978';
             document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
+            atualizarListaSenhasAdmin();
             showNotification('✅ Painel ADMIN liberado!', 1500);
         } else if (senhaMestra !== null) {
             showNotification('❌ Senha incorreta!', 1500);
         }
         document.getElementById('menuPopup').classList.remove('open');
     });
+
+    // Atualizar lista de senhas no admin
+    function atualizarListaSenhasAdmin() {
+        const lista = listarSenhasAdmin();
+        const container = document.getElementById('listaSenhasAdmin');
+        
+        if (lista.length === 0) {
+            container.innerHTML = '<div style="color:#666;text-align:center;padding:20px;">Nenhuma senha gerada ainda</div>';
+            return;
+        }
+        
+        let html = '';
+        lista.forEach(item => {
+            const status = item.ativa ? '✅' : '❌';
+            const data = new Date(item.data).toLocaleDateString('pt-BR');
+            html += `
+                <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span style="color:#00f3ff;font-weight:bold;">${item.senha}</span>
+                    <span>${item.celular}</span>
+                    <span>${status}</span>
+                    <span style="color:#888;font-size:.7rem;">${data}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
 
     // =================================================================
     //  FUNÇÕES AUXILIARES
@@ -748,7 +884,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO - REFORMULADO PARA ESTABILIDADE
+    //  PLAYER COMPLETO
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -757,7 +893,7 @@
         { tipo: 'video', src: 'ivete.mp4' },
         { tipo: 'imagem', src: 'emi.png' },
         { tipo: 'video', src: 'micha.mp4' },
-        { tipo: 'imagem', src: 'vai1.png' },
+        { tipo: 'imagem', src: 'vai1.png' }
     ];
 
     const GENRE_URLS = {
@@ -783,7 +919,7 @@
 
     // ===== ESTADO DO PLAYER =====
     let musicas = [];
-    let playlistAtual = [];      // Lista ordenada para tocar
+    let playlistAtual = [];
     let indiceAtual = 0;
     let isPlaying = false;
     let shuffleMode = false;
@@ -824,7 +960,7 @@
     function goFullscreen(){ try{ if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{}); else if(document.documentElement.webkitRequestFullscreen)document.documentElement.webkitRequestFullscreen(); else if(document.documentElement.mozRequestFullScreen)document.documentElement.mozRequestFullScreen(); else if(document.documentElement.msRequestFullscreen)document.documentElement.msRequestFullscreen(); }catch(e){} }
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
-    // ===== GERENCIAMENTO DE PLAYLIST - CORRIGIDO =====
+    // ===== GERENCIAMENTO DE PLAYLIST =====
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
         if (!lista || lista.length === 0) return [];
@@ -845,7 +981,6 @@
     function obterMusicaAtual() {
         if (!playlistAtual || playlistAtual.length === 0) return null;
         if (indiceAtual >= playlistAtual.length) {
-            // Resetar playlist quando acabar
             playlistAtual = construirPlaylist(modoAtual, musicas);
             indiceAtual = 0;
         }
@@ -859,7 +994,6 @@
         } else {
             indiceAtual++;
             if (indiceAtual >= playlistAtual.length) {
-                // Se acabou a playlist, recria
                 playlistAtual = construirPlaylist(modoAtual, musicas);
                 indiceAtual = 0;
             }
@@ -879,12 +1013,10 @@
     }
 
     function getProximaMusica() {
-        // Usado apenas para preload, não altera o índice
         if (!playlistAtual || playlistAtual.length === 0) return null;
         let idx = indiceAtual + 1;
         if (idx >= playlistAtual.length) {
             if (shuffleMode) {
-                // Se shuffle, pega aleatória
                 const restantes = playlistAtual.filter((_, i) => i !== indiceAtual);
                 if (restantes.length === 0) return null;
                 return restantes[Math.floor(Math.random() * restantes.length)];
@@ -907,7 +1039,6 @@
                 repos.forEach(repo => urls.add(`https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}`));
             }
         }
-        // Fallbacks baseados no título
         const base = src.replace(/\.[^.]+$/, '');
         const titleClean = musica.title.replace(/[^a-zA-Z0-9]/g, '').trim();
         const artistClean = musica.artist ? musica.artist.replace(/[^a-zA-Z0-9]/g, '').trim() : '';
@@ -1077,7 +1208,6 @@
             idx = proxIdx;
         }
         
-        // Inicia com o primeiro
         const primeiro = elementosMidia[0];
         primeiro.classList.add('active');
         if (primeiro.tagName === 'VIDEO') {
@@ -1114,7 +1244,6 @@
             lista.forEach(m => {
                 m.id = m.id || `gen_${genero}_${Math.random().toString(36).substr(2, 6)}`;
                 m.genero = genero;
-                // Garantir artist
                 if (!m.artist) m.artist = 'Artista';
             });
             
@@ -1137,7 +1266,6 @@
             return;
         }
         
-        // Parar áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
@@ -1166,7 +1294,7 @@
         }
     }
 
-    // ===== TOQUE DE MÚSICA - CORRIGIDO =====
+    // ===== TOQUE DE MÚSICA =====
     async function playMusic() {
         if (carregandoMusica) return;
         if (!isBackgroundActive) { showNotification("⚠️ Ative o áudio!", 1000); return; }
@@ -1181,7 +1309,6 @@
         
         const track = obterMusicaAtual();
         if (!track) {
-            // Tenta recriar playlist
             playlistAtual = construirPlaylist(modoAtual, musicas);
             indiceAtual = 0;
             carregandoMusica = false;
@@ -1190,21 +1317,17 @@
             return;
         }
         
-        // Atualiza UI
         updateNowPlaying(track);
         adicionarHistorico(track);
         
-        // Para áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
         
         let urls = gerarUrlsAlternativas(track);
-        // Priorizar URLs com nome do arquivo
         if (track.src && track.src.startsWith('http')) {
             urls = [track.src, ...urls.filter(u => u !== track.src)];
         }
-        // Limitar a 5 tentativas para não travar
         urls = urls.slice(0, 5);
         
         if (urls.length === 0) {
@@ -1282,10 +1405,10 @@
             preloadAudio.preload = 'auto';
             preloadAudio.src = urls[0];
             preloadAudio.load();
-            // Descarta depois de 2 segundos
             setTimeout(() => {
                 preloadAudio.src = '';
                 preloadAudio.load();
+                preloadAudio.remove();
             }, 2000);
         } catch (e) {
             // Ignora
@@ -1340,7 +1463,6 @@
         shuffleMode = !shuffleMode;
         shuffleBtn.classList.toggle('active', shuffleMode);
         
-        // Recria playlist com a ordem atual
         const musicaAtual = obterMusicaAtual();
         playlistAtual = construirPlaylist(modoAtual, musicas);
         if (musicaAtual) {
@@ -1366,7 +1488,6 @@
         modoFavoritosAtivo = false;
         modoAtual = m.genero || 'PADRÃO';
         
-        // Cria playlist começando com essa música
         const outras = musicas.filter(t => t.id !== m.id && t.genero === m.genero);
         playlistAtual = shuffleMode ? shuffleArray([m, ...outras]) : [m, ...outras];
         indiceAtual = 0;
@@ -1520,6 +1641,7 @@
 
         const ativarBtn = document.createElement('button');
         ativarBtn.className = 'btn-ativar-player';
+        ativarBtn.id = 'btnAtivarPlayer';
         ativarBtn.innerHTML = '▶ ATIVAR MÚSICAS <span>VDB Music</span>';
         ativarBtn.onclick = async () => {
             ativarBtn.style.display = 'none';
@@ -1531,7 +1653,6 @@
     }
 
     // ===== EVENTOS DO PLAYER =====
-    // Heart
     heartBtn.addEventListener('click', () => {
         const m = obterMusicaAtual() || playlistAtual[0];
         if (m) { toggleFavorito(m.id); buildGenresGrid(); }
@@ -1539,7 +1660,6 @@
         showControls();
     });
 
-    // Favoritos
     favTopBtn.addEventListener('click', () => { renderFavList(); document.getElementById('favModal').classList.add('open'); });
     document.getElementById('closeFavModal').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
     document.getElementById('closeFavBtn').addEventListener('click', () => document.getElementById('favModal').classList.remove('open'));
@@ -1582,7 +1702,6 @@
         if (confirm('Remover todos?')) { favorites = []; salvarFav(); renderFavList(); buildGenresGrid(); updateHeart(null); showNotification('🗑️ Limpos', 1500); }
     });
 
-    // FAB
     const fabMain = document.getElementById('fabMain'), fabSub = document.getElementById('fabSub');
     fabMain.addEventListener('click', () => { fabOpen = !fabOpen; fabSub.classList.toggle('open', fabOpen); fabMain.innerHTML = fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; });
     document.getElementById('fabGeneros').addEventListener('click', () => { openGenres(); fabMain.click(); });
@@ -1603,13 +1722,11 @@
         fabMain.click();
     });
 
-    // Controles
     playBtn.addEventListener('click', togglePlay);
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
     shuffleBtn.addEventListener('click', toggleShuffle);
 
-    // Sleep Timer
     document.getElementById('sleepMenuBtn').addEventListener('click', () => {
         menuPopup.classList.remove('open');
         const m = prompt('⏰ Desligar em quantos minutos? (5,15,30,60)', '15');
@@ -1626,7 +1743,6 @@
         }, mins * 60000);
     });
 
-    // Menu
     document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); goFullscreen(); showNotification('⛶ Tela cheia', 1000); });
     document.getElementById('reloadPlaylistBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); recarregarPlaylist(); });
     document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
@@ -1646,7 +1762,6 @@
         showNotification('📲 QR Code gerado!', 1500);
     });
 
-    // Progresso
     progressBar.addEventListener('click', (e) => {
         if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1656,18 +1771,15 @@
         }
     });
 
-    // Menu
     document.getElementById('menuButton').addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); showControls(); });
     document.getElementById('closeMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); });
 
-    // Fechar modais ao clicar fora
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.fav-modal') || e.target.closest('.genres-modal') || 
             e.target.closest('.menu-popup') || e.target.closest('.fab-container')) return;
         showControls();
     });
 
-    // Teclado
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         switch (e.key) {
@@ -1682,14 +1794,12 @@
         }
     });
 
-    // Fechar modais
     ['favModal', 'feedbackModal', 'historicoModal', 'genresModal'].forEach(id => {
         document.getElementById(id).addEventListener('click', (e) => {
             if (e.target === document.getElementById(id)) document.getElementById(id).classList.remove('open');
         });
     });
 
-    // Feedback
     document.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', () => {
             const r = parseInt(star.dataset.rating);
@@ -1715,17 +1825,14 @@
     }
     function openGenres() { buildGenresGrid(); document.getElementById('genresModal').classList.add('open'); showControls(); }
 
-    // Expor funções globalmente
     window.openGenres = openGenres;
     window.openFeedback = openFeedback;
     window.selecionarGenero = selecionarGenero;
 
-    // Eventos do áudio
     audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; });
     audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; });
     audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
     
-    // Atualizar progresso
     audio.addEventListener('timeupdate', () => {
         if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
             progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
@@ -1734,7 +1841,6 @@
         }
     });
 
-    // Limpeza
     window.addEventListener('beforeunload', function() { 
         pararAlternancia(); 
         if (sleepTimer) clearTimeout(sleepTimer);
@@ -1743,7 +1849,9 @@
         audio.load();
     });
 
-    // Iniciar
+    // =================================================================
+    //  INICIALIZAR
+    // =================================================================
     carregarEstado();
 })();
 </script>
