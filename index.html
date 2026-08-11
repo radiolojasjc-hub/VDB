@@ -288,7 +288,6 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
-        <!-- BOTÃO ADMIN REMOVIDO! -->
     </div>
 </div>
 
@@ -364,7 +363,7 @@
     let timerInterval = null;
 
     // =================================================================
-    //  ADMIN - Clique no letreiro (5x) - ÚNICA FORMA DE ABRIR!
+    //  ADMIN - Clique no letreiro (5x)
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
@@ -679,7 +678,7 @@
     });
 
     // =================================================================
-    //  BOTÕES ADMIN - SÓ FUNCIONA COM 5 CLIQUES
+    //  BOTÕES ADMIN
     // =================================================================
     document.getElementById('adminGerarBtn').addEventListener('click', async () => {
         const celular = document.getElementById('adminCelular').value.trim();
@@ -737,7 +736,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO
+    //  PLAYER COMPLETO - CORRIGIDO (GÊNEROS FUNCIONAM)
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -787,7 +786,6 @@
     let fabOpen = false;
     let sleepTimer = null;
     let hideControlsTimeout = null;
-    let trocandoGenero = false;
     
     // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
@@ -1101,11 +1099,9 @@
         }
     }
 
-    // ===== SELECIONAR GÊNERO =====
+    // ===== SELECIONAR GÊNERO - CORRIGIDO (SEM TRAVAR) =====
     async function selecionarGenero(genero) {
-        if (trocandoGenero) return;
-        trocandoGenero = true;
-        
+        // Não use trocandoGenero - deixa simples
         if (modoFavoritosAtivo) { 
             modoFavoritosAtivo = false; 
             genreBadge.className = 'genre-badge'; 
@@ -1116,23 +1112,25 @@
         const lista = await carregarPlaylistPorGenero(genero);
         if (!lista || lista.length === 0) {
             showNotification(`⚠️ Nenhuma música para ${genero}`, 1500);
-            trocandoGenero = false;
             showLoad(false);
             return;
         }
         
+        // Para o áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
         isPlaying = false;
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         
+        // Atualiza dados
         musicas = lista;
         modoAtual = genero;
         playlistAtual = construirPlaylist(genero, musicas);
         indiceAtual = 0;
         historicoReproducao = [];
         
+        // Atualiza badge
         if (genero === 'BÔNUS') {
             genreBadge.innerHTML = '🎵 BÔNUS';
             genreBadge.className = 'genre-badge bonus';
@@ -1142,7 +1140,10 @@
         }
         
         const m = playlistAtual[0];
-        if (m) { updateNowPlaying(m); adicionarHistorico(m); }
+        if (m) { 
+            updateNowPlaying(m); 
+            adicionarHistorico(m); 
+        }
         
         buildGenresGrid();
         showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
@@ -1150,16 +1151,18 @@
         goFullscreen();
         
         showLoad(false);
-        trocandoGenero = false;
         
+        // Toca a música depois que tudo está pronto
         if (isBackgroundActive) {
-            setTimeout(() => playMusic(), 500);
+            setTimeout(() => {
+                playMusic();
+            }, 300);
         }
     }
 
     // ===== TOQUE DE MÚSICA =====
     async function playMusic() {
-        if (carregandoMusica || trocandoGenero) return;
+        if (carregandoMusica) return;
         if (!isBackgroundActive) { showNotification("⚠️ Ative o áudio!", 1000); return; }
         if (!musicas || musicas.length === 0) { showNotification("Playlist vazia!", 1500); return; }
         if (!playlistAtual || playlistAtual.length === 0) {
@@ -1274,7 +1277,7 @@
     }
 
     function nextTrack() {
-        if (carregandoMusica || trocandoGenero) return;
+        if (carregandoMusica) return;
         const track = avancarMusica();
         if (track) {
             if (isPlaying) {
@@ -1290,7 +1293,7 @@
     }
 
     function prevTrack() {
-        if (carregandoMusica || trocandoGenero) return;
+        if (carregandoMusica) return;
         const track = voltarMusica();
         if (track) {
             if (isPlaying) {
@@ -1333,7 +1336,7 @@
     }
 
     function playSongById(id) {
-        if (carregandoMusica || trocandoGenero) return;
+        if (carregandoMusica) return;
         const m = musicas.find(t => t.id === id);
         if (!m) { showNotification("Música não encontrada", 1000); return; }
         
