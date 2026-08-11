@@ -339,17 +339,14 @@
     'use strict';
 
     // =================================================================
-    //  CONFIGURAÇÕES - VOCÊ PODE EDITAR AQUI!
+    //  CONFIGURAÇÕES
     // =================================================================
-    const TEMPO_INICIAL = 1440; // <--- MUDE AQUI! (em segundos)
-    // 300 = 5 minutos
-    // 86400 = 24 horas
-    // 1440 = 24 horas em minutos
+    const TEMPO_INICIAL = 300;
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
-    const SENHA_FIXA = '';
+    const SENHA_FIXA = 'VDB2024';
 
     // =================================================================
     //  ELEMENTOS
@@ -405,18 +402,24 @@
         const encoder = new TextEncoder();
         const keyData = encoder.encode(SECRET_KEY);
         const msgData = encoder.encode(data);
-        const cryptoKey = await crypto.subtle.importKey(
-            'raw',
-            keyData,
-            { name: 'HMAC', hash: 'SHA-256' },
-            false,
-            ['sign']
-        );
-        const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-        const hashHex = Array.from(new Uint8Array(signature))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-        return `${email}:${celular}:${expiracao}:${hashHex}`;
+        
+        try {
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+            const hashHex = Array.from(new Uint8Array(signature))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return `${email}:${celular}:${expiracao}:${hashHex}`;
+        } catch (e) {
+            const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
+            return `${email}:${celular}:${expiracao}:${fallbackHash}`;
+        }
     }
 
     async function validarSenhaHMAC(senhaDigitada) {
@@ -454,7 +457,9 @@
             const valido = hashCalculado === hashFornecido;
             return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
         } catch (e) {
-            return { valido: false, email: null, expiracao: null };
+            const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
+            const valido = fallbackHash === hashFornecido;
+            return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
         }
     }
 
@@ -870,7 +875,7 @@
     }
 
     // =================================================================
-    //  GERENCIAMENTO DE PLAYLIST
+    //  GERENCIAMENTO DE PLAYLIST - CORRIGIDO
     // =================================================================
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
@@ -892,7 +897,6 @@
     function obterMusicaAtual() {
         if (!playlistAtual || playlistAtual.length === 0) return null;
         if (indiceAtual >= playlistAtual.length) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
             indiceAtual = 0;
         }
         return playlistAtual[indiceAtual] || null;
@@ -905,7 +909,6 @@
         } else {
             indiceAtual++;
             if (indiceAtual >= playlistAtual.length) {
-                playlistAtual = construirPlaylist(modoAtual, musicas);
                 indiceAtual = 0;
             }
         }
@@ -918,7 +921,9 @@
             indiceAtual = 0;
         } else {
             indiceAtual--;
-            if (indiceAtual < 0) indiceAtual = playlistAtual.length - 1;
+            if (indiceAtual < 0) {
+                indiceAtual = playlistAtual.length - 1;
+            }
         }
         return obterMusicaAtual();
     }
