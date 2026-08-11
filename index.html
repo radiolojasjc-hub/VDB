@@ -843,39 +843,7 @@
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
     // =================================================================
-    //  EMBARALHAR PLAYLIST - SEMPRE DIFERENTE
-    // =================================================================
-    function embaralharPlaylist(lista) {
-        if (!lista || lista.length === 0) return lista;
-        
-        var embaralhada = shuffleArray([...lista]);
-        localStorage.setItem('vdb_ultima_ordem', JSON.stringify(embaralhada.map(function(m) { return m.id; })));
-        
-        return embaralhada;
-    }
-
-    // =================================================================
-    //  GERAR ÍNDICE INICIAL ALEATÓRIO
-    // =================================================================
-    function getIndiceInicialAleatorio(lista) {
-        if (!lista || lista.length === 0) return 0;
-        
-        var chave = 'vdb_indice_' + modoAtual;
-        var ultimoIndice = parseInt(localStorage.getItem(chave)) || 0;
-        
-        var novoIndice = Math.floor(Math.random() * lista.length);
-        
-        if (lista.length > 1 && novoIndice === ultimoIndice) {
-            novoIndice = (novoIndice + 1) % lista.length;
-        }
-        
-        localStorage.setItem(chave, novoIndice.toString());
-        
-        return novoIndice;
-    }
-
-    // =================================================================
-    //  GERENCIAMENTO DE PLAYLIST - CORRIGIDO
+    //  GERENCIAMENTO DE PLAYLIST - VERSÃO ESTÁVEL
     // =================================================================
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
@@ -1275,7 +1243,7 @@
     }
 
     // =================================================================
-    //  SELECIONAR GÊNERO - COM EMBARALHAMENTO
+    //  SELECIONAR GÊNERO - COM ÍNDICE ALEATÓRIO (SEM EMBARALHAR)
     // =================================================================
     async function selecionarGenero(genero) {
         if (modoFavoritosAtivo) { 
@@ -1321,9 +1289,10 @@
         musicas = lista;
         modoAtual = genero;
         
-        // ===== EMBARALHA E ESCOLHE ÍNDICE ALEATÓRIO =====
-        playlistAtual = embaralharPlaylist(musicas);
-        indiceAtual = getIndiceInicialAleatorio(playlistAtual);
+        // ===== SEM EMBARALHAR - SÓ ÍNDICE ALEATÓRIO =====
+        playlistAtual = [...musicas]; // CÓPIA SEM EMBARALHAR
+        // ESCOLHE ÍNDICE ALEATÓRIO
+        indiceAtual = Math.floor(Math.random() * playlistAtual.length);
         historicoReproducao = [];
         
         if (genero === 'BÔNUS') {
@@ -1769,7 +1738,7 @@
     }
 
     // =================================================================
-    //  INICIAR PLAYER - COM EMBARALHAMENTO
+    //  INICIAR PLAYER - COM ÍNDICE ALEATÓRIO (SEM EMBARALHAR)
     // =================================================================
     function iniciarPlayer() {
         criarMidia();
@@ -1813,9 +1782,9 @@
                     musicas = lista;
                     modoAtual = gen;
                     
-                    // ===== EMBARALHA E ESCOLHE ÍNDICE ALEATÓRIO =====
-                    playlistAtual = embaralharPlaylist(musicas);
-                    indiceAtual = getIndiceInicialAleatorio(playlistAtual);
+                    // ===== SEM EMBARALHAR - SÓ ÍNDICE ALEATÓRIO =====
+                    playlistAtual = [...musicas]; // CÓPIA SEM EMBARALHAR
+                    indiceAtual = Math.floor(Math.random() * playlistAtual.length);
                     historicoReproducao = [];
                     
                     if (gen === 'BÔNUS') {
