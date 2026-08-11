@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VDB Music</title>
-    
     <link rel="icon" href="facon.png" type="image/png">
     <link rel="apple-touch-icon" href="facon.png">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -52,28 +50,8 @@
         .menu-button:active{background:var(--neon-cyan);color:#000}
 
         .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;background:transparent;padding:6px 10px;overflow:hidden;height:40px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);flex-direction:column;justify-content:center}
-        
-        .info-scroll .letreiro{
-            color:white;
-            font-size:1.4rem;
-            font-weight:900;
-            letter-spacing:2px;
-            display:inline-block;
-            padding-right:40px;
-            text-shadow:0 0 30px rgba(0,0,0,0.9);
-            text-transform:uppercase;
-            width:auto;
-            text-align:center;
-            overflow:visible;
-            white-space:nowrap;
-            cursor:pointer;
-            animation:scrollText 20s linear infinite;
-        }
-        
-        @keyframes scrollText{
-            0%{transform:translateX(100vw)}
-            100%{transform:translateX(-100%)}
-        }
+        .info-scroll .letreiro{color:white;font-size:1.4rem;font-weight:900;letter-spacing:2px;display:inline-block;padding-right:40px;text-shadow:0 0 30px rgba(0,0,0,0.9);text-transform:uppercase;width:auto;text-align:center;overflow:visible;white-space:nowrap;cursor:pointer;animation:scrollText 20s linear infinite}
+        @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
         .now-playing{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:15;width:90%;max-width:450px;user-select:none;margin-top:-10px}
         .now-playing .fav-heart{font-size:4.5rem;color:#555;cursor:pointer;transition:all .3s;text-shadow:0 0 30px rgba(0,0,0,0.9);display:inline-block}
@@ -783,7 +761,7 @@
 
     // ===== ESTADO DO PLAYER =====
     let musicas = [];
-    let playlistAtual = [];      // Lista ordenada para tocar
+    let playlistAtual = [];
     let indiceAtual = 0;
     let isPlaying = false;
     let shuffleMode = false;
@@ -797,7 +775,10 @@
     let fabOpen = false;
     let sleepTimer = null;
     let hideControlsTimeout = null;
-    
+    let ultimaMusicaTocadaId = null; // para evitar repetição no shuffle
+    let tentativasFalhas = 0;
+    let preloadAudioElement = null;
+
     // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
     const playBtn = document.getElementById('playBtn');
@@ -820,12 +801,27 @@
     // ===== FUNÇÕES AUXILIARES =====
     function showLoad(s){ loadingOverlay.classList.toggle('active', s); }
     function formatTime(s){ if(!s||isNaN(s)||!isFinite(s)) return "0:00"; const m=Math.floor(s/60); const sec=Math.floor(s%60); return m+":"+(sec<10?'0':'')+sec; }
-    function shuffleArray(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    
+    // Shuffle inteligente: evita que o primeiro item seja igual a um ID fornecido
+    function shuffleArray(arr, avoidId = null) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        // Se avoidId for fornecido e o primeiro item for igual, troca com outro
+        if (avoidId && a.length > 1 && a[0].id === avoidId) {
+            const idx = Math.floor(Math.random() * (a.length - 1)) + 1;
+            [a[0], a[idx]] = [a[idx], a[0]];
+        }
+        return a;
+    }
+
     function goFullscreen(){ try{ if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{}); else if(document.documentElement.webkitRequestFullscreen)document.documentElement.webkitRequestFullscreen(); else if(document.documentElement.mozRequestFullScreen)document.documentElement.mozRequestFullScreen(); else if(document.documentElement.msRequestFullscreen)document.documentElement.msRequestFullscreen(); }catch(e){} }
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
     // ===== GERENCIAMENTO DE PLAYLIST - CORRIGIDO =====
-    function construirPlaylist(genero, musics) {
+    function construirPlaylist(genero, musics, avoidId = null) {
         const lista = musics || musicas;
         if (!lista || lista.length === 0) return [];
         
@@ -836,17 +832,22 @@
         }
         
         if (shuffleMode) {
-            return shuffleArray([...filtradas]);
+            return shuffleArray(filtradas, avoidId);
         } else {
-            return [...filtradas];
+            // Ordem sequencial, mas se avoidId for fornecido e for o primeiro, troca com o segundo (se houver)
+            const result = [...filtradas];
+            if (avoidId && result.length > 1 && result[0].id === avoidId) {
+                [result[0], result[1]] = [result[1], result[0]];
+            }
+            return result;
         }
     }
 
     function obterMusicaAtual() {
         if (!playlistAtual || playlistAtual.length === 0) return null;
         if (indiceAtual >= playlistAtual.length) {
-            // Resetar playlist quando acabar
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            // Recria a playlist quando chega ao fim
+            playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
             indiceAtual = 0;
         }
         return playlistAtual[indiceAtual] || null;
@@ -854,13 +855,13 @@
 
     function avancarMusica() {
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
             indiceAtual = 0;
         } else {
             indiceAtual++;
             if (indiceAtual >= playlistAtual.length) {
-                // Se acabou a playlist, recria
-                playlistAtual = construirPlaylist(modoAtual, musicas);
+                // Recria a playlist com shuffle (se ativo) e evita repetir a última
+                playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
                 indiceAtual = 0;
             }
         }
@@ -869,7 +870,7 @@
 
     function voltarMusica() {
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
             indiceAtual = 0;
         } else {
             indiceAtual--;
@@ -879,12 +880,11 @@
     }
 
     function getProximaMusica() {
-        // Usado apenas para preload, não altera o índice
         if (!playlistAtual || playlistAtual.length === 0) return null;
         let idx = indiceAtual + 1;
         if (idx >= playlistAtual.length) {
+            // Se shuffle, pega uma música aleatória diferente da atual
             if (shuffleMode) {
-                // Se shuffle, pega aleatória
                 const restantes = playlistAtual.filter((_, i) => i !== indiceAtual);
                 if (restantes.length === 0) return null;
                 return restantes[Math.floor(Math.random() * restantes.length)];
@@ -1114,7 +1114,6 @@
             lista.forEach(m => {
                 m.id = m.id || `gen_${genero}_${Math.random().toString(36).substr(2, 6)}`;
                 m.genero = genero;
-                // Garantir artist
                 if (!m.artist) m.artist = 'Artista';
             });
             
@@ -1143,10 +1142,12 @@
         audio.load();
         isPlaying = false;
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        tentativasFalhas = 0;
         
         musicas = lista;
         modoAtual = genero;
-        playlistAtual = construirPlaylist(genero, musicas);
+        // Recria a playlist evitando repetir a última música (se houver)
+        playlistAtual = construirPlaylist(genero, musicas, ultimaMusicaTocadaId);
         indiceAtual = 0;
         historicoReproducao = [];
         
@@ -1154,7 +1155,7 @@
         genreBadge.className = 'genre-badge';
         
         const m = playlistAtual[0];
-        if (m) { updateNowPlaying(m); adicionarHistorico(m); }
+        if (m) { updateNowPlaying(m); adicionarHistorico(m); ultimaMusicaTocadaId = m.id; }
         
         buildGenresGrid();
         showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
@@ -1172,7 +1173,7 @@
         if (!isBackgroundActive) { showNotification("⚠️ Ative o áudio!", 1000); return; }
         if (!musicas || musicas.length === 0) { showNotification("Playlist vazia!", 1500); return; }
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
             indiceAtual = 0;
         }
         
@@ -1182,7 +1183,7 @@
         const track = obterMusicaAtual();
         if (!track) {
             // Tenta recriar playlist
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
             indiceAtual = 0;
             carregandoMusica = false;
             showLoad(false);
@@ -1193,11 +1194,15 @@
         // Atualiza UI
         updateNowPlaying(track);
         adicionarHistorico(track);
+        ultimaMusicaTocadaId = track.id;
         
         // Para áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
+        // Limpa eventos antigos
+        audio.oncanplay = null;
+        audio.onerror = null;
         
         let urls = gerarUrlsAlternativas(track);
         // Priorizar URLs com nome do arquivo
@@ -1211,7 +1216,13 @@
             showNotification("❌ Nenhuma URL disponível", 1000);
             carregandoMusica = false;
             showLoad(false);
-            setTimeout(() => nextTrack(), 500);
+            tentativasFalhas++;
+            if (tentativasFalhas > 3) {
+                tentativasFalhas = 0;
+                nextTrack();
+            } else {
+                setTimeout(() => nextTrack(), 500);
+            }
             return;
         }
         
@@ -1233,13 +1244,21 @@
         showLoad(false);
         
         if (sucesso) {
+            tentativasFalhas = 0;
             isPlaying = true;
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
             audio.play().catch(() => {});
             showNotification(`✅ Tocando: ${track.title}`, 1200);
             preCarregarProxima();
         } else {
+            tentativasFalhas++;
             showNotification("⏭️ Pulando...", 800);
+            if (tentativasFalhas > 3) {
+                tentativasFalhas = 0;
+                // Se muitas falhas, recria a playlist para tentar novas músicas
+                playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
+                indiceAtual = 0;
+            }
             setTimeout(() => nextTrack(), 300);
         }
     }
@@ -1278,15 +1297,15 @@
             const urls = gerarUrlsAlternativas(prox);
             if (urls.length === 0) return;
             
-            const preloadAudio = document.createElement('audio');
-            preloadAudio.preload = 'auto';
-            preloadAudio.src = urls[0];
-            preloadAudio.load();
-            // Descarta depois de 2 segundos
-            setTimeout(() => {
-                preloadAudio.src = '';
-                preloadAudio.load();
-            }, 2000);
+            // Reutiliza um único elemento de áudio para preload
+            if (!preloadAudioElement) {
+                preloadAudioElement = document.createElement('audio');
+                preloadAudioElement.preload = 'auto';
+                preloadAudioElement.style.display = 'none';
+                document.body.appendChild(preloadAudioElement);
+            }
+            preloadAudioElement.src = urls[0];
+            preloadAudioElement.load();
         } catch (e) {
             // Ignora
         }
@@ -1301,6 +1320,7 @@
             } else {
                 updateNowPlaying(track);
                 adicionarHistorico(track);
+                ultimaMusicaTocadaId = track.id;
                 audio.src = track.src || '';
                 audio.load();
             }
@@ -1317,6 +1337,7 @@
             } else {
                 updateNowPlaying(track);
                 adicionarHistorico(track);
+                ultimaMusicaTocadaId = track.id;
                 audio.src = track.src || '';
                 audio.load();
             }
@@ -1340,13 +1361,15 @@
         shuffleMode = !shuffleMode;
         shuffleBtn.classList.toggle('active', shuffleMode);
         
-        // Recria playlist com a ordem atual
+        // Recria a playlist com a nova ordem, evitando repetir a última música
         const musicaAtual = obterMusicaAtual();
-        playlistAtual = construirPlaylist(modoAtual, musicas);
+        playlistAtual = construirPlaylist(modoAtual, musicas, ultimaMusicaTocadaId);
         if (musicaAtual) {
             const idx = playlistAtual.findIndex(m => m.id === musicaAtual.id);
             if (idx > -1) indiceAtual = idx;
             else indiceAtual = 0;
+        } else {
+            indiceAtual = 0;
         }
         showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 800);
         showControls();
@@ -1362,15 +1385,21 @@
         audio.load();
         isPlaying = false;
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        tentativasFalhas = 0;
         
         modoFavoritosAtivo = false;
         modoAtual = m.genero || 'PADRÃO';
         
-        // Cria playlist começando com essa música
+        // Cria playlist começando com essa música, evitando repetição
         const outras = musicas.filter(t => t.id !== m.id && t.genero === m.genero);
-        playlistAtual = shuffleMode ? shuffleArray([m, ...outras]) : [m, ...outras];
+        if (shuffleMode) {
+            playlistAtual = shuffleArray([m, ...outras], null);
+        } else {
+            playlistAtual = [m, ...outras];
+        }
         indiceAtual = 0;
         historicoReproducao = [];
+        ultimaMusicaTocadaId = m.id;
         
         updateNowPlaying(m);
         adicionarHistorico(m);
@@ -1505,10 +1534,10 @@
                 musicas = lista;
                 modoAtual = gen;
                 genreBadge.innerHTML = modoAtual === 'PADRÃO' ? '🎵 PRINCIPAL' : modoAtual;
-                playlistAtual = construirPlaylist(modoAtual, musicas);
+                playlistAtual = construirPlaylist(modoAtual, musicas, null);
                 indiceAtual = 0;
                 const p = playlistAtual[0];
-                if (p) { updateNowPlaying(p); adicionarHistorico(p); }
+                if (p) { updateNowPlaying(p); adicionarHistorico(p); ultimaMusicaTocadaId = p.id; }
             } else {
                 showNotification('❌ Nenhuma playlist carregada', 2000);
             }
@@ -1738,6 +1767,7 @@
     window.addEventListener('beforeunload', function() { 
         pararAlternancia(); 
         if (sleepTimer) clearTimeout(sleepTimer);
+        if (preloadAudioElement) { preloadAudioElement.src = ''; preloadAudioElement.load(); }
         audio.pause(); 
         audio.src = ''; 
         audio.load();
