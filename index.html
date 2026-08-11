@@ -417,7 +417,6 @@
                 .join('');
             return `${email}:${celular}:${expiracao}:${hashHex}`;
         } catch (e) {
-            // Fallback para navegadores que não suportam crypto.subtle
             const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
             return `${email}:${celular}:${expiracao}:${fallbackHash}`;
         }
@@ -458,7 +457,6 @@
             const valido = hashCalculado === hashFornecido;
             return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
         } catch (e) {
-            // Fallback para navegadores que não suportam crypto.subtle
             const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
             const valido = fallbackHash === hashFornecido;
             return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
@@ -747,7 +745,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO - CORRIGIDO
+    //  PLAYER - LÓGICA DOS GÊNEROS CORRIGIDA!
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -807,6 +805,7 @@
     let hideControlsTimeout = null;
     let loadRetryCount = 0;
     const MAX_LOAD_RETRIES = 2;
+    let audioTimeout = null;
     
     // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
@@ -1240,7 +1239,41 @@
         }
     }
 
-    // ===== TOQUE DE MÚSICA =====
+    // ===== TOQUE DE MÚSICA - CORRIGIDO COM A LÓGICA QUE FUNCIONA =====
+    function tentarCarregarAudio(url) {
+        return new Promise(function(resolve) {
+            var timeout = setTimeout(function() {
+                audio.oncanplay = null;
+                audio.onerror = null;
+                resolve(false);
+            }, 8000);
+            
+            audio.oncanplay = function() {
+                clearTimeout(timeout);
+                audio.oncanplay = null;
+                audio.onerror = null;
+                resolve(true);
+            };
+            
+            audio.onerror = function() {
+                clearTimeout(timeout);
+                audio.oncanplay = null;
+                audio.onerror = null;
+                resolve(false);
+            };
+            
+            try {
+                audio.src = url;
+                audio.load();
+            } catch (e) {
+                clearTimeout(timeout);
+                audio.oncanplay = null;
+                audio.onerror = null;
+                resolve(false);
+            }
+        });
+    }
+
     async function playMusic() {
         if (carregandoMusica) {
             showNotification('⏳ Carregando...', 800);
@@ -1326,40 +1359,6 @@
             showNotification('⏭️ Pulando...', 800);
             setTimeout(function() { nextTrack(); }, 300);
         }
-    }
-
-    function tentarCarregarAudio(url) {
-        return new Promise(function(resolve) {
-            var timeout = setTimeout(function() {
-                audio.oncanplay = null;
-                audio.onerror = null;
-                resolve(false);
-            }, 8000);
-            
-            audio.oncanplay = function() {
-                clearTimeout(timeout);
-                audio.oncanplay = null;
-                audio.onerror = null;
-                resolve(true);
-            };
-            
-            audio.onerror = function() {
-                clearTimeout(timeout);
-                audio.oncanplay = null;
-                audio.onerror = null;
-                resolve(false);
-            };
-            
-            try {
-                audio.src = url;
-                audio.load();
-            } catch (e) {
-                clearTimeout(timeout);
-                audio.oncanplay = null;
-                audio.onerror = null;
-                resolve(false);
-            }
-        });
     }
 
     function preCarregarProxima() {
