@@ -811,6 +811,7 @@
     let loadRetryCount = 0;
     const MAX_LOAD_RETRIES = 2;
     let audioTimeout = null;
+    let ultimoId = null;
     
     // =================================================================
     //  ELEMENTOS DOM
@@ -843,7 +844,7 @@
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
     // =================================================================
-    //  GERENCIAMENTO DE PLAYLIST - CORRIGIDO
+    //  GERENCIAMENTO DE PLAYLIST - LÓGICA DO EXEMPLO QUE FUNCIONA!
     // =================================================================
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
@@ -855,11 +856,7 @@
             if (filtradas.length === 0) filtradas = [...lista];
         }
         
-        if (shuffleMode) {
-            return shuffleArray([...filtradas]);
-        } else {
-            return [...filtradas];
-        }
+        return shuffleArray([...filtradas]);
     }
 
     function obterMusicaAtual() {
@@ -871,12 +868,28 @@
     }
 
     function avancarMusica() {
+        // SE NÃO TEM PLAYLIST, CRIA UMA EMBARALHADA
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = shuffleArray([...musicas]);
             indiceAtual = 0;
         } else {
             indiceAtual++;
+            // QUANDO CHEGA NO FINAL
             if (indiceAtual >= playlistAtual.length) {
+                // PEGA A ÚLTIMA MÚSICA PARA NÃO REPETIR
+                var ultima = playlistAtual[playlistAtual.length - 1];
+                var ultimoIdTemp = ultima ? ultima.id : null;
+                
+                // RECRIA A PLAYLIST EMBARALHADA
+                playlistAtual = shuffleArray([...musicas]);
+                
+                // REMOVE A ÚLTIMA MÚSICA PARA NÃO REPETIR
+                if (ultimoIdTemp && playlistAtual.length > 1) {
+                    var idx = playlistAtual.findIndex(function(m) { return m.id === ultimoIdTemp; });
+                    if (idx > -1) {
+                        playlistAtual.splice(idx, 1);
+                    }
+                }
                 indiceAtual = 0;
             }
         }
@@ -885,7 +898,7 @@
 
     function voltarMusica() {
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = shuffleArray([...musicas]);
             indiceAtual = 0;
         } else {
             indiceAtual--;
@@ -1261,7 +1274,7 @@
             
             if (musicas && musicas.length > 0) {
                 showNotification('🔄 Voltando para ' + modoAtual, 1500);
-                playlistAtual = construirPlaylist(modoAtual, musicas);
+                playlistAtual = shuffleArray([...musicas]);
                 indiceAtual = 0;
                 var m = playlistAtual[0];
                 if (m) { updateNowPlaying(m); adicionarHistorico(m); }
@@ -1288,7 +1301,9 @@
         
         musicas = lista;
         modoAtual = genero;
-        playlistAtual = construirPlaylist(genero, musicas);
+        
+        // ===== CRIA PLAYLIST EMBARALHADA =====
+        playlistAtual = shuffleArray([...musicas]);
         indiceAtual = 0;
         historicoReproducao = [];
         
@@ -1371,7 +1386,7 @@
             return;
         }
         if (!playlistAtual || playlistAtual.length === 0) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = shuffleArray([...musicas]);
             indiceAtual = 0;
         }
         
@@ -1380,7 +1395,7 @@
         
         var track = obterMusicaAtual();
         if (!track) {
-            playlistAtual = construirPlaylist(modoAtual, musicas);
+            playlistAtual = shuffleArray([...musicas]);
             indiceAtual = 0;
             carregandoMusica = false;
             showLoad(false);
@@ -1515,7 +1530,6 @@
         shuffleBtn.classList.toggle('active', shuffleMode);
         
         var musicaAtual = obterMusicaAtual();
-        playlistAtual = construirPlaylist(modoAtual, musicas);
         if (musicaAtual) {
             var idx = playlistAtual.findIndex(function(m) { return m.id === musicaAtual.id; });
             if (idx > -1) indiceAtual = idx;
@@ -1548,7 +1562,7 @@
         modoAtual = m.genero || 'BÔNUS';
         
         var outras = musicas.filter(function(t) { return t.id !== m.id && t.genero === m.genero; });
-        playlistAtual = shuffleMode ? shuffleArray([m].concat(outras)) : [m].concat(outras);
+        playlistAtual = shuffleArray([m].concat(outras));
         indiceAtual = 0;
         historicoReproducao = [];
         
@@ -1778,6 +1792,12 @@
                 if (lista && lista.length > 0) {
                     musicas = lista;
                     modoAtual = gen;
+                    
+                    // ===== CRIA PLAYLIST EMBARALHADA =====
+                    playlistAtual = shuffleArray([...musicas]);
+                    indiceAtual = 0;
+                    historicoReproducao = [];
+                    
                     if (gen === 'BÔNUS') {
                         genreBadge.innerHTML = '🎵 BÔNUS';
                         genreBadge.className = 'genre-badge bonus';
@@ -1788,8 +1808,7 @@
                         genreBadge.style.borderLeftColor = cor;
                         genreBadge.style.color = cor;
                     }
-                    playlistAtual = construirPlaylist(modoAtual, musicas);
-                    indiceAtual = 0;
+                    
                     var p = playlistAtual[0];
                     if (p) { 
                         updateNowPlaying(p); 
