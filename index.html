@@ -759,17 +759,17 @@
 
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
-    'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
-    'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json', // ✅ CORRIGIDO
-    'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
-    'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
-    'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
-    'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json', // ✅ CORRIGIDO
-    'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json',
-    'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json',
-    'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
-    'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
-    'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
+        'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
+        'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
+        'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
+        'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
+        'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
+        'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json',
+        'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json',
+        'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json',
+        'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
+        'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
+        'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
     };
 
     const CORES_POR_GENERO = {
@@ -1132,7 +1132,13 @@
         
         try {
             showLoad(true);
-            var r = await fetch(url);
+            
+            // Usando AbortController para timeout
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() { controller.abort(); }, 12000);
+            
+            var r = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
             
             if (!r.ok) {
                 throw new Error('HTTP ' + r.status + ' - ' + r.statusText);
@@ -1181,25 +1187,54 @@
                 return carregarPlaylistPorGenero(genero);
             }
             
-            showNotification('❌ Erro ao carregar ' + genero + ': ' + error.message, 3000);
+            // Se falhou todas as tentativas, retorna null
+            showNotification('❌ Falha ao carregar ' + genero, 2000);
             return null;
         }
     }
 
-    // ===== SELECIONAR GÊNERO =====
+    // ===== SELECIONAR GÊNERO - CORRIGIDO COM FALLBACK =====
     async function selecionarGenero(genero) {
         if (modoFavoritosAtivo) { 
             modoFavoritosAtivo = false; 
             genreBadge.className = 'genre-badge'; 
         }
         
+        // Mostra loading
+        showLoad(true);
+        
         var lista = await carregarPlaylistPorGenero(genero);
         
+        // SE FALHAR, TENTA CARREGAR DO CACHE OU USA O GÊNERO ATUAL
         if (!lista || lista.length === 0) {
-            showNotification('❌ Nenhuma música para ' + genero + '!', 3000);
+            showLoad(false);
+            showNotification('❌ Erro ao carregar ' + genero + '!', 2000);
+            
+            // Se tem músicas do gênero atual, volta para ele
+            if (musicas && musicas.length > 0) {
+                showNotification('🔄 Voltando para ' + modoAtual, 1500);
+                // Recria a playlist com as músicas atuais
+                playlistAtual = construirPlaylist(modoAtual, musicas);
+                indiceAtual = 0;
+                var m = playlistAtual[0];
+                if (m) { updateNowPlaying(m); adicionarHistorico(m); }
+                // Atualiza o badge
+                if (modoAtual === 'BÔNUS') {
+                    genreBadge.innerHTML = '🎵 BÔNUS';
+                    genreBadge.className = 'genre-badge bonus';
+                } else {
+                    genreBadge.innerHTML = modoAtual;
+                    genreBadge.className = 'genre-badge';
+                    var cor = CORES_POR_GENERO[modoAtual] || '#00f3ff';
+                    genreBadge.style.borderLeftColor = cor;
+                    genreBadge.style.color = cor;
+                }
+            }
+            document.getElementById('genresModal').classList.remove('open');
             return;
         }
         
+        // Sucesso! Carrega o gênero
         audio.pause();
         audio.src = '';
         audio.load();
@@ -1230,6 +1265,7 @@
         }
         
         buildGenresGrid();
+        showLoad(false);
         showNotification('🎵 ' + genero + ' (' + musicas.length + ' músicas)', 2000);
         document.getElementById('genresModal').classList.remove('open');
         goFullscreen();
@@ -1239,7 +1275,7 @@
         }
     }
 
-    // ===== TOQUE DE MÚSICA - CORRIGIDO COM A LÓGICA QUE FUNCIONA =====
+    // ===== TOQUE DE MÚSICA =====
     function tentarCarregarAudio(url) {
         return new Promise(function(resolve) {
             var timeout = setTimeout(function() {
@@ -1656,16 +1692,39 @@
         
         (async function() {
             try {
-                var lista = await carregarPlaylistPorGenero('BÔNUS');
-                var gen = 'BÔNUS';
-                if (!lista || lista.length === 0) {
-                    lista = await carregarPlaylistPorGenero('MPB');
-                    gen = 'MPB';
+                // Tenta carregar todos os gêneros até um funcionar
+                var generosPrioridade = ['BÔNUS', 'MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
+                var lista = null;
+                var gen = null;
+                
+                for (var i = 0; i < generosPrioridade.length; i++) {
+                    var g = generosPrioridade[i];
+                    if (GENRE_URLS[g]) {
+                        showNotification('🔄 Tentando carregar: ' + g, 1000);
+                        lista = await carregarPlaylistPorGenero(g);
+                        if (lista && lista.length > 0) {
+                            gen = g;
+                            showNotification('✅ ' + g + ' carregado!', 1500);
+                            break;
+                        }
+                    }
                 }
+                
+                // Se nenhum funcionou, tenta o primeiro que tiver URL
                 if (!lista || lista.length === 0) {
-                    lista = await carregarPlaylistPorGenero('POP');
-                    gen = 'POP';
+                    for (var g in GENRE_URLS) {
+                        if (GENRE_URLS[g]) {
+                            showNotification('🔄 Tentando último recurso: ' + g, 1000);
+                            lista = await carregarPlaylistPorGenero(g);
+                            if (lista && lista.length > 0) {
+                                gen = g;
+                                showNotification('✅ ' + g + ' carregado (último recurso)!', 1500);
+                                break;
+                            }
+                        }
+                    }
                 }
+                
                 if (lista && lista.length > 0) {
                     musicas = lista;
                     modoAtual = gen;
