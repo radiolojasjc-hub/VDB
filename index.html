@@ -31,6 +31,7 @@
         .genre-badge { background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 30px; font-size: 0.5rem; font-weight: bold; color: #fff; border-left: 2px solid #00f3ff; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 30%; cursor: pointer; flex-shrink: 1; min-width: 40px; }
         .genre-badge:active { transform: scale(0.95); }
         .genre-badge.favoritos { border-left-color: #ff2d7f; color: #ff2d7f; background: rgba(255,45,127,0.15); }
+        .genre-badge.bonus { border-left-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.1); }
         .top-buttons { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; flex-shrink: 0; }
         
         .fav-top-btn { background: rgba(255,45,127,0.15); border: 1px solid #ff2d7f; color: #ff2d7f; padding: 2px 8px; border-radius: 30px; font-size: 0.45rem; cursor: pointer; display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
@@ -152,6 +153,7 @@
         .genre-card { border-radius: 12px; cursor: pointer; transition: all 0.25s ease; border: 2px solid rgba(255,255,255,0.12); aspect-ratio: 4 / 2.4; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; text-align: center; color: white; font-weight: 700; font-size: 0.65rem; padding: 6px; }
         .genre-card:active { transform: scale(0.94); }
         .genre-card.fav-card { border-color: #ff2d7f; background: rgba(255,45,127,0.15); }
+        .genre-card.bonus-card { border-color: #ffd700; background: rgba(255,215,0,0.1); color: #ffd700; }
         .close-genres { width: 100%; padding: 8px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
         .close-genres:active { transform: scale(0.95); }
         
@@ -271,7 +273,7 @@
     <!-- App -->
     <div class="app" id="appContainer">
         <div class="top-bar" id="topBar">
-            <div class="genre-badge" id="genreBadge" onclick="openGenres()">MPB</div>
+            <div class="genre-badge bonus" id="genreBadge" onclick="openGenres()">🎵 BÔNUS</div>
             <div class="top-buttons">
                 <span class="audio-status" id="audioStatus"><span class="dot"></span> Aguardando</span>
                 <button class="fav-top-btn" id="favTopBtn">
@@ -481,10 +483,10 @@
         const TEMPO_TESTE = 5;
 
         // ============================================================
-        // GENRE URLS - MANTIDAS IGUAIS
+        // GENRE URLS - BÔNUS é o primeiro!
         // ============================================================
         const GENRE_URLS = {
-            'PADRÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
+            'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
             'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
             'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
             'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
@@ -499,13 +501,22 @@
         };
 
         const CORES_POR_GENERO = {
-            'PADRÃO': '#ffffff', 'FLASHBACK': '#ffaa00', 'RELIGIOSA': '#aa55ff', 'ROMÂNTICA': '#ff2d7f',
-            'MPB': '#00ff88', 'POP': '#ff3366', 'SERTANEJO': '#ff8800', 'FORRÓ': '#ff8800',
-            'SAMBA': '#ffdd00', 'BREGA': '#ff66aa', 'REGGAE': '#00ffaa', 'MODA TOP': '#ff4400'
+            'BÔNUS': '#ffd700',
+            'FLASHBACK': '#ffaa00',
+            'RELIGIOSA': '#aa55ff',
+            'ROMÂNTICA': '#ff2d7f',
+            'MPB': '#00ff88',
+            'POP': '#ff3366',
+            'SERTANEJO': '#ff8800',
+            'FORRÓ': '#ff8800',
+            'SAMBA': '#ffdd00',
+            'BREGA': '#ff66aa',
+            'REGGAE': '#00ffaa',
+            'MODA TOP': '#ff4400'
         };
 
         // ============================================================
-        // MÍDIAS - MANTIDAS IGUAIS
+        // MÍDIAS
         // ============================================================
         const midias = [
             { tipo: 'imagem', src: 'vai1.png' },
@@ -526,7 +537,7 @@
         let shuffleMode = false;
         let isBackgroundActive = false;
         let timerInterval = null;
-        let modoAtual = "PADRÃO";
+        let modoAtual = "BÔNUS";
         let historicoReproducao = [];
         let modoFavoritosAtivo = false;
         let fabOpen = false;
@@ -760,8 +771,15 @@
             currentPlaylist = shuffleArray([...musicas]);
             currentIndex = 0;
             historicoReproducao = [];
-            genreBadge.innerHTML = genero === 'FORRÓ' ? '🪗 FORRÓ' : genero;
-            genreBadge.className = 'genre-badge';
+            
+            if (genero === 'BÔNUS') {
+                genreBadge.innerHTML = '🎵 BÔNUS';
+                genreBadge.className = 'genre-badge bonus';
+            } else {
+                genreBadge.innerHTML = genero === 'FORRÓ' ? '🪗 FORRÓ' : genero;
+                genreBadge.className = 'genre-badge';
+            }
+            
             const primeira = currentPlaylist[0];
             if (primeira) { updateNowPlaying(primeira); adicionarAoHistorico(primeira); }
             if (isBackgroundActive) { setTimeout(() => playMusic(), 300); }
@@ -987,7 +1005,6 @@
                     totalTimeEl.textContent = formatTime(audio.duration);
                     if (audio.currentTime >= audio.duration - 0.5) {
                         if (!carregandoMusica) {
-                            // A música acabou, avança
                             nextTrack();
                         }
                     }
@@ -1118,7 +1135,13 @@
             ultimoId = musica.id;
             historicoReproducao = [];
             updateNowPlaying(musica);
-            genreBadge.innerHTML = musica.genero;
+            if (musica.genero === 'BÔNUS') {
+                genreBadge.innerHTML = '🎵 BÔNUS';
+                genreBadge.className = 'genre-badge bonus';
+            } else {
+                genreBadge.innerHTML = musica.genero;
+                genreBadge.className = 'genre-badge';
+            }
             if (isBackgroundActive) setTimeout(() => playMusic(), 200);
             showNotification(`🎵 ${musica.title} - ${musica.artist}`, 2000);
         }
@@ -1126,11 +1149,22 @@
         function buildGenresGrid() {
             const genresGrid = document.getElementById('genresGrid');
             genresGrid.innerHTML = '';
+            
+            // BÔNUS SEMPRE PRIMEIRO
+            const bonusCard = document.createElement('div');
+            bonusCard.className = 'genre-card bonus-card';
+            bonusCard.innerHTML = '🎵 BÔNUS';
+            bonusCard.onclick = () => { selecionarGenero('BÔNUS'); };
+            genresGrid.appendChild(bonusCard);
+            
+            // FAVORITOS
             const favCard = document.createElement('div');
             favCard.className = 'genre-card fav-card';
             favCard.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;margin-right:3px;"></i> FAVORITOS (${favorites.length})`;
             favCard.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
             genresGrid.appendChild(favCard);
+            
+            // OUTROS GÊNEROS
             const generosGrid = ['MPB','POP','SERTANEJO','FORRÓ','SAMBA','BREGA','REGGAE','MODA TOP','RELIGIOSA','ROMÂNTICA','FLASHBACK'];
             generosGrid.forEach(genero => {
                 if (GENRE_URLS[genero]) {
@@ -1313,8 +1347,7 @@
             if (testTimer) { clearInterval(testTimer); testTimer = null; }
             
             if (musicas.length > 0) {
-                carregarMusica(0);
-                setTimeout(function() { tocar(); }, 500);
+                setTimeout(function() { playMusic(); }, 500);
             }
         }
 
@@ -1448,8 +1481,10 @@
             carregarFavoritos();
             atualizarBadgeFavoritos();
 
-            let lista = await carregarPlaylistPorGenero('PADRÃO');
-            let generoInicial = 'PADRÃO';
+            // CARREGA BÔNUS PRIMEIRO
+            let lista = await carregarPlaylistPorGenero('BÔNUS');
+            let generoInicial = 'BÔNUS';
+            
             if (!lista || lista.length === 0) {
                 lista = await carregarPlaylistPorGenero('MPB');
                 generoInicial = 'MPB';
@@ -1459,14 +1494,23 @@
                 generoInicial = 'POP';
             }
             if (!lista || lista.length === 0) {
-                const primeiroGenero = Object.keys(GENRE_URLS).find(k => k !== 'PADRÃO') || 'MPB';
+                const primeiroGenero = Object.keys(GENRE_URLS).find(k => k !== 'BÔNUS') || 'MPB';
                 lista = await carregarPlaylistPorGenero(primeiroGenero);
                 generoInicial = primeiroGenero;
             }
+            
             if (lista && lista.length > 0) {
                 musicas = lista;
                 modoAtual = generoInicial;
-                genreBadge.innerHTML = modoAtual === 'PADRÃO' ? '🎵 PRINCIPAL' : modoAtual;
+                
+                if (generoInicial === 'BÔNUS') {
+                    genreBadge.innerHTML = '🎵 BÔNUS';
+                    genreBadge.className = 'genre-badge bonus';
+                } else {
+                    genreBadge.innerHTML = generoInicial;
+                    genreBadge.className = 'genre-badge';
+                }
+                
                 currentPlaylist = shuffleArray([...musicas]);
                 currentIndex = 0;
                 ultimoId = null;
@@ -1916,6 +1960,7 @@
             console.log('🎵 Vai de Boa! Music');
             console.log('🔑 Senha Admin: ' + SENHA_ADMIN);
             console.log('⏰ Teste de ' + TEMPO_TESTE + ' minutos');
+            console.log('🎵 BÔNUS carregado primeiro!');
         });
 
     })();
