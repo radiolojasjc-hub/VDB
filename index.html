@@ -51,7 +51,6 @@
         .menu-popup.open { display: flex; }
         .menu-popup button { background: rgba(255,255,255,0.06); border: none; color: white; padding: 6px 12px; border-radius: 30px; font-size: 0.6rem; display: flex; align-items: center; gap: 6px; cursor: pointer; text-align: left; }
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
-        .menu-popup .admin-btn { background: rgba(0,243,255,0.12); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
         .menu-popup .close-btn { background: rgba(255,45,127,0.15); border: 1px solid #ff2d7f; color: #ff2d7f; }
         
         .info-scroll { position: fixed; top: 35px; left: 0; right: 0; z-index: 30; background: transparent; padding: 4px 12px; border-bottom: none; overflow: hidden; white-space: nowrap; height: 28px; display: flex; align-items: center; }
@@ -386,48 +385,27 @@
     <!-- Menu -->
     <div class="menu-popup" id="menuPopup">
         <button class="close-btn" id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
-        <button class="admin-btn" id="menuAdminBtn"><i class="fas fa-crown"></i> 👑 Painel Admin</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
         <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i> Recarregar Playlist</button>
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
-    </div>
-
-    <!-- ADMIN LOGIN -->
-    <div class="admin-login-overlay" id="adminLoginOverlay">
-        <h2>👑 Acesso Administrativo</h2>
-        <input type="password" id="adminSenhaInput" placeholder="Digite a senha do admin" autocomplete="off">
-        <button id="btnAdminLogin">ENTRAR</button>
-        <div class="error" id="adminLoginError">❌ Senha incorreta!</div>
+        <!-- BOTÃO ADMIN REMOVIDO DO MENU -->
     </div>
 
     <!-- ADMIN PANEL -->
     <div id="adminPanel">
         <div class="admin-header">
-            <h2>👑 PAINEL ADMIN - VAI DE BOA! MUSIC</h2>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="close-admin" id="btnAdminSair">🚪 Sair</button>
-                <button class="close-admin" style="border-color:var(--neon-cyan);" id="btnAdminClose">✕ Fechar</button>
-            </div>
-        </div>
-        
-        <div class="admin-stats" id="adminStats">
-            <div class="admin-stat"><div class="num" id="statTotal">0</div><div class="label">Total de Senhas</div></div>
-            <div class="admin-stat"><div class="num" id="statAtivas">0</div><div class="label">Ativas</div></div>
-            <div class="admin-stat"><div class="num" id="statMensais">0</div><div class="label">Planos Mensais</div></div>
-            <div class="admin-stat"><div class="num" id="statVitalicios">0</div><div class="label">Planos Vitalícios</div></div>
+            <h2>🔐 ADMIN - Gerar Senha</h2>
+            <button class="close-admin" id="btnAdminClose">✕ Fechar</button>
         </div>
         
         <div class="admin-section">
-            <h3><i class="fas fa-key"></i> GERAR SENHA</h3>
+            <h3><i class="fas fa-key"></i> GERAR SENHA VITALÍCIA</h3>
             <div class="admin-form">
                 <div class="admin-form-row">
-                    <input type="text" id="adminCelular" placeholder="📱 Celular do comprador" maxlength="15">
-                    <select id="adminPlano">
-                        <option value="mensal">📅 Mensal - R$ 9,90 (30 dias)</option>
-                        <option value="vitalicio">♾️ Vitalício - R$ 49,90 (pra sempre)</option>
-                    </select>
+                    <input type="text" id="adminCelular" placeholder="📱 Celular do comprador" maxlength="15" value="12988461978">
+                    <input type="email" id="adminEmail" placeholder="📧 Email" value="cliente@teste.com">
                     <button class="admin-btn" id="btnGerarSenha">🔐 GERAR</button>
                 </div>
             </div>
@@ -435,12 +413,9 @@
                 <div style="color:#888;font-size:0.75rem;">✅ SENHA GERADA!</div>
                 <div class="senha-text" id="senhaGeradaText">XXXXXX</div>
                 <div style="color:#aaa;font-size:0.65rem;margin-bottom:10px;">
-                    <i class="fas fa-phone"></i> <span id="senhaGeradaCelular">-</span> | 
-                    <i class="fas fa-clock"></i> <span id="senhaGeradaPlano">-</span> | 
-                    <i class="fas fa-calendar"></i> <span id="senhaGeradaValidade">-</span>
+                    <i class="fas fa-phone"></i> <span id="senhaGeradaCelular">-</span>
                 </div>
                 <button class="copy-btn" id="btnCopiarSenha"><i class="fas fa-copy"></i> Copiar Senha</button>
-                <button class="copy-btn" style="margin-left:6px;border-color:#25D366;" id="btnWhatsappEnviar"><i class="fab fa-whatsapp"></i> Enviar Link</button>
             </div>
         </div>
         
@@ -451,8 +426,7 @@
                     <thead>
                         <tr>
                             <th>Celular</th>
-                            <th>Plano</th>
-                            <th>Validade</th>
+                            <th>Senha</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -478,11 +452,12 @@
         // ============================================================
         // CONFIGURAÇÕES
         // ============================================================
-        const SENHA_ADMIN = 'PATICO1685';
+        const SENHA_ADMIN = 'PATICO1685@';
         const TEMPO_TESTE = 5;
+        const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
 
         // ============================================================
-        // GENRE URLS - SÓ MUDOU 'PADRÃO' PARA 'BÔNUS'
+        // GENRE URLS
         // ============================================================
         const GENRE_URLS = {
             'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
@@ -539,14 +514,9 @@
         let carregandoMusica = false;
         let audioTimeout = null;
         let favorites = [];
-
-        // TIMER TESTE
-        let testTimer = null;
-        let testEndTime = null;
-        let appLiberado = false;
-
-        // SENHAS
         let senhasGeradas = JSON.parse(localStorage.getItem('senhas_geradas_local') || '[]');
+        let adminClicks = 0;
+        let adminTimeout = null;
 
         // ============================================================
         // DOM
@@ -580,27 +550,79 @@
         const erroSenha = document.getElementById('erroSenha');
 
         // ADMIN
-        const adminLoginOverlay = document.getElementById('adminLoginOverlay');
-        const adminSenhaInput = document.getElementById('adminSenhaInput');
-        const btnAdminLogin = document.getElementById('btnAdminLogin');
-        const adminLoginError = document.getElementById('adminLoginError');
         const adminPanel = document.getElementById('adminPanel');
         const btnAdminClose = document.getElementById('btnAdminClose');
-        const menuAdminBtn = document.getElementById('menuAdminBtn');
         const adminCelular = document.getElementById('adminCelular');
-        const adminPlano = document.getElementById('adminPlano');
+        const adminEmail = document.getElementById('adminEmail');
         const btnGerarSenha = document.getElementById('btnGerarSenha');
         const senhaGeradaArea = document.getElementById('senhaGeradaArea');
         const senhaGeradaText = document.getElementById('senhaGeradaText');
         const senhaGeradaCelular = document.getElementById('senhaGeradaCelular');
-        const senhaGeradaPlano = document.getElementById('senhaGeradaPlano');
-        const senhaGeradaValidade = document.getElementById('senhaGeradaValidade');
         const btnCopiarSenha = document.getElementById('btnCopiarSenha');
-        const btnWhatsappEnviar = document.getElementById('btnWhatsappEnviar');
         const adminTabelaSenhas = document.getElementById('adminTabelaSenhas');
         const adminSemSenhas = document.getElementById('adminSemSenhas');
-        const statTotal = document.getElementById('statTotal');
-        const statAtivas = document.getElementById('statAtivas');
+
+        // ============================================================
+        // ADMIN - Clique no letreiro (5x)
+        // ============================================================
+        window.ativarAdmin = function() {
+            adminClicks++;
+            clearTimeout(adminTimeout);
+            adminTimeout = setTimeout(() => { 
+                adminClicks = 0; 
+                showNotification('👆 Clique 5x para ADMIN', 1000);
+            }, 1500);
+            
+            if (adminClicks >= 5) {
+                adminClicks = 0;
+                clearTimeout(adminTimeout);
+                adminPanel.classList.toggle('open');
+                if (adminPanel.classList.contains('open')) {
+                    showNotification('🔐 ADMIN ABERTO!', 1500);
+                    atualizarAdminStats();
+                } else {
+                    showNotification('🔐 ADMIN FECHADO!', 1500);
+                }
+            } else {
+                showNotification(`👆 ${adminClicks}/5 cliques`, 800);
+            }
+        };
+
+        // ============================================================
+        // GERAR SENHA
+        // ============================================================
+        async function gerarSenhaAdmin(email, celular) {
+            const expiracao = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
+            const data = `${email}:${celular}:${expiracao}`;
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(SECRET_KEY);
+            const msgData = encoder.encode(data);
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+            const hashHex = Array.from(new Uint8Array(signature))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return `${email}:${celular}:${expiracao}:${hashHex}`;
+        }
+
+        function atualizarAdminStats() {
+            if (senhasGeradas.length === 0) {
+                adminTabelaSenhas.innerHTML = '';
+                adminSemSenhas.style.display = 'block';
+                return;
+            }
+            adminSemSenhas.style.display = 'none';
+            adminTabelaSenhas.innerHTML = senhasGeradas.map(function(s) {
+                const statusText = s.ativo ? '✅ Ativo' : '❌ Expirado';
+                return '<tr><td>' + s.celular + '</td><td>' + s.senha + '</td><td class="' + (s.ativo ? 'status-active' : 'status-expired') + '">' + statusText + '</td></tr>';
+            }).join('');
+        }
 
         // ============================================================
         // MÍDIA
@@ -1107,7 +1129,6 @@
             const genresGrid = document.getElementById('genresGrid');
             genresGrid.innerHTML = '';
             
-            // BÔNUS PRIMEIRO
             const bonusCard = document.createElement('div');
             bonusCard.className = 'genre-card';
             bonusCard.style.border = '2px solid #ffd700';
@@ -1304,8 +1325,7 @@
             if (testTimer) { clearInterval(testTimer); testTimer = null; }
             
             if (musicas.length > 0) {
-                carregarMusica(0);
-                setTimeout(function() { tocar(); }, 500);
+                setTimeout(function() { playMusic(); }, 500);
             }
         }
 
@@ -1313,12 +1333,11 @@
             const senhaLimpa = senha.trim().toUpperCase();
             erroSenha.classList.remove('show');
             
-            if (senhaLimpa === SENHA_ADMIN) {
+            if (senhaLimpa === 'VDB2024') {
                 liberarApp();
                 return;
             }
             
-            // Verifica senhas geradas localmente
             const encontrada = senhasGeradas.find(function(s) {
                 return s.senha === senhaLimpa && s.ativo === true;
             });
@@ -1385,52 +1404,7 @@
         }
 
         // ============================================================
-        // ADMIN
-        // ============================================================
-        function atualizarAdminStats() {
-            const total = senhasGeradas.length;
-            const ativas = senhasGeradas.filter(function(s) { return s.ativo; }).length;
-            statTotal.textContent = total;
-            statAtivas.textContent = ativas;
-            
-            if (senhasGeradas.length === 0) {
-                adminTabelaSenhas.innerHTML = '';
-                adminSemSenhas.style.display = 'block';
-                return;
-            }
-            adminSemSenhas.style.display = 'none';
-            adminTabelaSenhas.innerHTML = senhasGeradas.map(function(s) {
-                const statusClass = s.ativo ? 'status-active' : 'status-expired';
-                const statusText = s.ativo ? '✅ Ativo' : '❌ Expirado';
-                const expiracao = s.expiracao ? new Date(s.expiracao).toLocaleDateString() : '♾️ Vitalício';
-                const planoNome = s.plano === 'mensal' ? 'Mensal' : 'Vitalício';
-                return '<tr><td>' + s.celular + '</td><td>' + planoNome + '</td><td>' + expiracao + '</td><td class="' + statusClass + '">' + statusText + '</td></tr>';
-            }).join('');
-        }
-
-        function abrirAdmin() {
-            adminLoginOverlay.classList.add('open');
-            adminSenhaInput.value = '';
-            adminSenhaInput.focus();
-            adminLoginError.classList.remove('show');
-        }
-
-        function fecharAdmin() {
-            adminPanel.classList.remove('open');
-            adminLoginOverlay.classList.remove('open');
-        }
-
-        function gerarSenhaUnica() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let senha = '';
-            for (let i = 0; i < 8; i++) {
-                senha += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return senha;
-        }
-
-        // ============================================================
-        // INICIALIZAÇÃO - SÓ MUDOU 'PADRÃO' PARA 'BÔNUS'
+        // INICIALIZAÇÃO
         // ============================================================
         async function iniciar() {
             criarElementosMidia();
@@ -1764,65 +1738,50 @@
         });
 
         // ============================================================
-        // ADMIN EVENTOS
+        // EVENTOS ADMIN
         // ============================================================
-        menuAdminBtn.addEventListener('click', function() {
-            menuPopup.classList.remove('open');
-            abrirAdmin();
+        btnAdminClose.addEventListener('click', function() {
+            adminPanel.classList.remove('open');
         });
 
-        btnAdminLogin.addEventListener('click', function() {
-            const senha = adminSenhaInput.value;
-            if (senha === SENHA_ADMIN) {
-                adminLoginOverlay.classList.remove('open');
-                adminPanel.classList.add('open');
-                atualizarAdminStats();
-                adminLoginError.classList.remove('show');
-                showNotification('👑 Bem-vindo!', 1500);
-            } else {
-                adminLoginError.classList.add('show');
-            }
-        });
-
-        adminSenhaInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                btnAdminLogin.click();
-            }
-        });
-
-        btnAdminClose.addEventListener('click', fecharAdmin);
-
-        btnGerarSenha.addEventListener('click', function() {
+        btnGerarSenha.addEventListener('click', async function() {
             const celular = adminCelular.value.trim();
-            const plano = adminPlano.value;
-            if (!celular) { alert('⚠️ Digite o celular!'); return; }
+            const email = adminEmail.value.trim() || 'cliente';
+            
+            if (!celular) {
+                showNotification('⚠️ Digite o celular!', 1500);
+                return;
+            }
+            
             const celularLimpo = celular.replace(/\D/g, '');
-            if (celularLimpo.length < 10) { alert('⚠️ Celular inválido!'); return; }
+            if (celularLimpo.length < 10) {
+                showNotification('⚠️ Celular inválido!', 1500);
+                return;
+            }
             
-            const dias = plano === 'mensal' ? 30 : 0;
-            const expiracao = dias > 0 ? new Date(Date.now() + dias * 24 * 60 * 60 * 1000).toISOString() : null;
-            
-            const novaSenha = {
-                senha: gerarSenhaUnica(),
-                celular: celularLimpo,
-                plano: plano,
-                criado: new Date().toISOString(),
-                expiracao: expiracao,
-                ativo: true
-            };
-            
-            senhasGeradas.push(novaSenha);
-            localStorage.setItem('senhas_geradas_local', JSON.stringify(senhasGeradas));
-            
-            senhaGeradaArea.classList.add('show');
-            senhaGeradaText.textContent = novaSenha.senha;
-            senhaGeradaCelular.textContent = novaSenha.celular;
-            senhaGeradaPlano.textContent = plano === 'mensal' ? 'Mensal' : 'Vitalício';
-            senhaGeradaValidade.textContent = expiracao ? new Date(expiracao).toLocaleDateString() : '♾️ Vitalício';
-            
-            adminCelular.value = '';
-            atualizarAdminStats();
-            showNotification('✅ Senha gerada!', 1500);
+            try {
+                const senha = await gerarSenhaAdmin(email, celularLimpo);
+                const novaSenha = {
+                    senha: senha,
+                    celular: celularLimpo,
+                    email: email,
+                    criado: new Date().toISOString(),
+                    ativo: true
+                };
+                
+                senhasGeradas.push(novaSenha);
+                localStorage.setItem('senhas_geradas_local', JSON.stringify(senhasGeradas));
+                
+                senhaGeradaArea.classList.add('show');
+                senhaGeradaText.textContent = senha;
+                senhaGeradaCelular.textContent = celularLimpo;
+                
+                adminCelular.value = '';
+                atualizarAdminStats();
+                showNotification('✅ Senha gerada!', 1500);
+            } catch (e) {
+                showNotification('❌ Erro ao gerar: ' + e.message, 2000);
+            }
         });
 
         btnCopiarSenha.addEventListener('click', function() {
@@ -1838,16 +1797,6 @@
                 document.body.removeChild(temp);
                 showNotification('📋 Senha copiada!', 1000);
             });
-        });
-
-        btnWhatsappEnviar.addEventListener('click', function() {
-            const senha = senhaGeradaText.textContent;
-            const celular = senhaGeradaCelular.textContent;
-            const plano = senhaGeradaPlano.textContent;
-            const validade = senhaGeradaValidade.textContent;
-            const link = window.location.origin + window.location.pathname + '?senha=' + senha;
-            const msg = encodeURIComponent(`🎵 *VAI DE BOA! MUSIC* 🎵%0A%0A🔑 Sua senha: *${senha}*%0A📅 Plano: ${plano}%0A⏰ Validade: ${validade}%0A%0A📲 Clique no link para ATIVAR:%0A${link}`);
-            window.open(`https://wa.me/55${celular}?text=${msg}`, '_blank');
         });
 
         // ============================================================
@@ -1905,8 +1854,8 @@
             iniciar();
             detectarSenhaURL();
             console.log('🎵 Vai de Boa! Music');
-            console.log('🔑 Senha Admin: ' + SENHA_ADMIN);
-            console.log('⏰ Teste de ' + TEMPO_TESTE + ' minutos');
+            console.log('🔑 ADMIN: 5 cliques no letreiro - Senha: PATICO1685@');
+            console.log('🔓 Senha fixa: VDB2024');
         });
 
     })();
