@@ -750,7 +750,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO - SEM TRAVAMENTOS
+    //  PLAYER COMPLETO
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -1114,7 +1114,7 @@
         }
     }
 
-    // ===== SELECIONAR GÊNERO - CORRIGIDO SEM TRAVAR =====
+    // ===== SELECIONAR GÊNERO - CORRIGIDO =====
     async function selecionarGenero(genero) {
         if (trocandoGenero) return;
         trocandoGenero = true;
@@ -1134,21 +1134,18 @@
             return;
         }
         
-        // Para o áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
         isPlaying = false;
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         
-        // Atualiza dados
         musicas = lista;
         modoAtual = genero;
         playlistAtual = construirPlaylist(genero, musicas);
         indiceAtual = 0;
         historicoReproducao = [];
         
-        // Atualiza badge
         if (genero === 'BÔNUS') {
             genreBadge.innerHTML = '🎵 BÔNUS';
             genreBadge.className = 'genre-badge bonus';
@@ -1158,10 +1155,7 @@
         }
         
         const m = playlistAtual[0];
-        if (m) { 
-            updateNowPlaying(m); 
-            adicionarHistorico(m); 
-        }
+        if (m) { updateNowPlaying(m); adicionarHistorico(m); }
         
         buildGenresGrid();
         showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
@@ -1171,11 +1165,8 @@
         showLoad(false);
         trocandoGenero = false;
         
-        // Toca a música depois que tudo está pronto
         if (isBackgroundActive) {
-            setTimeout(() => {
-                playMusic();
-            }, 500);
+            setTimeout(() => playMusic(), 500);
         }
     }
 
