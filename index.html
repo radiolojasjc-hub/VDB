@@ -238,7 +238,7 @@
     
     <div class="top-bar">
         <div class="left-group">
-            <div class="genre-badge" id="genreBadge" onclick="window.openGenres()">MPB</div>
+            <div class="genre-badge" id="genreBadge" onclick="window.openGenres()">🎵 BÔNUS</div>
             <span class="timer-top" id="timerTop">⏳ 05:00</span>
         </div>
         <div class="right-group">
@@ -263,7 +263,7 @@
             <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
             <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
             <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-            <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
+            <button class="shuffle-btn active" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
     
@@ -345,6 +345,17 @@
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
     const SENHA_FIXA = 'VDB2024';
+
+    // =================================================================
+    //  PLAYLIST BÔNUS (SEMPRE COMEÇA AQUI)
+    // =================================================================
+    const PLAYLIST_BONUS = [
+        { title: 'BÔNUS 1 - Só Hoje', artist: 'Jota Quest', src: 'bonus1.mp3', genero: 'BÔNUS' },
+        { title: 'BÔNUS 2 - Céu Azul', artist: 'Charlie Brown Jr.', src: 'bonus2.mp3', genero: 'BÔNUS' },
+        { title: 'BÔNUS 3 - Meteoro', artist: 'Luan Santana', src: 'bonus3.mp3', genero: 'BÔNUS' },
+        { title: 'BÔNUS 4 - Trem-Bala', artist: 'Ana Vilela', src: 'bonus4.mp3', genero: 'BÔNUS' },
+        { title: 'BÔNUS 5 - Epitáfio', artist: 'Titãs', src: 'bonus5.mp3', genero: 'BÔNUS' }
+    ];
 
     // =================================================================
     //  ELEMENTOS
@@ -759,7 +770,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO - VERSÃO SIMPLIFICADA E ESTÁVEL
+    //  PLAYER COMPLETO
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -789,7 +800,8 @@
     const CORES_POR_GENERO = {
         'PADRÃO':'#ffffff','FLASHBACK':'#ffaa00','RELIGIOSA':'#aa55ff','ROMÂNTICA':'#ff2d7f',
         'MPB':'#00ff88','POP':'#ff3366','SERTANEJO':'#ff8800','FORRÓ':'#ff8800',
-        'SAMBA':'#ffdd00','BREGA':'#ff66aa','REGGAE':'#00ffaa','MODA TOP':'#ff4400'
+        'SAMBA':'#ffdd00','BREGA':'#ff66aa','REGGAE':'#00ffaa','MODA TOP':'#ff4400',
+        'BÔNUS':'#ffd700'
     };
 
     // ===== ESTADO DO PLAYER =====
@@ -797,9 +809,9 @@
     let playlistAtual = [];
     let indiceAtual = 0;
     let isPlaying = false;
-    let shuffleMode = false;
+    let shuffleMode = true; // SEMPRE ATIVO!
     let isBackgroundActive = false;
-    let modoAtual = "MPB";
+    let modoAtual = "BÔNUS";
     let modoFavoritosAtivo = false;
     let carregandoMusica = false;
     let favorites = [];
@@ -811,8 +823,8 @@
     let tentativasFalhas = 0;
     let preloadTimer = null;
     let generoCarregando = false;
-    let audioAtivado = false;
-    
+    let primeiroCarregamento = true;
+
     // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
     const playBtn = document.getElementById('playBtn');
@@ -855,11 +867,8 @@
             filtradas = [...lista];
         }
         
-        if (shuffleMode) {
-            return shuffleArray(filtradas);
-        } else {
-            return filtradas;
-        }
+        // SEMPRE MISTURADO!
+        return shuffleArray(filtradas);
     }
 
     function obterMusicaAtual() {
@@ -900,12 +909,9 @@
         if (!playlistAtual || playlistAtual.length === 0) return null;
         let idx = indiceAtual + 1;
         if (idx >= playlistAtual.length) {
-            if (shuffleMode) {
-                const restantes = playlistAtual.filter((_, i) => i !== indiceAtual);
-                if (restantes.length === 0) return null;
-                return restantes[Math.floor(Math.random() * restantes.length)];
-            }
-            return playlistAtual[0];
+            const restantes = playlistAtual.filter((_, i) => i !== indiceAtual);
+            if (restantes.length === 0) return null;
+            return restantes[Math.floor(Math.random() * restantes.length)];
         }
         return playlistAtual[idx];
     }
@@ -1116,6 +1122,17 @@
 
     // ===== CARREGAR PLAYLIST =====
     async function carregarPlaylistPorGenero(genero) {
+        // Se for BÔNUS, retorna a playlist fixa
+        if (genero === 'BÔNUS') {
+            const bonusComIds = PLAYLIST_BONUS.map((m, i) => ({
+                ...m,
+                id: `bonus_${i}_${Math.random().toString(36).substr(2, 4)}`,
+                genero: 'BÔNUS'
+            }));
+            playlistCache['BÔNUS'] = bonusComIds;
+            return bonusComIds;
+        }
+
         const url = GENRE_URLS[genero];
         if (!url) { 
             showNotification(`⚠️ Gênero "${genero}" sem URL`, 1500); 
@@ -1189,8 +1206,16 @@
         historicoReproducao = [];
         tentativasFalhas = 0;
         
-        genreBadge.innerHTML = genero;
+        const displayName = genero === 'BÔNUS' ? '🎵 BÔNUS' : genero;
+        genreBadge.innerHTML = displayName;
         genreBadge.className = 'genre-badge';
+        if (genero === 'BÔNUS') {
+            genreBadge.style.borderLeftColor = '#ffd700';
+            genreBadge.style.color = '#ffd700';
+        } else {
+            genreBadge.style.borderLeftColor = '#00f3ff';
+            genreBadge.style.color = '#fff';
+        }
         
         const m = playlistAtual[0];
         if (m) { 
@@ -1393,17 +1418,10 @@
     }
 
     function toggleShuffle() {
-        shuffleMode = !shuffleMode;
-        shuffleBtn.classList.toggle('active', shuffleMode);
-        
-        const musicaAtual = obterMusicaAtual();
-        playlistAtual = construirPlaylist(modoAtual, musicas);
-        if (musicaAtual) {
-            const idx = playlistAtual.findIndex(m => m.id === musicaAtual.id);
-            if (idx > -1) indiceAtual = idx;
-            else indiceAtual = 0;
-        }
-        showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 800);
+        // Mantém sempre ativo, mas mostra notificação
+        shuffleMode = true;
+        shuffleBtn.classList.add('active');
+        showNotification('🔀 Modo Aleatório SEMPRE ATIVO!', 800);
         showControls();
     }
 
@@ -1422,7 +1440,7 @@
         modoAtual = m.genero || 'MPB';
         
         const outras = musicas.filter(t => t.id !== m.id && t.genero === m.genero);
-        playlistAtual = shuffleMode ? shuffleArray([m, ...outras]) : [m, ...outras];
+        playlistAtual = shuffleArray([m, ...outras]);
         indiceAtual = 0;
         historicoReproducao = [];
         tentativasFalhas = 0;
@@ -1457,6 +1475,15 @@
         const grid = document.getElementById('genresGrid');
         grid.innerHTML = '';
         
+        // BÔNUS sempre primeiro
+        const bonus = document.createElement('div');
+        bonus.className = 'genre-card';
+        bonus.style.border = '2px solid #ffd700';
+        bonus.style.color = '#ffd700';
+        bonus.textContent = '🎵 BÔNUS';
+        bonus.onclick = () => { selecionarGenero('BÔNUS'); };
+        grid.appendChild(bonus);
+        
         const fav = document.createElement('div');
         fav.className = 'genre-card fav-card';
         fav.innerHTML = `<i class="fas fa-heart" style="color:#ff2d7f;margin-right:3px;"></i> FAVORITOS (${favorites.length})`;
@@ -1478,29 +1505,25 @@
         });
     }
 
-    // ===== ATIVAR ÁUDIO - VERSÃO SIMPLIFICADA =====
+    // ===== ATIVAR ÁUDIO =====
     async function ativarAudio() {
         try {
             showLoad(true);
             
-            // Tenta criar um contexto de áudio para ativar
             let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             await audioCtx.resume();
             
-            // Cria um som silencioso para ativar
             const buffer = audioCtx.createBuffer(1, 1, 22050);
             const source = audioCtx.createBufferSource();
             source.buffer = buffer;
             source.connect(audioCtx.destination);
             source.start();
             
-            // Fecha o contexto após ativar
             setTimeout(() => {
                 audioCtx.close().catch(() => {});
             }, 100);
             
             isBackgroundActive = true;
-            audioAtivado = true;
             audioStatus.classList.add('active');
             audioStatus.innerHTML = '<span class="dot"></span> Ativado';
             
@@ -1511,18 +1534,27 @@
             showLoad(false);
             showNotification('🔊 Áudio ativado!', 1500);
             
-            // Toca a música
-            setTimeout(() => playMusic(), 300);
+            // Se for o primeiro carregamento, carrega BÔNUS
+            if (primeiroCarregamento) {
+                primeiroCarregamento = false;
+                await selecionarGenero('BÔNUS');
+            } else {
+                setTimeout(() => playMusic(), 300);
+            }
             return true;
         } catch (error) {
             console.log('Erro ao ativar áudio:', error);
-            // Mesmo com erro, tenta tocar
             isBackgroundActive = true;
-            audioAtivado = true;
             audioStatus.classList.add('active');
             audioStatus.innerHTML = '<span class="dot"></span> Ativado';
             showLoad(false);
-            setTimeout(() => playMusic(), 300);
+            
+            if (primeiroCarregamento) {
+                primeiroCarregamento = false;
+                await selecionarGenero('BÔNUS');
+            } else {
+                setTimeout(() => playMusic(), 300);
+            }
             return true;
         }
     }
@@ -1544,32 +1576,43 @@
         carregarFav();
         atualizarBadge();
         
+        // Shuffle já está ativo
+        shuffleBtn.classList.add('active');
+        
+        // Carrega BÔNUS primeiro
         (async function() {
-            let lista = await carregarPlaylistPorGenero('MPB');
-            let gen = 'MPB';
-            
-            if (!lista || lista.length === 0) {
-                lista = await carregarPlaylistPorGenero('PADRÃO');
-                gen = 'PADRÃO';
-            }
-            if (!lista || lista.length === 0) {
-                lista = await carregarPlaylistPorGenero('POP');
-                gen = 'POP';
-            }
-            
+            const lista = await carregarPlaylistPorGenero('BÔNUS');
             if (lista && lista.length > 0) {
                 musicas = lista;
-                modoAtual = gen;
-                genreBadge.innerHTML = gen;
-                playlistAtual = construirPlaylist(modoAtual, musicas);
+                modoAtual = 'BÔNUS';
+                genreBadge.innerHTML = '🎵 BÔNUS';
+                genreBadge.style.borderLeftColor = '#ffd700';
+                genreBadge.style.color = '#ffd700';
+                playlistAtual = construirPlaylist('BÔNUS', musicas);
                 indiceAtual = 0;
                 const p = playlistAtual[0];
                 if (p) { 
                     updateNowPlaying(p); 
                     adicionarHistorico(p); 
                 }
+                showNotification('🎵 Playlist BÔNUS carregada!', 1500);
             } else {
-                showNotification('❌ Nenhuma playlist carregada', 2000);
+                // Fallback para MPB
+                const listaMpb = await carregarPlaylistPorGenero('MPB');
+                if (listaMpb && listaMpb.length > 0) {
+                    musicas = listaMpb;
+                    modoAtual = 'MPB';
+                    genreBadge.innerHTML = 'MPB';
+                    genreBadge.style.borderLeftColor = '#00f3ff';
+                    genreBadge.style.color = '#fff';
+                    playlistAtual = construirPlaylist('MPB', musicas);
+                    indiceAtual = 0;
+                    const p = playlistAtual[0];
+                    if (p) { 
+                        updateNowPlaying(p); 
+                        adicionarHistorico(p); 
+                    }
+                }
             }
             
             renderFavList();
