@@ -402,24 +402,18 @@
         const encoder = new TextEncoder();
         const keyData = encoder.encode(SECRET_KEY);
         const msgData = encoder.encode(data);
-        
-        try {
-            const cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
-                ['sign']
-            );
-            const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-            const hashHex = Array.from(new Uint8Array(signature))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-            return `${email}:${celular}:${expiracao}:${hashHex}`;
-        } catch (e) {
-            const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
-            return `${email}:${celular}:${expiracao}:${fallbackHash}`;
-        }
+        const cryptoKey = await crypto.subtle.importKey(
+            'raw',
+            keyData,
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+        const hashHex = Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        return `${email}:${celular}:${expiracao}:${hashHex}`;
     }
 
     async function validarSenhaHMAC(senhaDigitada) {
@@ -457,9 +451,7 @@
             const valido = hashCalculado === hashFornecido;
             return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
         } catch (e) {
-            const fallbackHash = btoa(data + SECRET_KEY).substring(0, 64);
-            const valido = fallbackHash === hashFornecido;
-            return { valido, email: valido ? email : null, expiracao: valido ? expiracao : null };
+            return { valido: false, email: null, expiracao: null };
         }
     }
 
