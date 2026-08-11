@@ -758,7 +758,7 @@
     ];
 
     // =================================================================
-    //  URLs DOS GÊNEROS - CORRIGIDAS
+    //  URLs DOS GÊNEROS
     // =================================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
@@ -843,6 +843,38 @@
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
     // =================================================================
+    //  EMBARALHAR PLAYLIST - SEMPRE DIFERENTE
+    // =================================================================
+    function embaralharPlaylist(lista) {
+        if (!lista || lista.length === 0) return lista;
+        
+        var embaralhada = shuffleArray([...lista]);
+        localStorage.setItem('vdb_ultima_ordem', JSON.stringify(embaralhada.map(function(m) { return m.id; })));
+        
+        return embaralhada;
+    }
+
+    // =================================================================
+    //  GERAR ÍNDICE INICIAL ALEATÓRIO
+    // =================================================================
+    function getIndiceInicialAleatorio(lista) {
+        if (!lista || lista.length === 0) return 0;
+        
+        var chave = 'vdb_indice_' + modoAtual;
+        var ultimoIndice = parseInt(localStorage.getItem(chave)) || 0;
+        
+        var novoIndice = Math.floor(Math.random() * lista.length);
+        
+        if (lista.length > 1 && novoIndice === ultimoIndice) {
+            novoIndice = (novoIndice + 1) % lista.length;
+        }
+        
+        localStorage.setItem(chave, novoIndice.toString());
+        
+        return novoIndice;
+    }
+
+    // =================================================================
     //  GERENCIAMENTO DE PLAYLIST
     // =================================================================
     function construirPlaylist(genero, musics) {
@@ -911,7 +943,7 @@
     }
 
     // =================================================================
-    //  URLs ALTERNATIVAS - CORRIGIDO!
+    //  URLs ALTERNATIVAS
     // =================================================================
     function gerarUrlsAlternativas(musica) {
         var urls = [];
@@ -919,17 +951,14 @@
         
         if (!src || !src.trim()) return [];
         
-        // Se já é URL completa, usa ela
         if (src.startsWith('http://') || src.startsWith('https://')) {
             return [src];
         }
         
-        // Pega o nome do arquivo
         var nome = src.replace(/^\.\//, '').replace(/^\/+/, '');
         nome = nome.replace(/[^a-zA-Z0-9\-_.]/g, '');
         if (!nome) return [];
         
-        // MAPEAMENTO GÊNERO -> REPOSITÓRIO PRINCIPAL
         var repoPorGenero = {
             'BÔNUS': 'play12',
             'MPB': 'mpbtop',
@@ -945,13 +974,10 @@
             'FLASHBACK': 'flashbacktop'
         };
         
-        // REPOSITÓRIO PRINCIPAL DO GÊNERO
         var repoPrincipal = repoPorGenero[musica.genero] || 'play12';
         
-        // PRIMEIRO: TENTA NO REPOSITÓRIO PRINCIPAL
         urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + repoPrincipal + '/refs/heads/main/' + nome);
         
-        // SEGUNDO: TENTA EM TODOS OS OUTROS REPOSITÓRIOS (FALLBACK)
         var todosRepos = ['play12', 'mpbtop', 'poptop', 'sertanejo', 'forrotop', 'forrodez', 'sambatop', 'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop'];
         todosRepos.forEach(function(repo) {
             if (repo !== repoPrincipal) {
@@ -959,7 +985,6 @@
             }
         });
         
-        // TERCEIRO: TENTA A URL ORIGINAL COMO ESTÁ
         if (src && src.trim()) {
             urls.push(src);
         }
@@ -1250,7 +1275,7 @@
     }
 
     // =================================================================
-    //  SELECIONAR GÊNERO
+    //  SELECIONAR GÊNERO - COM EMBARALHAMENTO
     // =================================================================
     async function selecionarGenero(genero) {
         if (modoFavoritosAtivo) { 
@@ -1295,8 +1320,10 @@
         
         musicas = lista;
         modoAtual = genero;
-        playlistAtual = construirPlaylist(genero, musicas);
-        indiceAtual = 0;
+        
+        // ===== EMBARALHA E ESCOLHE ÍNDICE ALEATÓRIO =====
+        playlistAtual = embaralharPlaylist(musicas);
+        indiceAtual = getIndiceInicialAleatorio(playlistAtual);
         historicoReproducao = [];
         
         if (genero === 'BÔNUS') {
@@ -1310,7 +1337,7 @@
             genreBadge.style.color = cor;
         }
         
-        var m = playlistAtual[0];
+        var m = playlistAtual[indiceAtual] || playlistAtual[0];
         if (m) { 
             updateNowPlaying(m); 
             adicionarHistorico(m); 
@@ -1403,11 +1430,6 @@
         audio.load();
         
         var urls = gerarUrlsAlternativas(track);
-        
-        // LOG PARA DEBUG - ABRA O CONSOLE (F12) PARA VER
-        console.log('🎵 TOCANDO:', track.title);
-        console.log('📁 GÊNERO:', track.genero);
-        console.log('📁 URLs:', urls);
         
         if (track.src && track.src.startsWith('http')) {
             urls = [track.src].concat(urls.filter(function(u) { return u !== track.src; }));
@@ -1747,7 +1769,7 @@
     }
 
     // =================================================================
-    //  INICIAR PLAYER
+    //  INICIAR PLAYER - COM EMBARALHAMENTO
     // =================================================================
     function iniciarPlayer() {
         criarMidia();
@@ -1790,6 +1812,12 @@
                 if (lista && lista.length > 0) {
                     musicas = lista;
                     modoAtual = gen;
+                    
+                    // ===== EMBARALHA E ESCOLHE ÍNDICE ALEATÓRIO =====
+                    playlistAtual = embaralharPlaylist(musicas);
+                    indiceAtual = getIndiceInicialAleatorio(playlistAtual);
+                    historicoReproducao = [];
+                    
                     if (gen === 'BÔNUS') {
                         genreBadge.innerHTML = '🎵 BÔNUS';
                         genreBadge.className = 'genre-badge bonus';
@@ -1800,9 +1828,8 @@
                         genreBadge.style.borderLeftColor = cor;
                         genreBadge.style.color = cor;
                     }
-                    playlistAtual = construirPlaylist(modoAtual, musicas);
-                    indiceAtual = 0;
-                    var p = playlistAtual[0];
+                    
+                    var p = playlistAtual[indiceAtual] || playlistAtual[0];
                     if (p) { 
                         updateNowPlaying(p); 
                         adicionarHistorico(p); 
