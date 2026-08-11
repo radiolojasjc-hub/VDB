@@ -336,27 +336,16 @@
 (function(){
     'use strict';
 
-    // =================================================================
-    //  CONFIGURAÇÕES
-    // =================================================================
-    const TEMPO_INICIAL = 300;
-    const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
-    const CHAVE_PIX = '12.988.461-978';
-    const NUMERO_WHATSAPP = '5512988461978';
-    const PRECO_VITALICIO = 'R$ 39,90';
-    const SENHA_FIXA = 'VDB2024';
-
-    // =================================================================
-    //  PLAYLIST BÔNUS (URL)
-    // =================================================================
+    // ============================================================
+    //  ═══ CONFIGURAÇÕES - SÓ EDITE AQUI! ═══
+    // ============================================================
+    
+    // 1. URL da playlist BÔNUS
     const URL_BONUS = 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json';
-
-    // =================================================================
-    //  GÊNEROS (URLs)
-    // =================================================================
+    
+    // 2. GÊNEROS - Adicione novos aqui
     const GENRE_URLS = {
-        URL_BONUS,
-        'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
+        'BÔNUS': URL_BONUS,
         'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
         'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
         'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
@@ -369,10 +358,10 @@
         'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
         'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json'
     };
-
+    
+    // 3. CORES dos gêneros
     const CORES_POR_GENERO = {
         'BÔNUS':'#ffd700',
-        'PADRÃO':'#ffffff',
         'FLASHBACK':'#ffaa00',
         'RELIGIOSA':'#aa55ff',
         'ROMÂNTICA':'#ff2d7f',
@@ -385,10 +374,21 @@
         'REGGAE':'#00ffaa',
         'MODA TOP':'#ff4400'
     };
+    
+    // 4. LISTA DE GÊNEROS - Adicione o nome aqui também
+    const LISTA_GENEROS = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
+    
+    // ============================================================
+    //  FIM DAS CONFIGURAÇÕES - NÃO MEXA DAQUI PRA BAIXO!
+    // ============================================================
 
-    // =================================================================
-    //  ELEMENTOS
-    // =================================================================
+    const TEMPO_INICIAL = 300;
+    const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
+    const CHAVE_PIX = '12.988.461-978';
+    const NUMERO_WHATSAPP = '5512988461978';
+    const PRECO_VITALICIO = 'R$ 39,90';
+    const SENHA_FIXA = 'VDB2024';
+
     const loadingScreen = document.getElementById('loadingScreen');
     const playerContainer = document.getElementById('playerContainer');
     const timerTop = document.getElementById('timerTop');
@@ -401,9 +401,6 @@
     let desbloqueado = false;
     let timerInterval = null;
 
-    // =================================================================
-    //  ADMIN - Clique no letreiro (5x)
-    // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
 
@@ -431,9 +428,6 @@
         }
     };
 
-    // =================================================================
-    //  SENHA HMAC (COM FALLBACK)
-    // =================================================================
     async function gerarSenhaAdmin(email, celular) {
         if (!window.crypto || !window.crypto.subtle) {
             const expiracao = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
@@ -504,9 +498,6 @@
         }
     }
 
-    // =================================================================
-    //  TIMER
-    // =================================================================
     function formatarTempo(segundos) {
         if (segundos < 0) segundos = 0;
         const m = Math.floor(segundos / 60);
@@ -575,9 +566,6 @@
         atualizarTimerDisplay();
     }
 
-    // =================================================================
-    //  BLOQUEAR / DESBLOQUEAR
-    // =================================================================
     function bloquearPlayer() {
         desbloqueado = false;
         blockOverlay.classList.add('active');
@@ -614,9 +602,6 @@
         if (audio.paused && isBackgroundActive) audio.play().catch(() => {});
     }
 
-    // =================================================================
-    //  CARREGAR ESTADO
-    // =================================================================
     function carregarEstado() {
         document.documentElement.requestFullscreen().catch(() => {});
 
@@ -677,9 +662,6 @@
         iniciarPlayer();
     }
 
-    // =================================================================
-    //  EVENTO DE VALIDAÇÃO DA SENHA
-    // =================================================================
     document.getElementById('btnSenhaPermanente').addEventListener('click', async () => {
         const senha = senhaInput.value.trim();
         if (!senha) {
@@ -706,9 +688,6 @@
         }
     });
 
-    // =================================================================
-    //  BOTÕES DE COMPRA E PIX
-    // =================================================================
     document.getElementById('btnWhatsApp').addEventListener('click', () => {
         window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero comprar a senha VITALÍCIA do VDB Music por ${PRECO_VITALICIO}.`, '_blank');
     });
@@ -727,9 +706,6 @@
             });
     });
 
-    // =================================================================
-    //  BOTÕES ADMIN
-    // =================================================================
     document.getElementById('adminGerarBtn').addEventListener('click', async () => {
         const celular = document.getElementById('adminCelular').value.trim();
         const email = document.getElementById('adminEmail').value.trim();
@@ -789,18 +765,15 @@
         document.getElementById('menuPopup').classList.remove('open');
     });
 
-    // =================================================================
-    //  FUNÇÕES AUXILIARES
-    // =================================================================
     function showNotification(msg, dur = 1500) {
         notification.textContent = msg;
         notification.classList.add('show');
         setTimeout(() => notification.classList.remove('show'), dur);
     }
 
-    // =================================================================
-    //  PLAYER COMPLETO
-    // =================================================================
+    // ============================================================
+    //  PLAYER - NÃO MEXA!
+    // ============================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
         { tipo: 'video', src: 'vai1.mp4' },
@@ -811,7 +784,6 @@
         { tipo: 'imagem', src: 'vai1.png' },
     ];
 
-    // ===== ESTADO DO PLAYER =====
     let musicas = [];
     let playlistAtual = [];
     let indiceAtual = 0;
@@ -832,7 +804,6 @@
     let generoCarregando = false;
     let primeiroCarregamento = true;
 
-    // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
     const playBtn = document.getElementById('playBtn');
     const progressFill = document.getElementById('progressFill');
@@ -851,14 +822,12 @@
     const mediaContainer = document.getElementById('mediaContainer');
     const progressBar = document.getElementById('progressBar');
 
-    // ===== FUNÇÕES AUXILIARES =====
     function showLoad(s){ loadingOverlay.classList.toggle('active', s); }
     function formatTime(s){ if(!s||isNaN(s)||!isFinite(s)) return "0:00"; const m=Math.floor(s/60); const sec=Math.floor(s%60); return m+":"+(sec<10?'0':'')+sec; }
     function shuffleArray(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     function goFullscreen(){ try{ if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{}); else if(document.documentElement.webkitRequestFullscreen)document.documentElement.webkitRequestFullscreen(); else if(document.documentElement.mozRequestFullScreen)document.documentElement.mozRequestFullScreen(); else if(document.documentElement.msRequestFullscreen)document.documentElement.msRequestFullscreen(); }catch(e){} }
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
-    // ===== GERENCIAMENTO DE PLAYLIST =====
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
         if (!lista || lista.length === 0) return [];
@@ -922,7 +891,6 @@
         return playlistAtual[idx];
     }
 
-    // ===== URLS ALTERNATIVAS =====
     function gerarUrlsAlternativas(musica) {
         const urls = [];
         const src = musica.src || '';
@@ -961,7 +929,6 @@
         return [...new Set(urls.filter(u => u && u.trim()))];
     }
 
-    // ===== FAVORITOS =====
     function carregarFav() { 
         try { 
             const s = localStorage.getItem('radio_favorites_simple'); 
@@ -1049,7 +1016,6 @@
         document.getElementById('favModal').classList.remove('open');
     }
 
-    // ===== MÍDIA =====
     const elementosMidia = [];
     let midiaAtual = 0;
     let mediaTimer = null;
@@ -1126,7 +1092,6 @@
         }
     }
 
-    // ===== CARREGAR PLAYLIST =====
     async function carregarPlaylistPorGenero(genero) {
         const url = GENRE_URLS[genero];
         if (!url) { 
@@ -1171,7 +1136,6 @@
         }
     }
 
-    // ===== SELECIONAR GÊNERO =====
     async function selecionarGenero(genero) {
         if (carregandoMusica || generoCarregando) return;
         generoCarregando = true;
@@ -1233,7 +1197,6 @@
         }
     }
 
-    // ===== PLAY MUSIC =====
     async function playMusic() {
         if (carregandoMusica) return;
         if (!isBackgroundActive) { 
@@ -1484,8 +1447,8 @@
         fav.onclick = () => { document.getElementById('genresModal').classList.remove('open'); entrarModoFavoritos(); };
         grid.appendChild(fav);
         
-        const generos = ['MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK'];
-        generos.forEach(g => {
+        // Usa a lista de gêneros configurável
+        LISTA_GENEROS.forEach(g => {
             if (GENRE_URLS[g]) {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
@@ -1499,7 +1462,6 @@
         });
     }
 
-    // ===== ATIVAR ÁUDIO =====
     async function ativarAudio() {
         try {
             showLoad(true);
@@ -1563,7 +1525,6 @@
         await selecionarGenero(g);
     }
 
-    // ===== INICIAR PLAYER =====
     function iniciarPlayer() {
         criarMidia();
         carregarFav();
@@ -1623,7 +1584,9 @@
         document.body.appendChild(ativarBtn);
     }
 
-    // ===== EVENTOS DO PLAYER =====
+    // ============================================================
+    //  EVENTOS - NÃO MEXA!
+    // ============================================================
     heartBtn.addEventListener('click', () => {
         const m = obterMusicaAtual() || playlistAtual[0];
         if (m) { toggleFavorito(m.id); buildGenresGrid(); }
@@ -1673,7 +1636,6 @@
         if (confirm('Remover todos?')) { favorites = []; salvarFav(); renderFavList(); buildGenresGrid(); updateHeart(null); showNotification('🗑️ Limpos', 1500); }
     });
 
-    // FAB
     const fabMain = document.getElementById('fabMain'), fabSub = document.getElementById('fabSub');
     fabMain.addEventListener('click', () => { fabOpen = !fabOpen; fabSub.classList.toggle('open', fabOpen); fabMain.innerHTML = fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; });
     document.getElementById('fabGeneros').addEventListener('click', () => { openGenres(); fabMain.click(); });
@@ -1694,13 +1656,11 @@
         fabMain.click();
     });
 
-    // Controles
     playBtn.addEventListener('click', togglePlay);
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
     shuffleBtn.addEventListener('click', toggleShuffle);
 
-    // Sleep Timer
     document.getElementById('sleepMenuBtn').addEventListener('click', () => {
         menuPopup.classList.remove('open');
         const m = prompt('⏰ Desligar em quantos minutos? (5,15,30,60)', '15');
@@ -1717,7 +1677,6 @@
         }, mins * 60000);
     });
 
-    // Menu
     document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); goFullscreen(); showNotification('⛶ Tela cheia', 1000); });
     document.getElementById('reloadPlaylistBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); recarregarPlaylist(); });
     document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
@@ -1737,7 +1696,6 @@
         showNotification('📲 QR Code gerado!', 1500);
     });
 
-    // Progresso
     progressBar.addEventListener('click', (e) => {
         if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1747,18 +1705,15 @@
         }
     });
 
-    // Menu
     document.getElementById('menuButton').addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); showControls(); });
     document.getElementById('closeMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); });
 
-    // Fechar modais ao clicar fora
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.fav-modal') || e.target.closest('.genres-modal') || 
             e.target.closest('.menu-popup') || e.target.closest('.fab-container')) return;
         showControls();
     });
 
-    // Teclado
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         switch (e.key) {
@@ -1773,14 +1728,12 @@
         }
     });
 
-    // Fechar modais
     ['favModal', 'feedbackModal', 'historicoModal', 'genresModal'].forEach(id => {
         document.getElementById(id).addEventListener('click', (e) => {
             if (e.target === document.getElementById(id)) document.getElementById(id).classList.remove('open');
         });
     });
 
-    // Feedback
     document.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', () => {
             const r = parseInt(star.dataset.rating);
@@ -1806,12 +1759,10 @@
     }
     function openGenres() { buildGenresGrid(); document.getElementById('genresModal').classList.add('open'); showControls(); }
 
-    // Expor funções globalmente
     window.openGenres = openGenres;
     window.openFeedback = openFeedback;
     window.selecionarGenero = selecionarGenero;
 
-    // Eventos do áudio
     audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; });
     audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; });
     audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
@@ -1824,7 +1775,6 @@
         }
     });
 
-    // Limpeza
     window.addEventListener('beforeunload', function() { 
         pararAlternancia(); 
         if (sleepTimer) clearTimeout(sleepTimer);
@@ -1834,7 +1784,6 @@
         audio.load();
     });
 
-    // Iniciar
     carregarEstado();
 })();
 </script>
