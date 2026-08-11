@@ -341,7 +341,7 @@
     // =================================================================
     //  CONFIGURAÇÕES
     // =================================================================
-    const TEMPO_INICIAL = 86400;
+    const TEMPO_INICIAL = 300;
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
@@ -843,7 +843,7 @@
     function showControls(){ bottomControls.classList.add('visible'); if(hideControlsTimeout)clearTimeout(hideControlsTimeout); hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000); }
 
     // =================================================================
-    //  GERENCIAMENTO DE PLAYLIST - VERSÃO ESTÁVEL
+    //  GERENCIAMENTO DE PLAYLIST - CORRIGIDO
     // =================================================================
     function construirPlaylist(genero, musics) {
         const lista = musics || musicas;
@@ -1243,7 +1243,7 @@
     }
 
     // =================================================================
-    //  SELECIONAR GÊNERO - COM ÍNDICE ALEATÓRIO (SEM EMBARALHAR)
+    //  SELECIONAR GÊNERO
     // =================================================================
     async function selecionarGenero(genero) {
         if (modoFavoritosAtivo) { 
@@ -1288,11 +1288,8 @@
         
         musicas = lista;
         modoAtual = genero;
-        
-        // ===== SEM EMBARALHAR - SÓ ÍNDICE ALEATÓRIO =====
-        playlistAtual = [...musicas]; // CÓPIA SEM EMBARALHAR
-        // ESCOLHE ÍNDICE ALEATÓRIO
-        indiceAtual = Math.floor(Math.random() * playlistAtual.length);
+        playlistAtual = construirPlaylist(genero, musicas);
+        indiceAtual = 0;
         historicoReproducao = [];
         
         if (genero === 'BÔNUS') {
@@ -1306,7 +1303,7 @@
             genreBadge.style.color = cor;
         }
         
-        var m = playlistAtual[indiceAtual] || playlistAtual[0];
+        var m = playlistAtual[0];
         if (m) { 
             updateNowPlaying(m); 
             adicionarHistorico(m); 
@@ -1738,7 +1735,7 @@
     }
 
     // =================================================================
-    //  INICIAR PLAYER - COM ÍNDICE ALEATÓRIO (SEM EMBARALHAR)
+    //  INICIAR PLAYER
     // =================================================================
     function iniciarPlayer() {
         criarMidia();
@@ -1781,12 +1778,6 @@
                 if (lista && lista.length > 0) {
                     musicas = lista;
                     modoAtual = gen;
-                    
-                    // ===== SEM EMBARALHAR - SÓ ÍNDICE ALEATÓRIO =====
-                    playlistAtual = [...musicas]; // CÓPIA SEM EMBARALHAR
-                    indiceAtual = Math.floor(Math.random() * playlistAtual.length);
-                    historicoReproducao = [];
-                    
                     if (gen === 'BÔNUS') {
                         genreBadge.innerHTML = '🎵 BÔNUS';
                         genreBadge.className = 'genre-badge bonus';
@@ -1797,8 +1788,9 @@
                         genreBadge.style.borderLeftColor = cor;
                         genreBadge.style.color = cor;
                     }
-                    
-                    var p = playlistAtual[indiceAtual] || playlistAtual[0];
+                    playlistAtual = construirPlaylist(modoAtual, musicas);
+                    indiceAtual = 0;
+                    var p = playlistAtual[0];
                     if (p) { 
                         updateNowPlaying(p); 
                         adicionarHistorico(p); 
