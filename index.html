@@ -394,7 +394,7 @@
     };
 
     // =================================================================
-    //  SENHA HMAC - IGUAL AO SEU CODIGO
+    //  SENHA HMAC
     // =================================================================
     async function gerarSenhaAdmin(email, celular) {
         const expiracao = Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
@@ -527,7 +527,7 @@
     }
 
     // =================================================================
-    //  BLOQUEAR / DESBLOQUEAR - IGUAL AO SEU CODIGO
+    //  BLOQUEAR / DESBLOQUEAR
     // =================================================================
     function bloquearPlayer() {
         desbloqueado = false;
@@ -679,7 +679,7 @@
     });
 
     // =================================================================
-    //  BOTÕES ADMIN - IGUAL AO SEU CODIGO
+    //  BOTÕES ADMIN
     // =================================================================
     document.getElementById('adminGerarBtn').addEventListener('click', async () => {
         const celular = document.getElementById('adminCelular').value.trim();
@@ -727,7 +727,6 @@
         document.getElementById('adminPanel').classList.remove('open');
     });
 
-    // ADMIN - SENHA IGUAL AO SEU CODIGO: PATICO1685@
     document.getElementById('adminMenuBtn').addEventListener('click', function() {
         const senhaMestra = prompt('Digite a senha de administrador:');
         if (senhaMestra === 'PATICO1685@') {
@@ -751,7 +750,7 @@
     }
 
     // =================================================================
-    //  PLAYER COMPLETO
+    //  PLAYER COMPLETO - SEM TRAVAMENTOS
     // =================================================================
     const midias = [
         { tipo: 'imagem', src: 'vai2.png' },
@@ -763,9 +762,6 @@
         { tipo: 'imagem', src: 'vai1.png' },
     ];
 
-    // =================================================================
-    //  GENRE URLS - SÓ MUDOU PADRÃO PARA BÔNUS
-    // =================================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
         'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -804,6 +800,7 @@
     let fabOpen = false;
     let sleepTimer = null;
     let hideControlsTimeout = null;
+    let trocandoGenero = false;
     
     // ===== ELEMENTOS DOM =====
     const audio = document.getElementById('musicPlayer');
@@ -838,7 +835,7 @@
         
         let filtradas = lista;
         if (genero && genero !== 'FAVORITOS') {
-            filtradas = lista.filter(m => m.genero === genero || m.genero === modoAtual);
+            filtradas = lista.filter(m => m.genero === genero);
             if (filtradas.length === 0) filtradas = [...lista];
         }
         
@@ -1117,27 +1114,41 @@
         }
     }
 
+    // ===== SELECIONAR GÊNERO - CORRIGIDO SEM TRAVAR =====
     async function selecionarGenero(genero) {
-        if (modoFavoritosAtivo) { modoFavoritosAtivo = false; genreBadge.className = 'genre-badge'; }
+        if (trocandoGenero) return;
+        trocandoGenero = true;
+        
+        if (modoFavoritosAtivo) { 
+            modoFavoritosAtivo = false; 
+            genreBadge.className = 'genre-badge'; 
+        }
+        
+        showLoad(true);
         
         const lista = await carregarPlaylistPorGenero(genero);
         if (!lista || lista.length === 0) {
             showNotification(`⚠️ Nenhuma música para ${genero}`, 1500);
+            trocandoGenero = false;
+            showLoad(false);
             return;
         }
         
+        // Para o áudio atual
         audio.pause();
         audio.src = '';
         audio.load();
         isPlaying = false;
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         
+        // Atualiza dados
         musicas = lista;
         modoAtual = genero;
         playlistAtual = construirPlaylist(genero, musicas);
         indiceAtual = 0;
         historicoReproducao = [];
         
+        // Atualiza badge
         if (genero === 'BÔNUS') {
             genreBadge.innerHTML = '🎵 BÔNUS';
             genreBadge.className = 'genre-badge bonus';
@@ -1147,21 +1158,30 @@
         }
         
         const m = playlistAtual[0];
-        if (m) { updateNowPlaying(m); adicionarHistorico(m); }
+        if (m) { 
+            updateNowPlaying(m); 
+            adicionarHistorico(m); 
+        }
         
         buildGenresGrid();
         showNotification(`🎵 ${genero} (${musicas.length} músicas)`, 2000);
         document.getElementById('genresModal').classList.remove('open');
         goFullscreen();
         
+        showLoad(false);
+        trocandoGenero = false;
+        
+        // Toca a música depois que tudo está pronto
         if (isBackgroundActive) {
-            setTimeout(() => playMusic(), 300);
+            setTimeout(() => {
+                playMusic();
+            }, 500);
         }
     }
 
     // ===== TOQUE DE MÚSICA =====
     async function playMusic() {
-        if (carregandoMusica) return;
+        if (carregandoMusica || trocandoGenero) return;
         if (!isBackgroundActive) { showNotification("⚠️ Ative o áudio!", 1000); return; }
         if (!musicas || musicas.length === 0) { showNotification("Playlist vazia!", 1500); return; }
         if (!playlistAtual || playlistAtual.length === 0) {
@@ -1276,7 +1296,7 @@
     }
 
     function nextTrack() {
-        if (carregandoMusica) return;
+        if (carregandoMusica || trocandoGenero) return;
         const track = avancarMusica();
         if (track) {
             if (isPlaying) {
@@ -1292,7 +1312,7 @@
     }
 
     function prevTrack() {
-        if (carregandoMusica) return;
+        if (carregandoMusica || trocandoGenero) return;
         const track = voltarMusica();
         if (track) {
             if (isPlaying) {
@@ -1335,7 +1355,7 @@
     }
 
     function playSongById(id) {
-        if (carregandoMusica) return;
+        if (carregandoMusica || trocandoGenero) return;
         const m = musicas.find(t => t.id === id);
         if (!m) { showNotification("Música não encontrada", 1000); return; }
         
@@ -1389,7 +1409,6 @@
         const grid = document.getElementById('genresGrid');
         grid.innerHTML = '';
         
-        // BÔNUS PRIMEIRO
         const bonus = document.createElement('div');
         bonus.className = 'genre-card bonus-card';
         bonus.innerHTML = '🎵 BÔNUS';
@@ -1475,7 +1494,6 @@
         delete playlistCache[g];
         showNotification(`🔄 Recarregando ${g}...`, 1000);
         await selecionarGenero(g);
-        showNotification(`✅ Playlist recarregada (${musicas.length} músicas)`, 2000);
     }
 
     // ===== INICIAR PLAYER =====
@@ -1485,7 +1503,6 @@
         atualizarBadge();
         
         (async function() {
-            // CARREGA BÔNUS PRIMEIRO
             let lista = await carregarPlaylistPorGenero('BÔNUS');
             let gen = 'BÔNUS';
             if (!lista || lista.length === 0) {
@@ -1581,7 +1598,6 @@
         if (confirm('Remover todos?')) { favorites = []; salvarFav(); renderFavList(); buildGenresGrid(); updateHeart(null); showNotification('🗑️ Limpos', 1500); }
     });
 
-    // FAB
     const fabMain = document.getElementById('fabMain'), fabSub = document.getElementById('fabSub');
     fabMain.addEventListener('click', () => { fabOpen = !fabOpen; fabSub.classList.toggle('open', fabOpen); fabMain.innerHTML = fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; });
     document.getElementById('fabGeneros').addEventListener('click', () => { openGenres(); fabMain.click(); });
@@ -1602,13 +1618,11 @@
         fabMain.click();
     });
 
-    // Controles
     playBtn.addEventListener('click', togglePlay);
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
     shuffleBtn.addEventListener('click', toggleShuffle);
 
-    // Sleep Timer
     document.getElementById('sleepMenuBtn').addEventListener('click', () => {
         menuPopup.classList.remove('open');
         const m = prompt('⏰ Desligar em quantos minutos? (5,15,30,60)', '15');
@@ -1625,7 +1639,6 @@
         }, mins * 60000);
     });
 
-    // Menu
     document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); goFullscreen(); showNotification('⛶ Tela cheia', 1000); });
     document.getElementById('reloadPlaylistBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); recarregarPlaylist(); });
     document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
@@ -1645,7 +1658,6 @@
         showNotification('📲 QR Code gerado!', 1500);
     });
 
-    // Progresso
     progressBar.addEventListener('click', (e) => {
         if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1655,7 +1667,6 @@
         }
     });
 
-    // Menu
     document.getElementById('menuButton').addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); showControls(); });
     document.getElementById('closeMenuBtn').addEventListener('click', () => { menuPopup.classList.remove('open'); });
 
@@ -1685,7 +1696,6 @@
         });
     });
 
-    // Feedback
     document.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', () => {
             const r = parseInt(star.dataset.rating);
@@ -1715,7 +1725,6 @@
     window.openFeedback = openFeedback;
     window.selecionarGenero = selecionarGenero;
 
-    // Eventos do áudio
     audio.addEventListener('play', () => { isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; });
     audio.addEventListener('pause', () => { isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; });
     audio.addEventListener('ended', () => { if (!carregandoMusica) nextTrack(); });
