@@ -14,7 +14,6 @@
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
         
-        /* GRADIENTE DE FUNDO */
         body::before {
             content: '';
             position: fixed;
@@ -91,18 +90,6 @@
             background-size: 200% 100%;
             animation: scrollText 20s linear infinite, shimmer 4s ease-in-out infinite;
             user-select: none;
-        }
-        .info-scroll .letreiro.editando {
-            animation: none;
-            background: none;
-            -webkit-text-fill-color: #fff;
-            background: rgba(255,255,255,0.05);
-            padding: 4px 12px;
-            border-radius: 8px;
-            border: 2px dashed var(--neon-cyan);
-            min-width: 200px;
-            outline: none;
-            cursor: text;
         }
         @keyframes scrollText{
             0%{transform:translateX(100vw)}
@@ -306,7 +293,7 @@
     </div>
     
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText" onclick="window.editarLetreiro()">🎵 VAI DE BOA! MUSIC, TOCANDO AGORA! 🎵</p>
+        <p class="letreiro" id="scrollText" onclick="window.ativarAdmin()">🎵 VAI DE BOA! MUSIC, TOCANDO AGORA! 🎵</p>
     </div>
     
     <div class="now-playing" id="nowPlaying">
@@ -335,6 +322,7 @@
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
     
+    <!-- MENU POPUP - SEM ADMIN -->
     <div class="menu-popup" id="menuPopup">
         <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -343,11 +331,10 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
-        <button id="editarLetreiroMenuBtn"><i class="fas fa-edit"></i>Editar Letreiro</button>
     </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN PANEL - APENAS CLIQUE 5X NO LETREIRO -->
 <div id="adminPanel">
     <h2>🔐 ADMIN - Gerar Senha Vitalícia</h2>
     <div class="admin-label">📱 Celular do cliente</div>
@@ -396,7 +383,7 @@
     // =================================================================
     //  CONFIGURAÇÕES
     // =================================================================
-    const TEMPO_INICIAL = 600; // 10 MINUTOS (600 segundos)
+    const TEMPO_INICIAL = 600; // 10 MINUTOS
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
@@ -419,88 +406,12 @@
     let timerInterval = null;
 
     // =================================================================
-    //  ADMIN - Clique no letreiro (5x) + Editar Letreiro
+    //  ADMIN - Clique no letreiro (5x) - APENAS ISSO!
     // =================================================================
     let adminClicks = 0;
     let adminTimeout = null;
-    let letreiroEditando = false;
 
-    // FUNÇÃO PARA EDITAR LETREIRO
-    window.editarLetreiro = function() {
-        const scrollText = document.getElementById('scrollText');
-        
-        // Se já está editando, salva o texto
-        if (letreiroEditando) {
-            const novoTexto = scrollText.textContent.trim();
-            if (novoTexto) {
-                scrollText.textContent = novoTexto;
-                localStorage.setItem('vdb_letreiro', novoTexto);
-                showNotification('✅ Letreiro atualizado!', 1500);
-            }
-            scrollText.classList.remove('editando');
-            scrollText.contentEditable = false;
-            scrollText.style.animation = 'scrollText 20s linear infinite, shimmer 4s ease-in-out infinite';
-            letreiroEditando = false;
-            return;
-        }
-        
-        // Entra em modo de edição
-        scrollText.classList.add('editando');
-        scrollText.contentEditable = true;
-        scrollText.style.animation = 'none';
-        scrollText.focus();
-        // Seleciona todo o texto
-        const range = document.createRange();
-        range.selectNodeContents(scrollText);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        letreiroEditando = true;
-        showNotification('✏️ Edite o texto e clique novamente para salvar', 2000);
-    };
-
-    // Função para salvar o letreiro ao pressionar Enter
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && letreiroEditando) {
-            e.preventDefault();
-            window.editarLetreiro();
-        }
-        if (e.key === 'Escape' && letreiroEditando) {
-            const scrollText = document.getElementById('scrollText');
-            const textoSalvo = localStorage.getItem('vdb_letreiro') || '🎵 VAI DE BOA! MUSIC, TOCANDO AGORA! 🎵';
-            scrollText.textContent = textoSalvo;
-            scrollText.classList.remove('editando');
-            scrollText.contentEditable = false;
-            scrollText.style.animation = 'scrollText 20s linear infinite, shimmer 4s ease-in-out infinite';
-            letreiroEditando = false;
-            showNotification('❌ Edição cancelada', 1000);
-        }
-    });
-
-    // Função para fechar edição ao clicar fora
-    document.addEventListener('click', function(e) {
-        if (letreiroEditando && !e.target.closest('.letreiro') && !e.target.closest('.info-scroll')) {
-            const scrollText = document.getElementById('scrollText');
-            const textoSalvo = localStorage.getItem('vdb_letreiro') || '🎵 VAI DE BOA! MUSIC, TOCANDO AGORA! 🎵';
-            scrollText.textContent = textoSalvo;
-            scrollText.classList.remove('editando');
-            scrollText.contentEditable = false;
-            scrollText.style.animation = 'scrollText 20s linear infinite, shimmer 4s ease-in-out infinite';
-            letreiroEditando = false;
-        }
-    });
-
-    // Menu para editar letreiro
-    document.getElementById('editarLetreiroMenuBtn').addEventListener('click', function() {
-        menuPopup.classList.remove('open');
-        window.editarLetreiro();
-    });
-
-    // ADMIN - Clique no letreiro (5x)
     window.ativarAdmin = function() {
-        // Se estiver editando, não ativa admin
-        if (letreiroEditando) return;
-        
         adminClicks++;
         clearTimeout(adminTimeout);
         adminTimeout = setTimeout(() => { 
@@ -709,12 +620,6 @@
     // =================================================================
     function carregarEstado() {
         document.documentElement.requestFullscreen().catch(() => {});
-
-        // Carrega o letreiro salvo
-        const letreiroSalvo = localStorage.getItem('vdb_letreiro');
-        if (letreiroSalvo) {
-            document.getElementById('scrollText').textContent = letreiroSalvo;
-        }
 
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             desbloqueado = true;
@@ -1484,7 +1389,7 @@
     }
 
     // =================================================================
-    //  TOQUE DE MÚSICA - CORRIGIDO (TOCA AUTOMATICAMENTE)
+    //  TOQUE DE MÚSICA
     // =================================================================
     function tentarCarregarAudio(url) {
         return new Promise(function(resolve) {
@@ -1521,7 +1426,6 @@
     }
 
     async function playMusic() {
-        // FORÇA O ESTADO DE REPRODUÇÃO
         isPlaying = true;
         
         if (carregandoMusica) {
@@ -1611,15 +1515,32 @@
         }
     }
 
+    function preCarregarProxima() {
+        try {
+            var prox = getProximaMusica();
+            if (!prox) return;
+            var urls = gerarUrlsAlternativas(prox);
+            if (urls.length === 0) return;
+            
+            var preloadAudio = document.createElement('audio');
+            preloadAudio.preload = 'auto';
+            preloadAudio.src = urls[0];
+            preloadAudio.load();
+            setTimeout(function() {
+                preloadAudio.src = '';
+                preloadAudio.load();
+            }, 2000);
+        } catch (e) {}
+    }
+
     // =================================================================
-    //  PRÓXIMA MÚSICA - CORRIGIDO (TOCA AUTOMATICAMENTE)
+    //  PRÓXIMA MÚSICA
     // =================================================================
     function nextTrack() {
         if (carregandoMusica) return;
         
         var track = avancarMusica();
         if (track) {
-            // SE ESTÁ REPRODUZINDO, TOCA AUTOMATICAMENTE
             if (isPlaying || isBackgroundActive) {
                 setTimeout(function() {
                     playMusic();
@@ -1738,12 +1659,9 @@
     function updateNowPlaying(t) {
         if (t) {
             scrollText.innerHTML = '🎵 ' + t.title + ' - ' + t.artist + ' [' + (t.genero || 'POP') + '] 🎵';
-            // Salva o texto atualizado no localStorage
-            localStorage.setItem('vdb_letreiro', scrollText.innerHTML);
             updateHeart(t.id);
         } else {
             scrollText.innerHTML = '🎵 VAI DE BOA! MUSIC, TOCANDO AGORA! 🎵';
-            localStorage.setItem('vdb_letreiro', scrollText.innerHTML);
         }
     }
 
@@ -2142,7 +2060,9 @@
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
     shuffleBtn.addEventListener('click', toggleShuffle);
 
-    // SLEEP TIMER COM 24 HORAS
+    // =================================================================
+    //  SLEEP TIMER - COM 24 HORAS
+    // =================================================================
     document.getElementById('sleepMenuBtn').addEventListener('click', function() {
         menuPopup.classList.remove('open');
         var opcoes = prompt('⏰ Desligar em quantos minutos?\n\n(5, 15, 30, 60, 120, 240, 480, 720, 1440 = 24h)', '15');
@@ -2287,7 +2207,7 @@
     window.selecionarGenero = selecionarGenero;
 
     // =================================================================
-    //  EVENTOS DO ÁUDIO - CORRIGIDO (TOCA AUTOMATICAMENTE)
+    //  EVENTOS DO ÁUDIO
     // =================================================================
     audio.addEventListener('play', function() { 
         isPlaying = true; 
@@ -2298,10 +2218,9 @@
         playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
     });
     
-    // QUANDO A MÚSICA ACABA, TOCA A PRÓXIMA AUTOMATICAMENTE
     audio.addEventListener('ended', function() { 
         if (!carregandoMusica) {
-            isPlaying = true; // FORÇA O ESTADO
+            isPlaying = true;
             setTimeout(function() {
                 nextTrack();
             }, 100);
