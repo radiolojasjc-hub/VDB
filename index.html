@@ -11,7 +11,6 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 80%,rgba(0,243,255,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f}
 
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);font-size:1.8rem;flex-direction:column;gap:12px}
@@ -21,6 +20,11 @@
 
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none;flex-direction:column}
         #playerContainer.visible{display:flex}
+
+        .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
+        .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
+        .media-container .active{opacity:1;z-index:3}
+        .media-container .inactive{opacity:0;z-index:0}
 
         .top-bar{position:fixed;top:0;left:0;width:100%;z-index:35;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);height:44px}
         .top-bar .left-group{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
@@ -37,12 +41,12 @@
         .fav-top-btn .badge{background:#ff2d7f;color:#000;border-radius:50%;padding:0 4px;font-size:.55rem;min-width:15px;text-align:center}
         .menu-button{background:rgba(0,0,0,0.4);color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.15)}
 
-        .info-scroll{position:fixed;top:44px;left:0;right:0;z-index:30;padding:4px 12px;height:32px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .info-scroll{position:fixed;top:44px;left:0;right:0;z-index:30;padding:4px 12px;height:32px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(0,0,0,0.3)}
         .info-scroll .letreiro{color:white;font-size:.9rem;font-weight:900;white-space:nowrap;cursor:pointer;background:linear-gradient(90deg,#fff,var(--neon-cyan),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 100%;animation:scrollText 15s linear infinite}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
         .now-playing{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15}
-        .fav-heart{font-size:5rem;color:#555;cursor:pointer}
+        .fav-heart{font-size:5rem;color:#555;cursor:pointer;text-shadow:0 0 30px rgba(0,0,0,0.9)}
         .fav-heart.active{color:#ff2d7f;text-shadow:0 0 40px rgba(255,45,127,0.6)}
 
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(16px);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s}
@@ -62,6 +66,7 @@
         .fab-sub{background:rgba(0,0,0,0.9);border-radius:25px;padding:8px;display:none;flex-direction:column;gap:4px}
         .fab-sub.open{display:flex}
         .fab-sub-btn{background:rgba(255,255,255,0.08);border:none;color:white;padding:10px 16px;border-radius:20px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:8px}
+        .fab-sub-btn .fa-youtube{color:#FF0000}
 
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,40,0.97);border-radius:30px 30px 0 0;padding:20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s;max-height:70vh;overflow-y:auto}
         .genres-modal.open{transform:translateY(0)}
@@ -133,6 +138,8 @@
 <div id="loadingScreen"><i class="fas fa-spinner fa-spin"></i><span>Carregando VDB Music...</span></div>
 
 <div id="playerContainer">
+    <div class="media-container" id="mediaContainer"></div>
+    
     <div class="top-bar">
         <div class="left-group">
             <div class="genre-badge" id="genreBadge" onclick="window.openGenres()">🎵 BÔNUS</div>
@@ -160,6 +167,7 @@
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
             <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i>Feedback</button>
+            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i>Vídeo YouTube</button>
             <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i>Compartilhar</button>
             <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i>QR Code</button>
         </div>
@@ -262,6 +270,7 @@
     const loadingOverlay = document.getElementById('loadingOverlay');
     const menuPopup = document.getElementById('menuPopup');
     const progressBar = document.getElementById('progressBar');
+    const mediaContainer = document.getElementById('mediaContainer');
 
     let tempoRestante = TEMPO_INICIAL;
     let desbloqueado = false;
@@ -280,6 +289,8 @@
     let fabOpen = false;
     let sleepTimer = null;
     let hideControlsTimeout = null;
+    let midiaAtual = 0;
+    let mediaTimer = null;
 
     function showNotification(msg, dur=1500){notification.textContent=msg;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),dur);}
     function showLoad(s){loadingOverlay.classList.toggle('active',s);}
@@ -365,6 +376,59 @@
         loadingScreen.style.display='none';
         iniciarTimer();
         iniciarPlayer();
+    }
+
+    function criarMidia(){
+        const midias=[
+            {tipo:'imagem',src:'vd14.png'},
+            {tipo:'video',src:'vai1.mp4'},
+            {tipo:'imagem',src:'vd15.png'},
+            {tipo:'imagem',src:'vd12.png'},
+            {tipo:'imagem',src:'vd11.png'},
+            {tipo:'imagem',src:'vd10.png'},
+            {tipo:'imagem',src:'vai1.png'}
+        ];
+        midias.forEach((m,idx)=>{
+            let el;
+            if(m.tipo==='video'){
+                el=document.createElement('video');
+                el.src=m.src;
+                el.muted=true;
+                el.playsInline=true;
+                el.loop=true;
+                el.preload='auto';
+                el.load();
+                el.onerror=()=>{el.style.display='none';};
+            }else{
+                el=document.createElement('img');
+                el.src=m.src;
+                el.onerror=()=>{el.style.display='none';};
+                el.onload=()=>{el.style.display='block';};
+            }
+            el.className=idx===0?'active':'inactive';
+            el.dataset.index=idx;
+            mediaContainer.appendChild(el);
+            if(idx===0&&m.tipo==='video'){el.play().catch(()=>{});}
+        });
+    }
+
+    function alternarMidias(){
+        if(mediaTimer)clearInterval(mediaTimer);
+        const els=mediaContainer.querySelectorAll('video,img');
+        if(els.length<2)return;
+        mediaTimer=setInterval(()=>{
+            const atual=els[midiaAtual];
+            const proxIdx=(midiaAtual+1)%els.length;
+            const prox=els[proxIdx];
+            if(!atual||!prox)return;
+            atual.classList.remove('active');
+            atual.classList.add('inactive');
+            if(atual.tagName==='VIDEO'){atual.pause();atual.currentTime=0;}
+            prox.classList.remove('inactive');
+            prox.classList.add('active');
+            if(prox.tagName==='VIDEO'){prox.play().catch(()=>{});}
+            midiaAtual=proxIdx;
+        },5000);
     }
 
     function createSilentAudio(){
@@ -582,6 +646,8 @@
     }
 
     function iniciarPlayer(){
+        criarMidia();
+        alternarMidias();
         carregarFav();
         updateHeart(null);
         (async()=>{
@@ -608,42 +674,29 @@
         document.body.appendChild(btn);
     }
 
-    // ============ GESTOS TOUCH ============
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let lastTap = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-        const now = new Date().getTime();
-        const tapLength = now - lastTap;
-        if (tapLength < 300 && tapLength > 0) {
-            e.preventDefault();
-            togglePlay();
-            showNotification('⏯️ ' + (isPlaying ? 'Pausado' : 'Play'));
-        }
-        lastTap = now;
+    let touchStartX=0,lastTap=0;
+    document.addEventListener('touchstart',(e)=>{
+        touchStartX=e.changedTouches[0].screenX;
+        const now=new Date().getTime();
+        const tapLength=now-lastTap;
+        if(tapLength<300&&tapLength>0){e.preventDefault();togglePlay();showNotification('⏯️ '+(isPlaying?'Pausado':'Play'));}
+        lastTap=now;
         showControls();
     });
-
-    document.addEventListener('touchend', (e) => {
-        const touchEndX = e.changedTouches[0].screenX;
-        const diff = touchEndX - touchStartX;
-        if (Math.abs(diff) > 50) {
-            if (diff < 0) { nextTrack(); showNotification('⏭️ Próxima'); }
-            else { prevTrack(); showNotification('⏮️ Anterior'); }
+    document.addEventListener('touchend',(e)=>{
+        const diff=e.changedTouches[0].screenX-touchStartX;
+        if(Math.abs(diff)>50){
+            if(diff<0){nextTrack();showNotification('⏭️ Próxima');}
+            else{prevTrack();showNotification('⏮️ Anterior');}
         }
     });
 
-    // EVENTOS
     playBtn.addEventListener('click',togglePlay);
     document.getElementById('nextBtn').addEventListener('click',nextTrack);
     document.getElementById('prevBtn').addEventListener('click',prevTrack);
     shuffleBtn.addEventListener('click',toggleShuffle);
     progressBar.addEventListener('click',(e)=>{if(audio.duration){const rect=e.currentTarget.getBoundingClientRect();audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;}});
     heartBtn.addEventListener('click',()=>{const m=obterMusicaAtual();if(m){toggleFavorito(m.id);}});
-
     document.getElementById('menuButton').addEventListener('click',(e)=>{e.stopPropagation();menuPopup.classList.toggle('open');});
     document.getElementById('closeMenuBtn').addEventListener('click',()=>menuPopup.classList.remove('open'));
     document.getElementById('fullscreenMenuBtn').addEventListener('click',()=>{menuPopup.classList.remove('open');goFullscreen();});
@@ -685,13 +738,14 @@
     audio.addEventListener('ended',()=>{if(!carregandoMusica)nextTrack();});
     audio.addEventListener('error',()=>{if(!carregandoMusica)nextTrack();});
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&isPlaying&&isBackgroundActive){audio.play().catch(()=>{});}});
-    window.addEventListener('beforeunload',()=>{if(backgroundInterval)clearInterval(backgroundInterval);if(timerInterval)clearInterval(timerInterval);if(sleepTimer)clearTimeout(sleepTimer);if(wakeLock)wakeLock.release().catch(()=>{});});
+    window.addEventListener('beforeunload',()=>{if(backgroundInterval)clearInterval(backgroundInterval);if(timerInterval)clearInterval(timerInterval);if(mediaTimer)clearInterval(mediaTimer);if(sleepTimer)clearTimeout(sleepTimer);if(wakeLock)wakeLock.release().catch(()=>{});});
 
     const fabMain=document.getElementById('fabMain');
     const fabSub=document.getElementById('fabSub');
     fabMain.addEventListener('click',()=>{fabOpen=!fabOpen;fabSub.classList.toggle('open',fabOpen);fabMain.innerHTML=fabOpen?'<i class="fas fa-times"></i>':'<i class="fas fa-plus"></i>';});
     document.getElementById('fabGeneros').addEventListener('click',()=>{buildGenresGrid();document.getElementById('genresModal').classList.add('open');fabMain.click();});
     document.getElementById('closeGenresBtn').addEventListener('click',()=>document.getElementById('genresModal').classList.remove('open'));
+    document.getElementById('fabYoutube').addEventListener('click',()=>{window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio','_blank');fabMain.click();});
     document.getElementById('fabShare').addEventListener('click',()=>{navigator.clipboard.writeText(location.href).then(()=>showNotification('📋 Link copiado!',1500));fabMain.click();});
     document.getElementById('fabQrCode').addEventListener('click',()=>{window.open('https://api.qrserver.com/v1/create-qr-code/?data='+encodeURIComponent(location.href),'_blank');fabMain.click();});
     document.getElementById('fabFeedback').addEventListener('click',()=>{document.getElementById('feedbackModal').classList.add('open');fabMain.click();});
