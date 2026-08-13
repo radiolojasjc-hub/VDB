@@ -7,6 +7,8 @@
     
     <link rel="icon" href="fav56.png" type="image/png">
     <link rel="apple-touch-icon" href="fav56.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,7 +53,7 @@
         .media-container .inactive{opacity:0;z-index:0}
 
         /* ============================================================
-           TOPO - GLASSMORPHISM (OPÇÃO 1)
+           TOPO - GLASSMORPHISM
            ============================================================ */
         .top-bar {
             position: fixed;
@@ -771,6 +773,7 @@
     const NUMERO_WHATSAPP = '5512988461978';
     const PRECO_VITALICIO = 'R$ 39,90';
     const SENHA_FIXA = 'VDB2024';
+    const STORAGE_PREFIX = 'vdb_';
 
     // =================================================================
     //  ELEMENTOS
@@ -786,6 +789,42 @@
     let tempoRestante = TEMPO_INICIAL;
     let desbloqueado = false;
     let timerInterval = null;
+    let isAppActive = true;
+
+    // =================================================================
+    //  SALVAR ESTADO PERSISTENTE (melhorado)
+    // =================================================================
+    function salvarEstadoCompleto() {
+        try {
+            const estado = {
+                tempoRestante: tempoRestante,
+                desbloqueado: desbloqueado,
+                timestamp: Date.now(),
+                modoAtual: window.modoAtual || 'BÔNUS',
+                indiceAtual: window.indiceAtual || 0,
+                isPlaying: window.isPlaying || false,
+                shuffleMode: window.shuffleMode || false,
+                currentTime: document.getElementById('musicPlayer')?.currentTime || 0,
+                musicId: window.obterMusicaAtual?.()?.id || null
+            };
+            localStorage.setItem(STORAGE_PREFIX + 'estado_completo', JSON.stringify(estado));
+        } catch(e) {}
+    }
+
+    function carregarEstadoCompleto() {
+        try {
+            const saved = localStorage.getItem(STORAGE_PREFIX + 'estado_completo');
+            if (!saved) return null;
+            const estado = JSON.parse(saved);
+            
+            // Verifica se o estado é recente (menos de 1 hora)
+            if (estado.timestamp && (Date.now() - estado.timestamp) > 3600000) {
+                return null;
+            }
+            
+            return estado;
+        } catch(e) { return null; }
+    }
 
     // =================================================================
     //  ADMIN - Clique no letreiro (5x)
@@ -806,8 +845,8 @@
             clearTimeout(adminTimeout);
             document.getElementById('adminPanel').classList.toggle('open');
             if (document.getElementById('adminPanel').classList.contains('open')) {
-                document.getElementById('adminCelular').value = localStorage.getItem('vdb_celular') || '12988461978';
-                document.getElementById('adminEmail').value = localStorage.getItem('vdb_email') || 'cliente@teste.com';
+                document.getElementById('adminCelular').value = localStorage.getItem(STORAGE_PREFIX + 'celular') || '12988461978';
+                document.getElementById('adminEmail').value = localStorage.getItem(STORAGE_PREFIX + 'email') || 'cliente@teste.com';
                 showNotification('🔐 ADMIN ABERTO!', 1500);
             } else {
                 showNotification('🔐 ADMIN FECHADO!', 1500);
@@ -927,6 +966,7 @@
                 bloquearPlayer();
             }
         }
+        salvarEstadoCompleto();
     }
 
     function iniciarTimer() {
@@ -943,7 +983,7 @@
         }
 
         timerInterval = setInterval(() => {
-            if (!desbloqueado) {
+            if (!desbloqueado && isAppActive) {
                 tempoRestante--;
                 if (tempoRestante <= 0) {
                     tempoRestante = 0;
@@ -974,14 +1014,15 @@
             b.style.opacity = '0.3';
         });
         showNotification('⏳ Teste expirado!', 3000);
+        salvarEstadoCompleto();
     }
 
     function desbloquearPlayerPermanente(email, expiracao) {
         desbloqueado = true;
         blockOverlay.classList.remove('active');
-        localStorage.setItem('vdb_desbloqueado', 'true');
-        localStorage.setItem('vdb_email', email || '');
-        localStorage.setItem('vdb_expiracao', expiracao || '');
+        localStorage.setItem(STORAGE_PREFIX + 'desbloqueado', 'true');
+        localStorage.setItem(STORAGE_PREFIX + 'email', email || '');
+        localStorage.setItem(STORAGE_PREFIX + 'expiracao', expiracao || '');
         document.querySelectorAll('.ctrl-btn, .play-big, .shuffle-btn, #favTopBtn, #heartBtn, .menu-button').forEach(b => {
             b.style.pointerEvents = 'auto';
             b.style.opacity = '1';
@@ -995,15 +1036,18 @@
         showNotification('🔓 Acesso vitalício liberado!', 2000);
         const audio = document.getElementById('musicPlayer');
         if (audio.paused && window.isBackgroundActive) audio.play().catch(() => {});
+        salvarEstadoCompleto();
     }
 
     // =================================================================
-    //  CARREGAR ESTADO
+    //  CARREGAR ESTADO - COM RECUPERAÇÃO PERSISTENTE
     // =================================================================
     function carregarEstado() {
+        // Tenta entrar em tela cheia
         document.documentElement.requestFullscreen().catch(() => {});
 
-        if (localStorage.getItem('vdb_desbloqueado') === 'true') {
+        // Verifica desbloqueio permanente
+        if (localStorage.getItem(STORAGE_PREFIX + 'desbloqueado') === 'true') {
             desbloqueado = true;
             playerContainer.classList.add('visible');
             loadingScreen.style.display = 'none';
@@ -1018,35 +1062,32 @@
             return;
         }
 
-        const salvo = localStorage.getItem('vdb_tempo_restante');
-        if (salvo) {
-            const expira = parseInt(salvo, 10);
-            const agora = Date.now();
-            if (expira > agora) {
-                tempoRestante = Math.floor((expira - agora) / 1000);
-                if (tempoRestante < 0) tempoRestante = 0;
-                desbloqueado = false;
-                playerContainer.classList.add('visible');
-                loadingScreen.style.display = 'none';
-                blockOverlay.classList.remove('active');
-                document.querySelectorAll('.ctrl-btn, .play-big, .shuffle-btn, #favTopBtn, #heartBtn, .menu-button').forEach(b => {
-                    b.style.pointerEvents = 'auto';
-                    b.style.opacity = '1';
-                });
-                iniciarTimer();
-                iniciarPlayer();
-                return;
-            } else {
-                localStorage.removeItem('vdb_tempo_restante');
-                bloquearPlayer();
-                playerContainer.classList.add('visible');
-                loadingScreen.style.display = 'none';
-                return;
-            }
+        // Tenta recuperar estado salvo
+        const estadoSalvo = carregarEstadoCompleto();
+        if (estadoSalvo && estadoSalvo.tempoRestante > 0) {
+            tempoRestante = estadoSalvo.tempoRestante;
+            desbloqueado = false;
+            playerContainer.classList.add('visible');
+            loadingScreen.style.display = 'none';
+            blockOverlay.classList.remove('active');
+            document.querySelectorAll('.ctrl-btn, .play-big, .shuffle-btn, #favTopBtn, #heartBtn, .menu-button').forEach(b => {
+                b.style.pointerEvents = 'auto';
+                b.style.opacity = '1';
+            });
+            
+            // Restaura modo e índice
+            if (estadoSalvo.modoAtual) window.modoAtual = estadoSalvo.modoAtual;
+            if (estadoSalvo.indiceAtual !== undefined) window.indiceAtual = estadoSalvo.indiceAtual;
+            if (estadoSalvo.shuffleMode !== undefined) window.shuffleMode = estadoSalvo.shuffleMode;
+            
+            iniciarTimer();
+            iniciarPlayer(estadoSalvo);
+            return;
         }
 
+        // Fallback: novo teste de 10 minutos
         const expira = Date.now() + (TEMPO_INICIAL * 1000);
-        localStorage.setItem('vdb_tempo_restante', expira.toString());
+        localStorage.setItem(STORAGE_PREFIX + 'tempo_restante', expira.toString());
         tempoRestante = TEMPO_INICIAL;
         desbloqueado = false;
         playerContainer.classList.add('visible');
@@ -1127,8 +1168,8 @@
             const el = document.getElementById('adminSenhaGerada');
             el.value = senha;
             el.style.color = '#4ade80';
-            localStorage.setItem('vdb_celular', celular);
-            localStorage.setItem('vdb_email', email);
+            localStorage.setItem(STORAGE_PREFIX + 'celular', celular);
+            localStorage.setItem(STORAGE_PREFIX + 'email', email);
             showNotification('✅ Senha gerada! Clique em "Copiar" para enviar.', 2000);
         } catch (e) {
             showNotification('❌ Erro ao gerar: ' + e.message, 2000);
@@ -1274,7 +1315,7 @@
     function embaralharPlaylist(lista) {
         if (!lista || lista.length === 0) return lista;
         var embaralhada = shuffleArray([...lista]);
-        localStorage.setItem('vdb_ultima_ordem', JSON.stringify(embaralhada.map(function(m) { return m.id; })));
+        localStorage.setItem(STORAGE_PREFIX + 'ultima_ordem', JSON.stringify(embaralhada.map(function(m) { return m.id; })));
         return embaralhada;
     }
 
@@ -1283,7 +1324,7 @@
     // =================================================================
     function getIndiceInicialAleatorio(lista) {
         if (!lista || lista.length === 0) return 0;
-        var chave = 'vdb_indice_' + modoAtual;
+        var chave = STORAGE_PREFIX + 'indice_' + modoAtual;
         var ultimoIndice = parseInt(localStorage.getItem(chave)) || 0;
         var novoIndice = Math.floor(Math.random() * lista.length);
         if (lista.length > 1 && novoIndice === ultimoIndice) {
@@ -1333,6 +1374,7 @@
                 indiceAtual = 0;
             }
         }
+        salvarEstadoCompleto();
         return obterMusicaAtual();
     }
 
@@ -1344,6 +1386,7 @@
             indiceAtual--;
             if (indiceAtual < 0) indiceAtual = playlistAtual.length - 1;
         }
+        salvarEstadoCompleto();
         return obterMusicaAtual();
     }
 
@@ -1417,13 +1460,13 @@
     // =================================================================
     function carregarFav() { 
         try { 
-            var s = localStorage.getItem('radio_favorites_simple'); 
+            var s = localStorage.getItem(STORAGE_PREFIX + 'favorites'); 
             favorites = s ? JSON.parse(s) : []; 
         } catch(e) { favorites = []; } 
         favorites = [...new Set(favorites)]; 
         salvarFav(); 
     }
-    function salvarFav() { localStorage.setItem('radio_favorites_simple', JSON.stringify(favorites)); }
+    function salvarFav() { localStorage.setItem(STORAGE_PREFIX + 'favorites', JSON.stringify(favorites)); }
     function toggleFavorito(id) { 
         var idx = favorites.indexOf(id); 
         if (idx > -1) { favorites.splice(idx, 1); showNotification('❤️ Removido', 800); } 
@@ -1513,6 +1556,7 @@
         }
         showNotification('❤️ ' + favorites.length + ' favoritas', 1000);
         document.getElementById('favModal').classList.remove('open');
+        salvarEstadoCompleto();
     }
 
     // =================================================================
@@ -1771,6 +1815,7 @@
         if (isBackgroundActive) {
             setTimeout(function() { playMusic(); }, 300);
         }
+        salvarEstadoCompleto();
     }
 
     // =================================================================
@@ -1898,6 +1943,7 @@
             showNotification('⏭️ Pulando...', 800);
             setTimeout(function() { nextTrack(); }, 300);
         }
+        salvarEstadoCompleto();
     }
 
     function preCarregarProxima() {
@@ -1938,6 +1984,7 @@
             }
         }
         showControls();
+        salvarEstadoCompleto();
     }
 
     function prevTrack() {
@@ -1956,6 +2003,7 @@
             }
         }
         showControls();
+        salvarEstadoCompleto();
     }
 
     function togglePlay() {
@@ -1971,6 +2019,7 @@
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
         showControls();
+        salvarEstadoCompleto();
     }
 
     function toggleShuffle() {
@@ -1986,6 +2035,7 @@
         }
         showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 800);
         showControls();
+        salvarEstadoCompleto();
     }
 
     function playSongById(id) {
@@ -2032,6 +2082,7 @@
             setTimeout(function() { playMusic(); }, 200);
         }
         showNotification('🎵 ' + m.title + ' - ' + m.artist, 2000);
+        salvarEstadoCompleto();
     }
 
     function adicionarHistorico(m) {
@@ -2039,6 +2090,7 @@
         historicoReproducao = historicoReproducao.filter(function(t) { return t.id !== m.id; });
         historicoReproducao.unshift(m);
         if (historicoReproducao.length > 25) historicoReproducao.pop();
+        localStorage.setItem(STORAGE_PREFIX + 'historico', JSON.stringify(historicoReproducao));
     }
 
     function updateNowPlaying(t) {
@@ -2214,15 +2266,75 @@
     }
 
     // =================================================================
-    //  INICIAR PLAYER
+    //  INICIAR PLAYER - COM RECUPERAÇÃO DE ESTADO
     // =================================================================
-    function iniciarPlayer() {
+    function iniciarPlayer(estadoSalvo) {
         criarMidia();
         carregarFav();
         atualizarBadge();
         
         (async function() {
             try {
+                // Se temos um estado salvo, tenta restaurar a playlist
+                if (estadoSalvo && estadoSalvo.modoAtual && GENRE_URLS[estadoSalvo.modoAtual]) {
+                    const genero = estadoSalvo.modoAtual;
+                    showNotification('🔄 Restaurando ' + genero + '...', 1000);
+                    const lista = await carregarPlaylistPorGenero(genero);
+                    
+                    if (lista && lista.length > 0) {
+                        musicas = lista;
+                        modoAtual = genero;
+                        playlistAtual = construirPlaylist(modoAtual, musicas);
+                        
+                        // Restaura índice ou usa o salvo
+                        if (estadoSalvo.indiceAtual !== undefined && estadoSalvo.indiceAtual < playlistAtual.length) {
+                            indiceAtual = estadoSalvo.indiceAtual;
+                        } else {
+                            indiceAtual = getIndiceInicialAleatorio(playlistAtual);
+                        }
+                        
+                        if (estadoSalvo.shuffleMode !== undefined) {
+                            shuffleMode = estadoSalvo.shuffleMode;
+                            shuffleBtn.classList.toggle('active', shuffleMode);
+                        }
+                        
+                        historicoReproducao = [];
+                        
+                        if (genero === 'BÔNUS') {
+                            genreBadge.innerHTML = '🎵 BÔNUS';
+                            genreBadge.className = 'genre-badge bonus';
+                        } else {
+                            genreBadge.innerHTML = genero;
+                            genreBadge.className = 'genre-badge';
+                            var cor = CORES_POR_GENERO[genero] || '#00f3ff';
+                            genreBadge.style.borderLeftColor = cor;
+                            genreBadge.style.color = cor;
+                        }
+                        
+                        var p = playlistAtual[indiceAtual] || playlistAtual[0];
+                        if (p) { 
+                            updateNowPlaying(p); 
+                            adicionarHistorico(p); 
+                        }
+                        
+                        // Restaura o tempo de reprodução
+                        if (estadoSalvo.currentTime && audio) {
+                            audio.currentTime = estadoSalvo.currentTime;
+                        }
+                        
+                        showNotification('✅ Playlist restaurada: ' + musicas.length + ' músicas', 2000);
+                        
+                        // Se estava tocando, retoma
+                        if (estadoSalvo.isPlaying && isBackgroundActive) {
+                            setTimeout(function() { playMusic(); }, 500);
+                        }
+                        
+                        salvarEstadoCompleto();
+                        return;
+                    }
+                }
+                
+                // Fallback: carrega BÔNUS
                 var generosPrioridade = ['BÔNUS', 'MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE', 'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK', 'FANK'];
                 var lista = null;
                 var gen = null;
@@ -2291,6 +2403,7 @@
             buildGenresGrid();
             if (elementosMidia.length > 1) iniciarAlternancia();
             goFullscreen();
+            salvarEstadoCompleto();
         })();
 
         var ativarBtn = document.createElement('button');
@@ -2302,6 +2415,7 @@
             await ativarAudio();
             goFullscreen();
             if (elementosMidia.length > 1) iniciarAlternancia();
+            salvarEstadoCompleto();
         };
         document.body.appendChild(ativarBtn);
     }
@@ -2525,6 +2639,7 @@
             var rect = e.currentTarget.getBoundingClientRect();
             audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
             showControls();
+            salvarEstadoCompleto();
         }
     });
 
@@ -2606,6 +2721,8 @@
     window.openGenres = openGenres;
     window.openFeedback = openFeedback;
     window.selecionarGenero = selecionarGenero;
+    window.obterMusicaAtual = obterMusicaAtual;
+    window.isBackgroundActive = false; // Será atualizado
 
     // =================================================================
     //  EVENTOS DO ÁUDIO
@@ -2613,10 +2730,12 @@
     audio.addEventListener('play', function() { 
         isPlaying = true; 
         playBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
+        salvarEstadoCompleto();
     });
     audio.addEventListener('pause', function() { 
         isPlaying = false; 
         playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
+        salvarEstadoCompleto();
     });
     
     audio.addEventListener('ended', function() { 
@@ -2626,6 +2745,7 @@
                 nextTrack();
             }, 100);
         }
+        salvarEstadoCompleto();
     });
     
     audio.addEventListener('timeupdate', function() {
@@ -2633,6 +2753,32 @@
             progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
             currentTimeEl.textContent = formatTime(audio.currentTime);
             totalTimeEl.textContent = formatTime(audio.duration);
+            // Salva progresso a cada 5 segundos
+            if (Math.floor(audio.currentTime) % 5 === 0) {
+                salvarEstadoCompleto();
+            }
+        }
+    });
+
+    // =================================================================
+    //  VISIBILIDADE - PAUSA QUANDO APP EM BACKGROUND
+    // =================================================================
+    document.addEventListener('visibilitychange', function() {
+        isAppActive = !document.hidden;
+        if (document.hidden) {
+            // App foi para background - pausa o timer para não perder tempo
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        } else {
+            // App voltou - retoma o timer
+            if (!desbloqueado && tempoRestante > 0) {
+                iniciarTimer();
+            }
+            // Restaura o estado
+            carregarEstadoCompleto();
+            salvarEstadoCompleto();
         }
     });
 
@@ -2645,6 +2791,7 @@
         audio.pause(); 
         audio.src = ''; 
         audio.load();
+        salvarEstadoCompleto();
     });
 
     // =================================================================
