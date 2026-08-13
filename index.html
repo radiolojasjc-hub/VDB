@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VDB Music</title>
-    
     <link rel="icon" href="fav56.png" type="image/png">
     <link rel="apple-touch-icon" href="fav56.png">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 80%,rgba(0,243,255,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+        body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 80%,rgba(0,243,255,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f}
 
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);font-size:1.8rem;flex-direction:column;gap:12px}
@@ -21,79 +19,59 @@
         #loadingScreen span{font-size:1.2rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
-        #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none;flex-direction:column;background:transparent}
+        #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none;flex-direction:column}
         #playerContainer.visible{display:flex}
 
-        .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000}
-        .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:opacity 1s ease;opacity:0;z-index:1}
-        .media-container .active{opacity:1;z-index:3}
-        .media-container .inactive{opacity:0;z-index:0}
-
-        .top-bar{position:fixed;top:0;left:0;width:100%;z-index:35;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);gap:6px;height:44px;border-bottom:1px solid rgba(255,255,255,0.05)}
+        .top-bar{position:fixed;top:0;left:0;width:100%;z-index:35;display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);height:44px}
         .top-bar .left-group{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
-        .top-bar .right-group{display:flex;align-items:center;gap:6px;flex-shrink:0}
-        
-        .genre-badge{background:rgba(0,0,0,0.4);padding:0 10px;border-radius:20px;font-size:.7rem;font-weight:bold;color:#ffd700;border-left:3px solid #ffd700;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28%;cursor:pointer;flex-shrink:1;min-width:45px;height:28px}
-        .genre-badge:active{transform:scale(.95)}
-        .genre-badge.favoritos{border-left-color:#ff2d7f;color:#ff2d7f;background:rgba(255,45,127,0.15)}
-        
-        .timer-top{color:var(--neon-cyan);font-size:.7rem;font-weight:bold;background:rgba(0,0,0,0.4);padding:0 10px;border-radius:20px;border:1px solid var(--neon-cyan);flex-shrink:0;white-space:nowrap;min-width:60px;text-align:center;height:28px;display:flex;align-items:center;justify-content:center}
+        .top-bar .right-group{display:flex;align-items:center;gap:6px}
+        .genre-badge{background:rgba(0,0,0,0.5);padding:0 10px;border-radius:20px;font-size:.7rem;font-weight:bold;color:#ffd700;border-left:3px solid #ffd700;height:28px;display:flex;align-items:center;cursor:pointer;max-width:28%;white-space:nowrap;overflow:hidden}
+        .timer-top{color:var(--neon-cyan);font-size:.7rem;font-weight:bold;background:rgba(0,0,0,0.5);padding:0 10px;border-radius:20px;border:1px solid var(--neon-cyan);height:28px;display:flex;align-items:center;white-space:nowrap}
         .timer-top.liberado{color:#4ade80;border-color:#4ade80}
-        
-        .audio-status{font-size:.6rem;color:#fff;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,0.3);padding:0 8px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;height:28px}
+        .audio-status{font-size:.6rem;color:#fff;background:rgba(0,0,0,0.4);padding:0 8px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);height:28px;display:flex;align-items:center;gap:3px;white-space:nowrap}
         .audio-status.active{color:#4ade80;border-color:#4ade80}
-        .audio-status .dot{width:5px;height:5px;border-radius:50%;background:#666;display:inline-block}
+        .audio-status .dot{width:5px;height:5px;border-radius:50%;background:#666}
         .audio-status.active .dot{background:#4ade80;animation:pulse-dot 1s infinite}
         @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
-        
-        .fav-top-btn{background:rgba(255,45,127,0.12);border:1px solid #ff2d7f;color:#ff2d7f;padding:0 8px;border-radius:20px;font-size:.6rem;cursor:pointer;display:flex;align-items:center;gap:3px;flex-shrink:0;height:28px}
-        .fav-top-btn:active{transform:scale(.92);background:#ff2d7f;color:#000}
-        .fav-top-btn .badge{background:#ff2d7f;color:#000;border-radius:50%;padding:0 4px;font-size:.55rem;font-weight:bold;min-width:15px;text-align:center}
-        .menu-button{background:rgba(0,0,0,0.3);color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;cursor:pointer;border:1px solid rgba(255,255,255,0.15);flex-shrink:0}
-        .menu-button:active{background:var(--neon-cyan);color:#000}
+        .fav-top-btn{background:rgba(255,45,127,0.15);border:1px solid #ff2d7f;color:#ff2d7f;padding:0 8px;border-radius:20px;font-size:.6rem;cursor:pointer;height:28px;display:flex;align-items:center;gap:3px}
+        .fav-top-btn .badge{background:#ff2d7f;color:#000;border-radius:50%;padding:0 4px;font-size:.55rem;min-width:15px;text-align:center}
+        .menu-button{background:rgba(0,0,0,0.4);color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.15)}
 
-        .info-scroll{position:fixed;top:44px;left:0;right:0;z-index:30;background:transparent;padding:4px 12px;overflow:hidden;height:32px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);flex-direction:column;justify-content:center}
-        .info-scroll .letreiro{color:white;font-size:.9rem;font-weight:900;letter-spacing:1px;display:inline-block;padding-right:40px;text-shadow:0 0 30px rgba(0,0,0,0.9);text-transform:uppercase;width:auto;text-align:center;overflow:visible;white-space:nowrap;cursor:pointer;background:linear-gradient(90deg,#fff,var(--neon-cyan),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:scrollText 15s linear infinite;user-select:none}
+        .info-scroll{position:fixed;top:44px;left:0;right:0;z-index:30;padding:4px 12px;height:32px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .info-scroll .letreiro{color:white;font-size:.9rem;font-weight:900;white-space:nowrap;cursor:pointer;background:linear-gradient(90deg,#fff,var(--neon-cyan),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 100%;animation:scrollText 15s linear infinite}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
-        .now-playing{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:15;width:90%;max-width:450px;user-select:none;margin-top:-10px}
-        .now-playing .fav-heart{font-size:5rem;color:#555;cursor:pointer;transition:all 0.4s;text-shadow:0 0 30px rgba(0,0,0,0.9);display:inline-block}
-        .now-playing .fav-heart.active{color:#ff2d7f;text-shadow:0 0 40px rgba(255,45,127,0.5);animation:heartBeat 0.6s ease}
-        .now-playing .fav-heart:active{transform:scale(1.2)}
-        @keyframes heartBeat{0%{transform:scale(1)}15%{transform:scale(1.3)}30%{transform:scale(1)}45%{transform:scale(1.2)}60%{transform:scale(1)}}
+        .now-playing{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15}
+        .fav-heart{font-size:5rem;color:#555;cursor:pointer}
+        .fav-heart.active{color:#ff2d7f;text-shadow:0 0 40px rgba(255,45,127,0.6)}
 
-        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.08);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s ease}
+        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(16px);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:.75rem;color:#ccc;margin-bottom:5px}
-        .progress-bar{height:5px;background:rgba(255,255,255,0.15);cursor:pointer;border-radius:3px;overflow:hidden}
-        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:3px;transition:width 0.1s linear}
-        .buttons-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:8px}
-        .ctrl-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:.9rem;width:44px;height:44px;border-radius:50%;cursor:pointer}
+        .progress-bar{height:5px;background:rgba(255,255,255,0.15);cursor:pointer;border-radius:3px}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:3px}
+        .buttons-row{display:flex;justify-content:center;gap:16px;margin-top:8px}
+        .ctrl-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:.9rem}
         .ctrl-btn:active{transform:scale(.92);background:var(--neon-cyan);color:#000}
         .play-big{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));width:56px;height:56px;font-size:1.4rem;color:#000;border:none;border-radius:50%}
-        .play-big:active{transform:scale(.92)}
-        .shuffle-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:.85rem;width:44px;height:44px;border-radius:50%;cursor:pointer}
-        .shuffle-btn.active{background:var(--neon-cyan);color:#000;border-color:var(--neon-cyan)}
+        .shuffle-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer}
+        .shuffle-btn.active{background:var(--neon-cyan);color:#000}
 
         .fab-container{position:fixed;bottom:110px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-        .fab-main{background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.4rem;border:2px solid rgba(255,255,255,0.12)}
-        .fab-main:active{transform:scale(.92) rotate(90deg)}
-        .fab-sub{background:rgba(0,0,0,0.85);border-radius:25px;padding:8px;display:none;flex-direction:column;gap:4px;border:1px solid rgba(255,255,255,0.08)}
+        .fab-main{background:rgba(0,0,0,0.6);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.4rem;border:2px solid rgba(255,255,255,0.15)}
+        .fab-sub{background:rgba(0,0,0,0.9);border-radius:25px;padding:8px;display:none;flex-direction:column;gap:4px}
         .fab-sub.open{display:flex}
-        .fab-sub-btn{background:rgba(255,255,255,0.05);border:none;color:white;padding:10px 16px;border-radius:20px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:8px;min-width:120px}
-        .fab-sub-btn:active{background:var(--neon-cyan);color:#000}
-        .fab-sub-btn i{font-size:1rem;width:20px;text-align:center}
+        .fab-sub-btn{background:rgba(255,255,255,0.08);border:none;color:white;padding:10px 16px;border-radius:20px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:8px}
 
-        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,40,0.95);border-radius:30px 30px 0 0;padding:20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s ease;max-height:70vh;overflow-y:auto}
+        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,40,0.97);border-radius:30px 30px 0 0;padding:20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s;max-height:70vh;overflow-y:auto}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:16px;font-size:1.5rem;color:var(--neon-cyan)}
         .genres-grid{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow-y:auto}
-        .genre-card{border-radius:15px;cursor:pointer;border:2px solid rgba(255,255,255,0.08);padding:14px 16px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.2rem;min-height:55px}
+        .genre-card{border-radius:15px;cursor:pointer;border:2px solid rgba(255,255,255,0.1);padding:14px 16px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.2rem;min-height:55px}
         .genre-card:active{transform:scale(.96)}
-        .genre-card .icon{font-size:1.6rem;margin-right:10px}
         .close-genres{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:30px;color:#000;font-size:1.1rem;cursor:pointer;font-weight:bold;margin-top:15px}
 
-        .fav-modal,.feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,20,40,0.95);border-radius:25px;padding:25px;z-index:5000;width:90%;max-width:400px;text-align:center;display:none}
+        .fav-modal,.feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,20,40,0.97);border-radius:25px;padding:25px;z-index:5000;width:90%;max-width:400px;text-align:center;display:none}
         .fav-modal.open,.feedback-modal.open{display:block}
         .fav-modal h3,.feedback-modal h3{font-size:1.4rem;margin-bottom:15px;color:var(--neon-cyan)}
         .fav-modal .close-fav{position:absolute;top:14px;right:18px;background:transparent;border:none;color:#888;font-size:1.5rem;cursor:pointer}
@@ -103,35 +81,34 @@
         .fav-item .remove{background:transparent;border:none;color:#ff2d7f;cursor:pointer}
         .fav-empty{color:#888;padding:20px;text-align:center}
         .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:25px;color:#000;font-weight:bold;cursor:pointer;width:100%;margin-top:10px}
-        .search-fav{width:100%;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;margin-bottom:10px;outline:none}
-
+        .search-fav{width:100%;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:white;margin-bottom:10px;outline:none}
         .feedback-modal .stars{display:flex;justify-content:center;gap:10px;margin:10px 0}
         .feedback-modal .star{font-size:2rem;color:#555;cursor:pointer}
         .feedback-modal .star.active{color:#ffd700}
-        .feedback-modal textarea{width:100%;height:70px;background:rgba(255,255,255,0.06);border:1px solid rgba(0,243,255,0.15);border-radius:15px;padding:10px;color:#fff;resize:none}
+        .feedback-modal textarea{width:100%;height:70px;background:rgba(255,255,255,0.08);border:1px solid rgba(0,243,255,0.2);border-radius:15px;padding:10px;color:#fff;resize:none}
         .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:25px;color:#000;font-weight:bold;cursor:pointer;width:100%;margin-top:10px}
 
-        .notification{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:var(--neon-cyan);padding:8px 20px;border-radius:25px;font-size:.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .notification{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:var(--neon-cyan);padding:8px 20px;border-radius:25px;font-size:.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none}
         .notification.show{opacity:1}
 
-        #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9998;align-items:center;justify-content:center}
+        #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9998;align-items:center;justify-content:center}
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:3rem;color:var(--neon-cyan);animation:spin 1s infinite}
 
-        .menu-popup{position:absolute;top:44px;right:10px;background:rgba(0,0,0,0.9);border-radius:15px;padding:10px;z-index:32;display:none;flex-direction:column;gap:5px;border:1px solid var(--neon-cyan)}
+        .menu-popup{position:absolute;top:44px;right:10px;background:rgba(0,0,0,0.95);border-radius:15px;padding:10px;z-index:32;display:none;flex-direction:column;gap:5px;border:1px solid var(--neon-cyan)}
         .menu-popup.open{display:flex}
-        .menu-popup button{background:rgba(255,255,255,0.06);border:none;color:white;padding:8px 14px;border-radius:20px;font-size:.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
-        .menu-popup .close-menu-btn{background:rgba(255,45,127,0.15);border:1px solid #ff2d7f;color:#ff2d7f}
+        .menu-popup button{background:rgba(255,255,255,0.08);border:none;color:white;padding:8px 14px;border-radius:20px;font-size:.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+        .menu-popup .close-menu-btn{background:rgba(255,45,127,0.2);border:1px solid #ff2d7f;color:#ff2d7f}
 
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.94);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
         #blockOverlay.active{display:flex}
         #blockOverlay h2{color:#fff;font-size:2rem;margin-bottom:10px}
         #blockOverlay h2 span{color:var(--neon-pink)}
         #blockOverlay p{color:#aaa;font-size:1.1rem;margin-bottom:20px}
         #blockOverlay .btn-comprar{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:18px 35px;border-radius:50px;color:#fff;font-weight:bold;font-size:1.3rem;cursor:pointer;margin-bottom:10px}
-        #blockOverlay .btn-pix{background:rgba(255,255,255,0.08);border:2px solid #00f3ff;padding:14px 28px;border-radius:50px;color:#00f3ff;font-weight:bold;font-size:1.1rem;cursor:pointer}
+        #blockOverlay .btn-pix{background:rgba(255,255,255,0.1);border:2px solid #00f3ff;padding:14px 28px;border-radius:50px;color:#00f3ff;font-weight:bold;font-size:1.1rem;cursor:pointer}
         #blockOverlay .chave-pix{color:#888;font-size:.85rem;margin-top:8px}
-        #blockOverlay .senha-input{width:100%;max-width:300px;padding:14px 18px;border-radius:35px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#fff;font-size:1.1rem;text-align:center;margin:12px 0;outline:none}
+        #blockOverlay .senha-input{width:100%;max-width:300px;padding:14px 18px;border-radius:35px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:1.1rem;text-align:center;margin:12px 0;outline:none}
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:14px 35px;border-radius:50px;color:#000;font-weight:bold;font-size:1.1rem;cursor:pointer}
         #blockOverlay .erro-senha{color:#ff2d7f;font-size:.9rem;min-height:20px;margin-top:5px}
         #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,#ffd700,#ffaa00);color:#000;padding:8px 18px;border-radius:25px;font-weight:bold;font-size:1rem;display:inline-block}
@@ -140,15 +117,15 @@
         .btn-ativar-player.hidden{display:none !important}
         @keyframes pulseModern{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.02)}}
 
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.96);border-radius:25px;padding:25px;z-index:99999;width:90%;max-width:400px;border:2px solid #00f3ff;flex-direction:column;gap:12px;color:white}
+        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:25px;padding:25px;z-index:99999;width:90%;max-width:400px;border:2px solid #00f3ff;flex-direction:column;gap:12px;color:white}
         #adminPanel.open{display:flex}
         #adminPanel h2{text-align:center;font-size:1.4rem;color:var(--neon-cyan)}
-        #adminPanel input{width:100%;padding:12px 15px;border-radius:25px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:white;font-size:.95rem;outline:none}
+        #adminPanel input{width:100%;padding:12px 15px;border-radius:25px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:white;font-size:.95rem;outline:none}
         .admin-row{display:flex;gap:8px}
         .admin-row input{flex:2}
-        .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.15);border:1px solid #00f3ff;color:#00f3ff;padding:10px;border-radius:25px;cursor:pointer;font-size:.85rem}
+        .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.2);border:1px solid #00f3ff;color:#00f3ff;padding:10px;border-radius:25px;cursor:pointer;font-size:.85rem}
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:14px;border-radius:25px;color:#000;font-weight:bold;cursor:pointer;width:100%}
-        .admin-close{background:rgba(255,255,255,0.06);border:none;padding:10px;border-radius:25px;color:#aaa;cursor:pointer;width:100%}
+        .admin-close{background:rgba(255,255,255,0.1);border:none;padding:10px;border-radius:25px;color:#aaa;cursor:pointer;width:100%}
     </style>
 </head>
 <body>
@@ -156,11 +133,9 @@
 <div id="loadingScreen"><i class="fas fa-spinner fa-spin"></i><span>Carregando VDB Music...</span></div>
 
 <div id="playerContainer">
-    <div class="media-container" id="mediaContainer"></div>
-    
     <div class="top-bar">
         <div class="left-group">
-            <div class="genre-badge bonus" id="genreBadge" onclick="window.openGenres()">🎵 BÔNUS</div>
+            <div class="genre-badge" id="genreBadge" onclick="window.openGenres()">🎵 BÔNUS</div>
             <span class="timer-top" id="timerTop">⏳ 5:00</span>
         </div>
         <div class="right-group">
@@ -169,11 +144,8 @@
             <div class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></div>
         </div>
     </div>
-    
     <div class="info-scroll"><p class="letreiro" id="scrollText" onclick="window.ativarAdmin()">🎵 VAI DE BOA! MUSIC! 🎵</p></div>
-    
     <div class="now-playing"><div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div></div>
-    
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -184,7 +156,6 @@
             <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
-    
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -194,7 +165,6 @@
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
-    
     <div class="menu-popup" id="menuPopup">
         <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -224,7 +194,7 @@
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i>Comprar Agora</button>
     <button class="btn-pix" id="btnPix"><i class="fas fa-copy"></i>Copiar PIX</button>
     <div class="chave-pix">Chave: 12.988.461-978</div>
-    <hr style="width:80%;border-color:rgba(255,255,255,0.06);margin:15px 0;">
+    <hr style="width:80%;border-color:rgba(255,255,255,0.1);margin:15px 0;">
     <input type="password" class="senha-input" id="senhaPermanente" placeholder="Digite sua senha" autocomplete="off">
     <button class="btn-senha" id="btnSenhaPermanente"><i class="fas fa-unlock"></i>Liberar</button>
     <div class="erro-senha" id="erroSenha"></div>
@@ -243,14 +213,12 @@
 (function(){
     'use strict';
 
-    // CONFIGURAÇÕES
-    const TEMPO_INICIAL = 300; // 5 MINUTOS
+    const TEMPO_INICIAL = 300;
     const SECRET_KEY = 'MinhaChaveSecreta@2025#VDB';
     const CHAVE_PIX = '12.988.461-978';
     const NUMERO_WHATSAPP = '5512988461978';
     const SENHA_FIXA = 'VDB2024';
 
-    // GÊNEROS
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
         'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -270,12 +238,9 @@
     const CORES = {'BÔNUS':'#ffd700','FLASHBACK':'#ffaa00','RELIGIOSA':'#aa55ff','ROMÂNTICA':'#ff2d7f','MPB':'#00ff88','POP':'#ff3366','SERTANEJO':'#ff8800','FORRÓ':'#ff8800','SAMBA':'#ffdd00','BREGA':'#ff66aa','REGGAE':'#00ffaa','MODA TOP':'#ff4400','FANK':'#ff3366'};
     const GENEROS_ORDEM = ['BÔNUS','MPB','POP','SERTANEJO','FORRÓ','SAMBA','BREGA','REGGAE','MODA TOP','RELIGIOSA','ROMÂNTICA','FLASHBACK','FANK'];
     const EMOJIS = {'BÔNUS':'🎵','MPB':'🎶','POP':'🎤','SERTANEJO':'🤠','FORRÓ':'🪗','SAMBA':'🎭','BREGA':'💔','REGGAE':'🌴','MODA TOP':'👢','RELIGIOSA':'🙏','ROMÂNTICA':'💕','FLASHBACK':'⏪','FANK':'🔥'};
-
-    // REPOSITÓRIOS PARA URLS ALTERNATIVAS
     const REPOS = {'BÔNUS':'play12','MPB':'mpbtop','POP':'poptop','SERTANEJO':'sertanejo','FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop','MODA TOP':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop','FLASHBACK':'flashbacktop','FANK':'fank'};
     const TODOS_REPOS = ['play12','mpbtop','poptop','sertanejo','forrodez','sambatop','bregatop','reggaetop','modatop','religiosa','romanticatop','flashbacktop','fank'];
 
-    // DOM
     const loadingScreen = document.getElementById('loadingScreen');
     const playerContainer = document.getElementById('playerContainer');
     const timerTop = document.getElementById('timerTop');
@@ -296,10 +261,8 @@
     const favCount = document.getElementById('favCount');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const menuPopup = document.getElementById('menuPopup');
-    const mediaContainer = document.getElementById('mediaContainer');
     const progressBar = document.getElementById('progressBar');
 
-    // ESTADO
     let tempoRestante = TEMPO_INICIAL;
     let desbloqueado = false;
     let timerInterval = null;
@@ -326,7 +289,6 @@
     function showControls(){bottomControls.classList.add('visible');if(hideControlsTimeout)clearTimeout(hideControlsTimeout);hideControlsTimeout=setTimeout(()=>bottomControls.classList.remove('visible'),5000);}
     function formatarTempo(s){if(s<0)s=0;const m=Math.floor(s/60);const sec=Math.floor(s%60);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
 
-    // TIMER
     function atualizarTimerDisplay(){
         if(desbloqueado){timerTop.textContent='🔓 LIBERADO';timerTop.className='timer-top liberado';return;}
         timerTop.textContent='⏳ '+formatarTempo(tempoRestante);
@@ -347,7 +309,6 @@
         atualizarTimerDisplay();
     }
 
-    // BLOQUEIO PERMANENTE
     function bloquearPlayer(){
         desbloqueado=false;
         blockOverlay.classList.add('active');
@@ -406,7 +367,6 @@
         iniciarPlayer();
     }
 
-    // SISTEMA ANTI-TRAVAMENTO DO CAZÉ
     function createSilentAudio(){
         const sr=44100,dur=5,ns=sr*dur;
         const buf=new ArrayBuffer(44+ns*2);
@@ -460,7 +420,6 @@
         }
     }
 
-    // URLs ALTERNATIVAS
     function gerarUrlsAlternativas(musica){
         var urls=[];
         var src=musica.src||'';
@@ -480,7 +439,6 @@
         return urls;
     }
 
-    // PLAYLIST
     async function carregarPlaylistPorGenero(genero){
         const url=GENRE_URLS[genero];
         if(!url)return null;
@@ -544,7 +502,6 @@
         return obterMusicaAtual();
     }
 
-    // PLAY MUSIC COM SISTEMA DO CAZÉ
     async function playMusic(){
         if(!isBackgroundActive||carregandoMusica||!musicas.length)return;
         carregandoMusica=true;
@@ -552,16 +509,11 @@
         if(!track){carregandoMusica=false;return;}
         scrollText.innerHTML='🎵 '+track.title+' - '+track.artist+' ['+track.genero+'] 🎵';
         updateHeart(track.id);
-        audio.pause();
-        audio.src='';
-        audio.load();
-        
+        audio.pause();audio.src='';audio.load();
         var urls=gerarUrlsAlternativas(track);
         if(track.src.startsWith('http'))urls=[track.src].concat(urls.filter(u=>u!==track.src));
         urls=urls.slice(0,8);
-        
         if(urls.length===0){carregandoMusica=false;nextTrack();return;}
-        
         var sucesso=false;
         for(var i=0;i<urls.length;i++){
             try{
@@ -575,23 +527,11 @@
                 if(ok){sucesso=true;break;}
             }catch(e){}
         }
-        
         carregandoMusica=false;
-        
         if(sucesso){
-            try{
-                await audio.play();
-                isPlaying=true;
-                playBtn.innerHTML='<i class="fas fa-pause"></i>';
-                showNotification('✅ '+track.title,1200);
-            }catch(e){
-                isPlaying=false;
-                playBtn.innerHTML='<i class="fas fa-play"></i>';
-                nextTrack();
-            }
-        }else{
-            nextTrack();
-        }
+            try{await audio.play();isPlaying=true;playBtn.innerHTML='<i class="fas fa-pause"></i>';showNotification('✅ '+track.title,1200);}
+            catch(e){isPlaying=false;playBtn.innerHTML='<i class="fas fa-play"></i>';nextTrack();}
+        }else{nextTrack();}
     }
 
     function nextTrack(){
@@ -622,7 +562,6 @@
         showNotification(shuffleMode?'🔀 Aleatório ON':'➡️ Sequencial',800);
     }
 
-    // FAVORITOS
     function carregarFav(){try{favorites=JSON.parse(localStorage.getItem('radio_favorites_simple'))||[];}catch(e){favorites=[];}favorites=[...new Set(favorites)];salvarFav();}
     function salvarFav(){localStorage.setItem('radio_favorites_simple',JSON.stringify(favorites));}
     function updateHeart(id){heartBtn.className=id&&favorites.includes(id)?'fav-heart active':'fav-heart';heartBtn.innerHTML=id&&favorites.includes(id)?'<i class="fas fa-heart"></i>':'<i class="far fa-heart"></i>';favCount.textContent=favorites.length;}
@@ -642,19 +581,7 @@
         });
     }
 
-    function criarMidia(){
-        const midias=[{tipo:'imagem',src:'vd14.png'},{tipo:'video',src:'vai1.mp4'},{tipo:'imagem',src:'vd15.png'},{tipo:'imagem',src:'vd12.png'},{tipo:'imagem',src:'vd11.png'},{tipo:'imagem',src:'vd10.png'},{tipo:'imagem',src:'vai1.png'}];
-        midias.forEach((m,idx)=>{
-            let el;
-            if(m.tipo==='video'){el=document.createElement('video');el.src=m.src;el.muted=true;el.playsInline=true;el.preload='auto';el.load();}
-            else{el=document.createElement('img');el.src=m.src;el.onload=()=>{el.style.display='block';};}
-            el.className=idx===0?'active':'inactive';
-            mediaContainer.appendChild(el);
-        });
-    }
-
     function iniciarPlayer(){
-        criarMidia();
         carregarFav();
         updateHeart(null);
         (async()=>{
@@ -681,6 +608,34 @@
         document.body.appendChild(btn);
     }
 
+    // ============ GESTOS TOUCH ============
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let lastTap = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+        const now = new Date().getTime();
+        const tapLength = now - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+            e.preventDefault();
+            togglePlay();
+            showNotification('⏯️ ' + (isPlaying ? 'Pausado' : 'Play'));
+        }
+        lastTap = now;
+        showControls();
+    });
+
+    document.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 50) {
+            if (diff < 0) { nextTrack(); showNotification('⏭️ Próxima'); }
+            else { prevTrack(); showNotification('⏮️ Anterior'); }
+        }
+    });
+
     // EVENTOS
     playBtn.addEventListener('click',togglePlay);
     document.getElementById('nextBtn').addEventListener('click',nextTrack);
@@ -705,9 +660,7 @@
             desbloquearPlayerPermanente();
             document.getElementById('erroSenha').textContent='';
             document.getElementById('senhaPermanente').value='';
-        }else{
-            document.getElementById('erroSenha').textContent='❌ Senha inválida!';
-        }
+        }else{document.getElementById('erroSenha').textContent='❌ Senha inválida!';}
     });
     document.getElementById('senhaPermanente').addEventListener('keydown',(e)=>{if(e.key==='Enter')document.getElementById('btnSenhaPermanente').click();});
     document.getElementById('btnWhatsApp').addEventListener('click',()=>window.open('https://wa.me/'+NUMERO_WHATSAPP+'?text=Quero comprar a senha VITALÍCIA','_blank'));
