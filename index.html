@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VDB Music</title>
+    
+    <!-- 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA 🔥 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <link rel="icon" href="fav56.png" type="image/png">
     <link rel="apple-touch-icon" href="fav56.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,12 +64,10 @@
         .fab-sub.open{display:flex}
         .fab-sub-btn{background:transparent;border:none;color:white;padding:9px 12px;border-radius:15px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:8px}
 
-        /* GÊNEROS - ROLAGEM VERTICAL */
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,40,0.95);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s;max-height:55vh;overflow:hidden}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:15px;font-size:1.3rem;color:var(--neon-cyan)}
         
-        /* ROLAGEM VERTICAL */
         .genres-grid{display:flex;flex-direction:column;overflow-y:auto;scroll-snap-type:y mandatory;gap:12px;padding:5px;max-height:35vh;-webkit-overflow-scrolling:touch;scrollbar-width:none}
         .genres-grid::-webkit-scrollbar{display:none}
         
@@ -224,9 +228,26 @@
 </div>
 
 <script>
+// 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA - TIMESTAMP NA URL
+(function() {
+    const ultimaAtualizacao = localStorage.getItem('vdb_ultima_atualizacao');
+    const agora = Date.now();
+    
+    if (!ultimaAtualizacao || (agora - parseInt(ultimaAtualizacao)) > 300000) {
+        localStorage.setItem('vdb_ultima_atualizacao', agora.toString());
+        
+        const url = new URL(window.location.href);
+        url.searchParams.set('_t', agora);
+        if (window.location.href !== url.toString()) {
+            window.location.replace(url.toString());
+        }
+    }
+})();
+
 (function(){
     'use strict';
-    const TEMPO_INICIAL=300,SENHA_FIXA='VDB2024',NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
+    // 🔥 SENHA PERMANENTE - TEMPO INFINITO
+    const TEMPO_INICIAL=999999999,SENHA_FIXA='VDB2024',NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     const FRASES=['🎵 VAI DE BOA! MUSIC! 🎵','🎵 OUÇA SEM PARAR! 🎵','🎵 14 GÊNEROS! 🎵'];
     const GENRE_URLS={'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json','FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json','RELIGIOSA':'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json','ROMÂNTICA':'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json','MPB':'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json','POP':'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json','SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json','FORRÓ':'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json','SAMBA':'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json','BREGA':'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json','REGGAE':'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json','MODA TOP':'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json','FANK':'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json','TESTE MIDIA':'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json'};
     const CORES={'BÔNUS':'#ffd700','FLASHBACK':'#ffaa00','RELIGIOSA':'#aa55ff','ROMÂNTICA':'#ff2d7f','MPB':'#00ff88','POP':'#ff3366','SERTANEJO':'#ff8800','FORRÓ':'#ff8800','SAMBA':'#ffdd00','BREGA':'#ff66aa','REGGAE':'#00ffaa','MODA TOP':'#ff4400','FANK':'#ff3366','TESTE MIDIA':'#ffd700'};
@@ -250,8 +271,19 @@
 
     function mostrarPlayer(){loadingScreen.style.display='none';playerContainer.classList.add('visible');}
 
+    // 🔥 CARREGAR ESTADO COM SENHA PERMANENTE
     function carregarEstado(){
         setTimeout(mostrarPlayer,1500);
+        
+        // VERIFICA SE JÁ TEM SENHA PERMANENTE SALVA
+        if(localStorage.getItem('vdb_senha_permanente') === 'true'){
+            desbloqueado = true;
+            timerTop.textContent = '🔓 LIBERADO';
+            iniciar();
+            return;
+        }
+        
+        // SISTEMA ANTIGO PARA QUEM AINDA NÃO DIGITOU A SENHA
         if(localStorage.getItem('vdb_bloqueado_permanente')==='true'){bloquear();return;}
         if(localStorage.getItem('vdb_desbloqueado')==='true'){desbloqueado=true;timerTop.textContent='🔓 LIBERADO';iniciar();return;}
         const salvo=localStorage.getItem('vdb_tempo_restante');
@@ -264,7 +296,17 @@
     function updTimer(){if(desbloqueado){timerTop.textContent='🔓 LIBERADO';return;}timerTop.textContent=fmtTempo(tempoRestante);if(tempoRestante<=60)timerTop.style.color='#ff2d7f';if(tempoRestante<=0){clearInterval(timerInterval);bloquear();}}
     function startTimer(){clearInterval(timerInterval);if(desbloqueado)return;timerInterval=setInterval(()=>{if(!desbloqueado){tempoRestante--;if(tempoRestante<=0){clearInterval(timerInterval);bloquear();}updTimer();}},1000);updTimer();}
     function bloquear(){desbloqueado=false;blockOverlay.classList.add('active');audio.pause();localStorage.setItem('vdb_bloqueado_permanente','true');localStorage.removeItem('vdb_desbloqueado');}
-    function desbloquear(){desbloqueado=true;blockOverlay.classList.remove('active');localStorage.setItem('vdb_desbloqueado','true');localStorage.removeItem('vdb_bloqueado_permanente');timerTop.textContent='🔓 LIBERADO';}
+    
+    // 🔥 DESBLOQUEAR - SALVA SENHA PERMANENTE
+    function desbloquear(){
+        desbloqueado=true;
+        blockOverlay.classList.remove('active');
+        localStorage.setItem('vdb_desbloqueado','true');
+        localStorage.removeItem('vdb_bloqueado_permanente');
+        // 🔥 SALVA QUE O USUÁRIO JÁ DIGITOU A SENHA - NUNCA MAIS PEDE
+        localStorage.setItem('vdb_senha_permanente','true');
+        timerTop.textContent='🔓 LIBERADO';
+    }
 
     function criarMidia(){const midias=[{t:'img',s:'vd14.png'},{t:'vid',s:'vai1.mp4'},{t:'img',s:'vd15.png'},{t:'img',s:'vd12.png'},{t:'img',s:'mac01.png'},{t:'img',s:'vd10.png'},{t:'img',s:'vai1.png'}];midias.forEach((m,i)=>{let el;if(m.t==='vid'){el=document.createElement('video');el.src=m.s;el.muted=true;el.playsInline=true;el.loop=true;el.load();}else{el=document.createElement('img');el.src=m.s;}el.className=i===0?'active':'inactive';mediaContainer.appendChild(el);if(i===0&&m.t==='vid')el.play().catch(()=>{});});const els=mediaContainer.children;if(els.length>1)mediaTimer=setInterval(()=>{const a=els[midiaAtual],b=els[(midiaAtual+1)%els.length];if(!a||!b)return;a.className='inactive';if(a.tagName==='VIDEO')a.pause();b.className='active';if(b.tagName==='VIDEO')b.play().catch(()=>{});midiaAtual=(midiaAtual+1)%els.length;},5000);}
 
@@ -275,7 +317,7 @@
 
     function urls(m){const s=m.src||'';if(!s)return[];if(s.startsWith('http'))return[s];const n=s.replace(/^\.\//,'').replace(/[^a-zA-Z0-9\-_.]/g,'');const r=REPOS[m.genero]||'play12';const u=['https://raw.githubusercontent.com/radiolojasjc-hub/'+r+'/refs/heads/main/'+n];TODOS_REPOS.forEach(x=>{if(x!==r)u.push('https://raw.githubusercontent.com/radiolojasjc-hub/'+x+'/refs/heads/main/'+n);});u.push(s);return u;}
 
-    async function carregar(g){const u=GENRE_URLS[g];if(!u)return null;try{const c=new AbortController(),t=setTimeout(()=>c.abort(),15000),r=await fetch(u,{signal:c.signal});clearTimeout(t);let d=await r.json();if(!Array.isArray(d)){d=d.musicas||d.data||Object.values(d)[0];}return d.filter(m=>m.src&&m.title).map(m=>({...m,id:'g_'+Math.random().toString(36).slice(2),genero:g,artist:m.artist||'Artista'}));}catch(e){return null;}}
+    async function carregar(g){const u=GENRE_URLS[g];if(!u)return null;try{const c=new AbortController(),t=setTimeout(()=>c.abort(),15000),r=await fetch(u,{signal:c.signal,cache:'no-store'});clearTimeout(t);let d=await r.json();if(!Array.isArray(d)){d=d.musicas||d.data||Object.values(d)[0];}return d.filter(m=>m.src&&m.title).map(m=>({...m,id:'g_'+Math.random().toString(36).slice(2),genero:g,artist:m.artist||'Artista'}));}catch(e){return null;}}
 
     async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=(EMOJIS[g]||'🎧')+' '+g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
 
@@ -342,7 +384,6 @@
     document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key===' '){e.preventDefault();togglePlay();}if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='s'||e.key==='S')toggleShuf();});
     let lc=0;document.addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('.genre-card')||e.target.closest('#infoScroll'))return;const n=Date.now();if(n-lc<300)togglePlay();lc=n;showCtrl();});
 
-    // GESTOS TOUCH - IGNORA QUANDO MODAL DE GÊNEROS ABERTO
     let tx=0,lt=0;
     document.addEventListener('touchstart',e=>{
         if($('genresModal').classList.contains('open'))return;
