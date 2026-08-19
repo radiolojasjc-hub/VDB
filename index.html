@@ -248,15 +248,13 @@
     
     // 🔥 ========== SENHA OFUSCADA ==========
     // Senha: Patico1685@
-    // Base64: UGF0aWNvMTY4NUB=
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB='); // Resultado: Patico1685@
     
     // 🔥 ========== LIMITE DE TENTATIVAS ==========
     let tentativas = 0;
     const MAX_TENTATIVAS = 3;
     
-    const TEMPO_INICIAL=300,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
-    const FRASES=['🎵 VAI DE BOA! MUSIC! 🎵','🎵 OUÇA SEM PARAR! 🎵','🎵 14 GÊNEROS! 🎵'];
+    const TEMPO_INICIAL=999999999,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     const GENRE_URLS={'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json','FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json','RELIGIOSA':'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json','ROMÂNTICA':'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json','MPB':'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json','POP':'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json','SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json','FORRÓ':'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json','SAMBA':'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json','BREGA':'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json','REGGAE':'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json','MODA TOP':'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json','FANK':'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json','TESTE MIDIA':'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json'};
     const CORES={'BÔNUS':'#ffd700','FLASHBACK':'#ffaa00','RELIGIOSA':'#aa55ff','ROMÂNTICA':'#ff2d7f','MPB':'#00ff88','POP':'#ff3366','SERTANEJO':'#ff8800','FORRÓ':'#ff8800','SAMBA':'#ffdd00','BREGA':'#ff66aa','REGGAE':'#00ffaa','MODA TOP':'#ff4400','FANK':'#ff3366','TESTE MIDIA':'#ffd700'};
     const ORDEM=['BÔNUS','MPB','POP','SERTANEJO','FORRÓ','SAMBA','BREGA','REGGAE','MODA TOP','RELIGIOSA','ROMÂNTICA','FLASHBACK','FANK','TESTE MIDIA'];
@@ -269,6 +267,108 @@
 
     let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null,backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0,isPlaying=false,shuffleMode=false,isBackgroundActive=false,modoAtual='BÔNUS',carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null,hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
 
+    // 🔥 ========== SISTEMA DE NOVIDADES ==========
+    let ultimoHash = localStorage.getItem('vdb_ultimo_hash') || '';
+    let notificacaoNovidades = null;
+
+    function calcularHash(musicas) {
+        let str = '';
+        musicas.slice(0, 20).forEach(m => {
+            str += m.title + m.artist + m.src;
+        });
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash.toString(36);
+    }
+
+    function verificarNovidades(novasMusicas) {
+        const novoHash = calcularHash(novasMusicas);
+        
+        if (ultimoHash && ultimoHash !== novoHash) {
+            mostrarNotificacaoNovidades();
+        }
+        
+        ultimoHash = novoHash;
+        localStorage.setItem('vdb_ultimo_hash', ultimoHash);
+    }
+
+    function mostrarNotificacaoNovidades() {
+        if (notificacaoNovidades) {
+            notificacaoNovidades.remove();
+        }
+
+        notificacaoNovidades = document.createElement('div');
+        notificacaoNovidades.style.cssText = `
+            position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff2d7f, #00f3ff);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            z-index: 99999;
+            box-shadow: 0 8px 40px rgba(255,45,127,0.5);
+            text-align: center;
+            min-width: 280px;
+            max-width: 90%;
+            animation: slideDown 0.5s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+        `;
+        notificacaoNovidades.innerHTML = `
+            <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
+                <span style="font-size:1.8rem;">🎉</span>
+                <div>
+                    <div style="font-size:1.1rem;">VDB ATUALIZOU!</div>
+                    <div style="font-size:0.8rem;opacity:0.9;">🎵 Novas músicas disponíveis!</div>
+                </div>
+                <span style="font-size:1.8rem;">🚀</span>
+            </div>
+            <div style="margin-top:6px;font-size:0.75rem;opacity:0.8;">
+                Clique para recarregar e ouvir as novidades
+            </div>
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        notificacaoNovidades.onclick = function() {
+            this.style.opacity = '0';
+            this.style.transform = 'translateX(-50%) translateY(-20px)';
+            setTimeout(() => {
+                location.reload();
+            }, 300);
+        };
+        
+        document.body.appendChild(notificacaoNovidades);
+
+        setTimeout(() => {
+            if (notificacaoNovidades) {
+                notificacaoNovidades.style.opacity = '0';
+                notificacaoNovidades.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(() => {
+                    if (notificacaoNovidades) {
+                        notificacaoNovidades.remove();
+                        notificacaoNovidades = null;
+                    }
+                }, 500);
+            }
+        }, 30000);
+    }
+
     function notif(msg,dur=1500){notification.textContent=msg;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),dur);}
     function showLoad(s){loadingOverlay.classList.toggle('active',s);}
     function fmt(s){if(!s||isNaN(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
@@ -279,11 +379,9 @@
 
     function mostrarPlayer(){loadingScreen.style.display='none';playerContainer.classList.add('visible');}
 
-    // 🔥 CARREGAR ESTADO COM SENHA PERMANENTE
     function carregarEstado(){
         setTimeout(mostrarPlayer,1500);
         
-        // VERIFICA SE JÁ TEM SENHA PERMANENTE SALVA
         if(localStorage.getItem('vdb_senha_permanente') === 'true'){
             desbloqueado = true;
             timerTop.textContent = '🔓 LIBERADO';
@@ -291,7 +389,6 @@
             return;
         }
         
-        // SISTEMA ANTIGO PARA QUEM AINDA NÃO DIGITOU A SENHA
         if(localStorage.getItem('vdb_bloqueado_permanente')==='true'){bloquear();return;}
         if(localStorage.getItem('vdb_desbloqueado')==='true'){desbloqueado=true;timerTop.textContent='🔓 LIBERADO';iniciar();return;}
         const salvo=localStorage.getItem('vdb_tempo_restante');
@@ -305,7 +402,6 @@
     function startTimer(){clearInterval(timerInterval);if(desbloqueado)return;timerInterval=setInterval(()=>{if(!desbloqueado){tempoRestante--;if(tempoRestante<=0){clearInterval(timerInterval);bloquear();}updTimer();}},1000);updTimer();}
     function bloquear(){desbloqueado=false;blockOverlay.classList.add('active');audio.pause();localStorage.setItem('vdb_bloqueado_permanente','true');localStorage.removeItem('vdb_desbloqueado');}
     
-    // 🔥 DESBLOQUEAR - SALVA SENHA PERMANENTE
     function desbloquear(){
         desbloqueado=true;
         blockOverlay.classList.remove('active');
@@ -315,9 +411,7 @@
         timerTop.textContent='🔓 LIBERADO';
     }
 
-    // 🔥 ========== VALIDAÇÃO DE SENHA ==========
     $('btnSenhaPermanente').onclick=()=>{
-        // Bloqueia se excedeu tentativas
         if(tentativas >= MAX_TENTATIVAS){
             $('erroSenha').textContent = '❌ BLOQUEADO! Reinicie o app.';
             $('senhaPermanente').disabled = true;
@@ -327,7 +421,6 @@
         
         const s = $('senhaPermanente').value.trim();
         
-        // Verifica se é a senha fixa OU senha gerada
         if(s === SENHA_FIXA || s.split(':').length === 4){
             desbloquear();
             tentativas = 0;
@@ -349,7 +442,12 @@
 
     function urls(m){const s=m.src||'';if(!s)return[];if(s.startsWith('http'))return[s];const n=s.replace(/^\.\//,'').replace(/[^a-zA-Z0-9\-_.]/g,'');const r=REPOS[m.genero]||'play12';const u=['https://raw.githubusercontent.com/radiolojasjc-hub/'+r+'/refs/heads/main/'+n];TODOS_REPOS.forEach(x=>{if(x!==r)u.push('https://raw.githubusercontent.com/radiolojasjc-hub/'+x+'/refs/heads/main/'+n);});u.push(s);return u;}
 
-    async function carregar(g){const u=GENRE_URLS[g];if(!u)return null;try{const c=new AbortController(),t=setTimeout(()=>c.abort(),15000),r=await fetch(u,{signal:c.signal,cache:'no-store'});clearTimeout(t);let d=await r.json();if(!Array.isArray(d)){d=d.musicas||d.data||Object.values(d)[0];}return d.filter(m=>m.src&&m.title).map(m=>({...m,id:'g_'+Math.random().toString(36).slice(2),genero:g,artist:m.artist||'Artista'}));}catch(e){return null;}}
+    async function carregar(g){const u=GENRE_URLS[g];if(!u)return null;try{const c=new AbortController(),t=setTimeout(()=>c.abort(),15000),r=await fetch(u,{signal:c.signal,cache:'no-store'});clearTimeout(t);let d=await r.json();if(!Array.isArray(d)){d=d.musicas||d.data||Object.values(d)[0];}const musicasFiltradas = d.filter(m=>m.src&&m.title).map(m=>({...m,id:'g_'+Math.random().toString(36).slice(2),genero:g,artist:m.artist||'Artista'}));
+        
+        verificarNovidades(musicasFiltradas);
+        
+        return musicasFiltradas;
+        }catch(e){return null;}}
 
     async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=(EMOJIS[g]||'🎧')+' '+g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
 
