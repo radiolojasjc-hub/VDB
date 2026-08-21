@@ -158,7 +158,7 @@
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
     <div class="top-bar">
-        <span class="genre-badge" id="genreBadge" onclick="window.openGenres()">🎵 BÔNUS</span>
+        <span class="genre-badge" id="genreBadge" onclick="window.openGenres()">BÔNUS</span>
         <span class="timer-top" id="timerTop">5:00</span>
         <span class="audio-status" id="audioStatus">Aguardando</span>
         <button class="fav-top-btn" id="favTopBtn">❤️ <span id="favCount">0</span></button>
@@ -241,7 +241,6 @@
     const url = new URL(window.location.href);
     if (url.searchParams.get('_t') !== VERSAO.toString()) {
         url.searchParams.set('_t', VERSAO);
-        // Não recarrega automaticamente para evitar loop, apenas marca a versão
         window.history.replaceState({}, '', url.toString());
     }
     
@@ -251,7 +250,6 @@
     
     if (!ultimaAtualizacao || (agora - parseInt(ultimaAtualizacao)) > 300000) {
         localStorage.setItem('vdb_ultima_atualizacao', agora.toString());
-        // Se o parâmetro _t não existir ou for antigo, recarrega
         if (!url.searchParams.get('_t') || parseInt(url.searchParams.get('_t')) < agora - 300000) {
             url.searchParams.set('_t', agora);
             if (window.location.href !== url.toString()) {
@@ -277,8 +275,7 @@
     
     const TEMPO_INICIAL=300,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     
-    // 🔥 ========== GÊNEROS COM VERSIONAMENTO ==========
-    // 🔥 PARA ADICIONAR UM NOVO GÊNERO, BASTA ADICIONAR AQUI!
+    // 🔥 ========== GÊNEROS COM VERSIONAMENTO - SEM ÍCONES ==========
     const GENRE_URLS={
         'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
         'FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
@@ -294,8 +291,7 @@
         'MODA TOP':'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
         'FANK':'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
         'TESTE MIDIA':'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
-        // 🔥 EXEMPLO DE NOVO GÊNERO - DESCOMENTE E ADICIONE:
-        // 'MODÃO SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
+        'MODÃO SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
     };
     
     const CORES={
@@ -313,7 +309,7 @@
         'MODA TOP':'#ff4400',
         'FANK':'#ff3366',
         'TESTE MIDIA':'#ffd700',
-        // 'MODÃO SERTANEJO':'#ff8c00',
+        'MODÃO SERTANEJO':'#ff8c00',
     };
     
     const ORDEM=[
@@ -331,26 +327,11 @@
         'FLASHBACK',
         'FANK',
         'TESTE MIDIA',
-        // 'MODÃO SERTANEJO',
+        'MODÃO SERTANEJO',
     ];
     
-    const EMOJIS={
-        'BÔNUS':'🎵',
-        'MPB':'🎶',
-        'POP':'🎤',
-        'SERTANEJO':'🤠',
-        'FORRÓ':'🪗',
-        'SAMBA':'🎭',
-        'BREGA':'💔',
-        'REGGAE':'🌴',
-        'MODA TOP':'👢',
-        'RELIGIOSA':'🙏',
-        'ROMÂNTICA':'💕',
-        'FLASHBACK':'⏪',
-        'FANK':'🔥',
-        'TESTE MIDIA':'🧪',
-        // 'MODÃO SERTANEJO':'🎸',
-    };
+    // 🔥 EMOJIS REMOVIDOS - VAI FICAR VAZIO
+    const EMOJIS={};
     
     const REPOS={
         'BÔNUS':'play12',
@@ -367,14 +348,14 @@
         'FLASHBACK':'flashbacktop',
         'FANK':'fank',
         'TESTE MIDIA':'testemidias',
-        // 'MODÃO SERTANEJO':'modasertaneja',
+        'MODÃO SERTANEJO':'modasertaneja',
     };
     
     const TODOS_REPOS=[
         'play12','mpbtop','poptop','sertanejo','forrodez',
         'sambatop','bregatop','reggaetop','modatop','religiosa',
         'romanticatop','flashbacktop','fank','testemidias',
-        // 'modasertaneja',
+        'modasertaneja',
     ];
 
     const $=id=>document.getElementById(id);
@@ -459,7 +440,7 @@
         return musicasFiltradas;
         }catch(e){return null;}}
 
-    async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=(EMOJIS[g]||'🎧')+' '+g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
+    async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
 
     function atual(){if(!playlistAtual.length)return null;if(indiceAtual>=playlistAtual.length){playlistAtual=shuf(musicas);indiceAtual=0;}return playlistAtual[indiceAtual];}
     function next(){if(carregandoMusica)return;indiceAtual=(indiceAtual+1)%playlistAtual.length;const t=atual();if(t&&isBackgroundActive)setTimeout(tocar,100);showCtrl();}
@@ -473,9 +454,9 @@
     function salvarFav(){localStorage.setItem('vfav',JSON.stringify(favorites));}
     function updHeart(id){heartBtn.className=id&&favorites.includes(id)?'fav-heart active':'fav-heart';heartBtn.innerHTML=id&&favorites.includes(id)?'<i class="fas fa-heart"></i>':'<i class="far fa-heart"></i>';favCount.textContent=favorites.length;}
     function togFav(id){const i=favorites.indexOf(id);if(i>-1)favorites.splice(i,1);else favorites.push(id);salvarFav();updHeart(id);}
-    function grid(){$('genresGrid').innerHTML='';ORDEM.forEach(g=>{const c=document.createElement('div');c.className='genre-card';c.style.borderColor=CORES[g];c.style.color=CORES[g];c.textContent=(EMOJIS[g]||'🎧')+' '+g;c.onclick=()=>selecionar(g);$('genresGrid').appendChild(c);});}
+    function grid(){$('genresGrid').innerHTML='';ORDEM.forEach(g=>{const c=document.createElement('div');c.className='genre-card';c.style.borderColor=CORES[g];c.style.color=CORES[g];c.textContent=g;c.onclick=()=>selecionar(g);$('genresGrid').appendChild(c);});}
 
-    function iniciar(){criarMidia();carregarFav();updHeart(null);(async()=>{for(const g of ORDEM){const l=await carregar(g);if(l&&l.length){musicas=l;modoAtual=g;playlistAtual=shuf(musicas);genreBadge.textContent=(EMOJIS[g]||'🎧')+' '+g;genreBadge.style.color=CORES[g];const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}break;}}grid();fullscreen();})();const b=document.createElement('button');b.className='btn-ativar-player';b.textContent='▶ ATIVAR';b.onclick=async function(){this.classList.add('hidden');await ativar();fullscreen();};document.body.appendChild(b);}
+    function iniciar(){criarMidia();carregarFav();updHeart(null);(async()=>{for(const g of ORDEM){const l=await carregar(g);if(l&&l.length){musicas=l;modoAtual=g;playlistAtual=shuf(musicas);genreBadge.textContent=g;genreBadge.style.color=CORES[g];const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}break;}}grid();fullscreen();})();const b=document.createElement('button');b.className='btn-ativar-player';b.textContent='▶ ATIVAR';b.onclick=async function(){this.classList.add('hidden');await ativar();fullscreen();};document.body.appendChild(b);}
 
     playBtn.onclick=togglePlay;$('nextBtn').onclick=next;$('prevBtn').onclick=prev;shuffleBtn.onclick=toggleShuf;
     progressBar.onclick=e=>{if(audio.duration){const r=e.currentTarget.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;}};
