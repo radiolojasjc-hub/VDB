@@ -231,23 +231,15 @@
 // 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA - TIMESTAMP NA URL
 // 🔥 ============================================================
 (function() {
-    // Gera timestamp único para esta sessão
     const VERSAO = Date.now();
-    
-    // Salva no localStorage para referência
     localStorage.setItem('vdb_versao', VERSAO.toString());
-    
-    // Adiciona timestamp à URL para forçar refresh
     const url = new URL(window.location.href);
     if (url.searchParams.get('_t') !== VERSAO.toString()) {
         url.searchParams.set('_t', VERSAO);
         window.history.replaceState({}, '', url.toString());
     }
-    
-    // Verifica se precisa forçar recarga (se passou mais de 5 min)
     const ultimaAtualizacao = localStorage.getItem('vdb_ultima_atualizacao');
     const agora = Date.now();
-    
     if (!ultimaAtualizacao || (agora - parseInt(ultimaAtualizacao)) > 300000) {
         localStorage.setItem('vdb_ultima_atualizacao', agora.toString());
         if (!url.searchParams.get('_t') || parseInt(url.searchParams.get('_t')) < agora - 300000) {
@@ -262,110 +254,96 @@
 (function(){
     'use strict';
     
-    // 🔥 ========== VERSIONAMENTO GLOBAL ==========
     const VERSAO = Date.now();
     console.log('🔄 VDB Music v' + VERSAO);
     
-    // 🔥 ========== SENHA OFUSCADA ==========
-    const SENHA_FIXA = atob('UGF0aWNvMTY4NUB='); // Patico1685@
-    
-    // 🔥 ========== LIMITE DE TENTATIVAS ==========
+    const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
     let tentativas = 0;
     const MAX_TENTATIVAS = 3;
     
     const TEMPO_INICIAL=300,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     
-    // 🔥 ========== GÊNEROS COM VERSIONAMENTO - SEM ÍCONES ==========
+    // ============================================================
+    // 🔥 GÊNEROS CORRIGIDOS - SEM DUPLICIDADE
+    // ============================================================
     const GENRE_URLS={
-       const GENRE_URLS={
-    'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
-    'FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
-    'RELIGIOSA':'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
-    'ROMÂNTICA':'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
-    'MPB':'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
-    'POP':'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
-    'SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
-    'FORRÓ':'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
-    'SAMBA':'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
-    'BREGA':'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
-    'REGGAE':'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
-    'MODA TOP':'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
-    'FANK':'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
-    'TESTE MIDIA':'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
-    'MODÃO SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
-    // ✅ CORRIGIDO: CHORINHO com ?_= e sem H extra
-    'CHORINHO':'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' + VERSAO,
-};
-
-const CORES={
-    'BÔNUS':'#ffd700',
-    'FLASHBACK':'#ffaa00',
-    'RELIGIOSA':'#aa55ff',
-    'ROMÂNTICA':'#ff2d7f',
-    'MPB':'#00ff88',
-    'POP':'#ff3366',
-    'SERTANEJO':'#ff8800',
-    'FORRÓ':'#ff8800',
-    'SAMBA':'#ffdd00',
-    'BREGA':'#ff66aa',
-    'REGGAE':'#00ffaa',
-    'MODA TOP':'#ff4400',
-    'FANK':'#ff3366',
-    'TESTE MIDIA':'#ffd700',
-    'MODÃO SERTANEJO':'#ff8c00',
-    // ✅ CORRIGIDO: CHORINHO com cor azul
-    'CHORINHO':'#1e90ff',
-};
-
-const ORDEM=[
-    'BÔNUS',
-    'MPB',
-    'POP',
-    'SERTANEJO',
-    'FORRÓ',
-    'SAMBA',
-    'BREGA',
-    'REGGAE',
-    'MODA TOP',
-    'RELIGIOSA',
-    'ROMÂNTICA',
-    'FLASHBACK',
-    'FANK',
-    'TESTE MIDIA',
-    'MODÃO SERTANEJO',
-    'CHORINHO',
-];
-
-// 🔥 EMOJIS REMOVIDOS
-const EMOJIS={};
-
-const REPOS={
-    'BÔNUS':'play12',
-    'MPB':'mpbtop',
-    'POP':'poptop',
-    'SERTANEJO':'sertanejo',
-    'FORRÓ':'forrodez',
-    'SAMBA':'sambatop',
-    'BREGA':'bregatop',
-    'REGGAE':'reggaetop',
-    'MODA TOP':'modatop',
-    'RELIGIOSA':'religiosa',
-    'ROMÂNTICA':'romanticatop',
-    'FLASHBACK':'flashbacktop',
-    'FANK':'fank',
-    'TESTE MIDIA':'testemidias',
-    'MODÃO SERTANEJO':'modasertaneja',
-    // ✅ CORRIGIDO: CHORINHO sem R
-    'CHORINHO':'chorinho',
-};
-
-const TODOS_REPOS=[
-    'play12','mpbtop','poptop','sertanejo','forrodez',
-    'sambatop','bregatop','reggaetop','modatop','religiosa',
-    'romanticatop','flashbacktop','fank','testemidias',
-    'modasertaneja','chorinho',
+        'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
+        'FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
+        'RELIGIOSA':'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
+        'ROMÂNTICA':'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
+        'MPB':'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
+        'POP':'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
+        'SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
+        'FORRÓ':'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
+        'SAMBA':'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
+        'BREGA':'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
+        'REGGAE':'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
+        'MODA TOP':'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
+        'FANK':'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
+        'TESTE MIDIA':'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
+        'MODÃO SERTANEJO':'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
+        'CHORINHO':'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' + VERSAO,
     };
-    
+
+    const CORES={
+        'BÔNUS':'#ffd700',
+        'FLASHBACK':'#ffaa00',
+        'RELIGIOSA':'#aa55ff',
+        'ROMÂNTICA':'#ff2d7f',
+        'MPB':'#00ff88',
+        'POP':'#ff3366',
+        'SERTANEJO':'#ff8800',
+        'FORRÓ':'#ff8800',
+        'SAMBA':'#ffdd00',
+        'BREGA':'#ff66aa',
+        'REGGAE':'#00ffaa',
+        'MODA TOP':'#ff4400',
+        'FANK':'#ff3366',
+        'TESTE MIDIA':'#ffd700',
+        'MODÃO SERTANEJO':'#ff8c00',
+        'CHORINHO':'#1e90ff',
+    };
+
+    const ORDEM=[
+        'BÔNUS',
+        'MPB',
+        'POP',
+        'SERTANEJO',
+        'FORRÓ',
+        'SAMBA',
+        'BREGA',
+        'REGGAE',
+        'MODA TOP',
+        'RELIGIOSA',
+        'ROMÂNTICA',
+        'FLASHBACK',
+        'FANK',
+        'TESTE MIDIA',
+        'MODÃO SERTANEJO',
+        'CHORINHO',
+    ];
+
+    const EMOJIS={};
+
+    const REPOS={
+        'BÔNUS':'play12',
+        'MPB':'mpbtop',
+        'POP':'poptop',
+        'SERTANEJO':'sertanejo',
+        'FORRÓ':'forrodez',
+        'SAMBA':'sambatop',
+        'BREGA':'bregatop',
+        'REGGAE':'reggaetop',
+        'MODA TOP':'modatop',
+        'RELIGIOSA':'religiosa',
+        'ROMÂNTICA':'romanticatop',
+        'FLASHBACK':'flashbacktop',
+        'FANK':'fank',
+        'TESTE MIDIA':'testemidias',
+        'MODÃO SERTANEJO':'modasertaneja',
+        'CHORINHO':'chorinho',
+    };
+
     const TODOS_REPOS=[
         'play12','mpbtop','poptop','sertanejo','forrodez',
         'sambatop','bregatop','reggaetop','modatop','religiosa',
@@ -390,14 +368,12 @@ const TODOS_REPOS=[
 
     function carregarEstado(){
         setTimeout(mostrarPlayer,1500);
-        
         if(localStorage.getItem('vdb_senha_permanente') === 'true'){
             desbloqueado = true;
             timerTop.textContent = '🔓 Lib';
             iniciar();
             return;
         }
-        
         if(localStorage.getItem('vdb_bloqueado_permanente')==='true'){bloquear();return;}
         if(localStorage.getItem('vdb_desbloqueado')==='true'){desbloqueado=true;timerTop.textContent='🔓 LIBERADO';iniciar();return;}
         const salvo=localStorage.getItem('vdb_tempo_restante');
@@ -427,9 +403,7 @@ const TODOS_REPOS=[
             $('btnSenhaPermanente').disabled = true;
             return;
         }
-        
         const s = $('senhaPermanente').value.trim();
-        
         if(s === SENHA_FIXA || s.split(':').length === 4){
             desbloquear();
             tentativas = 0;
