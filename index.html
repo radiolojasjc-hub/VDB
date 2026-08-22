@@ -133,7 +133,7 @@
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%}
         .admin-close{background:rgba(255,255,255,0.1);border:none;padding:8px;border-radius:20px;color:#aaa;cursor:pointer;width:100%;font-size:.8rem}
 
-        /* 🔥 BANNER DE ATUALIZAÇÃO - SIMPLES E FUNCIONAL */
+        /* 🔥 BANNER DE ATUALIZAÇÃO - CORRIGIDO */
         .update-banner {
             position: fixed;
             top: 42px;
@@ -141,13 +141,13 @@
             transform: translateX(-50%);
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
             color: #000;
-            padding: 8px 16px;
-            border-radius: 12px;
+            padding: 10px 20px;
+            border-radius: 16px;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             z-index: 99999;
             display: none;
-            box-shadow: 0 0 30px rgba(0,243,255,0.3);
+            box-shadow: 0 0 40px rgba(0,243,255,0.4);
             text-align: center;
             max-width: 90%;
             cursor: pointer;
@@ -159,13 +159,24 @@
             background: #000;
             color: #fff;
             border: none;
-            padding: 2px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .update-banner .btn-reload:active { transform: scale(0.95); }
+        .update-banner .btn-fechar-banner {
+            background: rgba(0,0,0,0.2);
+            color: #000;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
             cursor: pointer;
             margin-left: 6px;
         }
-        .update-banner .btn-reload:active { transform: scale(0.95); }
         @keyframes slideDown {
             from { opacity: 0; transform: translateX(-50%) translateY(-30px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -217,10 +228,11 @@
     </div>
 </div>
 
-<!-- 🔥 BANNER DE ATUALIZAÇÃO - SIMPLES -->
+<!-- 🔥 BANNER DE ATUALIZAÇÃO - CORRIGIDO -->
 <div class="update-banner" id="updateBanner">
     🔄 <span id="updateMsg">NOVAS MÚSICAS DISPONÍVEIS!</span>
     <button class="btn-reload" onclick="location.reload()">ATUALIZAR</button>
+    <button class="btn-fechar-banner" onclick="fecharBanner()">✕</button>
 </div>
 
 <div id="blockOverlay">
@@ -255,8 +267,14 @@
 
 <script>
 // 🔥 ============================================================
-// 🔥 VDB MUSIC - COM BANNER DE ATUALIZAÇÃO SIMPLIFICADO
+// 🔥 VDB MUSIC - BANNER FUNCIONANDO CORRETAMENTE
 // 🔥 ============================================================
+
+// 🔥 FUNÇÃO PARA FECHAR O BANNER MANUALMENTE
+function fecharBanner() {
+    const banner = document.getElementById('updateBanner');
+    if (banner) banner.classList.remove('show');
+}
 
 (function() {
     'use strict';
@@ -351,15 +369,13 @@
         if (!updateBanner) return;
         updateMsg.textContent = mensagem || 'NOVAS MÚSICAS DISPONÍVEIS!';
         updateBanner.classList.add('show');
-        // Esconde após 20 segundos
+        console.log('🔔 BANNER MOSTRADO:', mensagem);
+        
+        // Esconde após 15 segundos
         clearTimeout(window.bannerTimeout);
         window.bannerTimeout = setTimeout(() => {
-            updateBanner.classList.remove('show');
-        }, 20000);
-    }
-
-    function esconderBanner() {
-        if (updateBanner) updateBanner.classList.remove('show');
+            if (updateBanner) updateBanner.classList.remove('show');
+        }, 15000);
     }
 
     function notif(msg,dur=1500){notification.textContent=msg;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),dur);}
@@ -423,7 +439,7 @@
 
     function urls(m){const s=m.src||'';if(!s)return[];if(s.startsWith('http'))return[s];const n=s.replace(/^\.\//,'').replace(/[^a-zA-Z0-9\-_.]/g,'');const r=REPOS[m.genero]||'play12';const u=['https://raw.githubusercontent.com/radiolojasjc-hub/'+r+'/refs/heads/main/'+n + '?_=' + VERSAO];TODOS_REPOS.forEach(x=>{if(x!==r)u.push('https://raw.githubusercontent.com/radiolojasjc-hub/'+x+'/refs/heads/main/'+n + '?_=' + VERSAO);});u.push(s + '?_=' + VERSAO);return u;}
 
-    // 🔥 CARREGAR COM BANNER DE ATUALIZAÇÃO
+    // 🔥 CARREGAR COM BANNER DE ATUALIZAÇÃO - CORRIGIDO
     async function carregar(g) {
         const u = GENRE_URLS[g];
         if (!u) return null;
@@ -454,8 +470,12 @@
                 const msg = diferenca > 0 ? 
                     `✅ +${diferenca} NOVAS MÚSICAS!` : 
                     `📉 ${Math.abs(diferenca)} músicas removidas`;
+                
+                // 🔥 MOSTRA O BANNER
                 mostrarBanner(msg);
                 console.log('🔔 BANNER ATIVADO!');
+            } else {
+                console.log('📌 Sem mudanças no tamanho da playlist');
             }
             
             // Salva o novo tamanho
