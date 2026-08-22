@@ -35,7 +35,7 @@
         .timer-top{font-size:.9rem;font-weight:bold;color:var(--neon-cyan)}
         .audio-status{font-size:.8rem;color:#aaa}
         .audio-status.active{color:#4ade80}
-        .fav-top-btn{background:transparent;border:none;font-size:.8rem;color:#ff2d7f;cursor:pointer}
+        .fav-top-btn{background:transparent;border:none;font-size:.8rem;color:#ff2d7f;cursor:pointer;display:flex;align-items:center;gap:3px}
         .menu-button{background:transparent;border:none;color:white;font-size:1rem;cursor:pointer}
 
         .info-scroll{position:fixed;top:38px;left:0;right:0;z-index:30;padding:3px 10px;height:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3)}
@@ -43,8 +43,9 @@
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
         .now-playing{position:fixed;top:52%;left:50%;transform:translate(-50%,-50%);z-index:15}
-        .fav-heart{font-size:4rem;color:rgba(255,255,255,0.3);cursor:pointer}
+        .fav-heart{font-size:4rem;color:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.2s}
         .fav-heart.active{color:#ff2d7f}
+        .fav-heart:active{transform:scale(1.2)}
 
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(16px);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s}
         .bottom-controls.visible{transform:translateY(0)}
@@ -81,15 +82,16 @@
         .fav-modal.open,.feedback-modal.open{display:block}
         .fav-modal h3,.feedback-modal h3{font-size:1.2rem;margin-bottom:12px;color:var(--neon-cyan)}
         .fav-modal .close-fav{position:absolute;top:10px;right:12px;background:transparent;border:none;color:#888;font-size:1.2rem;cursor:pointer}
-        .fav-list{max-height:50vh;overflow-y:auto;text-align:left}
-        .fav-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);color:white;font-size:.85rem}
-        .fav-item .fav-info{cursor:pointer;flex:1;display:flex;flex-direction:column;gap:2px}
-        .fav-item .fav-info .title{font-weight:bold;font-size:.85rem}
-        .fav-item .fav-info .artist{font-size:.7rem;color:#aaa}
-        .fav-item .fav-info .genre-tag{font-size:.55rem;color:#00f3ff;background:rgba(0,243,255,0.1);padding:0 8px;border-radius:10px;display:inline-block;margin-top:2px;width:fit-content}
-        .fav-item .remove{background:transparent;border:none;color:#ff2d7f;cursor:pointer;padding:0 8px;font-size:1.1rem}
-        .fav-empty{color:#888;padding:15px;text-align:center;font-size:.85rem}
+        .fav-list{max-height:50vh;overflow-y:auto;text-align:left;padding:0 5px}
+        .fav-item{display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,0.05);color:white;cursor:pointer;border-radius:8px;transition:background 0.2s}
+        .fav-item:active{background:rgba(255,255,255,0.05)}
+        .fav-item .fav-info{flex:1;display:flex;flex-direction:column;gap:2px}
+        .fav-item .fav-info .title{font-weight:bold;font-size:.9rem}
+        .fav-item .fav-info .artist{font-size:.75rem;color:#aaa}
+        .fav-item .remove{background:transparent;border:none;color:#ff2d7f;font-size:1.2rem;cursor:pointer;padding:0 6px}
+        .fav-empty{color:#888;padding:30px;text-align:center;font-size:.9rem}
         .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
+        
         .feedback-modal .stars{display:flex;justify-content:center;gap:8px;margin:8px 0}
         .feedback-modal .star{font-size:1.7rem;color:#555;cursor:pointer}
         .feedback-modal .star.active{color:#ffd700}
@@ -149,7 +151,6 @@
             box-shadow: 0 0 40px rgba(0,243,255,0.4);
             text-align: center;
             max-width: 90%;
-            cursor: pointer;
             border: 2px solid rgba(255,255,255,0.3);
             animation: slideDown 0.5s ease;
         }
@@ -324,7 +325,6 @@ function fecharBanner() {
         'MODÃO SERTANEJO','CHORINHO'
     ];
 
-    const EMOJIS={};
     const REPOS={
         'BÔNUS':'play12','MPB':'mpbtop','POP':'poptop','SERTANEJO':'sertanejo',
         'FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop',
@@ -349,6 +349,7 @@ function fecharBanner() {
     const favCount=$('favCount'),loadingOverlay=$('loadingOverlay'),menuPopup=$('menuPopup');
     const progressBar=$('progressBar'),mediaContainer=$('mediaContainer');
     const updateBanner=$('updateBanner'),updateMsg=$('updateMsg');
+    const favList = document.getElementById('favList');
 
     let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null;
     let backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0;
@@ -360,7 +361,6 @@ function fecharBanner() {
         if (!updateBanner) return;
         updateMsg.textContent = mensagem || 'NOVAS MÚSICAS DISPONÍVEIS!';
         updateBanner.classList.add('show');
-        console.log('🔔 BANNER MOSTRADO:', mensagem);
         clearTimeout(window.bannerTimeout);
         window.bannerTimeout = setTimeout(() => {
             if (updateBanner) updateBanner.classList.remove('show');
@@ -449,22 +449,14 @@ function fecharBanner() {
             const tamanhoAntigo = parseInt(localStorage.getItem(chave) || '0');
             const tamanhoNovo = musicasFiltradas.length;
             
-            console.log(`📊 ${g}: antes=${tamanhoAntigo}, agora=${tamanhoNovo}`);
-            
             if (tamanhoAntigo > 0 && tamanhoNovo !== tamanhoAntigo) {
                 const diferenca = tamanhoNovo - tamanhoAntigo;
                 const msg = diferenca > 0 ? `✅ +${diferenca} NOVAS MÚSICAS!` : `📉 ${Math.abs(diferenca)} músicas removidas`;
                 mostrarBanner(msg);
-                console.log('🔔 BANNER ATIVADO!');
             }
-            
             localStorage.setItem(chave, tamanhoNovo.toString());
-            
             return musicasFiltradas;
-        } catch (e) {
-            console.error('❌ Erro ao carregar:', e);
-            return null;
-        }
+        } catch (e) { return null; }
     }
 
     async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';updHeart(m.id);}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
@@ -478,110 +470,78 @@ function fecharBanner() {
     function togglePlay(){if(!isBackgroundActive){notif('🔊 Clique em ATIVAR!');return;}if(audio.paused)tocar();else{audio.pause();isPlaying=false;playBtn.innerHTML='<i class="fas fa-play"></i>';}showCtrl();}
     function toggleShuf(){shuffleMode=!shuffleMode;shuffleBtn.classList.toggle('active',shuffleMode);playlistAtual=shuf(musicas);notif(shuffleMode?'🔀 ON':'➡️ Seq');}
     
+    // ============================================================
+    // 🔥 FAVORITOS SIMPLES E FUNCIONAL
+    // ============================================================
+    
     function carregarFav(){
         try{
-            const dados = JSON.parse(localStorage.getItem('vfav')||'[]');
-            if(dados.length > 0 && typeof dados[0] === 'string'){
-                favorites = dados.map(id => ({id: id}));
-            } else {
-                favorites = dados;
-            }
+            favorites = JSON.parse(localStorage.getItem('vfav')||'[]');
         }catch(e){favorites=[];}
     }
     
-    function salvarFav(){localStorage.setItem('vfav', JSON.stringify(favorites));}
+    function salvarFav(){
+        localStorage.setItem('vfav', JSON.stringify(favorites));
+    }
     
     function updHeart(id){
-        const fav = favorites.find(f => f.id === id);
+        const fav = favorites.includes(id);
         heartBtn.className = fav ? 'fav-heart active' : 'fav-heart';
         heartBtn.innerHTML = fav ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
         favCount.textContent = favorites.length;
     }
     
     function togFav(id){
-        const idx = favorites.findIndex(f => f.id === id);
+        const idx = favorites.indexOf(id);
         if(idx > -1){
             favorites.splice(idx, 1);
         } else {
-            const musica = musicas.find(m => m.id === id);
-            if(musica){
-                favorites.push({
-                    id: musica.id,
-                    title: musica.title,
-                    artist: musica.artist,
-                    genero: musica.genero || modoAtual,
-                    src: musica.src
-                });
-            } else {
-                favorites.push({id: id});
-            }
+            favorites.push(id);
         }
         salvarFav();
         updHeart(id);
         renderFavList();
     }
     
-    // 🔥 FUNÇÃO CORRIGIDA PARA MOSTRAR GÊNERO
-    function renderFavList() {
-        const fl = document.getElementById('favList');
-        fl.innerHTML = '';
+    function renderFavList(){
+        favList.innerHTML = '';
         
-        if (favorites.length === 0) {
-            fl.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
+        if(favorites.length === 0){
+            favList.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
             return;
         }
         
-        favorites.forEach(fav => {
-            // Tenta encontrar a música na playlist atual
-            let musica = musicas.find(m => m.id === fav.id);
-            
-            // Usa os dados salvos ou os da playlist
-            const title = musica ? musica.title : (fav.title || 'Música');
-            const artist = musica ? musica.artist : (fav.artist || 'Artista');
-            
-            // 🔥 PRIORIDADE: gênero da música atual > gênero salvo > gênero do modo atual
-            let genero = '';
-            if (musica && musica.genero) {
-                genero = musica.genero;
-            } else if (fav.genero) {
-                genero = fav.genero;
-            } else {
-                // Tenta encontrar o gênero pelo ID da música
-                const m2 = musicas.find(m => m.id === fav.id);
-                if (m2 && m2.genero) genero = m2.genero;
-            }
+        favorites.forEach(id => {
+            const m = musicas.find(m => m.id === id);
+            if(!m) return;
             
             const div = document.createElement('div');
             div.className = 'fav-item';
             div.innerHTML = `
-                <div class="fav-info" data-id="${fav.id}">
-                    <div class="title">${title}</div>
-                    <div class="artist">${artist}</div>
-                    ${genero ? `<span class="genre-tag">🎵 ${genero}</span>` : '<span class="genre-tag" style="color:#666;">🎵 Gênero desconhecido</span>'}
+                <div class="fav-info">
+                    <div class="title">${m.title}</div>
+                    <div class="artist">${m.artist} • ${m.genero || 'Gênero'}</div>
                 </div>
-                <button class="remove" data-id="${fav.id}"><i class="fas fa-times-circle"></i></button>
+                <button class="remove"><i class="fas fa-times-circle"></i></button>
             `;
             
             div.querySelector('.fav-info').addEventListener('click', () => {
-                const m = musicas.find(m2 => m2.id === fav.id);
-                if (m) {
-                    const idx = playlistAtual.findIndex(m2 => m2.id === m.id);
-                    if (idx > -1) {
-                        indiceAtual = idx;
-                        if (isBackgroundActive) tocar();
-                    }
+                const idx = playlistAtual.findIndex(m2 => m2.id === m.id);
+                if(idx > -1){
+                    indiceAtual = idx;
+                    if(isBackgroundActive) tocar();
                 }
                 document.getElementById('favModal').classList.remove('open');
             });
             
             div.querySelector('.remove').addEventListener('click', (e) => {
                 e.stopPropagation();
-                togFav(fav.id);
+                togFav(m.id);
                 renderFavList();
                 updateFavCount();
             });
             
-            fl.appendChild(div);
+            favList.appendChild(div);
         });
     }
 
