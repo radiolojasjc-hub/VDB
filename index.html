@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VDB Music</title>
+    <title>VDB Music - Comando de Voz</title>
     
-    <!-- 🔥 FORÇA NÃO USAR CACHE - ATUALIZAÇÃO AUTOMÁTICA 🔥 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -38,6 +37,34 @@
         .audio-status.active{color:#4ade80}
         .fav-top-btn{background:transparent;border:none;font-size:.8rem;color:#ff2d7f;cursor:pointer}
         .menu-button{background:transparent;border:none;color:white;font-size:1rem;cursor:pointer}
+        
+        /* 🎤 BOTÃO MICROFONE - ESTILO DESTAQUE */
+        .mic-btn-top {
+            background: linear-gradient(135deg, #00f3ff, #0088ff);
+            border: none;
+            color: #000;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+        .mic-btn-top:active { transform: scale(0.85); }
+        .mic-btn-top.ouvindo {
+            background: linear-gradient(135deg, #ff2d7f, #ff0044);
+            animation: pulse-mic 0.8s infinite;
+            color: #fff;
+        }
+        @keyframes pulse-mic {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255,45,127,0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(255,45,127,0.6); }
+        }
 
         .info-scroll{position:fixed;top:38px;left:0;right:0;z-index:30;padding:3px 10px;height:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3)}
         .info-scroll .letreiro{color:white;font-size:.9rem;font-weight:700;white-space:nowrap;animation:scrollText 10s linear infinite;pointer-events:none}
@@ -71,27 +98,7 @@
         .genres-grid{display:flex;flex-direction:column;overflow-y:auto;scroll-snap-type:y mandatory;gap:10px;padding:4px;max-height:38vh;-webkit-overflow-scrolling:touch;scrollbar-width:none}
         .genres-grid::-webkit-scrollbar{display:none}
         
-        .genre-card{
-            min-height:60px;
-            scroll-snap-align:center;
-            flex-shrink:0;
-            border-radius:14px;
-            cursor:pointer;
-            border:1px solid rgba(255,255,255,0.15);
-            padding:14px 18px;
-            background:rgba(255,255,255,0.06);
-            backdrop-filter:blur(12px);
-            -webkit-backdrop-filter:blur(12px);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:white;
-            font-weight:600;
-            font-size:1.1rem;
-            transition:all 0.25s ease;
-            box-shadow:0 4px 20px rgba(0,0,0,0.25);
-            letter-spacing:0.5px;
-        }
+        .genre-card{min-height:60px;scroll-snap-align:center;flex-shrink:0;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);padding:14px 18px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.1rem;transition:all 0.25s ease;box-shadow:0 4px 20px rgba(0,0,0,0.25);letter-spacing:0.5px}
         .genre-card:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3);transform:scale(1.01)}
         .genre-card:active{transform:scale(0.96)}
         .genre-card .icon{display:none}
@@ -162,6 +169,10 @@
         <span class="timer-top" id="timerTop">5:00</span>
         <span class="audio-status" id="audioStatus">Aguardando</span>
         <button class="fav-top-btn" id="favTopBtn">❤️ <span id="favCount">0</span></button>
+        <!-- 🎤 BOTÃO MICROFONE -->
+        <button class="mic-btn-top" id="micBtn" onclick="iniciarBuscaVoz()" title="Buscar música por voz">
+            <i class="fas fa-microphone"></i>
+        </button>
         <button class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
     </div>
     <div class="info-scroll" id="infoScroll" onclick="window.ativarAdmin()"><p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC! 🎵</p></div>
@@ -228,7 +239,7 @@
 
 <script>
 // 🔥 ============================================================
-// 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA - TIMESTAMP NA URL
+// 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA
 // 🔥 ============================================================
 (function() {
     const VERSAO = Date.now();
@@ -264,7 +275,7 @@
     const TEMPO_INICIAL=300,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     
     // ============================================================
-    // 🔥 GÊNEROS CORRIGIDOS - SEM DUPLICIDADE
+    // GÊNEROS
     // ============================================================
     const GENRE_URLS={
         'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -305,57 +316,184 @@
     };
 
     const ORDEM=[
-        'BÔNUS',
-        'MPB',
-        'POP',
-        'SERTANEJO',
-        'FORRÓ',
-        'SAMBA',
-        'BREGA',
-        'REGGAE',
-        'MODA TOP',
-        'RELIGIOSA',
-        'ROMÂNTICA',
-        'FLASHBACK',
-        'FANK',
-        'TESTE MIDIA',
-        'MODÃO SERTANEJO',
-        'CHORINHO',
+        'BÔNUS','MPB','POP','SERTANEJO','FORRÓ','SAMBA','BREGA','REGGAE',
+        'MODA TOP','RELIGIOSA','ROMÂNTICA','FLASHBACK','FANK','TESTE MIDIA',
+        'MODÃO SERTANEJO','CHORINHO'
     ];
 
     const EMOJIS={};
-
     const REPOS={
-        'BÔNUS':'play12',
-        'MPB':'mpbtop',
-        'POP':'poptop',
-        'SERTANEJO':'sertanejo',
-        'FORRÓ':'forrodez',
-        'SAMBA':'sambatop',
-        'BREGA':'bregatop',
-        'REGGAE':'reggaetop',
-        'MODA TOP':'modatop',
-        'RELIGIOSA':'religiosa',
-        'ROMÂNTICA':'romanticatop',
-        'FLASHBACK':'flashbacktop',
-        'FANK':'fank',
-        'TESTE MIDIA':'testemidias',
-        'MODÃO SERTANEJO':'modasertaneja',
-        'CHORINHO':'chorinho',
+        'BÔNUS':'play12','MPB':'mpbtop','POP':'poptop','SERTANEJO':'sertanejo',
+        'FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop',
+        'MODA TOP':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop',
+        'FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias',
+        'MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho'
     };
 
     const TODOS_REPOS=[
-        'play12','mpbtop','poptop','sertanejo','forrodez',
-        'sambatop','bregatop','reggaetop','modatop','religiosa',
-        'romanticatop','flashbacktop','fank','testemidias',
-        'modasertaneja','chorinho',
+        'play12','mpbtop','poptop','sertanejo','forrodez','sambatop','bregatop',
+        'reggaetop','modatop','religiosa','romanticatop','flashbacktop','fank',
+        'testemidias','modasertaneja','chorinho'
     ];
 
     const $=id=>document.getElementById(id);
-    const loadingScreen=$('loadingScreen'),playerContainer=$('playerContainer'),timerTop=$('timerTop'),blockOverlay=$('blockOverlay'),notification=$('notification'),scrollText=$('scrollText'),audio=$('musicPlayer'),backgroundAudio=$('backgroundAudio'),playBtn=$('playBtn'),progressFill=$('progressFill'),currentTimeEl=$('currentTime'),totalTimeEl=$('totalTime'),genreBadge=$('genreBadge'),audioStatus=$('audioStatus'),bottomControls=$('bottomControls'),shuffleBtn=$('shuffleBtn'),heartBtn=$('heartBtn'),favCount=$('favCount'),loadingOverlay=$('loadingOverlay'),menuPopup=$('menuPopup'),progressBar=$('progressBar'),mediaContainer=$('mediaContainer');
+    const loadingScreen=$('loadingScreen'),playerContainer=$('playerContainer');
+    const timerTop=$('timerTop'),blockOverlay=$('blockOverlay'),notification=$('notification');
+    const scrollText=$('scrollText'),audio=$('musicPlayer'),backgroundAudio=$('backgroundAudio');
+    const playBtn=$('playBtn'),progressFill=$('progressFill'),currentTimeEl=$('currentTime');
+    const totalTimeEl=$('totalTime'),genreBadge=$('genreBadge'),audioStatus=$('audioStatus');
+    const bottomControls=$('bottomControls'),shuffleBtn=$('shuffleBtn'),heartBtn=$('heartBtn');
+    const favCount=$('favCount'),loadingOverlay=$('loadingOverlay'),menuPopup=$('menuPopup');
+    const progressBar=$('progressBar'),mediaContainer=$('mediaContainer');
+    const micBtn=$('micBtn');
 
-    let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null,backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0,isPlaying=false,shuffleMode=false,isBackgroundActive=false,modoAtual='BÔNUS',carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null,hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
+    let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null;
+    let backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0;
+    let isPlaying=false,shuffleMode=false,isBackgroundActive=false,modoAtual='BÔNUS';
+    let carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null;
+    let hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
+    
+    // ============================================================
+    // 🎤 RECONHECIMENTO DE VOZ
+    // ============================================================
+    let recognition = null;
+    let reconhecimentoAtivo = false;
 
+    function iniciarBuscaVoz() {
+        // Verifica se o navegador suporta
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            notif('❌ Use o Google Chrome para busca por voz', 3000);
+            return;
+        }
+
+        // Se já estiver ouvindo, para
+        if (reconhecimentoAtivo) {
+            pararBuscaVoz();
+            return;
+        }
+
+        // Verifica se tem músicas carregadas
+        if (!musicas || musicas.length === 0) {
+            notif('⚠️ Carregue um gênero primeiro', 2000);
+            return;
+        }
+
+        try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            // Evento: começou a ouvir
+            recognition.onstart = function() {
+                reconhecimentoAtivo = true;
+                micBtn.classList.add('ouvindo');
+                micBtn.innerHTML = '<i class="fas fa-circle"></i>';
+                notif('🎤 Fale o nome da música...', 3000);
+            };
+
+            // Evento: resultado
+            recognition.onresult = function(event) {
+                const comando = event.results[0][0].transcript.toLowerCase().trim();
+                console.log('🎤 Comando:', comando);
+                processarComandoVoz(comando);
+            };
+
+            // Evento: erro
+            recognition.onerror = function(event) {
+                console.warn('🎤 Erro:', event.error);
+                if (event.error === 'not-allowed') {
+                    notif('❌ Permita o acesso ao microfone', 3000);
+                } else if (event.error === 'no-speech') {
+                    notif('❌ Não detectei voz, tente novamente', 2000);
+                } else {
+                    notif('❌ Erro: ' + event.error, 2000);
+                }
+                pararBuscaVoz();
+            };
+
+            // Evento: terminou
+            recognition.onend = function() {
+                pararBuscaVoz();
+            };
+
+            recognition.start();
+
+        } catch (e) {
+            console.error('🎤 Erro ao iniciar:', e);
+            notif('❌ Erro ao iniciar microfone', 2000);
+            pararBuscaVoz();
+        }
+    }
+
+    function pararBuscaVoz() {
+        reconhecimentoAtivo = false;
+        micBtn.classList.remove('ouvindo');
+        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        if (recognition) {
+            try { recognition.stop(); } catch(e) {}
+            recognition = null;
+        }
+    }
+
+    function processarComandoVoz(comando) {
+        // Palavras a serem removidas
+        const palavrasRemover = [
+            'toca', 'procura', 'quero ouvir', 'música', 'a música', 
+            'de', 'por', 'o', 'a', 'os', 'as', 'um', 'uma',
+            'me', 'pra', 'para', 'com', 'no', 'na', 'dos', 'das'
+        ];
+        
+        let termo = comando;
+        palavrasRemover.forEach(p => {
+            termo = termo.replace(new RegExp('\\b' + p + '\\b', 'gi'), '');
+        });
+        termo = termo.trim();
+
+        if (termo.length < 2) {
+            notif('❌ Não entendi, fale o nome da música', 2000);
+            return;
+        }
+
+        // Busca na playlist atual
+        const resultados = musicas.filter(m => 
+            m.title.toLowerCase().includes(termo) || 
+            m.artist.toLowerCase().includes(termo)
+        );
+
+        if (resultados.length === 0) {
+            notif(`❌ Não encontrei "${termo}"`, 2500);
+            return;
+        }
+
+        // Toca o primeiro resultado
+        const musica = resultados[0];
+        const idx = playlistAtual.findIndex(m => m.id === musica.id);
+        
+        if (idx > -1) {
+            indiceAtual = idx;
+            if (isBackgroundActive) {
+                tocar();
+                notif(`🎤 "${musica.title}" - ${musica.artist}`, 2000);
+            } else {
+                notif(`🔊 Ative o player primeiro!`, 2000);
+            }
+        } else {
+            // Se não estiver na playlist atual, recria
+            playlistAtual = [musica, ...musicas.filter(m => m.id !== musica.id)];
+            indiceAtual = 0;
+            if (isBackgroundActive) {
+                tocar();
+                notif(`🎤 "${musica.title}" - ${musica.artist}`, 2000);
+            }
+        }
+    }
+
+    // ============================================================
+    // FUNÇÕES PRINCIPAIS
+    // ============================================================
     function notif(msg,dur=1500){notification.textContent=msg;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),dur);}
     function showLoad(s){loadingOverlay.classList.toggle('active',s);}
     function fmt(s){if(!s||isNaN(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
@@ -386,15 +524,7 @@
     function updTimer(){if(desbloqueado){timerTop.textContent='🔓 LIBERADO';return;}timerTop.textContent=fmtTempo(tempoRestante);if(tempoRestante<=60)timerTop.style.color='#ff2d7f';if(tempoRestante<=0){clearInterval(timerInterval);bloquear();}}
     function startTimer(){clearInterval(timerInterval);if(desbloqueado)return;timerInterval=setInterval(()=>{if(!desbloqueado){tempoRestante--;if(tempoRestante<=0){clearInterval(timerInterval);bloquear();}updTimer();}},1000);updTimer();}
     function bloquear(){desbloqueado=false;blockOverlay.classList.add('active');audio.pause();localStorage.setItem('vdb_bloqueado_permanente','true');localStorage.removeItem('vdb_desbloqueado');}
-    
-    function desbloquear(){
-        desbloqueado=true;
-        blockOverlay.classList.remove('active');
-        localStorage.setItem('vdb_desbloqueado','true');
-        localStorage.removeItem('vdb_bloqueado_permanente');
-        localStorage.setItem('vdb_senha_permanente','true');
-        timerTop.textContent='🔓 LIBERADO';
-    }
+    function desbloquear(){desbloqueado=true;blockOverlay.classList.remove('active');localStorage.setItem('vdb_desbloqueado','true');localStorage.removeItem('vdb_bloqueado_permanente');localStorage.setItem('vdb_senha_permanente','true');timerTop.textContent='🔓 LIBERADO';}
 
     $('btnSenhaPermanente').onclick=()=>{
         if(tentativas >= MAX_TENTATIVAS){
