@@ -471,12 +471,13 @@ function fecharBanner() {
     function toggleShuf(){shuffleMode=!shuffleMode;shuffleBtn.classList.toggle('active',shuffleMode);playlistAtual=shuf(musicas);notif(shuffleMode?'🔀 ON':'➡️ Seq');}
     
     // ============================================================
-    // 🔥 FAVORITOS SIMPLES E FUNCIONAL
+    // 🔥 FAVORITOS SIMPLES E FUNCIONAL - SOMENTE IDs
     // ============================================================
     
     function carregarFav(){
         try{
             favorites = JSON.parse(localStorage.getItem('vfav')||'[]');
+            if(!Array.isArray(favorites)) favorites = [];
         }catch(e){favorites=[];}
     }
     
@@ -492,11 +493,14 @@ function fecharBanner() {
     }
     
     function togFav(id){
+        if(!id) return;
         const idx = favorites.indexOf(id);
         if(idx > -1){
             favorites.splice(idx, 1);
+            notif('❤️ Removido dos favoritos');
         } else {
             favorites.push(id);
+            notif('❤️ Adicionado aos favoritos');
         }
         salvarFav();
         updHeart(id);
@@ -507,7 +511,7 @@ function fecharBanner() {
         favList.innerHTML = '';
         
         if(favorites.length === 0){
-            favList.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
+            favList.innerHTML = '<div class="fav-empty">💔 Nenhuma música favorita</div>';
             return;
         }
         
@@ -520,7 +524,7 @@ function fecharBanner() {
             div.innerHTML = `
                 <div class="fav-info">
                     <div class="title">${m.title}</div>
-                    <div class="artist">${m.artist} • ${m.genero || 'Gênero'}</div>
+                    <div class="artist">${m.artist}</div>
                 </div>
                 <button class="remove"><i class="fas fa-times-circle"></i></button>
             `;
@@ -537,8 +541,6 @@ function fecharBanner() {
             div.querySelector('.remove').addEventListener('click', (e) => {
                 e.stopPropagation();
                 togFav(m.id);
-                renderFavList();
-                updateFavCount();
             });
             
             favList.appendChild(div);
