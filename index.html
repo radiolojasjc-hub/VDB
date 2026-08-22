@@ -133,7 +133,6 @@
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%}
         .admin-close{background:rgba(255,255,255,0.1);border:none;padding:8px;border-radius:20px;color:#aaa;cursor:pointer;width:100%;font-size:.8rem}
 
-        /* 🔥 BANNER DE ATUALIZAÇÃO - CORRIGIDO */
         .update-banner {
             position: fixed;
             top: 42px;
@@ -166,7 +165,6 @@
             margin-left: 8px;
             font-weight: bold;
         }
-        .update-banner .btn-reload:active { transform: scale(0.95); }
         .update-banner .btn-fechar-banner {
             background: rgba(0,0,0,0.2);
             color: #000;
@@ -228,7 +226,6 @@
     </div>
 </div>
 
-<!-- 🔥 BANNER DE ATUALIZAÇÃO - CORRIGIDO -->
 <div class="update-banner" id="updateBanner">
     🔄 <span id="updateMsg">NOVAS MÚSICAS DISPONÍVEIS!</span>
     <button class="btn-reload" onclick="location.reload()">ATUALIZAR</button>
@@ -266,11 +263,6 @@
 </div>
 
 <script>
-// 🔥 ============================================================
-// 🔥 VDB MUSIC - BANNER FUNCIONANDO CORRETAMENTE
-// 🔥 ============================================================
-
-// 🔥 FUNÇÃO PARA FECHAR O BANNER MANUALMENTE
 function fecharBanner() {
     const banner = document.getElementById('updateBanner');
     if (banner) banner.classList.remove('show');
@@ -364,14 +356,11 @@ function fecharBanner() {
     let carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null;
     let hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
 
-    // 🔥 FUNÇÃO PARA MOSTRAR O BANNER
     function mostrarBanner(mensagem) {
         if (!updateBanner) return;
         updateMsg.textContent = mensagem || 'NOVAS MÚSICAS DISPONÍVEIS!';
         updateBanner.classList.add('show');
         console.log('🔔 BANNER MOSTRADO:', mensagem);
-        
-        // Esconde após 15 segundos
         clearTimeout(window.bannerTimeout);
         window.bannerTimeout = setTimeout(() => {
             if (updateBanner) updateBanner.classList.remove('show');
@@ -439,7 +428,6 @@ function fecharBanner() {
 
     function urls(m){const s=m.src||'';if(!s)return[];if(s.startsWith('http'))return[s];const n=s.replace(/^\.\//,'').replace(/[^a-zA-Z0-9\-_.]/g,'');const r=REPOS[m.genero]||'play12';const u=['https://raw.githubusercontent.com/radiolojasjc-hub/'+r+'/refs/heads/main/'+n + '?_=' + VERSAO];TODOS_REPOS.forEach(x=>{if(x!==r)u.push('https://raw.githubusercontent.com/radiolojasjc-hub/'+x+'/refs/heads/main/'+n + '?_=' + VERSAO);});u.push(s + '?_=' + VERSAO);return u;}
 
-    // 🔥 CARREGAR COM BANNER DE ATUALIZAÇÃO - CORRIGIDO
     async function carregar(g) {
         const u = GENRE_URLS[g];
         if (!u) return null;
@@ -457,28 +445,19 @@ function fecharBanner() {
                 artist: m.artist || 'Artista'
             }));
             
-            // 🔥 VERIFICA SE HOUVE MUDANÇA NO TAMANHO DA PLAYLIST
             const chave = 'vdb_tamanho_' + g;
             const tamanhoAntigo = parseInt(localStorage.getItem(chave) || '0');
             const tamanhoNovo = musicasFiltradas.length;
             
             console.log(`📊 ${g}: antes=${tamanhoAntigo}, agora=${tamanhoNovo}`);
             
-            // 🔥 SE MUDOU O TAMANHO E NÃO É A PRIMEIRA VEZ
             if (tamanhoAntigo > 0 && tamanhoNovo !== tamanhoAntigo) {
                 const diferenca = tamanhoNovo - tamanhoAntigo;
-                const msg = diferenca > 0 ? 
-                    `✅ +${diferenca} NOVAS MÚSICAS!` : 
-                    `📉 ${Math.abs(diferenca)} músicas removidas`;
-                
-                // 🔥 MOSTRA O BANNER
+                const msg = diferenca > 0 ? `✅ +${diferenca} NOVAS MÚSICAS!` : `📉 ${Math.abs(diferenca)} músicas removidas`;
                 mostrarBanner(msg);
                 console.log('🔔 BANNER ATIVADO!');
-            } else {
-                console.log('📌 Sem mudanças no tamanho da playlist');
             }
             
-            // Salva o novo tamanho
             localStorage.setItem(chave, tamanhoNovo.toString());
             
             return musicasFiltradas;
@@ -542,18 +521,35 @@ function fecharBanner() {
         renderFavList();
     }
     
-    function renderFavList(){
+    // 🔥 FUNÇÃO CORRIGIDA PARA MOSTRAR GÊNERO
+    function renderFavList() {
         const fl = document.getElementById('favList');
         fl.innerHTML = '';
-        if(favorites.length === 0){
+        
+        if (favorites.length === 0) {
             fl.innerHTML = '<div class="fav-empty">Nenhuma música favorita</div>';
             return;
         }
+        
         favorites.forEach(fav => {
+            // Tenta encontrar a música na playlist atual
             let musica = musicas.find(m => m.id === fav.id);
+            
+            // Usa os dados salvos ou os da playlist
             const title = musica ? musica.title : (fav.title || 'Música');
             const artist = musica ? musica.artist : (fav.artist || 'Artista');
-            const genero = musica ? musica.genero : (fav.genero || '');
+            
+            // 🔥 PRIORIDADE: gênero da música atual > gênero salvo > gênero do modo atual
+            let genero = '';
+            if (musica && musica.genero) {
+                genero = musica.genero;
+            } else if (fav.genero) {
+                genero = fav.genero;
+            } else {
+                // Tenta encontrar o gênero pelo ID da música
+                const m2 = musicas.find(m => m.id === fav.id);
+                if (m2 && m2.genero) genero = m2.genero;
+            }
             
             const div = document.createElement('div');
             div.className = 'fav-item';
@@ -561,27 +557,30 @@ function fecharBanner() {
                 <div class="fav-info" data-id="${fav.id}">
                     <div class="title">${title}</div>
                     <div class="artist">${artist}</div>
-                    ${genero ? `<span class="genre-tag">🎵 ${genero}</span>` : ''}
+                    ${genero ? `<span class="genre-tag">🎵 ${genero}</span>` : '<span class="genre-tag" style="color:#666;">🎵 Gênero desconhecido</span>'}
                 </div>
                 <button class="remove" data-id="${fav.id}"><i class="fas fa-times-circle"></i></button>
             `;
+            
             div.querySelector('.fav-info').addEventListener('click', () => {
                 const m = musicas.find(m2 => m2.id === fav.id);
-                if(m){
+                if (m) {
                     const idx = playlistAtual.findIndex(m2 => m2.id === m.id);
-                    if(idx > -1){
+                    if (idx > -1) {
                         indiceAtual = idx;
-                        if(isBackgroundActive) tocar();
+                        if (isBackgroundActive) tocar();
                     }
                 }
                 document.getElementById('favModal').classList.remove('open');
             });
+            
             div.querySelector('.remove').addEventListener('click', (e) => {
                 e.stopPropagation();
                 togFav(fav.id);
                 renderFavList();
                 updateFavCount();
             });
+            
             fl.appendChild(div);
         });
     }
