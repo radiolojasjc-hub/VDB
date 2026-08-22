@@ -38,7 +38,7 @@
         .fav-top-btn{background:transparent;border:none;font-size:.8rem;color:#ff2d7f;cursor:pointer}
         .menu-button{background:transparent;border:none;color:white;font-size:1rem;cursor:pointer}
         
-        /* 🎤 BOTÃO MICROFONE - ESTILO DESTAQUE */
+        /* 🎤 BOTÃO MICROFONE */
         .mic-btn-top {
             background: linear-gradient(135deg, #00f3ff, #0088ff);
             border: none;
@@ -54,6 +54,7 @@
             transition: all 0.3s;
             flex-shrink: 0;
             margin-left: 4px;
+            position: relative;
         }
         .mic-btn-top:active { transform: scale(0.85); }
         .mic-btn-top.ouvindo {
@@ -61,6 +62,30 @@
             animation: pulse-mic 0.8s infinite;
             color: #fff;
         }
+        .mic-btn-top.sem-suporte {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .mic-btn-top .tooltip {
+            display: none;
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #ff2d7f;
+            font-size: 0.5rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            border: 1px solid #ff2d7f;
+        }
+        .mic-btn-top:hover .tooltip {
+            display: block;
+        }
+        
         @keyframes pulse-mic {
             0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255,45,127,0.3); }
             50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(255,45,127,0.6); }
@@ -156,6 +181,32 @@
         .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.2);border:1px solid #00f3ff;color:#00f3ff;padding:8px;border-radius:20px;cursor:pointer;font-size:.75rem}
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%}
         .admin-close{background:rgba(255,255,255,0.1);border:none;padding:8px;border-radius:20px;color:#aaa;cursor:pointer;width:100%;font-size:.8rem}
+
+        /* TOAST PARA AVISO DO MICROFONE */
+        .toast-mic {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            z-index: 99999;
+            display: none;
+            border: 1px solid #00f3ff;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0,243,255,0.2);
+        }
+        .toast-mic.show { display: block; animation: fadeInUp 0.3s ease; }
+        .toast-mic .icone { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+        .toast-mic .dica { color: #888; font-size: 0.7rem; margin-top: 4px; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -169,9 +220,9 @@
         <span class="timer-top" id="timerTop">5:00</span>
         <span class="audio-status" id="audioStatus">Aguardando</span>
         <button class="fav-top-btn" id="favTopBtn">❤️ <span id="favCount">0</span></button>
-        <!-- 🎤 BOTÃO MICROFONE -->
         <button class="mic-btn-top" id="micBtn" onclick="iniciarBuscaVoz()" title="Buscar música por voz">
             <i class="fas fa-microphone"></i>
+            <span class="tooltip">🔊 Fale a música</span>
         </button>
         <button class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
     </div>
@@ -207,6 +258,13 @@
     </div>
 </div>
 
+<!-- TOAST PARA AVISO DO MICROFONE -->
+<div class="toast-mic" id="toastMic">
+    <span class="icone">🎤</span>
+    <span id="toastMsg">Fale o nome da música...</span>
+    <div class="dica" id="toastDica">Ex: "O Boêmio" ou "Waldir Azevedo"</div>
+</div>
+
 <div id="blockOverlay">
     <h2>🔒 <span style="color:#ff2d7f">TESTE EXPIRADO!</span></h2>
     <p>Adquira a senha vitalícia!</p>
@@ -239,30 +297,233 @@
 
 <script>
 // 🔥 ============================================================
-// 🔥 FORÇA ATUALIZAÇÃO AUTOMÁTICA
+// 🔥 VDB MUSIC - COM COMANDO DE VOZ
 // 🔥 ============================================================
-(function() {
-    const VERSAO = Date.now();
-    localStorage.setItem('vdb_versao', VERSAO.toString());
-    const url = new URL(window.location.href);
-    if (url.searchParams.get('_t') !== VERSAO.toString()) {
-        url.searchParams.set('_t', VERSAO);
-        window.history.replaceState({}, '', url.toString());
+
+// ============================================================
+// 🎤 RECONHECIMENTO DE VOZ - VERSÃO CORRIGIDA
+// ============================================================
+
+// Variáveis globais para o microfone
+let recognition = null;
+let reconhecimentoAtivo = false;
+let micBtn = null;
+let toastMic = null;
+let toastMsg = null;
+let toastDica = null;
+
+// Função para mostrar toast (mensagem grande visível)
+function mostrarToast(msg, dica = 'Ex: "O Boêmio" ou "Waldir Azevedo"') {
+    if (!toastMic) {
+        toastMic = document.getElementById('toastMic');
+        toastMsg = document.getElementById('toastMsg');
+        toastDica = document.getElementById('toastDica');
     }
-    const ultimaAtualizacao = localStorage.getItem('vdb_ultima_atualizacao');
-    const agora = Date.now();
-    if (!ultimaAtualizacao || (agora - parseInt(ultimaAtualizacao)) > 300000) {
-        localStorage.setItem('vdb_ultima_atualizacao', agora.toString());
-        if (!url.searchParams.get('_t') || parseInt(url.searchParams.get('_t')) < agora - 300000) {
-            url.searchParams.set('_t', agora);
-            if (window.location.href !== url.toString()) {
-                window.location.replace(url.toString());
+    toastMsg.textContent = msg;
+    toastDica.textContent = dica;
+    toastMic.classList.add('show');
+    clearTimeout(toastMic._timeout);
+    toastMic._timeout = setTimeout(() => {
+        toastMic.classList.remove('show');
+    }, 5000);
+}
+
+function esconderToast() {
+    if (toastMic) toastMic.classList.remove('show');
+}
+
+// Função principal do microfone
+function iniciarBuscaVoz() {
+    micBtn = document.getElementById('micBtn');
+    
+    // 🔥 VERIFICA SE O NAVEGADOR SUPORTA
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        micBtn.classList.add('sem-suporte');
+        mostrarToast(
+            '❌ Navegador não suporta microfone!',
+            'Use o Google Chrome no celular ou computador'
+        );
+        return;
+    }
+
+    // Se já estiver ouvindo, PARA
+    if (reconhecimentoAtivo) {
+        pararBuscaVoz();
+        return;
+    }
+
+    // Verifica se tem músicas carregadas
+    if (!musicas || musicas.length === 0) {
+        mostrarToast(
+            '⚠️ Nenhuma música carregada!',
+            'Selecione um gênero primeiro'
+        );
+        return;
+    }
+
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // 🔥 EVENTO: COMEÇOU A OUVIR
+        recognition.onstart = function() {
+            reconhecimentoAtivo = true;
+            micBtn.classList.add('ouvindo');
+            micBtn.innerHTML = '<i class="fas fa-circle"></i>';
+            mostrarToast(
+                '🎤 Ouvindo... Fale o nome da música!',
+                'Fale claramente e próximo ao microfone'
+            );
+        };
+
+        // 🔥 EVENTO: RESULTADO
+        recognition.onresult = function(event) {
+            const comando = event.results[0][0].transcript.toLowerCase().trim();
+            console.log('🎤 Você disse:', comando);
+            processarComandoVoz(comando);
+        };
+
+        // 🔥 EVENTO: ERRO
+        recognition.onerror = function(event) {
+            console.warn('🎤 Erro:', event.error);
+            let msg = '❌ Erro ao reconhecer';
+            let dica = 'Tente novamente';
+            
+            if (event.error === 'not-allowed') {
+                msg = '❌ Permita o acesso ao microfone!';
+                dica = 'Clique no cadeado na barra de endereço e permita';
+            } else if (event.error === 'no-speech') {
+                msg = '❌ Não detectei sua voz!';
+                dica = 'Fale mais alto e próximo ao celular';
+            } else if (event.error === 'audio-capture') {
+                msg = '❌ Microfone não encontrado!';
+                dica = 'Verifique se o microfone está funcionando';
+            } else if (event.error === 'network') {
+                msg = '❌ Erro de rede!';
+                dica = 'Verifique sua conexão com a internet';
             }
+            
+            mostrarToast(msg, dica);
+            pararBuscaVoz();
+        };
+
+        // 🔥 EVENTO: TERMINOU
+        recognition.onend = function() {
+            pararBuscaVoz();
+        };
+
+        recognition.start();
+
+    } catch (e) {
+        console.error('🎤 Erro ao iniciar:', e);
+        mostrarToast(
+            '❌ Erro ao iniciar o microfone!',
+            'Reinicie o app e tente novamente'
+        );
+        pararBuscaVoz();
+    }
+}
+
+// Função para parar a busca por voz
+function pararBuscaVoz() {
+    reconhecimentoAtivo = false;
+    if (micBtn) {
+        micBtn.classList.remove('ouvindo');
+        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+    if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+    }
+    setTimeout(esconderToast, 500);
+}
+
+// Função para processar o comando de voz
+function processarComandoVoz(comando) {
+    // Palavras a serem removidas
+    const palavrasRemover = [
+        'toca', 'procura', 'quero ouvir', 'música', 'a música', 
+        'de', 'por', 'o', 'a', 'os', 'as', 'um', 'uma',
+        'me', 'pra', 'para', 'com', 'no', 'na', 'dos', 'das',
+        'por favor', 'pfv', 'favor'
+    ];
+    
+    let termo = comando;
+    palavrasRemover.forEach(p => {
+        termo = termo.replace(new RegExp('\\b' + p + '\\b', 'gi'), '');
+    });
+    termo = termo.trim();
+
+    console.log('🎤 Buscando por:', termo);
+
+    if (termo.length < 2) {
+        mostrarToast(
+            '❌ Não entendi o que você falou!',
+            'Tente falar o nome da música ou artista'
+        );
+        return;
+    }
+
+    // Busca na playlist atual
+    const resultados = musicas.filter(m => 
+        m.title.toLowerCase().includes(termo) || 
+        m.artist.toLowerCase().includes(termo)
+    );
+
+    if (resultados.length === 0) {
+        mostrarToast(
+            `❌ Não encontrei "${termo}"`,
+            'Tente outro nome ou artista'
+        );
+        return;
+    }
+
+    // Toca o primeiro resultado
+    const musica = resultados[0];
+    const idx = playlistAtual.findIndex(m => m.id === musica.id);
+    
+    if (idx > -1) {
+        indiceAtual = idx;
+        if (isBackgroundActive) {
+            tocar();
+            mostrarToast(
+                `🎵 "${musica.title}" - ${musica.artist}`,
+                '👍 Tocando agora!'
+            );
+        } else {
+            mostrarToast(
+                `🔊 "${musica.title}" - ${musica.artist}`,
+                '⚠️ Clique em ATIVAR para tocar!'
+            );
+        }
+    } else {
+        // Se não estiver na playlist atual, recria
+        playlistAtual = [musica, ...musicas.filter(m => m.id !== musica.id)];
+        indiceAtual = 0;
+        if (isBackgroundActive) {
+            tocar();
+            mostrarToast(
+                `🎵 "${musica.title}" - ${musica.artist}`,
+                '👍 Tocando agora!'
+            );
+        } else {
+            mostrarToast(
+                `🔊 "${musica.title}" - ${musica.artist}`,
+                '⚠️ Clique em ATIVAR para tocar!'
+            );
         }
     }
-})();
+}
 
-(function(){
+// ============================================================
+// FUNÇÕES PRINCIPAIS DO PLAYER
+// ============================================================
+
+(function() {
     'use strict';
     
     const VERSAO = Date.now();
@@ -274,9 +535,6 @@
     
     const TEMPO_INICIAL=300,NUMERO_WHATSAPP='5512988461978',SECRET_KEY='VDB2025Secret',CHAVE_PIX='12.988.461-978';
     
-    // ============================================================
-    // GÊNEROS
-    // ============================================================
     const GENRE_URLS={
         'BÔNUS':'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
         'FLASHBACK':'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
@@ -345,155 +603,13 @@
     const bottomControls=$('bottomControls'),shuffleBtn=$('shuffleBtn'),heartBtn=$('heartBtn');
     const favCount=$('favCount'),loadingOverlay=$('loadingOverlay'),menuPopup=$('menuPopup');
     const progressBar=$('progressBar'),mediaContainer=$('mediaContainer');
-    const micBtn=$('micBtn');
 
     let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null;
     let backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0;
     let isPlaying=false,shuffleMode=false,isBackgroundActive=false,modoAtual='BÔNUS';
     let carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null;
     let hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
-    
-    // ============================================================
-    // 🎤 RECONHECIMENTO DE VOZ
-    // ============================================================
-    let recognition = null;
-    let reconhecimentoAtivo = false;
 
-    function iniciarBuscaVoz() {
-        // Verifica se o navegador suporta
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            notif('❌ Use o Google Chrome para busca por voz', 3000);
-            return;
-        }
-
-        // Se já estiver ouvindo, para
-        if (reconhecimentoAtivo) {
-            pararBuscaVoz();
-            return;
-        }
-
-        // Verifica se tem músicas carregadas
-        if (!musicas || musicas.length === 0) {
-            notif('⚠️ Carregue um gênero primeiro', 2000);
-            return;
-        }
-
-        try {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'pt-BR';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            // Evento: começou a ouvir
-            recognition.onstart = function() {
-                reconhecimentoAtivo = true;
-                micBtn.classList.add('ouvindo');
-                micBtn.innerHTML = '<i class="fas fa-circle"></i>';
-                notif('🎤 Fale o nome da música...', 3000);
-            };
-
-            // Evento: resultado
-            recognition.onresult = function(event) {
-                const comando = event.results[0][0].transcript.toLowerCase().trim();
-                console.log('🎤 Comando:', comando);
-                processarComandoVoz(comando);
-            };
-
-            // Evento: erro
-            recognition.onerror = function(event) {
-                console.warn('🎤 Erro:', event.error);
-                if (event.error === 'not-allowed') {
-                    notif('❌ Permita o acesso ao microfone', 3000);
-                } else if (event.error === 'no-speech') {
-                    notif('❌ Não detectei voz, tente novamente', 2000);
-                } else {
-                    notif('❌ Erro: ' + event.error, 2000);
-                }
-                pararBuscaVoz();
-            };
-
-            // Evento: terminou
-            recognition.onend = function() {
-                pararBuscaVoz();
-            };
-
-            recognition.start();
-
-        } catch (e) {
-            console.error('🎤 Erro ao iniciar:', e);
-            notif('❌ Erro ao iniciar microfone', 2000);
-            pararBuscaVoz();
-        }
-    }
-
-    function pararBuscaVoz() {
-        reconhecimentoAtivo = false;
-        micBtn.classList.remove('ouvindo');
-        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-        if (recognition) {
-            try { recognition.stop(); } catch(e) {}
-            recognition = null;
-        }
-    }
-
-    function processarComandoVoz(comando) {
-        // Palavras a serem removidas
-        const palavrasRemover = [
-            'toca', 'procura', 'quero ouvir', 'música', 'a música', 
-            'de', 'por', 'o', 'a', 'os', 'as', 'um', 'uma',
-            'me', 'pra', 'para', 'com', 'no', 'na', 'dos', 'das'
-        ];
-        
-        let termo = comando;
-        palavrasRemover.forEach(p => {
-            termo = termo.replace(new RegExp('\\b' + p + '\\b', 'gi'), '');
-        });
-        termo = termo.trim();
-
-        if (termo.length < 2) {
-            notif('❌ Não entendi, fale o nome da música', 2000);
-            return;
-        }
-
-        // Busca na playlist atual
-        const resultados = musicas.filter(m => 
-            m.title.toLowerCase().includes(termo) || 
-            m.artist.toLowerCase().includes(termo)
-        );
-
-        if (resultados.length === 0) {
-            notif(`❌ Não encontrei "${termo}"`, 2500);
-            return;
-        }
-
-        // Toca o primeiro resultado
-        const musica = resultados[0];
-        const idx = playlistAtual.findIndex(m => m.id === musica.id);
-        
-        if (idx > -1) {
-            indiceAtual = idx;
-            if (isBackgroundActive) {
-                tocar();
-                notif(`🎤 "${musica.title}" - ${musica.artist}`, 2000);
-            } else {
-                notif(`🔊 Ative o player primeiro!`, 2000);
-            }
-        } else {
-            // Se não estiver na playlist atual, recria
-            playlistAtual = [musica, ...musicas.filter(m => m.id !== musica.id)];
-            indiceAtual = 0;
-            if (isBackgroundActive) {
-                tocar();
-                notif(`🎤 "${musica.title}" - ${musica.artist}`, 2000);
-            }
-        }
-    }
-
-    // ============================================================
-    // FUNÇÕES PRINCIPAIS
-    // ============================================================
     function notif(msg,dur=1500){notification.textContent=msg;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),dur);}
     function showLoad(s){loadingOverlay.classList.toggle('active',s);}
     function fmt(s){if(!s||isNaN(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+(sec<10?'0':'')+sec;}
