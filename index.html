@@ -35,13 +35,21 @@
         .timer-top{font-size:.9rem;font-weight:bold;color:var(--neon-cyan)}
         .audio-status{font-size:.8rem;color:#aaa}
         .audio-status.active{color:#4ade80}
+        .fav-top-btn{background:rgba(255,45,127,0.15);border:1px solid #ff2d7f;color:#ff2d7f;padding:2px 10px;border-radius:30px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:bold}
+        .fav-top-btn .badge{background:#ff2d7f;color:#000;border-radius:50%;padding:0 6px;font-size:.6rem;font-weight:bold;min-width:18px;text-align:center}
+        .fav-top-btn:active{transform:scale(0.92);background:#ff2d7f;color:#000}
         .menu-button{background:transparent;border:none;color:white;font-size:1rem;cursor:pointer}
 
         .info-scroll{position:fixed;top:38px;left:0;right:0;z-index:30;padding:3px 10px;height:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3)}
         .info-scroll .letreiro{color:white;font-size:.9rem;font-weight:700;white-space:nowrap;animation:scrollText 10s linear infinite;pointer-events:none}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
-        .now-playing{position:fixed;top:52%;left:50%;transform:translate(-50%,-50%);z-index:15}
+        .now-playing{position:fixed;top:52%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
+        .now-playing .music-title{color:#fff;font-size:1.2rem;font-weight:700;text-shadow:0 0 30px rgba(0,0,0,0.8);margin-bottom:4px}
+        .now-playing .music-artist{color:#aaa;font-size:0.9rem;text-shadow:0 0 30px rgba(0,0,0,0.8)}
+        .fav-heart{font-size:4rem;color:rgba(255,255,255,0.3);cursor:pointer;transition:all 0.2s;margin-top:10px;display:inline-block}
+        .fav-heart.active{color:#ff2d7f}
+        .fav-heart:active{transform:scale(1.2)}
 
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(16px);padding:10px 16px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s}
         .bottom-controls.visible{transform:translateY(0)}
@@ -73,6 +81,20 @@
         .genre-card .icon{display:none}
         
         .close-genres{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:.95rem;cursor:pointer;font-weight:700;margin-top:12px;letter-spacing:0.5px}
+
+        .fav-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,20,40,0.97);border-radius:20px;padding:20px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none}
+        .fav-modal.open{display:block}
+        .fav-modal h3{font-size:1.2rem;margin-bottom:12px;color:var(--neon-cyan)}
+        .fav-modal .close-fav{position:absolute;top:10px;right:12px;background:transparent;border:none;color:#888;font-size:1.2rem;cursor:pointer}
+        .fav-list{max-height:50vh;overflow-y:auto;text-align:left;padding:0 5px}
+        .fav-item{display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,0.05);color:white;cursor:pointer;border-radius:8px}
+        .fav-item:active{background:rgba(255,255,255,0.05)}
+        .fav-item .fav-info{flex:1;display:flex;flex-direction:column;gap:2px}
+        .fav-item .fav-info .title{font-weight:bold;font-size:.9rem}
+        .fav-item .fav-info .artist{font-size:.75rem;color:#aaa}
+        .fav-item .remove{background:transparent;border:none;color:#ff2d7f;font-size:1.1rem;cursor:pointer;padding:0 6px}
+        .fav-empty{color:#888;padding:30px;text-align:center;font-size:.9rem}
+        .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
 
         .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,20,40,0.97);border-radius:20px;padding:20px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none}
         .feedback-modal.open{display:block}
@@ -120,51 +142,11 @@
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:12px;border-radius:20px;color:#000;font-weight:bold;cursor:pointer;width:100%}
         .admin-close{background:rgba(255,255,255,0.1);border:none;padding:8px;border-radius:20px;color:#aaa;cursor:pointer;width:100%;font-size:.8rem}
 
-        .update-banner {
-            position: fixed;
-            top: 42px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            color: #000;
-            padding: 10px 20px;
-            border-radius: 16px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            z-index: 99999;
-            display: none;
-            box-shadow: 0 0 40px rgba(0,243,255,0.4);
-            text-align: center;
-            max-width: 90%;
-            border: 2px solid rgba(255,255,255,0.3);
-            animation: slideDown 0.5s ease;
-        }
-        .update-banner.show { display: block; }
-        .update-banner .btn-reload {
-            background: #000;
-            color: #fff;
-            border: none;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-left: 8px;
-            font-weight: bold;
-        }
-        .update-banner .btn-fechar-banner {
-            background: rgba(0,0,0,0.2);
-            color: #000;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            cursor: pointer;
-            margin-left: 6px;
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateX(-50%) translateY(-30px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
+        .update-banner{position:fixed;top:42px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00f3ff,#ff2d7f);color:#000;padding:10px 20px;border-radius:16px;font-weight:bold;font-size:.8rem;z-index:99999;display:none;box-shadow:0 0 40px rgba(0,243,255,0.4);text-align:center;max-width:90%;border:2px solid rgba(255,255,255,0.3);animation:slideDown 0.5s ease}
+        .update-banner.show{display:block}
+        .update-banner .btn-reload{background:#000;color:#fff;border:none;padding:4px 14px;border-radius:20px;font-size:.7rem;cursor:pointer;margin-left:8px;font-weight:bold}
+        .update-banner .btn-fechar-banner{background:rgba(0,0,0,0.2);color:#000;border:none;padding:2px 8px;border-radius:20px;font-size:.6rem;cursor:pointer;margin-left:6px}
+        @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-30px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
     </style>
 </head>
 <body>
@@ -177,10 +159,15 @@
         <span class="genre-badge" id="genreBadge" onclick="window.openGenres()">BÔNUS</span>
         <span class="timer-top" id="timerTop">5:00</span>
         <span class="audio-status" id="audioStatus">Aguardando</span>
+        <button class="fav-top-btn" id="favTopBtn">❤️ FAVORITOS <span class="badge" id="favCount">0</span></button>
         <button class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
     </div>
     <div class="info-scroll" id="infoScroll" onclick="window.ativarAdmin()"><p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC! 🎵</p></div>
-    <div class="now-playing"></div>
+    <div class="now-playing" id="nowPlaying">
+        <div class="music-title" id="nowTitle">Carregando...</div>
+        <div class="music-artist" id="nowArtist">Aguarde</div>
+        <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
+    </div>
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -233,6 +220,13 @@
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
+
+<div class="fav-modal" id="favModal">
+    <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
+    <h3>❤️ Suas Favoritas</h3>
+    <div class="fav-list" id="favList"></div>
+    <button class="close-btn" id="closeFavBtn">FECHAR</button>
+</div>
 
 <div class="genres-modal" id="genresModal"><h3>🎵 ESCOLHA SEU ESTILO</h3><div class="genres-grid" id="genresGrid"></div><button class="close-genres" id="closeGenresBtn">FECHAR</button></div>
 <div class="feedback-modal" id="feedbackModal"><h3>Avalie</h3><div class="stars" id="starRating"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Opinião..."></textarea><button class="btn-feedback" id="sendFeedbackBtn">Enviar</button><button id="closeFeedbackBtn">Cancelar</button></div>
@@ -332,12 +326,15 @@ function fecharBanner() {
     const loadingOverlay=$('loadingOverlay'),menuPopup=$('menuPopup');
     const progressBar=$('progressBar'),mediaContainer=$('mediaContainer');
     const updateBanner=$('updateBanner'),updateMsg=$('updateMsg');
+    const heartBtn=$('heartBtn'),favCount=$('favCount'),favList=$('favList');
+    const nowTitle=$('nowTitle'),nowArtist=$('nowArtist'),favTopBtn=$('favTopBtn');
 
     let tempoRestante=TEMPO_INICIAL,desbloqueado=false,timerInterval=null;
     let backgroundInterval=null,wakeLock=null,musicas=[],playlistAtual=[],indiceAtual=0;
     let isPlaying=false,shuffleMode=false,isBackgroundActive=false,modoAtual='BÔNUS';
-    let carregandoMusica=false,fabOpen=false,sleepTimer=null;
+    let carregandoMusica=false,favorites=[],fabOpen=false,sleepTimer=null;
     let hideControlsTimeout=null,midiaAtual=0,mediaTimer=null;
+    let modoFavoritos = false;
 
     function mostrarBanner(mensagem) {
         if (!updateBanner) return;
@@ -441,23 +438,345 @@ function fecharBanner() {
         } catch (e) { return null; }
     }
 
-    async function selecionar(g){showLoad(true);const l=await carregar(g);if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}audio.pause();musicas=l;modoAtual=g;playlistAtual=shuf(musicas);indiceAtual=0;genreBadge.textContent=g;genreBadge.style.color=CORES[g]||'#fff';const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';}grid();showLoad(false);$('genresModal').classList.remove('open');fullscreen();if(isBackgroundActive)setTimeout(tocar,300);}
+    async function selecionar(g){
+        modoFavoritos = false;
+        showLoad(true);
+        const l=await carregar(g);
+        if(!l||!l.length){showLoad(false);notif('Erro '+g);$('genresModal').classList.remove('open');return;}
+        audio.pause();
+        musicas=l;
+        modoAtual=g;
+        playlistAtual=shuf(musicas);
+        indiceAtual=0;
+        genreBadge.textContent=g;
+        genreBadge.style.color=CORES[g]||'#fff';
+        const m=playlistAtual[0];
+        if(m){
+            nowTitle.textContent=m.title;
+            nowArtist.textContent=m.artist;
+            scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';
+            scrollText.style.animation='none';
+            scrollText.offsetHeight;
+            scrollText.style.animation='scrollText 10s linear infinite';
+            updateHeart(m.id);
+        }
+        grid();
+        showLoad(false);
+        $('genresModal').classList.remove('open');
+        fullscreen();
+        if(isBackgroundActive) setTimeout(tocar,300);
+    }
 
-    function atual(){if(!playlistAtual.length)return null;if(indiceAtual>=playlistAtual.length){playlistAtual=shuf(musicas);indiceAtual=0;}return playlistAtual[indiceAtual];}
-    function next(){if(carregandoMusica)return;indiceAtual=(indiceAtual+1)%playlistAtual.length;const t=atual();if(t&&isBackgroundActive)setTimeout(tocar,100);showCtrl();}
-    function prev(){if(carregandoMusica)return;indiceAtual=(indiceAtual-1+playlistAtual.length)%playlistAtual.length;const t=atual();if(t&&isBackgroundActive)setTimeout(tocar,100);showCtrl();}
+    function atual(){
+        if(!playlistAtual.length)return null;
+        if(indiceAtual>=playlistAtual.length){
+            // Se acabou a playlist de favoritos, volta para o gênero
+            if(modoFavoritos){
+                modoFavoritos = false;
+                playlistAtual = shuf(musicas);
+                indiceAtual = 0;
+                notif('🎵 Voltei para '+modoAtual);
+            } else {
+                playlistAtual = shuf(musicas);
+                indiceAtual = 0;
+            }
+        }
+        return playlistAtual[indiceAtual];
+    }
 
-    async function tocar(){if(!isBackgroundActive||carregandoMusica||!musicas.length)return;carregandoMusica=true;const t=atual();if(!t){carregandoMusica=false;return;}scrollText.textContent='🎵 '+t.title+' - '+t.artist+' ['+t.genero+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';audio.pause();audio.src='';const us=urls(t).slice(0,8);let ok=false;for(const u of us){try{const r=await new Promise(res=>{const to=setTimeout(()=>{audio.oncanplay=null;audio.onerror=null;res(false);},8000);audio.oncanplay=()=>{clearTimeout(to);res(true);};audio.onerror=()=>{clearTimeout(to);res(false);};audio.src=u;audio.load();});if(r){ok=true;break;}}catch(e){}}carregandoMusica=false;if(ok){try{await audio.play();isPlaying=true;playBtn.innerHTML='<i class="fas fa-pause"></i>';notif('✅ '+t.title);}catch(e){next();}}else{next();}}
+    function next(){
+        if(carregandoMusica)return;
+        indiceAtual=(indiceAtual+1)%playlistAtual.length;
+        const t=atual();
+        if(t&&isBackgroundActive) setTimeout(tocar,100);
+        showCtrl();
+    }
 
-    function togglePlay(){if(!isBackgroundActive){notif('🔊 Clique em ATIVAR!');return;}if(audio.paused)tocar();else{audio.pause();isPlaying=false;playBtn.innerHTML='<i class="fas fa-play"></i>';}showCtrl();}
-    function toggleShuf(){shuffleMode=!shuffleMode;shuffleBtn.classList.toggle('active',shuffleMode);playlistAtual=shuf(musicas);notif(shuffleMode?'🔀 ON':'➡️ Seq');}
-    
+    function prev(){
+        if(carregandoMusica)return;
+        indiceAtual=(indiceAtual-1+playlistAtual.length)%playlistAtual.length;
+        const t=atual();
+        if(t&&isBackgroundActive) setTimeout(tocar,100);
+        showCtrl();
+    }
+
+    async function tocar(){
+        if(!isBackgroundActive||carregandoMusica||!musicas.length)return;
+        carregandoMusica=true;
+        const t=atual();
+        if(!t){carregandoMusica=false;return;}
+        
+        nowTitle.textContent=t.title;
+        nowArtist.textContent=t.artist;
+        scrollText.textContent='🎵 '+t.title+' - '+t.artist+' ['+t.genero+'] 🎵';
+        scrollText.style.animation='none';
+        scrollText.offsetHeight;
+        scrollText.style.animation='scrollText 10s linear infinite';
+        updateHeart(t.id);
+        
+        audio.pause();
+        audio.src='';
+        const us=urls(t).slice(0,8);
+        let ok=false;
+        for(const u of us){
+            try{
+                const r=await new Promise(res=>{
+                    const to=setTimeout(()=>{audio.oncanplay=null;audio.onerror=null;res(false);},8000);
+                    audio.oncanplay=()=>{clearTimeout(to);res(true);};
+                    audio.onerror=()=>{clearTimeout(to);res(false);};
+                    audio.src=u;
+                    audio.load();
+                });
+                if(r){ok=true;break;}
+            }catch(e){}
+        }
+        carregandoMusica=false;
+        if(ok){
+            try{
+                await audio.play();
+                isPlaying=true;
+                playBtn.innerHTML='<i class="fas fa-pause"></i>';
+                notif('✅ '+t.title);
+            }catch(e){next();}
+        }else{next();}
+    }
+
+    function togglePlay(){
+        if(!isBackgroundActive){notif('🔊 Clique em ATIVAR!');return;}
+        if(audio.paused) tocar();
+        else{audio.pause();isPlaying=false;playBtn.innerHTML='<i class="fas fa-play"></i>';}
+        showCtrl();
+    }
+
+    function toggleShuf(){
+        shuffleMode=!shuffleMode;
+        shuffleBtn.classList.toggle('active',shuffleMode);
+        playlistAtual=shuf(musicas);
+        notif(shuffleMode?'🔀 ON':'➡️ Seq');
+    }
+
+    // ============================================================
+    // 🔥 FAVORITOS - SIMPLES E FUNCIONAL
+    // ============================================================
+
+    function carregarFav(){
+        try{
+            favorites = JSON.parse(localStorage.getItem('vfav')||'[]');
+            if(!Array.isArray(favorites)) favorites = [];
+        }catch(e){favorites=[];}
+        updateFavCount();
+    }
+
+    function salvarFav(){
+        localStorage.setItem('vfav', JSON.stringify(favorites));
+        updateFavCount();
+    }
+
+    function updateFavCount(){
+        favCount.textContent = favorites.length;
+    }
+
+    function updateHeart(id){
+        if(favorites.includes(id)){
+            heartBtn.className = 'fav-heart active';
+            heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
+        } else {
+            heartBtn.className = 'fav-heart';
+            heartBtn.innerHTML = '<i class="far fa-heart"></i>';
+        }
+    }
+
+    function toggleFav(id){
+        if(!id) return;
+        const idx = favorites.indexOf(id);
+        if(idx > -1){
+            favorites.splice(idx, 1);
+            notif('💔 Removido dos favoritos');
+        } else {
+            favorites.push(id);
+            notif('❤️ Adicionado aos favoritos');
+        }
+        salvarFav();
+        updateHeart(id);
+    }
+
+    function tocarFavoritos(){
+        if(favorites.length === 0){
+            notif('💔 Nenhuma música favorita');
+            return;
+        }
+        
+        modoFavoritos = true;
+        const favMusicas = musicas.filter(m => favorites.includes(m.id));
+        if(favMusicas.length === 0){
+            notif('💔 Nenhuma favorita encontrada');
+            return;
+        }
+        
+        playlistAtual = shuf(favMusicas);
+        indiceAtual = 0;
+        genreBadge.textContent = '❤️ FAVORITOS';
+        genreBadge.style.color = '#ff2d7f';
+        const m = playlistAtual[0];
+        if(m){
+            nowTitle.textContent = m.title;
+            nowArtist.textContent = m.artist;
+            scrollText.textContent = '❤️ '+m.title+' - '+m.artist+' [FAVORITOS] 🎵';
+            scrollText.style.animation = 'none';
+            scrollText.offsetHeight;
+            scrollText.style.animation = 'scrollText 10s linear infinite';
+            updateHeart(m.id);
+        }
+        if(isBackgroundActive) setTimeout(tocar, 300);
+        notif('❤️ Tocando suas favoritas!');
+    }
+
+    function renderFavList(){
+        favList.innerHTML = '';
+        if(favorites.length === 0){
+            favList.innerHTML = '<div class="fav-empty">💔 Nenhuma música favorita</div>';
+            return;
+        }
+        
+        const favMusicas = musicas.filter(m => favorites.includes(m.id));
+        if(favMusicas.length === 0){
+            favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>';
+            return;
+        }
+        
+        favMusicas.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'fav-item';
+            div.innerHTML = `
+                <div class="fav-info">
+                    <div class="title">${m.title}</div>
+                    <div class="artist">${m.artist} • ${m.genero || 'Gênero'}</div>
+                </div>
+                <button class="remove"><i class="fas fa-times-circle"></i></button>
+            `;
+            
+            div.querySelector('.fav-info').addEventListener('click', () => {
+                document.getElementById('favModal').classList.remove('open');
+                // Toca a música selecionada
+                modoFavoritos = true;
+                const favMusicas2 = musicas.filter(m2 => favorites.includes(m2.id));
+                if(favMusicas2.length > 0){
+                    playlistAtual = shuf(favMusicas2);
+                    const idx = playlistAtual.findIndex(m2 => m2.id === m.id);
+                    if(idx > -1){
+                        indiceAtual = idx;
+                        if(isBackgroundActive) tocar();
+                    }
+                }
+            });
+            
+            div.querySelector('.remove').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFav(m.id);
+                renderFavList();
+                if(modoFavoritos && favorites.length === 0){
+                    // Se não tem mais favoritos, volta para o gênero
+                    modoFavoritos = false;
+                    playlistAtual = shuf(musicas);
+                    indiceAtual = 0;
+                    genreBadge.textContent = modoAtual;
+                    genreBadge.style.color = CORES[modoAtual] || '#fff';
+                    if(isBackgroundActive) tocar();
+                    notif('🎵 Voltei para '+modoAtual);
+                }
+            });
+            
+            favList.appendChild(div);
+        });
+    }
+
+    function openFavModal(){
+        renderFavList();
+        document.getElementById('favModal').classList.add('open');
+    }
+
     function grid(){$('genresGrid').innerHTML='';ORDEM.forEach(g=>{const c=document.createElement('div');c.className='genre-card';c.style.borderColor=CORES[g];c.style.color=CORES[g];c.textContent=g;c.onclick=()=>selecionar(g);$('genresGrid').appendChild(c);});}
 
-    function iniciar(){criarMidia();(async()=>{for(const g of ORDEM){const l=await carregar(g);if(l&&l.length){musicas=l;modoAtual=g;playlistAtual=shuf(musicas);genreBadge.textContent=g;genreBadge.style.color=CORES[g];const m=playlistAtual[0];if(m){scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';scrollText.style.animation='none';scrollText.offsetHeight;scrollText.style.animation='scrollText 10s linear infinite';}break;}}grid();fullscreen();})();const b=document.createElement('button');b.className='btn-ativar-player';b.textContent='▶ ATIVAR';b.onclick=async function(){this.classList.add('hidden');await ativar();fullscreen();};document.body.appendChild(b);}
+    function iniciar(){
+        criarMidia();
+        carregarFav();
+        (async()=>{
+            for(const g of ORDEM){
+                const l=await carregar(g);
+                if(l&&l.length){
+                    musicas=l;
+                    modoAtual=g;
+                    playlistAtual=shuf(musicas);
+                    genreBadge.textContent=g;
+                    genreBadge.style.color=CORES[g];
+                    const m=playlistAtual[0];
+                    if(m){
+                        nowTitle.textContent=m.title;
+                        nowArtist.textContent=m.artist;
+                        scrollText.textContent='🎵 '+m.title+' - '+m.artist+' ['+g+'] 🎵';
+                        scrollText.style.animation='none';
+                        scrollText.offsetHeight;
+                        scrollText.style.animation='scrollText 10s linear infinite';
+                        updateHeart(m.id);
+                    }
+                    break;
+                }
+            }
+            grid();
+            fullscreen();
+        })();
+        const b=document.createElement('button');
+        b.className='btn-ativar-player';
+        b.textContent='▶ ATIVAR';
+        b.onclick=async function(){
+            this.classList.add('hidden');
+            await ativar();
+            fullscreen();
+        };
+        document.body.appendChild(b);
+    }
 
-    playBtn.onclick=togglePlay;$('nextBtn').onclick=next;$('prevBtn').onclick=prev;shuffleBtn.onclick=toggleShuf;
-    progressBar.onclick=e=>{if(audio.duration){const r=e.currentTarget.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;}};
+    // EVENTOS
+    playBtn.onclick=togglePlay;
+    $('nextBtn').onclick=next;
+    $('prevBtn').onclick=prev;
+    shuffleBtn.onclick=toggleShuf;
+    
+    progressBar.onclick=e=>{
+        if(audio.duration){
+            const r=e.currentTarget.getBoundingClientRect();
+            audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;
+        }
+    };
+    
+    heartBtn.onclick=()=>{
+        const m = playlistAtual[indiceAtual % playlistAtual.length] || playlistAtual[0];
+        if(m) toggleFav(m.id);
+    };
+    
+    favTopBtn.onclick=()=>{
+        if(favorites.length > 0){
+            tocarFavoritos();
+        } else {
+            openFavModal();
+        }
+    };
+    
+    // Clique no badge do gênero abre a lista de gêneros
+    genreBadge.onclick=()=>{
+        if(modoFavoritos){
+            modoFavoritos = false;
+            playlistAtual = shuf(musicas);
+            indiceAtual = 0;
+            genreBadge.textContent = modoAtual;
+            genreBadge.style.color = CORES[modoAtual] || '#fff';
+            if(isBackgroundActive) tocar();
+            notif('🎵 Voltei para '+modoAtual);
+        } else {
+            window.openGenres();
+        }
+    };
+    
     $('menuButton').onclick=e=>{e.stopPropagation();menuPopup.classList.toggle('open');};
     $('closeMenuBtn').onclick=()=>menuPopup.classList.remove('open');
     $('fullscreenMenuBtn').onclick=()=>{menuPopup.classList.remove('open');fullscreen();};
@@ -491,6 +810,9 @@ function fecharBanner() {
 
     document.querySelectorAll('.star').forEach(s=>s.onclick=()=>{const r=+s.dataset.rating;document.querySelectorAll('.star').forEach((x,i)=>x.className=i<r?'fas fa-star star active':'far fa-star star');});
     $('sendFeedbackBtn').onclick=()=>{window.open('https://wa.me/'+NUMERO_WHATSAPP+'?text='+encodeURIComponent('⭐'+'★'.repeat(document.querySelectorAll('.star.active').length)+' '+$('feedbackText').value));$('feedbackModal').classList.remove('open');};
+
+    $('closeFavModal').onclick=()=>$('favModal').classList.remove('open');
+    $('closeFavBtn').onclick=()=>$('favModal').classList.remove('open');
 
     window.openGenres=()=>{grid();$('genresModal').classList.add('open');};
     let ac=0;window.ativarAdmin=function(){ac++;setTimeout(()=>ac=0,2000);if(ac>=5){ac=0;$('adminPanel').classList.toggle('open');notif('🔐 ADMIN!');}};
