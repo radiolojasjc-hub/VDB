@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐒 VAI DE BOA! MUSIC</title>
+    <title>VAI DE BOA! MUSIC</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
+    <!-- ===== PWA - SALVAR COMO APP ===== -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VDB Music">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
     <!-- ===== FAVICON m12.png ===== -->
     <link rel="icon" href="m12.png" type="image/png">
     <link rel="apple-touch-icon" href="m12.png">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -22,7 +32,7 @@
         body{background:#000;overflow:hidden}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
 
-        /* ===== LOADING COM m12.png ===== */
+        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -39,7 +49,7 @@
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
-        /* ===== TOP BAR COM LOGO m12.png ===== */
+        /* ===== TOP BAR ===== */
         .top-bar {
             position: fixed;
             top: 0;
@@ -51,23 +61,23 @@
             justify-content: space-between;
             padding: 8px 12px;
             background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            height: 60px;
+            height: 56px;
         }
 
         .top-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px; /* REDUZIDO - mais perto da logo */
         }
 
         /* LOGO MACAQUINHO */
         .logo-macaco {
-            height: 44px;
-            width: 44px;
+            height: 38px;
+            width: 38px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid rgba(0,243,255,0.15);
-            box-shadow: 0 0 20px rgba(0,243,255,0.05);
+            border: 2px solid rgba(0,243,255,0.12);
+            box-shadow: 0 0 15px rgba(0,243,255,0.03);
             background: rgba(0,0,0,0.3);
             transition: all 0.3s;
             flex-shrink: 0;
@@ -77,65 +87,70 @@
             transform: scale(0.92);
         }
 
-        /* Botão Gênero + Favoritos */
+        /* BOTÃO FAVORITO - MENOR E MAIS PERTO DA LOGO */
         .btn-genero-fav {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,215,0,0.15);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,215,0,0.1);
             color: #fff;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            padding: 4px 10px; /* MENOR */
+            border-radius: 20px;
+            font-size: 0.75rem; /* MENOR */
             font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px; /* MENOR */
             backdrop-filter: blur(8px);
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             transition: all 0.2s;
             white-space: nowrap;
         }
 
         .btn-genero-fav:active {
             transform: scale(0.95);
-            background: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.1);
         }
 
         .btn-genero-fav .fav-badge {
             background: var(--neon-pink);
             color: #fff;
             border-radius: 50%;
-            padding: 0 6px;
-            font-size: 0.65rem;
+            padding: 0 5px;
+            font-size: 0.55rem;
             font-weight: 900;
-            min-width: 16px;
+            min-width: 14px;
             text-align: center;
-            line-height: 16px;
+            line-height: 14px;
         }
 
         .btn-genero-fav .genero-nome {
             color: var(--gold);
+            font-size: 0.7rem;
         }
 
         .btn-genero-fav .separador {
-            color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.1);
             font-weight: 300;
+        }
+
+        .btn-genero-fav .coracao-icon {
+            font-size: 0.6rem;
         }
 
         /* Lado direito: LIB + Menu */
         .top-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .top-right .timer-lib {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 700;
             color: var(--neon-cyan);
             background: rgba(0,0,0,0.4);
-            padding: 4px 12px;
-            border-radius: 30px;
+            padding: 3px 10px;
+            border-radius: 20px;
             backdrop-filter: blur(4px);
             letter-spacing: 0.5px;
         }
@@ -145,10 +160,10 @@
         }
 
         .top-right .audio-status {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #4ade80;
             background: rgba(0,0,0,0.3);
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 20px;
             display: none;
             backdrop-filter: blur(4px);
@@ -162,10 +177,10 @@
             background: rgba(255,255,255,0.06);
             border: none;
             color: #fff;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -177,15 +192,15 @@
             background: rgba(255,255,255,0.15);
         }
 
-        /* ===== LETREIRO - FUNDO MAIS CLARO ===== */
+        /* ===== LETREIRO ===== */
         .info-scroll {
             position: fixed;
-            top: 60px;
+            top: 56px;
             left: 0;
             right: 0;
             z-index: 30;
             padding: 8px 16px;
-            height: 44px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -193,18 +208,18 @@
             cursor: pointer;
             background: rgba(0,0,0,0.3);
             backdrop-filter: blur(6px);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
 
         .info-scroll .letreiro {
             color: #fff;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             white-space: nowrap;
             animation: scrollText 14s linear infinite;
             pointer-events: none;
-            text-shadow: 0 0 30px rgba(0,243,255,0.1);
-            letter-spacing: 0.5px;
+            text-shadow: 0 0 30px rgba(0,243,255,0.08);
+            letter-spacing: 0.3px;
         }
 
         @keyframes scrollText {
@@ -223,8 +238,8 @@
         }
 
         .fav-heart-center .fav-heart {
-            font-size: 5.5rem;
-            color: rgba(255,255,255,0.1);
+            font-size: 5rem;
+            color: rgba(255,255,255,0.08);
             cursor: pointer;
             transition: all 0.3s;
             display: inline-block;
@@ -254,7 +269,7 @@
             right: 0;
             background: rgba(0,0,0,0.8);
             backdrop-filter: blur(20px);
-            padding: 12px 20px 20px;
+            padding: 10px 16px 18px;
             z-index: 20;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -267,15 +282,15 @@
         .progress-time {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #999;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             font-weight: 500;
         }
 
         .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.1);
+            height: 3px;
+            background: rgba(255,255,255,0.08);
             cursor: pointer;
             border-radius: 2px;
             position: relative;
@@ -293,19 +308,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 16px;
-            margin-top: 10px;
+            gap: 14px;
+            margin-top: 8px;
         }
 
         .ctrl-btn {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
             border: none;
             color: #fff;
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -314,18 +329,18 @@
 
         .ctrl-btn:active {
             transform: scale(0.9);
-            background: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.1);
         }
 
         .play-big {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            width: 58px;
-            height: 58px;
-            font-size: 1.5rem;
+            width: 54px;
+            height: 54px;
+            font-size: 1.3rem;
             color: #000;
             border: none;
             border-radius: 50%;
-            box-shadow: 0 0 40px rgba(0,243,255,0.15);
+            box-shadow: 0 0 30px rgba(0,243,255,0.12);
         }
 
         .play-big:active {
@@ -333,21 +348,21 @@
         }
 
         .shuffle-btn {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
             border: none;
             color: #fff;
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.2s;
         }
 
         .shuffle-btn.active {
-            background: rgba(0,243,255,0.15);
+            background: rgba(0,243,255,0.12);
             color: var(--neon-cyan);
-            border: 1px solid rgba(0,243,255,0.2);
+            border: 1px solid rgba(0,243,255,0.15);
         }
 
         .shuffle-btn:active {
@@ -357,28 +372,28 @@
         /* ===== FAB ===== */
         .fab-container {
             position: fixed;
-            bottom: 110px;
-            right: 16px;
+            bottom: 100px;
+            right: 14px;
             z-index: 40;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px;
+            gap: 6px;
         }
 
         .fab-main {
             background: rgba(0,0,0,0.7);
             backdrop-filter: blur(12px);
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: white;
-            font-size: 1.3rem;
-            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.06);
             transition: all 0.2s;
         }
 
@@ -389,12 +404,12 @@
         .fab-sub {
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(16px);
-            border-radius: 16px;
-            padding: 8px;
+            border-radius: 14px;
+            padding: 6px;
             display: none;
             flex-direction: column;
-            gap: 4px;
-            border: 1px solid rgba(255,255,255,0.06);
+            gap: 2px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .fab-sub.open {
@@ -405,13 +420,13 @@
             background: transparent;
             border: none;
             color: #ccc;
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s;
         }
 
@@ -422,18 +437,18 @@
         /* ===== MENU ===== */
         .menu-popup {
             position: fixed;
-            top: 60px;
-            right: 12px;
+            top: 56px;
+            right: 10px;
             background: rgba(10,10,30,0.95);
             backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 8px;
+            border-radius: 14px;
+            padding: 6px;
             z-index: 32;
             display: none;
             flex-direction: column;
-            gap: 4px;
-            border: 1px solid rgba(0,243,255,0.08);
-            min-width: 180px;
+            gap: 2px;
+            border: 1px solid rgba(0,243,255,0.06);
+            min-width: 160px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
 
@@ -445,14 +460,14 @@
             background: transparent;
             border: none;
             color: #ccc;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
             cursor: pointer;
             text-align: left;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s;
         }
 
@@ -468,8 +483,8 @@
             right: 0;
             background: rgba(10,10,30,0.97);
             backdrop-filter: blur(20px);
-            border-radius: 30px 30px 0 0;
-            padding: 18px 20px 22px;
+            border-radius: 25px 25px 0 0;
+            padding: 16px 18px 20px;
             z-index: 2000;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -483,8 +498,8 @@
 
         .genres-modal h3 {
             text-align: center;
-            margin-bottom: 12px;
-            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
             color: var(--neon-cyan);
             letter-spacing: 1px;
         }
@@ -494,7 +509,7 @@
             flex-direction: column;
             overflow-y: auto;
             scroll-snap-type: y mandatory;
-            gap: 8px;
+            gap: 6px;
             padding: 4px;
             max-height: 38vh;
             -webkit-overflow-scrolling: touch;
@@ -506,42 +521,42 @@
         }
 
         .genre-card {
-            min-height: 52px;
+            min-height: 48px;
             scroll-snap-align: center;
             flex-shrink: 0;
-            border-radius: 14px;
+            border-radius: 12px;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.06);
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
             backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
         }
 
         .genre-card:active {
             transform: scale(0.96);
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.06);
         }
 
         .close-genres {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            border-radius: 30px;
+            border-radius: 25px;
             color: #000;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             font-weight: 700;
-            margin-top: 12px;
+            margin-top: 10px;
             letter-spacing: 0.5px;
         }
 
@@ -556,14 +571,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(10,10,30,0.98);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 18px;
+            padding: 18px;
             z-index: 5000;
             width: 90%;
-            max-width: 400px;
+            max-width: 380px;
             text-align: center;
             display: none;
-            border: 1px solid rgba(255,45,127,0.12);
+            border: 1px solid rgba(255,45,127,0.1);
         }
 
         .fav-modal.open {
@@ -577,19 +592,19 @@
         }
 
         .fav-modal h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
             color: var(--neon-cyan);
         }
 
         .fav-modal .close-fav {
             position: absolute;
-            top: 10px;
-            right: 12px;
+            top: 8px;
+            right: 10px;
             background: transparent;
             border: none;
             color: #555;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
         }
 
@@ -604,24 +619,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             color: white;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         .fav-item:active {
-            background: rgba(255,255,255,0.04);
+            background: rgba(255,255,255,0.03);
         }
 
         .fav-item .fav-info .title {
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
 
         .fav-item .fav-info .artist {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #777;
         }
 
@@ -629,29 +644,29 @@
             background: transparent;
             border: none;
             color: var(--neon-pink);
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             padding: 0 4px;
         }
 
         .fav-empty {
             color: #555;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
 
         .fav-modal .close-btn {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            padding: 12px;
-            border-radius: 25px;
+            padding: 10px;
+            border-radius: 20px;
             color: #000;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
-            margin-top: 8px;
-            font-size: 0.95rem;
+            margin-top: 6px;
+            font-size: 0.85rem;
         }
 
         /* ===== FEEDBACK MODAL ===== */
@@ -661,11 +676,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(10,10,30,0.98);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 18px;
+            padding: 18px;
             z-index: 5000;
             width: 90%;
-            max-width: 400px;
+            max-width: 380px;
             text-align: center;
             display: none;
             border: 1px solid rgba(0,243,255,0.08);
@@ -677,20 +692,20 @@
         }
 
         .feedback-modal h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
             color: var(--neon-cyan);
         }
 
         .feedback-modal .stars {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin: 8px 0;
+            gap: 6px;
+            margin: 6px 0;
         }
 
         .feedback-modal .star {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: #444;
             cursor: pointer;
             transition: color 0.2s;
@@ -702,57 +717,57 @@
 
         .feedback-modal textarea {
             width: 100%;
-            height: 60px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(0,243,255,0.08);
-            border-radius: 12px;
-            padding: 8px 12px;
+            height: 50px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,243,255,0.06);
+            border-radius: 10px;
+            padding: 6px 10px;
             color: #fff;
             resize: none;
-            font-size: 0.9rem;
-            margin-top: 8px;
+            font-size: 0.8rem;
+            margin-top: 4px;
         }
 
         .feedback-modal .btn-feedback {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            padding: 12px;
-            border-radius: 25px;
+            padding: 10px;
+            border-radius: 20px;
             color: #000;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
-            margin-top: 8px;
-            font-size: 0.95rem;
+            margin-top: 4px;
+            font-size: 0.85rem;
         }
 
         #closeFeedbackBtn {
             background: transparent;
             border: none;
             color: #555;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
-            font-size: 0.85rem;
-            margin-top: 4px;
+            font-size: 0.75rem;
+            margin-top: 2px;
         }
 
         /* ===== NOTIFICATION ===== */
         .notification {
             position: fixed;
-            top: 110px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             color: var(--neon-cyan);
-            padding: 8px 22px;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            padding: 6px 18px;
+            border-radius: 25px;
+            font-size: 0.8rem;
             z-index: 10001;
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
-            border: 1px solid rgba(0,243,255,0.08);
+            border: 1px solid rgba(0,243,255,0.06);
             white-space: nowrap;
             font-weight: 600;
         }
@@ -769,7 +784,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             z-index: 9998;
             align-items: center;
             justify-content: center;
@@ -780,12 +795,12 @@
         }
 
         #loadingOverlay i {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: var(--neon-cyan);
             animation: spin 1s infinite;
         }
 
-        /* ===== BANNER VITALÍCIO COM m12.png ===== */
+        /* ===== BANNER VITALÍCIO ===== */
         #bannerVitalicio {
             position: fixed;
             top: 0;
@@ -813,13 +828,13 @@
 
         .banner-content {
             background: linear-gradient(145deg, #1a1a3e, #0d0d2b);
-            border-radius: 30px;
-            padding: 35px 25px 25px;
-            max-width: 420px;
+            border-radius: 25px;
+            padding: 30px 22px 22px;
+            max-width: 400px;
             width: 100%;
             text-align: center;
-            border: 2px solid rgba(255,215,0,0.15);
-            box-shadow: 0 0 60px rgba(255,215,0,0.08);
+            border: 2px solid rgba(255,215,0,0.12);
+            box-shadow: 0 0 60px rgba(255,215,0,0.05);
             position: relative;
             overflow: hidden;
         }
@@ -831,20 +846,20 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.05), transparent 70%);
+            background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.03), transparent 70%);
             pointer-events: none;
         }
 
         .banner-icon {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             object-fit: cover;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             display: block;
-            border: 3px solid rgba(255,215,0,0.2);
+            border: 3px solid rgba(255,215,0,0.15);
             animation: bannerPulse 2s infinite;
-            box-shadow: 0 0 40px rgba(255,215,0,0.05);
+            box-shadow: 0 0 40px rgba(255,215,0,0.03);
         }
 
         @keyframes bannerPulse {
@@ -853,10 +868,10 @@
         }
 
         .banner-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: #fff;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             background: linear-gradient(135deg, var(--gold), #ffaa00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -864,68 +879,68 @@
         }
 
         .banner-subtitle {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #aaa;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .banner-price {
             display: inline-block;
             background: linear-gradient(135deg, var(--gold), #ffaa00);
             color: #000;
-            padding: 6px 24px;
-            border-radius: 30px;
+            padding: 4px 20px;
+            border-radius: 25px;
             font-weight: 900;
-            font-size: 1.6rem;
-            margin-bottom: 12px;
-            box-shadow: 0 0 30px rgba(255,215,0,0.15);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            box-shadow: 0 0 30px rgba(255,215,0,0.12);
         }
 
         .banner-price small {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 400;
         }
 
         .banner-features {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin: 12px 0 16px;
+            gap: 4px;
+            margin: 10px 0 14px;
             text-align: left;
-            padding: 0 10px;
+            padding: 0 8px;
         }
 
         .banner-features .feature {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             color: #ccc;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .banner-features .feature i {
             color: var(--gold);
-            font-size: 1rem;
-            width: 22px;
+            font-size: 0.9rem;
+            width: 20px;
             text-align: center;
         }
 
         .banner-btn {
             background: linear-gradient(135deg, #25d366, #128C7E);
             border: none;
-            padding: 16px 30px;
-            border-radius: 35px;
+            padding: 14px 24px;
+            border-radius: 30px;
             color: #fff;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             cursor: pointer;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             transition: transform 0.2s;
-            box-shadow: 0 4px 25px rgba(37, 211, 102, 0.25);
+            box-shadow: 0 4px 25px rgba(37, 211, 102, 0.2);
         }
 
         .banner-btn:active {
@@ -933,28 +948,28 @@
         }
 
         .banner-close {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.06);
-            padding: 10px;
-            border-radius: 30px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 25px;
             color: #666;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 6px;
             transition: background 0.2s;
         }
 
         .banner-close:active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
         }
 
         .banner-timer {
             position: absolute;
-            top: 12px;
-            right: 16px;
-            color: rgba(255,255,255,0.15);
-            font-size: 0.8rem;
+            top: 10px;
+            right: 14px;
+            color: rgba(255,255,255,0.12);
+            font-size: 0.7rem;
             font-weight: 700;
         }
 
@@ -971,7 +986,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 24px;
             text-align: center;
         }
 
@@ -981,61 +996,61 @@
 
         #blockOverlay h2 {
             color: #fff;
-            font-size: 1.6rem;
-            margin-bottom: 8px;
+            font-size: 1.4rem;
+            margin-bottom: 6px;
         }
 
         #blockOverlay p {
             color: #888;
-            font-size: 1rem;
-            margin-bottom: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
 
         #blockOverlay .preco-vitalicio {
             background: linear-gradient(135deg, var(--gold), #ffaa00);
             color: #000;
-            padding: 6px 18px;
-            border-radius: 25px;
+            padding: 4px 16px;
+            border-radius: 20px;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             display: inline-block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         #blockOverlay .btn-comprar {
             background: linear-gradient(135deg, #25d366, #128C7E);
             border: none;
-            padding: 12px 28px;
-            border-radius: 35px;
+            padding: 10px 24px;
+            border-radius: 30px;
             color: #fff;
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             cursor: pointer;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         #blockOverlay .btn-pix {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.04);
             border: 1px solid var(--neon-cyan);
-            padding: 10px 24px;
-            border-radius: 35px;
+            padding: 8px 20px;
+            border-radius: 30px;
             color: var(--neon-cyan);
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             cursor: pointer;
         }
 
         #blockOverlay .senha-input {
             width: 100%;
-            max-width: 280px;
-            padding: 12px 16px;
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.04);
+            max-width: 250px;
+            padding: 10px 14px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
-            margin: 8px 0;
+            margin: 6px 0;
             outline: none;
         }
 
@@ -1046,19 +1061,19 @@
         #blockOverlay .btn-senha {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            padding: 12px 28px;
-            border-radius: 35px;
+            padding: 10px 24px;
+            border-radius: 30px;
             color: #000;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
         }
 
         #blockOverlay .erro-senha {
             color: var(--neon-pink);
-            font-size: 0.85rem;
-            min-height: 18px;
-            margin-top: 4px;
+            font-size: 0.75rem;
+            min-height: 16px;
+            margin-top: 2px;
         }
 
         /* ===== ADMIN PANEL ===== */
@@ -1069,14 +1084,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(10,10,30,0.98);
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 18px;
+            padding: 18px;
             z-index: 99999;
             width: 90%;
-            max-width: 380px;
+            max-width: 360px;
             border: 1px solid var(--neon-cyan);
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             color: white;
         }
 
@@ -1086,18 +1101,18 @@
 
         #adminPanel h2 {
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--neon-cyan);
         }
 
         #adminPanel input {
             width: 100%;
-            padding: 10px 14px;
-            border-radius: 25px;
+            padding: 8px 12px;
+            border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.04);
+            background: rgba(255,255,255,0.03);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             outline: none;
         }
 
@@ -1107,7 +1122,7 @@
 
         .admin-row {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
 
         .admin-row input {
@@ -1119,34 +1134,34 @@
             background: rgba(0,243,255,0.08);
             border: 1px solid var(--neon-cyan);
             color: var(--neon-cyan);
-            padding: 8px;
-            border-radius: 25px;
+            padding: 6px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
         .admin-btn {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
             border: none;
-            padding: 12px;
-            border-radius: 25px;
+            padding: 10px;
+            border-radius: 20px;
             color: #000;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
 
         .admin-close {
-            background: rgba(255,255,255,0.04);
+            background: rgba(255,255,255,0.03);
             border: none;
-            padding: 8px;
-            border-radius: 25px;
+            padding: 6px;
+            border-radius: 20px;
             color: #555;
             cursor: pointer;
             width: 100%;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
 
         /* ===== BOTÃO ATIVAR ===== */
@@ -1155,19 +1170,19 @@
             bottom: 25%;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,243,255,0.08);
+            background: rgba(0,243,255,0.06);
             backdrop-filter: blur(12px);
             border: 2px solid var(--neon-cyan);
             color: #fff;
-            padding: 16px 36px;
-            border-radius: 40px;
+            padding: 14px 32px;
+            border-radius: 35px;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             z-index: 99999;
             cursor: pointer;
             letter-spacing: 1px;
             text-transform: uppercase;
-            box-shadow: 0 0 40px rgba(0,243,255,0.15);
+            box-shadow: 0 0 30px rgba(0,243,255,0.1);
             animation: glow 2s infinite;
             display: block;
         }
@@ -1181,87 +1196,109 @@
         }
 
         @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(0,243,255,0.1); }
-            50% { box-shadow: 0 0 50px rgba(0,243,255,0.3); }
+            0%, 100% { box-shadow: 0 0 15px rgba(0,243,255,0.08); }
+            50% { box-shadow: 0 0 40px rgba(0,243,255,0.25); }
         }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .logo-macaco {
-                height: 36px;
-                width: 36px;
+                height: 32px;
+                width: 32px;
             }
             .btn-genero-fav {
-                font-size: 0.7rem;
-                padding: 4px 10px;
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .btn-genero-fav .genero-nome {
+                font-size: 0.6rem;
+            }
+            .btn-genero-fav .fav-badge {
+                font-size: 0.5rem;
+                min-width: 12px;
+                line-height: 12px;
             }
             .top-right .timer-lib {
                 font-size: 0.7rem;
-                padding: 3px 8px;
+                padding: 2px 8px;
+            }
+            .top-right .menu-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
             }
             .info-scroll .letreiro {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
             .fav-heart-center .fav-heart {
                 font-size: 4rem;
             }
             .ctrl-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 0.9rem;
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
             }
             .play-big {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
+                width: 48px;
+                height: 48px;
+                font-size: 1.1rem;
             }
             .shuffle-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 0.8rem;
+                width: 38px;
+                height: 38px;
+                font-size: 0.75rem;
             }
             .buttons-row {
                 gap: 10px;
             }
             .bottom-controls {
-                padding: 10px 14px 16px;
+                padding: 8px 12px 14px;
             }
             .banner-title {
-                font-size: 1.6rem;
+                font-size: 1.4rem;
             }
             .banner-price {
-                font-size: 1.3rem;
-                padding: 4px 18px;
+                font-size: 1.2rem;
+                padding: 3px 16px;
             }
             .banner-features .feature {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
             }
             .banner-btn {
-                font-size: 1rem;
-                padding: 14px 20px;
+                font-size: 0.95rem;
+                padding: 12px 20px;
             }
             .banner-content {
-                padding: 20px 16px 16px;
+                padding: 18px 16px 16px;
             }
             .banner-icon {
                 width: 70px;
                 height: 70px;
             }
             .btn-ativar-player {
-                font-size: 1rem;
-                padding: 14px 28px;
+                font-size: 0.95rem;
+                padding: 12px 24px;
                 bottom: 22%;
+            }
+            .fab-main {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            .fab-container {
+                bottom: 85px;
+                right: 10px;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- ===== LOADING COM m12.png ===== -->
+<!-- ===== LOADING ===== -->
 <div id="loadingScreen">
     <img src="m12.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
-    <span>🐒 VAI DE BOA! MUSIC</span>
+    <span>VAI DE BOA! MUSIC</span>
 </div>
 
 <!-- ===== PLAYER ===== -->
@@ -1269,17 +1306,17 @@
     <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
 
-    <!-- TOP BAR COM m12.png -->
+    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
             <!-- LOGO MACAQUINHO -->
             <img src="m12.png" alt="VDB Music" class="logo-macaco">
             
-            <!-- Botão Gênero + Favoritos -->
+            <!-- BOTÃO FAVORITO - MENOR E MAIS PERTO -->
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
                 <span class="separador">|</span>
-                <span>❤️</span>
+                <span class="coracao-icon">❤️</span>
                 <span class="fav-badge" id="favBadge">0</span>
             </button>
         </div>
@@ -1296,7 +1333,7 @@
 
     <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">🐒 VAI DE BOA! MUSIC - O MACACO TOCA O SOM! 🎵</p>
+        <p class="letreiro" id="scrollText">VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
     </div>
 
     <!-- CORAÇÃO FAVORITO -->
@@ -1346,12 +1383,12 @@
     </div>
 </div>
 
-<!-- ===== BANNER VITALÍCIO COM m12.png ===== -->
+<!-- ===== BANNER VITALÍCIO ===== -->
 <div id="bannerVitalicio">
     <div class="banner-content">
         <span class="banner-timer" id="bannerTimer">20s</span>
         <img src="m12.png" alt="VDB Music" class="banner-icon">
-        <div class="banner-title">🐒 VAI DE BOA! VITALÍCIO</div>
+        <div class="banner-title">VAI DE BOA! VITALÍCIO</div>
         <div class="banner-subtitle">Acesso permanente! Pague uma vez só</div>
         <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
         <div class="banner-features">
@@ -1374,7 +1411,7 @@
     <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
-    <hr style="width:80%;border-color:rgba(255,255,255,0.06);margin:10px 0;">
+    <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
     <input type="password" class="senha-input" id="senhaPermanente" placeholder="Senha vitalícia">
     <button class="btn-senha" id="btnSenhaPermanente">Liberar</button>
     <div class="erro-senha" id="erroSenha"></div>
@@ -2029,7 +2066,7 @@
     function atualizarLetreiro(musica) {
         if (state.scrollPersonalizado) return;
         if (!musica) return;
-        const texto = '🐒 ' + sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
+        const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
@@ -2271,7 +2308,7 @@
 
         const btnAtivar = document.createElement('button');
         btnAtivar.className = 'btn-ativar-player';
-        btnAtivar.textContent = '🐒 ATIVAR';
+        btnAtivar.textContent = 'ATIVAR';
         btnAtivar.onclick = async function() {
             this.classList.add('hidden');
             await ativarPlayer();
