@@ -9,7 +9,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
+    <!-- ====================================================== -->
     <!-- ===== PWA - SALVAR COMO APP ===== -->
+    <!-- ====================================================== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -18,11 +20,29 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON fa123.png ===== -->
-    <link rel="icon" href="fa123.png" type="image/png">
-    <link rel="apple-touch-icon" href="fa123.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <!-- ====================================================== -->
+    <!-- ===== MANIFEST (APONTA PARA ARQUIVO EXTERNO) ===== -->
+    <!-- ====================================================== -->
+    <link rel="manifest" href="manifest.json">
     
+    <!-- ====================================================== -->
+    <!-- ===== ÍCONES PARA iOS (Apple) - USA FA123.PNG ===== -->
+    <!-- ====================================================== -->
+    <link rel="apple-touch-icon" href="fa123.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="fa123.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="fa123.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="fa123.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="fa123.png">
+    
+    <!-- ====================================================== -->
+    <!-- ===== FAVICON (aba do navegador) - USA FA123.PNG ===== -->
+    <!-- ====================================================== -->
+    <link rel="icon" href="fa123.png" type="image/png">
+    <link rel="shortcut icon" href="fa123.png" type="image/png">
+    
+    <!-- ====================================================== -->
+    <!-- ===== FONT AWESOME ===== -->
+    <!-- ====================================================== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -127,10 +147,10 @@
         .top-right .menu-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .top-right .menu-btn:active { background: rgba(255,255,255,0.15); }
 
-        /* ===== LETREIRO - EDITE A POSIÇÃO AQUI (top) ===== */
+        /* ===== LETREIRO ===== */
         .info-scroll {
             position: fixed;
-            top: 42px; /* ⬅️ EDITE AQUI - quanto menor, mais sobe */
+            top: 42px;
             left: 0;
             right: 0;
             z-index: 30;
@@ -480,6 +500,9 @@
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
+<!-- ====================================================== -->
+<!-- ===== ÁUDIO PRINCIPAL E ÁUDIO DE FUNDO ===== -->
+<!-- ====================================================== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
@@ -531,42 +554,35 @@
     'use strict';
 
     // ============================================================
-    // ⬇️⬇️⬇️ EDITE AQUI - LETREIRO (Mude o texto, cor, tamanho, velocidade)
+    // ⬇️⬇️⬇️ EDITE AQUI - LETREIRO
     // ============================================================
     const LETREIRO_CONFIG = {
-        texto: '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵', // ⬅️ EDITE O TEXTO AQUI
-        cor: '#ffffff',                                     // ⬅️ EDITE A COR AQUI
-        tamanho: '1rem',                                    // ⬅️ EDITE O TAMANHO AQUI
-        velocidade: '14s',                                  // ⬅️ EDITE A VELOCIDADE AQUI
-        ativo: true                                         // ⬅️ false = desliga o letreiro
+        texto: '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵',
+        cor: '#ffffff',
+        tamanho: '1rem',
+        velocidade: '14s',
+        ativo: true
     };
 
     // ============================================================
-    // ⬇️⬇️⬇️ EDITE AQUI - TEMPO TESTE (em segundos)
+    // ⬇️⬇️⬇️ EDITE AQUI - TEMPO TESTE (segundos)
     // ============================================================
-    const TEMPO_INICIAL = 300; // ⬅️ EDITE AQUI! 300 = 5 min | 600 = 10 min | 3600 = 1 hora
+    const TEMPO_INICIAL = 300;
 
     // ============================================================
     // ⬇️⬇️⬇️ EDITE AQUI - MÍDIAS (PNG, JPG, MP4)
     // ============================================================
-    // ADICIONE OU TROQUE OS LINKS ABAIXO:
-    // - Para imagens: { t: 'img', s: 'URL_DA_IMAGEM.png' }
-    // - Para vídeos:  { t: 'vid', s: 'URL_DO_VIDEO.mp4' }
-    // ============================================================
     const MIDIAS_PERSONALIZADAS = [
-        // ⬇️⬇️⬇️ ADICIONE SUAS IMAGENS E VÍDEOS AQUI ⬇️⬇️⬇️
         { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
         { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
         { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
         { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         // EXEMPLOS DE VÍDEO (MP4):
         // { t: 'vid', s: 'https://SEU_SITE.com/video1.mp4' },
-        // { t: 'vid', s: 'https://SEU_SITE.com/clipe2.mp4' },
-        // ⬆️⬆️⬆️ ADICIONE SUAS IMAGENS E VÍDEOS ACIMA ⬆️⬆️⬆️
     ];
 
     // ============================================================
-    // FIM DAS EDIÇÕES - NÃO MEXA DAQUI PRA BAIXO A MENOS QUE SAIBA
+    // FIM DAS EDIÇÕES
     // ============================================================
 
     const VERSAO = Date.now();
@@ -576,7 +592,7 @@
     const MAX_TENTATIVAS = 3;
 
     // ============================================================
-    // DOM CACHE
+    // DOM
     // ============================================================
     const $ = (id) => document.getElementById(id);
     const dom = {
@@ -643,11 +659,11 @@
         scrollPersonalizado: false,
         bannerInterval: null,
         bannerTimeout: null,
-        estavaTocando: false, // para controle de pause em segundo plano
+        estavaTocando: false,
     };
 
     // ============================================================
-    // GENRES (NÃO MEXA)
+    // GENRES
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -981,7 +997,7 @@
     }
 
     // ============================================================
-    // AUDIO ENGINE
+    // ÁUDIO DE FUNDO (mantém tocando com tela bloqueada)
     // ============================================================
     function criarSilentAudio() {
         const sr = 44100;
@@ -1026,6 +1042,9 @@
         }, 1000);
     }
 
+    // ============================================================
+    // AUDIO ENGINE
+    // ============================================================
     async function ativarPlayer() {
         try {
             showLoad(true);
@@ -1150,24 +1169,21 @@
     }
 
     // ============================================================
-    // LETREIRO (USANDO CONFIGURAÇÕES EDITÁVEIS)
+    // LETREIRO
     // ============================================================
     function atualizarLetreiro(musica) {
         if (state.scrollPersonalizado) return;
         if (!musica) return;
         
-        // Aplica as configurações do LETREIRO_CONFIG
         const textoBase = LETREIRO_CONFIG.texto || '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵';
         const musicaText = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
         
-        // Se o letreiro estiver ativo, mostra a música + config
         if (LETREIRO_CONFIG.ativo) {
             dom.scrollText.textContent = musicaText + ' | ' + textoBase;
         } else {
             dom.scrollText.textContent = musicaText;
         }
         
-        // Aplica cor, tamanho e velocidade
         dom.scrollText.style.color = LETREIRO_CONFIG.cor || '#ffffff';
         dom.scrollText.style.fontSize = LETREIRO_CONFIG.tamanho || '1rem';
         dom.scrollText.style.animation = 'none';
@@ -1176,10 +1192,9 @@
     }
 
     // ============================================================
-    // MEDIA CONTAINER (USANDO MIDIAS_PERSONALIZADAS)
+    // MEDIA CONTAINER
     // ============================================================
     function criarMidia() {
-        // Usa as mídias personalizadas que você editou lá em cima
         const midias = MIDIAS_PERSONALIZADAS.length > 0 ? MIDIAS_PERSONALIZADAS : [
             { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
@@ -1187,7 +1202,6 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         ];
 
-        // Limpa o container antes de adicionar
         dom.mediaContainer.innerHTML = '';
 
         midias.forEach((m, i) => {
@@ -1385,11 +1399,10 @@
     }
 
     // ============================================================
-    // PAUSE EM SEGUNDO PLANO (NOVO)
+    // PAUSE EM SEGUNDO PLANO
     // ============================================================
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            // Foi para segundo plano - PAUSA
             if (state.isPlaying && !dom.audio.paused) {
                 state.estavaTocando = true;
                 dom.audio.pause();
@@ -1397,7 +1410,6 @@
                 state.isPlaying = false;
             }
         } else {
-            // Voltou para primeiro plano - VOLTA A TOCAR
             if (state.estavaTocando && state.isBackgroundActive) {
                 state.estavaTocando = false;
                 setTimeout(() => {
@@ -1490,17 +1502,11 @@
     // EVENTOS
     // ============================================================
 
-    // PLAY
     dom.playBtn.onclick = togglePlay;
-
-    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
-
-    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1508,13 +1514,11 @@
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
-    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -1535,11 +1539,9 @@
         }
     };
 
-    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    // GENRES MODAL (via FAB)
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
@@ -1547,10 +1549,8 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
-    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -1587,7 +1587,6 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -1598,7 +1597,6 @@
         clearInterval(state.bannerTimeout);
     };
 
-    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -1631,7 +1629,6 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -1648,7 +1645,6 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // SENHA
     document.getElementById('btnSenhaPermanente').onclick = () => {
         if (state.tentativas >= MAX_TENTATIVAS) {
             document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
@@ -1672,13 +1668,11 @@
         if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
     };
 
-    // WHATSAPP / PIX
     document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
     document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    // ADMIN
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value;
         const cel = document.getElementById('adminCelular').value;
@@ -1692,7 +1686,6 @@
     };
     document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
 
-    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -1707,7 +1700,6 @@
         if (!state.carregandoMusica) next();
     };
 
-    // UNLOAD
     window.onbeforeunload = () => {
         clearInterval(state.backgroundInterval);
         clearInterval(state.timerInterval);
@@ -1717,7 +1709,6 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
-    // ADMIN (5 cliques no letreiro)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
@@ -1729,7 +1720,6 @@
         }
     };
 
-    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1738,15 +1728,11 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // CLICK TO SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
     });
 
-    // ============================================================
-    // INICIA
-    // ============================================================
     iniciar();
 
 })();
