@@ -9,9 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- ====================================================== -->
     <!-- ===== PWA - SALVAR COMO APP ===== -->
-    <!-- ====================================================== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -21,28 +19,16 @@
     <meta name="apple-touch-fullscreen" content="yes">
     
     <!-- ====================================================== -->
-    <!-- ===== MANIFEST (APONTA PARA ARQUIVO EXTERNO) ===== -->
-    <!-- ====================================================== -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- ====================================================== -->
-    <!-- ===== ÍCONES PARA iOS (Apple) - USA FA123.PNG ===== -->
-    <!-- ====================================================== -->
-    <link rel="apple-touch-icon" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="fa123.png">
-    
-    <!-- ====================================================== -->
-    <!-- ===== FAVICON (aba do navegador) - USA FA123.PNG ===== -->
+    <!-- ===== FAVICON fa123.png ===== -->
     <!-- ====================================================== -->
     <link rel="icon" href="fa123.png" type="image/png">
-    <link rel="shortcut icon" href="fa123.png" type="image/png">
+    <link rel="apple-touch-icon" href="fa123.png">
     
     <!-- ====================================================== -->
-    <!-- ===== FONT AWESOME ===== -->
+    <!-- ===== MANIFEST (inline com fa123.png) ===== -->
     <!-- ====================================================== -->
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -150,7 +136,7 @@
         /* ===== LETREIRO ===== */
         .info-scroll {
             position: fixed;
-            top: 42px;
+            top: 56px;
             left: 0;
             right: 0;
             z-index: 30;
@@ -500,9 +486,7 @@
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-<!-- ====================================================== -->
-<!-- ===== ÁUDIO PRINCIPAL E ÁUDIO DE FUNDO ===== -->
-<!-- ====================================================== -->
+<!-- ===== AUDIO ===== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
@@ -554,45 +538,17 @@
     'use strict';
 
     // ============================================================
-    // ⬇️⬇️⬇️ EDITE AQUI - LETREIRO
+    // CONFIGURAÇÕES
     // ============================================================
-    const LETREIRO_CONFIG = {
-        texto: '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵',
-        cor: '#ffffff',
-        tamanho: '1rem',
-        velocidade: '14s',
-        ativo: true
-    };
-
-    // ============================================================
-    // ⬇️⬇️⬇️ EDITE AQUI - TEMPO TESTE (segundos)
-    // ============================================================
-    const TEMPO_INICIAL = 300;
-
-    // ============================================================
-    // ⬇️⬇️⬇️ EDITE AQUI - MÍDIAS (PNG, JPG, MP4)
-    // ============================================================
-    const MIDIAS_PERSONALIZADAS = [
-        { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
-        { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
-        { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
-        { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-        // EXEMPLOS DE VÍDEO (MP4):
-        // { t: 'vid', s: 'https://SEU_SITE.com/video1.mp4' },
-    ];
-
-    // ============================================================
-    // FIM DAS EDIÇÕES
-    // ============================================================
-
     const VERSAO = Date.now();
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
+    const TEMPO_INICIAL = 300;
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
     const MAX_TENTATIVAS = 3;
 
     // ============================================================
-    // DOM
+    // DOM CACHE
     // ============================================================
     const $ = (id) => document.getElementById(id);
     const dom = {
@@ -997,7 +953,7 @@
     }
 
     // ============================================================
-    // ÁUDIO DE FUNDO (mantém tocando com tela bloqueada)
+    // ÁUDIO DE FUNDO
     // ============================================================
     function criarSilentAudio() {
         const sr = 44100;
@@ -1174,35 +1130,23 @@
     function atualizarLetreiro(musica) {
         if (state.scrollPersonalizado) return;
         if (!musica) return;
-        
-        const textoBase = LETREIRO_CONFIG.texto || '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵';
-        const musicaText = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
-        
-        if (LETREIRO_CONFIG.ativo) {
-            dom.scrollText.textContent = musicaText + ' | ' + textoBase;
-        } else {
-            dom.scrollText.textContent = musicaText;
-        }
-        
-        dom.scrollText.style.color = LETREIRO_CONFIG.cor || '#ffffff';
-        dom.scrollText.style.fontSize = LETREIRO_CONFIG.tamanho || '1rem';
+        const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
+        dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText ' + (LETREIRO_CONFIG.velocidade || '14s') + ' linear infinite';
+        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
     }
 
     // ============================================================
     // MEDIA CONTAINER
     // ============================================================
     function criarMidia() {
-        const midias = MIDIAS_PERSONALIZADAS.length > 0 ? MIDIAS_PERSONALIZADAS : [
+        const midias = [
             { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         ];
-
-        dom.mediaContainer.innerHTML = '';
 
         midias.forEach((m, i) => {
             let el;
