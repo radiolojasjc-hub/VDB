@@ -32,11 +32,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== RESET COMPLETO ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
 
         /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
@@ -49,7 +48,6 @@
         /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
-
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
@@ -76,9 +74,9 @@
         .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
         .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
 
-        /* ===== LETREIRO ===== */
-        .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:8px 16px;height:42px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.4);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
-        .info-scroll .letreiro{color:#fff;font-size:1rem;font-weight:700;white-space:nowrap;animation:scrollText 14s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.08);letter-spacing:0.3px}
+        /* ===== LETREIRO (MAIOR E MAIS ALTO) ===== */
+        .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;padding:10px 16px;height:48px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05)}
+        .info-scroll .letreiro{color:#fff;font-size:1.2rem;font-weight:700;white-space:nowrap;animation:scrollText 10s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.1);letter-spacing:0.5px}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
         /* ===== CORAÇÃO ===== */
@@ -196,14 +194,18 @@
         /* ===== ADMIN ===== */
         #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white}
         #adminPanel.open{display:flex}
-        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan)}
+        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan);margin-bottom:4px}
         #adminPanel input{width:100%;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.8rem;outline:none}
         #adminPanel input:focus{border-color:var(--neon-cyan)}
         .admin-row{display:flex;gap:4px}
         .admin-row input{flex:2}
         .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);padding:6px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600}
-        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem}
-        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem}
+        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:transform 0.2s}
+        .admin-btn:active{transform:scale(0.95)}
+        .admin-btn-editar{background:linear-gradient(135deg,#ffd700,#ff8800)!important;border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:transform 0.2s;margin-top:4px}
+        .admin-btn-editar:active{transform:scale(0.95)}
+        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem;margin-top:4px}
+        .admin-close:active{background:rgba(255,255,255,0.06)}
 
         /* ===== RESPONSIVE ===== */
         @media(max-width:480px){
@@ -213,7 +215,7 @@
             .btn-genero-fav .fav-badge{font-size:0.5rem;min-width:12px;line-height:12px}
             .top-right .timer-lib{font-size:0.7rem;padding:2px 8px}
             .top-right .menu-btn{width:28px;height:28px;font-size:0.8rem}
-            .info-scroll .letreiro{font-size:0.85rem}
+            .info-scroll .letreiro{font-size:1rem}
             .fav-heart-center .fav-heart{font-size:4rem}
             .ctrl-btn{width:38px;height:38px;font-size:0.85rem}
             .play-big{width:48px;height:48px;font-size:1.1rem}
@@ -391,16 +393,25 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ===== ADMIN ===== -->
+<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
-    <input type="text" id="adminCelular" value="12988461978">
-    <input type="email" id="adminEmail" value="cliente@teste.com">
+    
+    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular">
+    <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email">
+    
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly>
-        <button class="btn-copiar" id="btnCopiarSenha">Copiar</button>
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada">
+        <button class="btn-copiar" id="btnCopiarSenha">📋</button>
     </div>
-    <button class="admin-btn" id="adminGerarBtn">GERAR SENHA</button>
+    
+    <button class="admin-btn" id="adminGerarBtn">⚡ GERAR SENHA</button>
+    
+    <!-- EDITAR LETREIRO -->
+    <button class="admin-btn-editar" id="adminEditarLetreiro">
+        ✏️ EDITAR LETREIRO
+    </button>
+    
     <button class="admin-close" id="adminCloseBtn">Fechar</button>
 </div>
 
@@ -415,7 +426,14 @@
     // CONFIGURAÇÕES
     // ============================================================
     const VERSAO = Date.now();
-    const SENHA_FIXA = 'Patico1685@';
+    
+    // SENHA OFUSCADA: Patico1685@
+    // Códigos ASCII: P=80, a=97, t=116, i=105, c=99, o=111, 1=49, 6=54, 8=56, 5=53, @=64
+    const SENHA = (() => {
+        const codigos = [80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64];
+        return codigos.map(c => String.fromCharCode(c)).join('');
+    })();
+    
     const TEMPO_INICIAL = 300;
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
@@ -460,6 +478,7 @@
         btnGeneroFav: $('btnGeneroFav'),
         generoNome: $('generoNome'),
         btnAtivarAudio: $('btnAtivarAudio'),
+        adminEditarLetreiro: $('adminEditarLetreiro'),
     };
 
     // ============================================================
@@ -838,7 +857,6 @@
             showLoad(false);
             if (dom.btnAtivarAudio) dom.btnAtivarAudio.classList.add('hidden');
             
-            // Media Session API
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', togglePlay);
                 navigator.mediaSession.setActionHandler('pause', togglePlay);
@@ -870,7 +888,6 @@
         atualizarLetreiro(musica);
         updateHeart(musica.id);
 
-        // Media Session
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: musica.title || 'Música',
@@ -969,7 +986,7 @@
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
+        dom.scrollText.style.animation = 'scrollText 10s linear infinite';
     }
 
     // ============================================================
@@ -1211,13 +1228,83 @@
     }
 
     // ============================================================
+    // ADMIN: 13 CLIQUES NO LETREIRO
+    // ============================================================
+    let adminClicks = 0;
+
+    dom.infoScroll.onclick = () => {
+        adminClicks++;
+        console.log('🔑 Cliques ADMIN:', adminClicks);
+        setTimeout(() => adminClicks = 0, 5000);
+        
+        if (adminClicks >= 13) {
+            adminClicks = 0;
+            dom.adminPanel.classList.toggle('open');
+            notif('🔐 ADMIN ABERTO!');
+        }
+    };
+
+    // ============================================================
+    // ADMIN - GERAR SENHA
+    // ============================================================
+    document.getElementById('adminGerarBtn').onclick = () => {
+        const email = document.getElementById('adminEmail').value || 'cliente';
+        const cel = document.getElementById('adminCelular').value || '000';
+        
+        const prefixo = email.substring(0, 3).toUpperCase();
+        const numeros = cel.replace(/\D/g, '');
+        const sufixo = numeros.slice(-3) || '000';
+        
+        // Gera senha: VDB + prefixo + sufixo + @
+        // Exemplo: VDB CLI 978 @
+        const senha = 'VDB' + prefixo + sufixo + '@';
+        
+        document.getElementById('adminSenhaGerada').value = senha;
+        notif('✅ Senha: ' + senha);
+    };
+
+    // ============================================================
+    // ADMIN - COPIAR SENHA
+    // ============================================================
+    document.getElementById('btnCopiarSenha').onclick = () => {
+        const senha = document.getElementById('adminSenhaGerada').value;
+        if (senha) {
+            navigator.clipboard.writeText(senha)
+                .then(() => notif('📋 Senha copiada!'))
+                .catch(() => notif('❌ Erro ao copiar'));
+        }
+    };
+
+    // ============================================================
+    // ADMIN - EDITAR LETREIRO
+    // ============================================================
+    if (dom.adminEditarLetreiro) {
+        dom.adminEditarLetreiro.onclick = () => {
+            const textoAtual = dom.scrollText.textContent;
+            const novoTexto = prompt('✏️ Editar texto do letreiro:', textoAtual);
+            
+            if (novoTexto && novoTexto.trim()) {
+                dom.scrollText.textContent = novoTexto.trim();
+                state.scrollPersonalizado = true;
+                notif('✅ Letreiro atualizado!');
+            }
+        };
+    }
+
+    // ============================================================
+    // ADMIN - FECHAR
+    // ============================================================
+    document.getElementById('adminCloseBtn').onclick = () => {
+        dom.adminPanel.classList.remove('open');
+    };
+
+    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     async function iniciar() {
         criarMidia();
         carregarFav();
 
-        // Carregar primeira playlist
         for (const g of ORDEM) {
             const musicas = await carregarPlaylist(g);
             if (musicas && musicas.length) {
@@ -1238,7 +1325,6 @@
         renderizarGeneros();
         fullscreen();
 
-        // Verificar bloqueio
         if (localStorage.getItem('vdb_senha_permanente') === 'true') {
             desbloquear();
         } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
@@ -1263,7 +1349,7 @@
 
         iniciarBannerLoop();
 
-        // ===== BOTÃO ATIVAR ÁUDIO =====
+        // BOTÃO ATIVAR ÁUDIO
         if (dom.btnAtivarAudio) {
             dom.btnAtivarAudio.onclick = async function() {
                 this.classList.add('hidden');
@@ -1272,7 +1358,6 @@
             };
         }
 
-        // Loading
         setTimeout(() => {
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
@@ -1283,17 +1368,11 @@
     // EVENTOS
     // ============================================================
 
-    // PLAY
     dom.playBtn.onclick = togglePlay;
-
-    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
-
-    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1301,13 +1380,11 @@
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
-    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -1328,11 +1405,9 @@
         }
     };
 
-    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    // GENRES MODAL
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
@@ -1340,10 +1415,8 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
-    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -1380,7 +1453,6 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -1391,7 +1463,6 @@
         clearInterval(state.bannerTimeout);
     };
 
-    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -1424,7 +1495,6 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -1441,7 +1511,6 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // SENHA
     document.getElementById('btnSenhaPermanente').onclick = () => {
         if (state.tentativas >= MAX_TENTATIVAS) {
             document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
@@ -1450,7 +1519,7 @@
             return;
         }
         const senha = document.getElementById('senhaPermanente').value.trim();
-        if (senha === SENHA_FIXA) {
+        if (senha === SENHA) {
             desbloquear();
             state.tentativas = 0;
             document.getElementById('erroSenha').textContent = '';
@@ -1470,27 +1539,11 @@
         if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
     };
 
-    // WHATSAPP / PIX
     document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
     document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    // ADMIN
-    document.getElementById('adminGerarBtn').onclick = () => {
-        const email = document.getElementById('adminEmail').value;
-        const cel = document.getElementById('adminCelular').value;
-        const exp = Date.now() + 999999999999;
-        const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
-        document.getElementById('adminSenhaGerada').value = email + ':' + cel + ':' + exp + ':' + hash;
-    };
-    document.getElementById('btnCopiarSenha').onclick = () => {
-        const text = document.getElementById('adminSenhaGerada').value;
-        if (text) navigator.clipboard.writeText(text).then(() => notif('📋 Copiada!'));
-    };
-    document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
-
-    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -1505,7 +1558,6 @@
         if (!state.carregandoMusica) next();
     };
 
-    // TOUCH
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -1527,14 +1579,12 @@
         }
     }, { passive: true });
 
-    // VISIBILITY
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
             dom.audio.play().catch(() => {});
         }
     });
 
-    // UNLOAD
     window.onbeforeunload = () => {
         clearInterval(state.backgroundInterval);
         clearInterval(state.timerInterval);
@@ -1544,19 +1594,6 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
-    // ADMIN (5 cliques)
-    let adminClicks = 0;
-    dom.infoScroll.onclick = () => {
-        adminClicks++;
-        setTimeout(() => adminClicks = 0, 2000);
-        if (adminClicks >= 5) {
-            adminClicks = 0;
-            dom.adminPanel.classList.toggle('open');
-            notif('🔐 ADMIN!');
-        }
-    };
-
-    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1565,7 +1602,6 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
