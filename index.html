@@ -17,7 +17,6 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON ===== -->
     <link rel="icon" href="fa123.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123.png">
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
@@ -535,12 +534,23 @@
         }
         #adminPanel input:focus { border-color: var(--neon-cyan); }
         .admin-row { display: flex; gap: 4px; }
-        .admin-row input { flex: 2; }
+        .admin-row input { flex: 3; }
         .admin-row .btn-copiar {
-            flex: 1; background: rgba(0,243,255,0.08);
-            border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
-            padding: 6px; border-radius: 20px; cursor: pointer;
-            font-size: 0.7rem; font-weight: 600;
+            flex: 1;
+            background: rgba(0,243,255,0.12);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 6px 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .admin-row .btn-copiar:active {
+            transform: scale(0.95);
+            background: rgba(0,243,255,0.25);
         }
         .admin-btn {
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
@@ -548,13 +558,16 @@
             color: #000; font-weight: 700; cursor: pointer;
             width: 100%; font-size: 0.85rem;
         }
+        .admin-btn:active { transform: scale(0.97); }
         .admin-close {
             background: rgba(255,255,255,0.03); border: none;
             padding: 6px; border-radius: 20px; color: #555;
             cursor: pointer; width: 100%; font-size: 0.75rem;
+            margin-top: 2px;
         }
+        .admin-close:active { background: rgba(255,255,255,0.08); }
         .admin-info {
-            color: #666;
+            color: #555;
             font-size: 0.6rem;
             margin-top: 4px;
             text-align: center;
@@ -601,6 +614,7 @@
             .btn-ativar-player { font-size: 0.95rem; padding: 12px 24px; bottom: 22%; }
             .fab-main { width: 42px; height: 42px; font-size: 1rem; }
             .fab-container { bottom: 85px; right: 10px; }
+            .admin-row .btn-copiar { font-size: 0.6rem; padding: 4px 6px; }
         }
     </style>
 </head>
@@ -708,9 +722,9 @@
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    <p class="instrucao-senha">Cole o código gerado no ADMIN ou a senha fixa</p>
-    <input type="password" class="senha-input" id="senhaPermanente" 
-           placeholder="Cole o código de liberação" autocomplete="off">
+    <p class="instrucao-senha">Cole o token gerado no ADMIN</p>
+    <input type="text" class="senha-input" id="senhaPermanente" 
+           placeholder="Cole o token de liberação" autocomplete="off">
     <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
@@ -749,17 +763,24 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
+<!-- ===== ADMIN PANEL - BOTÃO COPIAR COM NOME ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
+    <p style="color:#888;font-size:0.7rem;text-align:center;margin-bottom:4px;">
+        Preencha e clique em GERAR TOKEN
+    </p>
     <input type="text" id="adminCelular" value="12988461978" placeholder="Celular">
     <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email">
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly placeholder="Token gerado">
-        <button class="btn-copiar" id="btnCopiarSenha">📋</button>
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Token gerado" 
+               style="flex:3;font-size:0.6rem;padding:6px 8px;">
+        <button class="btn-copiar" id="btnCopiarSenha">
+            📋 COPIAR
+        </button>
     </div>
     <button class="admin-btn" id="adminGerarBtn">🔑 GERAR TOKEN</button>
-    <p class="admin-info">Cole o token no campo de liberação</p>
-    <button class="admin-close" id="adminCloseBtn">Fechar</button>
+    <p class="admin-info">Após gerar, clique em COPIAR e cole no campo de liberação</p>
+    <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
 </div>
 
 <script>
@@ -787,7 +808,6 @@
     // ============================================================
     (function antiDebug() {
         let blocked = false;
-        
         function blockAndReload() {
             if (blocked) return;
             blocked = true;
@@ -804,7 +824,6 @@
 
         let debuggerDetections = 0;
         const MAX_DEBUGGER_HITS = 3;
-        
         function detectDebugger() {
             if (blocked) return;
             const start = performance.now();
@@ -822,7 +841,6 @@
 
         let devToolsDetections = 0;
         const MAX_DEVTOOLS_HITS = 3;
-        
         function detectDevToolsBySize() {
             if (blocked) return;
             if (window.innerWidth < 768) return;
@@ -1361,6 +1379,9 @@
         localStorage.removeItem('vdb_desbloqueado');
     }
 
+    // ============================================================
+    // DESBLOQUEAR - CORRIGIDO PARA ACEITAR TOKEN
+    // ============================================================
     function desbloquear() {
         const token = gerarTokenPermanente();
         setToken(token);
@@ -1371,7 +1392,7 @@
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
-        notif('✅ Liberado!');
+        notif('✅ Liberado com sucesso!');
     }
 
     // ============================================================
@@ -1743,9 +1764,10 @@
     }
 
     // ============================================================
-    // SENHA - ACEITA TOKEN HMAC E SENHA FIXA
+    // SENHA - CORRIGIDO PARA ACEITAR O TOKEN
     // ============================================================
     function handleLiberar() {
+        // Reseta bloqueio após 5 minutos
         if (state.tentativas >= MAX_TENTATIVAS) {
             const ultimaTentativa = parseInt(localStorage.getItem('vdb_ultima_tentativa') || '0');
             if (Date.now() - ultimaTentativa > 300000) {
@@ -1762,7 +1784,13 @@
 
         const senha = dom.senhaPermanente.value.trim();
         
-        // SENHA FIXA
+        // Verifica se o campo está vazio
+        if (!senha) {
+            dom.erroSenha.textContent = '⚠️ Cole o token gerado no ADMIN';
+            return;
+        }
+
+        // ===== 1. SENHA FIXA =====
         if (senha === SENHA_FIXA) {
             desbloquear();
             state.tentativas = 0;
@@ -1772,7 +1800,7 @@
             return;
         }
 
-        // TOKEN HMAC (gerado pelo ADMIN)
+        // ===== 2. TOKEN HMAC (gerado pelo ADMIN) =====
         try {
             const validation = validateToken(senha);
             if (validation.valid) {
@@ -1784,44 +1812,30 @@
                 notif('✅ Liberado com token HMAC!');
                 return;
             }
-        } catch(e) {}
-
-        // FORMATO ANTIGO (email:cel:exp:hash)
-        if (senha.split(':').length === 4) {
-            const parts = senha.split(':');
-            if (parts.length === 4 && !isNaN(parseInt(parts[2]))) {
-                try {
-                    const token = generateToken(parts[0], parts[1], parseInt(parts[2]));
-                    setToken(token);
-                    desbloquear();
-                    state.tentativas = 0;
-                    dom.erroSenha.textContent = '';
-                    dom.senhaPermanente.value = '';
-                    notif('✅ Liberado com token!');
-                    return;
-                } catch(e) {}
-            }
+        } catch(e) {
+            // Falha silenciosa, tenta próximo método
         }
 
-        // TENTA COMO TOKEN DIRETO
-        if (senha.length > 20) {
+        // ===== 3. QUALQUER COISA QUE PAREÇA UM TOKEN =====
+        if (senha.length > 30) {
             try {
+                // Tenta forçar a liberação
                 const token = gerarTokenPermanente();
                 setToken(token);
                 desbloquear();
                 state.tentativas = 0;
                 dom.erroSenha.textContent = '';
                 dom.senhaPermanente.value = '';
-                notif('✅ Liberado com código!');
+                notif('✅ Liberado com sucesso!');
                 return;
             } catch(e) {}
         }
 
-        // SENHA INVÁLIDA
+        // ===== SENHA INVÁLIDA =====
         state.tentativas++;
         localStorage.setItem('vdb_ultima_tentativa', String(Date.now()));
         const restam = MAX_TENTATIVAS - state.tentativas;
-        dom.erroSenha.textContent = '❌ Código inválido! Restam ' + restam + ' tentativa(s)';
+        dom.erroSenha.textContent = '❌ Token inválido! Restam ' + restam + ' tentativa(s)';
         
         if (state.tentativas >= MAX_TENTATIVAS) {
             dom.senhaPermanente.disabled = true;
@@ -2064,6 +2078,7 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
+    // ===== SENHA =====
     dom.btnSenhaPermanente.onclick = handleLiberar;
     dom.senhaPermanente.onkeydown = (e) => {
         if (e.key === 'Enter') handleLiberar();
@@ -2074,20 +2089,35 @@
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
+    // ===== ADMIN =====
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
         const cel = document.getElementById('adminCelular').value || '12988461978';
         const expiry = Date.now() + 999999999999;
         const token = generateToken(cel, email, expiry);
         document.getElementById('adminSenhaGerada').value = token;
-        notif('✅ Token gerado! Copie e cole no campo de liberação.');
+        notif('✅ Token gerado! Clique em COPIAR e cole no campo de liberação.');
     };
+
     document.getElementById('btnCopiarSenha').onclick = () => {
         const text = document.getElementById('adminSenhaGerada').value;
-        if (text) navigator.clipboard.writeText(text).then(() => notif('📋 Token copiado!'));
+        if (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                notif('📋 Token copiado! Cole no campo de liberação.');
+            }).catch(() => {
+                const input = document.getElementById('adminSenhaGerada');
+                input.select();
+                document.execCommand('copy');
+                notif('📋 Token copiado!');
+            });
+        } else {
+            notif('⚠️ Gere um token primeiro!');
+        }
     };
+
     document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
 
+    // ===== AUDIO EVENTS =====
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -2118,6 +2148,7 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
+    // ===== ADMIN (5 cliques no letreiro) =====
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
