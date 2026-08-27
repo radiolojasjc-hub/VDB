@@ -3,1333 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC</title>
+    <title>VAI DE BOA! MUSIC PRO</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- ===== PWA - SALVAR COMO APP ===== -->
+    <!-- ===== PWA ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="VDB Music">
+    <meta name="apple-mobile-web-app-title" content="VDB Music Pro">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON fa12.png ===== -->
+    <!-- ===== FAVICON ===== -->
     <link rel="icon" href="fa12.png" type="image/png">
     <link rel="apple-touch-icon" href="fa12.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%20PRO%22%2C%22short_name%22%3A%22VDB%20Pro%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image/png%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== RESET E BASE ===== */
+        /* ===== RESET ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
 
         /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         #loadingScreen i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1.5s infinite}
-        #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
         /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
-
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
         /* ===== TOP BAR ===== */
-        .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 35;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            height: 56px;
-        }
-
-        .top-left {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* LOGO MACAQUINHO */
-        .logo-macaco {
-            height: 38px;
-            width: 38px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(0,243,255,0.12);
-            box-shadow: 0 0 15px rgba(0,243,255,0.03);
-            background: rgba(0,0,0,0.3);
-            transition: all 0.3s;
-            flex-shrink: 0;
-        }
-
-        .logo-macaco:active {
-            transform: scale(0.92);
-        }
-
-        /* BOTÃO FAVORITO */
-        .btn-genero-fav {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,215,0,0.1);
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            backdrop-filter: blur(8px);
-            letter-spacing: 0.2px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-genero-fav:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.1);
-        }
-
-        .btn-genero-fav .fav-badge {
-            background: var(--neon-pink);
-            color: #fff;
-            border-radius: 50%;
-            padding: 0 5px;
-            font-size: 0.55rem;
-            font-weight: 900;
-            min-width: 14px;
-            text-align: center;
-            line-height: 14px;
-        }
-
-        .btn-genero-fav .genero-nome {
-            color: var(--gold);
-            font-size: 0.7rem;
-        }
-
-        .btn-genero-fav .separador {
-            color: rgba(255,255,255,0.1);
-            font-weight: 300;
-        }
-
-        .btn-genero-fav .coracao-icon {
-            font-size: 0.6rem;
-        }
-
-        /* Lado direito: LIB + Menu */
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .top-right .timer-lib {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--neon-cyan);
-            background: rgba(0,0,0,0.4);
-            padding: 3px 10px;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-            letter-spacing: 0.5px;
-        }
-
-        .top-right .timer-lib.lib {
-            color: #4ade80;
-        }
-
-        .top-right .audio-status {
-            font-size: 0.6rem;
-            color: #4ade80;
-            background: rgba(0,0,0,0.3);
-            padding: 2px 6px;
-            border-radius: 20px;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
-
-        .top-right .audio-status.active {
-            display: inline-block;
-        }
-
-        .top-right .menu-btn {
-            background: rgba(255,255,255,0.06);
-            border: none;
-            color: #fff;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
-
-        .top-right .menu-btn:active {
-            background: rgba(255,255,255,0.15);
-        }
+        .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.9) 0%,transparent 100%);height:56px}
+        .top-left{display:flex;align-items:center;gap:4px}
+        .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.2);box-shadow:0 0 20px rgba(0,243,255,0.1);flex-shrink:0}
+        .btn-genero-fav{background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.15);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);white-space:nowrap}
+        .btn-genero-fav:active{transform:scale(0.95)}
+        .btn-genero-fav .genero-nome{color:var(--gold);font-size:0.7rem}
+        .btn-genero-fav .fav-badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 5px;font-size:0.55rem;font-weight:900;min-width:14px;text-align:center;line-height:14px}
+        .top-right{display:flex;align-items:center;gap:6px}
+        .top-right .timer-lib{font-size:0.8rem;font-weight:700;color:var(--neon-cyan);background:rgba(0,0,0,0.4);padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px)}
+        .top-right .timer-lib.lib{color:#4ade80}
+        .top-right .audio-status{font-size:0.6rem;color:#4ade80;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:20px;display:none;backdrop-filter:blur(4px)}
+        .top-right .audio-status.active{display:inline-block}
+        .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 
         /* ===== LETREIRO ===== */
-        .info-scroll {
-            position: fixed;
-            top: 56px;
-            left: 0;
-            right: 0;
-            z-index: 30;
-            padding: 8px 16px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            cursor: pointer;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(6px);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
+        .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:10px 16px;height:48px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05)}
+        .info-scroll .letreiro{color:#fff;font-size:1.2rem;font-weight:700;white-space:nowrap;animation:scrollText 10s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.1)}
+        @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
-        .info-scroll .letreiro {
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 700;
-            white-space: nowrap;
-            animation: scrollText 14s linear infinite;
-            pointer-events: none;
-            text-shadow: 0 0 30px rgba(0,243,255,0.08);
-            letter-spacing: 0.3px;
-        }
+        /* ===== CORAÇÃO ===== */
+        .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
+        .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
+        .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
+        .fav-heart-center .fav-heart:active{transform:scale(1.2)}
+        @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
-        @keyframes scrollText {
-            0% { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* ===== CORAÇÃO FAVORITO ===== */
-        .fav-heart-center {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 15;
-            text-align: center;
-        }
-
-        .fav-heart-center .fav-heart {
-            font-size: 5rem;
-            color: rgba(255,255,255,0.08);
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-            text-shadow: 0 0 60px rgba(0,0,0,0.9);
-        }
-
-        .fav-heart-center .fav-heart.active {
-            color: var(--neon-pink);
-            animation: heartBeat 0.3s ease;
-        }
-
-        .fav-heart-center .fav-heart:active {
-            transform: scale(1.2);
-        }
-
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        /* ===== BOTTOM CONTROLS ===== */
-        .bottom-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-            padding: 10px 16px 18px;
-            z-index: 20;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .bottom-controls.visible {
-            transform: translateY(0);
-        }
-
-        .progress-time {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: #999;
-            margin-bottom: 3px;
-            font-weight: 500;
-        }
-
-        .progress-bar {
-            height: 3px;
-            background: rgba(255,255,255,0.08);
-            cursor: pointer;
-            border-radius: 2px;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-            width: 0%;
-            border-radius: 2px;
-            transition: width 0.1s;
-        }
-
-        .buttons-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 14px;
-            margin-top: 8px;
-        }
-
-        .ctrl-btn {
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: #fff;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .ctrl-btn:active {
-            transform: scale(0.9);
-            background: rgba(255,255,255,0.1);
-        }
-
-        .play-big {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            width: 54px;
-            height: 54px;
-            font-size: 1.3rem;
-            color: #000;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(0,243,255,0.12);
-        }
-
-        .play-big:active {
-            transform: scale(0.9);
-        }
-
-        .shuffle-btn {
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: #fff;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .shuffle-btn.active {
-            background: rgba(0,243,255,0.12);
-            color: var(--neon-cyan);
-            border: 1px solid rgba(0,243,255,0.15);
-        }
-
-        .shuffle-btn:active {
-            transform: scale(0.9);
-        }
+        /* ===== CONTROLES ===== */
+        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+        .bottom-controls.visible{transform:translateY(0)}
+        .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500}
+        .progress-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:2px;transition:width 0.1s}
+        .buttons-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:8px}
+        .ctrl-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+        .ctrl-btn:active{transform:scale(0.9)}
+        .play-big{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));width:54px;height:54px;font-size:1.3rem;color:#000;border:none;border-radius:50%;box-shadow:0 0 30px rgba(0,243,255,0.2)}
+        .play-big:active{transform:scale(0.9)}
+        .shuffle-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
+        .shuffle-btn.active{background:rgba(0,243,255,0.15);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.2)}
+        .shuffle-btn:active{transform:scale(0.9)}
 
         /* ===== FAB ===== */
-        .fab-container {
-            position: fixed;
-            bottom: 100px;
-            right: 14px;
-            z-index: 40;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-        }
-
-        .fab-main {
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(12px);
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: all 0.2s;
-        }
-
-        .fab-main:active {
-            transform: scale(0.9);
-        }
-
-        .fab-sub {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(16px);
-            border-radius: 14px;
-            padding: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .fab-sub.open {
-            display: flex;
-        }
-
-        .fab-sub-btn {
-            background: transparent;
-            border: none;
-            color: #ccc;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .fab-sub-btn:active {
-            background: rgba(255,255,255,0.06);
-        }
+        .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+        .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06)}
+        .fab-main:active{transform:scale(0.9)}
+        .fab-sub{background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);border-radius:14px;padding:6px;display:none;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,0.05)}
+        .fab-sub.open{display:flex}
+        .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px}
+        .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
 
         /* ===== MENU ===== */
-        .menu-popup {
-            position: fixed;
-            top: 56px;
-            right: 10px;
-            background: rgba(10,10,30,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 14px;
-            padding: 6px;
-            z-index: 32;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            border: 1px solid rgba(0,243,255,0.06);
-            min-width: 160px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-        }
+        .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.98);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+        .menu-popup.open{display:flex}
+        .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
+        .menu-popup button:active{background:rgba(255,255,255,0.06)}
 
-        .menu-popup.open {
-            display: flex;
-        }
+        /* ===== MODAIS ===== */
+        .genres-modal,.fav-modal,.feedback-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.98);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
+        .genres-modal.open,.fav-modal.open,.feedback-modal.open{transform:translateY(0)}
+        .genres-modal h3,.fav-modal h3,.feedback-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan)}
+        .genres-grid{display:flex;flex-direction:column;overflow-y:auto;gap:6px;padding:4px;max-height:40vh;scrollbar-width:none}
+        .genres-grid::-webkit-scrollbar{display:none}
+        .genre-card{min-height:48px;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 14px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+        .genre-card:active{transform:scale(0.96)}
+        .close-genres,.close-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.9rem;cursor:pointer;font-weight:700;margin-top:10px}
+        .close-genres:active,.close-btn:active{transform:scale(0.97)}
+        .fav-list{max-height:45vh;overflow-y:auto;text-align:left;padding:0 4px}
+        .fav-item{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.03);color:white;cursor:pointer;border-radius:6px}
+        .fav-item:active{background:rgba(255,255,255,0.03)}
+        .fav-item .fav-info .title{font-weight:700;font-size:0.85rem}
+        .fav-item .fav-info .artist{font-size:0.7rem;color:#777}
+        .fav-item .remove{background:transparent;border:none;color:var(--neon-pink);font-size:1rem;cursor:pointer;padding:0 4px}
+        .fav-empty{color:#555;padding:25px;text-align:center;font-size:0.85rem}
+        .feedback-modal .stars{display:flex;justify-content:center;gap:6px;margin:6px 0}
+        .feedback-modal .star{font-size:2rem;color:#444;cursor:pointer;transition:color 0.2s}
+        .feedback-modal .star.active{color:var(--gold)}
+        .feedback-modal textarea{width:100%;height:50px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,243,255,0.06);border-radius:10px;padding:6px 10px;color:#fff;resize:none;font-size:0.8rem;margin-top:4px}
+        .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.85rem}
+        #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
 
-        .menu-popup button {
-            background: transparent;
-            border: none;
-            color: #ccc;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
+        /* ===== BANNER ===== */
+        #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
+        #bannerVitalicio.active{display:flex}
+        @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+        .banner-content{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:25px;padding:30px 22px 22px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.12);box-shadow:0 0 60px rgba(255,215,0,0.05);position:relative;overflow:hidden}
+        .banner-content::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 30%,rgba(255,215,0,0.03),transparent 70%);pointer-events:none}
+        .banner-icon{width:90px;height:90px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:3px solid rgba(255,215,0,0.15);animation:bannerPulse 2s infinite;box-shadow:0 0 40px rgba(255,215,0,0.03)}
+        @keyframes bannerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .banner-title{font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:2px;background:linear-gradient(135deg,var(--gold),#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .banner-subtitle{font-size:0.9rem;color:#aaa;margin-bottom:12px}
+        .banner-price{display:inline-block;background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 20px;border-radius:25px;font-weight:900;font-size:1.4rem;margin-bottom:10px;box-shadow:0 0 30px rgba(255,215,0,0.12)}
+        .banner-price small{font-size:0.7rem;font-weight:400}
+        .banner-features{display:flex;flex-direction:column;gap:4px;margin:10px 0 14px;text-align:left;padding:0 8px}
+        .banner-features .feature{display:flex;align-items:center;gap:10px;color:#ccc;font-size:0.8rem}
+        .banner-features .feature i{color:var(--gold);font-size:0.9rem;width:20px;text-align:center}
+        .banner-btn{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:14px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:1.05rem;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.2s;box-shadow:0 4px 25px rgba(37,211,102,0.2)}
+        .banner-btn:active{transform:scale(0.96)}
+        .banner-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;width:100%;margin-top:6px}
+        .banner-close:active{background:rgba(255,255,255,0.08)}
+        .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
 
-        .menu-popup button:active {
-            background: rgba(255,255,255,0.06);
-        }
+        /* ===== BLOCK ===== */
+        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+        #blockOverlay.active{display:flex}
+        #blockOverlay h2{color:#fff;font-size:1.4rem;margin-bottom:6px}
+        #blockOverlay p{color:#888;font-size:0.9rem;margin-bottom:10px}
+        #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 16px;border-radius:20px;font-weight:700;font-size:0.85rem;display:inline-block;margin-bottom:6px}
+        #blockOverlay .btn-comprar{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:10px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:4px}
+        #blockOverlay .btn-pix{background:rgba(255,255,255,0.04);border:1px solid var(--neon-cyan);padding:8px 20px;border-radius:30px;color:var(--neon-cyan);font-weight:700;font-size:0.85rem;cursor:pointer}
+        #blockOverlay .senha-input{width:100%;max-width:250px;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.9rem;text-align:center;margin:6px 0;outline:none}
+        #blockOverlay .senha-input:focus{border-color:var(--neon-cyan)}
+        #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer}
+        #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px}
 
-        /* ===== GENRES MODAL ===== */
-        .genres-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10,10,30,0.97);
-            backdrop-filter: blur(20px);
-            border-radius: 25px 25px 0 0;
-            padding: 16px 18px 20px;
-            z-index: 2000;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 60vh;
-            overflow: hidden;
-        }
-
-        .genres-modal.open {
-            transform: translateY(0);
-        }
-
-        .genres-modal h3 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            color: var(--neon-cyan);
-            letter-spacing: 1px;
-        }
-
-        .genres-grid {
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            scroll-snap-type: y mandatory;
-            gap: 6px;
-            padding: 4px;
-            max-height: 38vh;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .genres-grid::-webkit-scrollbar {
-            display: none;
-        }
-
-        .genre-card {
-            min-height: 48px;
-            scroll-snap-align: center;
-            flex-shrink: 0;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(12px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            letter-spacing: 0.3px;
-        }
-
-        .genre-card:active {
-            transform: scale(0.96);
-            background: rgba(255,255,255,0.06);
-        }
-
-        .close-genres {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            border-radius: 25px;
-            color: #000;
-            font-size: 0.9rem;
-            cursor: pointer;
-            font-weight: 700;
-            margin-top: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .close-genres:active {
-            transform: scale(0.97);
-        }
-
-        /* ===== FAVORITES MODAL ===== */
-        .fav-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10,10,30,0.98);
-            border-radius: 18px;
-            padding: 18px;
-            z-index: 5000;
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
-            display: none;
-            border: 1px solid rgba(255,45,127,0.1);
-        }
-
-        .fav-modal.open {
-            display: block;
-            animation: modalFade 0.3s ease;
-        }
-
-        @keyframes modalFade {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .fav-modal h3 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: var(--neon-cyan);
-        }
-
-        .fav-modal .close-fav {
-            position: absolute;
-            top: 8px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            color: #555;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-
-        .fav-list {
-            max-height: 45vh;
-            overflow-y: auto;
-            text-align: left;
-            padding: 0 4px;
-        }
-
-        .fav-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            color: white;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-
-        .fav-item:active {
-            background: rgba(255,255,255,0.03);
-        }
-
-        .fav-item .fav-info .title {
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-
-        .fav-item .fav-info .artist {
-            font-size: 0.7rem;
-            color: #777;
-        }
-
-        .fav-item .remove {
-            background: transparent;
-            border: none;
-            color: var(--neon-pink);
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-
-        .fav-empty {
-            color: #555;
-            padding: 25px;
-            text-align: center;
-            font-size: 0.85rem;
-        }
-
-        .fav-modal .close-btn {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 6px;
-            font-size: 0.85rem;
-        }
-
-        /* ===== FEEDBACK MODAL ===== */
-        .feedback-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10,10,30,0.98);
-            border-radius: 18px;
-            padding: 18px;
-            z-index: 5000;
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
-            display: none;
-            border: 1px solid rgba(0,243,255,0.08);
-        }
-
-        .feedback-modal.open {
-            display: block;
-            animation: modalFade 0.3s ease;
-        }
-
-        .feedback-modal h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: var(--neon-cyan);
-        }
-
-        .feedback-modal .stars {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin: 6px 0;
-        }
-
-        .feedback-modal .star {
-            font-size: 2rem;
-            color: #444;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .feedback-modal .star.active {
-            color: var(--gold);
-        }
-
-        .feedback-modal textarea {
-            width: 100%;
-            height: 50px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(0,243,255,0.06);
-            border-radius: 10px;
-            padding: 6px 10px;
-            color: #fff;
-            resize: none;
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-
-        .feedback-modal .btn-feedback {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 4px;
-            font-size: 0.85rem;
-        }
-
-        #closeFeedbackBtn {
-            background: transparent;
-            border: none;
-            color: #555;
-            padding: 6px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            margin-top: 2px;
-        }
-
-        /* ===== NOTIFICATION ===== */
-        .notification {
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
-            color: var(--neon-cyan);
-            padding: 6px 18px;
-            border-radius: 25px;
-            font-size: 0.8rem;
-            z-index: 10001;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            border: 1px solid rgba(0,243,255,0.06);
-            white-space: nowrap;
-            font-weight: 600;
-        }
-
-        .notification.show {
-            opacity: 1;
-        }
+        /* ===== NOTIFICAÇÃO ===== */
+        .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
+        .notification.show{opacity:1}
 
         /* ===== LOADING OVERLAY ===== */
-        #loadingOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9998;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #loadingOverlay.active {
-            display: flex;
-        }
-
-        #loadingOverlay i {
-            font-size: 2.5rem;
-            color: var(--neon-cyan);
-            animation: spin 1s infinite;
-        }
-
-        /* ===== BANNER VITALÍCIO ===== */
-        #bannerVitalicio {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999999;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(20px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: bannerFadeIn 0.5s ease;
-        }
-
-        #bannerVitalicio.active {
-            display: flex;
-        }
-
-        @keyframes bannerFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .banner-content {
-            background: linear-gradient(145deg, #1a1a3e, #0d0d2b);
-            border-radius: 25px;
-            padding: 30px 22px 22px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            border: 2px solid rgba(255,215,0,0.12);
-            box-shadow: 0 0 60px rgba(255,215,0,0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .banner-content::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.03), transparent 70%);
-            pointer-events: none;
-        }
-
-        .banner-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 8px;
-            display: block;
-            border: 3px solid rgba(255,215,0,0.15);
-            animation: bannerPulse 2s infinite;
-            box-shadow: 0 0 40px rgba(255,215,0,0.03);
-        }
-
-        @keyframes bannerPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .banner-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #fff;
-            margin-bottom: 2px;
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .banner-subtitle {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 12px;
-        }
-
-        .banner-price {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            color: #000;
-            padding: 4px 20px;
-            border-radius: 25px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-            box-shadow: 0 0 30px rgba(255,215,0,0.12);
-        }
-
-        .banner-price small {
-            font-size: 0.7rem;
-            font-weight: 400;
-        }
-
-        .banner-features {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin: 10px 0 14px;
-            text-align: left;
-            padding: 0 8px;
-        }
-
-        .banner-features .feature {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #ccc;
-            font-size: 0.8rem;
-        }
-
-        .banner-features .feature i {
-            color: var(--gold);
-            font-size: 0.9rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .banner-btn {
-            background: linear-gradient(135deg, #25d366, #128C7E);
-            border: none;
-            padding: 14px 24px;
-            border-radius: 30px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1.05rem;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 25px rgba(37, 211, 102, 0.2);
-        }
-
-        .banner-btn:active {
-            transform: scale(0.96);
-        }
-
-        .banner-close {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 8px;
-            border-radius: 25px;
-            color: #666;
-            font-size: 0.8rem;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 6px;
-            transition: background 0.2s;
-        }
-
-        .banner-close:active {
-            background: rgba(255,255,255,0.08);
-        }
-
-        .banner-timer {
-            position: absolute;
-            top: 10px;
-            right: 14px;
-            color: rgba(255,255,255,0.12);
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
-        /* ===== BLOCK OVERLAY ===== */
-        #blockOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            text-align: center;
-        }
-
-        #blockOverlay.active {
-            display: flex;
-        }
-
-        #blockOverlay h2 {
-            color: #fff;
-            font-size: 1.4rem;
-            margin-bottom: 6px;
-        }
-
-        #blockOverlay p {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-
-        #blockOverlay .preco-vitalicio {
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            color: #000;
-            padding: 4px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            display: inline-block;
-            margin-bottom: 6px;
-        }
-
-        #blockOverlay .btn-comprar {
-            background: linear-gradient(135deg, #25d366, #128C7E);
-            border: none;
-            padding: 10px 24px;
-            border-radius: 30px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            margin-bottom: 4px;
-        }
-
-        #blockOverlay .btn-pix {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--neon-cyan);
-            padding: 8px 20px;
-            border-radius: 30px;
-            color: var(--neon-cyan);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        #blockOverlay .senha-input {
-            width: 100%;
-            max-width: 250px;
-            padding: 10px 14px;
-            border-radius: 25px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.03);
-            color: #fff;
-            font-size: 0.9rem;
-            text-align: center;
-            margin: 6px 0;
-            outline: none;
-        }
-
-        #blockOverlay .senha-input:focus {
-            border-color: var(--neon-cyan);
-        }
-
-        #blockOverlay .btn-senha {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px 24px;
-            border-radius: 30px;
-            color: #000;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-
-        #blockOverlay .erro-senha {
-            color: var(--neon-pink);
-            font-size: 0.75rem;
-            min-height: 16px;
-            margin-top: 2px;
-        }
-
-        /* ===== ADMIN PANEL ===== */
-        #adminPanel {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10,10,30,0.98);
-            border-radius: 18px;
-            padding: 18px;
-            z-index: 99999;
-            width: 90%;
-            max-width: 360px;
-            border: 1px solid var(--neon-cyan);
-            flex-direction: column;
-            gap: 6px;
-            color: white;
-        }
-
-        #adminPanel.open {
-            display: flex;
-        }
-
-        #adminPanel h2 {
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--neon-cyan);
-        }
-
-        #adminPanel label {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        #adminPanel input {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.03);
-            color: white;
-            font-size: 0.8rem;
-            outline: none;
-        }
-
-        #adminPanel input:focus {
-            border-color: var(--neon-cyan);
-        }
-
-        .admin-row {
-            display: flex;
-            gap: 4px;
-        }
-
-        .admin-row input {
-            flex: 2;
-        }
-
-        .admin-row .btn-copiar {
-            flex: 1;
-            background: rgba(0,243,255,0.08);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            padding: 6px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .admin-row .btn-copiar:active {
-            transform: scale(0.95);
-            background: rgba(0,243,255,0.15);
-        }
-
-        .admin-btn {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .admin-btn:active {
-            transform: scale(0.95);
-        }
-
-        .admin-btn-editar {
-            background: linear-gradient(135deg, #ffd700, #ff8800) !important;
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            margin-top: 4px;
-        }
-
-        .admin-btn-editar:active {
-            transform: scale(0.95);
-        }
-
-        .admin-close {
-            background: rgba(255,255,255,0.03);
-            border: none;
-            padding: 6px;
-            border-radius: 20px;
-            color: #555;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.75rem;
-            margin-top: 4px;
-            transition: all 0.2s;
-        }
-
-        .admin-close:active {
-            background: rgba(255,255,255,0.06);
-        }
+        #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
+        #loadingOverlay.active{display:flex}
+        #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
 
         /* ===== BOTÃO ATIVAR ===== */
-        .btn-ativar-player {
-            position: fixed;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,243,255,0.06);
-            backdrop-filter: blur(12px);
-            border: 2px solid var(--neon-cyan);
-            color: #fff;
-            padding: 14px 32px;
-            border-radius: 35px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            z-index: 99999;
-            cursor: pointer;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow: 0 0 30px rgba(0,243,255,0.1);
-            animation: glow 2s infinite;
-            display: block;
-        }
+        .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.1);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:16px 40px;border-radius:35px;font-weight:700;font-size:1.2rem;z-index:99999;cursor:pointer;letter-spacing:2px;text-transform:uppercase;box-shadow:0 0 40px rgba(0,243,255,0.2);animation:glow 2s infinite;display:block}
+        .btn-ativar-player.hidden{display:none!important}
+        .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
+        @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,243,255,0.1)}50%{box-shadow:0 0 60px rgba(0,243,255,0.3)}}
 
-        .btn-ativar-player.hidden {
-            display: none !important;
-        }
-
-        .btn-ativar-player:active {
-            transform: translateX(-50%) scale(0.95);
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(0,243,255,0.08); }
-            50% { box-shadow: 0 0 40px rgba(0,243,255,0.25); }
-        }
+        /* ===== ADMIN ===== */
+        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white;max-height:90vh;overflow-y:auto}
+        #adminPanel.open{display:flex}
+        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan);margin-bottom:4px}
+        #adminPanel label{font-size:0.7rem;color:#888;margin-top:2px}
+        #adminPanel input{width:100%;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.8rem;outline:none}
+        #adminPanel input:focus{border-color:var(--neon-cyan)}
+        .admin-row{display:flex;gap:4px}
+        .admin-row input{flex:2}
+        .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);padding:6px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s}
+        .admin-row .btn-copiar:active{transform:scale(0.95)}
+        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:all 0.2s}
+        .admin-btn:active{transform:scale(0.95)}
+        .admin-btn-editar{background:linear-gradient(135deg,#ffd700,#ff8800)!important;border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:all 0.2s;margin-top:4px}
+        .admin-btn-editar:active{transform:scale(0.95)}
+        .admin-btn-remover{background:linear-gradient(135deg,#ff2d7f,#cc0044)!important;border:none;padding:10px;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:all 0.2s;margin-top:4px}
+        .admin-btn-remover:active{transform:scale(0.95)}
+        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem;margin-top:4px}
+        .admin-close:active{background:rgba(255,255,255,0.06)}
+        #adminListaClientes{max-height:150px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:10px;padding:6px;font-size:0.7rem;color:#aaa}
+        #adminListaClientes .cliente-item{padding:4px 8px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between}
+        #adminListaClientes .cliente-item .del{color:var(--neon-pink);cursor:pointer;font-weight:700}
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .logo-macaco {
-                height: 32px;
-                width: 32px;
-            }
-            .btn-genero-fav {
-                font-size: 0.65rem;
-                padding: 3px 8px;
-            }
-            .btn-genero-fav .genero-nome {
-                font-size: 0.6rem;
-            }
-            .btn-genero-fav .fav-badge {
-                font-size: 0.5rem;
-                min-width: 12px;
-                line-height: 12px;
-            }
-            .top-right .timer-lib {
-                font-size: 0.7rem;
-                padding: 2px 8px;
-            }
-            .top-right .menu-btn {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
-            }
-            .info-scroll .letreiro {
-                font-size: 0.85rem;
-            }
-            .fav-heart-center .fav-heart {
-                font-size: 4rem;
-            }
-            .ctrl-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 0.85rem;
-            }
-            .play-big {
-                width: 48px;
-                height: 48px;
-                font-size: 1.1rem;
-            }
-            .shuffle-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 0.75rem;
-            }
-            .buttons-row {
-                gap: 10px;
-            }
-            .bottom-controls {
-                padding: 8px 12px 14px;
-            }
-            .banner-title {
-                font-size: 1.4rem;
-            }
-            .banner-price {
-                font-size: 1.2rem;
-                padding: 3px 16px;
-            }
-            .banner-features .feature {
-                font-size: 0.7rem;
-            }
-            .banner-btn {
-                font-size: 0.95rem;
-                padding: 12px 20px;
-            }
-            .banner-content {
-                padding: 18px 16px 16px;
-            }
-            .banner-icon {
-                width: 70px;
-                height: 70px;
-            }
-            .btn-ativar-player {
-                font-size: 0.95rem;
-                padding: 12px 24px;
-                bottom: 22%;
-            }
-            .fab-main {
-                width: 42px;
-                height: 42px;
-                font-size: 1rem;
-            }
-            .fab-container {
-                bottom: 85px;
-                right: 10px;
-            }
+        @media(max-width:480px){
+            .logo-macaco{height:32px;width:32px}
+            .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
+            .btn-genero-fav .genero-nome{font-size:0.6rem}
+            .btn-genero-fav .fav-badge{font-size:0.5rem;min-width:12px;line-height:12px}
+            .top-right .timer-lib{font-size:0.7rem;padding:2px 8px}
+            .top-right .menu-btn{width:28px;height:28px;font-size:0.8rem}
+            .info-scroll .letreiro{font-size:1rem}
+            .fav-heart-center .fav-heart{font-size:4rem}
+            .ctrl-btn{width:38px;height:38px;font-size:0.85rem}
+            .play-big{width:48px;height:48px;font-size:1.1rem}
+            .shuffle-btn{width:38px;height:38px;font-size:0.75rem}
+            .buttons-row{gap:10px}
+            .bottom-controls{padding:8px 12px 14px}
+            .banner-title{font-size:1.4rem}
+            .banner-price{font-size:1.2rem;padding:3px 16px}
+            .banner-features .feature{font-size:0.7rem}
+            .banner-btn{font-size:0.95rem;padding:12px 20px}
+            .banner-content{padding:18px 16px 16px}
+            .banner-icon{width:70px;height:70px}
+            .btn-ativar-player{font-size:0.95rem;padding:12px 24px;bottom:22%}
+            .fab-main{width:42px;height:42px;font-size:1rem}
+            .fab-container{bottom:85px;right:10px}
         }
     </style>
 </head>
@@ -1339,52 +233,41 @@
 <div id="loadingScreen">
     <img src="m12.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
-    <span>VAI DE BOA! MUSIC</span>
+    <span>🚀 VAI DE BOA! MUSIC PRO</span>
 </div>
 
 <!-- ===== PLAYER ===== -->
 <div id="playerContainer">
-    <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
 
     <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
-            <!-- LOGO MACAQUINHO -->
             <img src="m12.png" alt="VDB Music" class="logo-macaco">
-            
-            <!-- BOTÃO FAVORITO -->
             <button class="btn-genero-fav" id="btnGeneroFav">
-                <span class="genero-nome" id="generoNome">BÔNUS</span>
-                <span class="separador">|</span>
-                <span class="coracao-icon">❤️</span>
+                <span class="genero-nome" id="generoNome">🔥 BÔNUS</span>
+                <span>❤️</span>
                 <span class="fav-badge" id="favBadge">0</span>
             </button>
         </div>
-
-        <!-- Lado direito: LIB + Menu -->
         <div class="top-right">
-            <span class="timer-lib" id="timerLib">5:00</span>
-            <span class="audio-status active" id="audioStatus">●</span>
-            <button class="menu-btn" id="menuButton">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
+            <span class="timer-lib" id="timerLib">⏱️ 5:00</span>
+            <span class="audio-status active" id="audioStatus">🔊</span>
+            <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
         </div>
     </div>
 
     <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">🎵 EDITDE AQUI LETREIRO 🎵</p>
+        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC PRO - O MELHOR SOM! 🚀</p>
     </div>
 
-    <!-- CORAÇÃO FAVORITO -->
+    <!-- CORAÇÃO -->
     <div class="fav-heart-center">
-        <div class="fav-heart" id="heartBtn">
-            <i class="far fa-heart"></i>
-        </div>
+        <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
     </div>
 
-    <!-- BOTTOM CONTROLS -->
+    <!-- CONTROLES -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -1404,37 +287,37 @@
     <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
-            <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
-            <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i>Feedback</button>
-            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i>YouTube</button>
-            <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i>Compartilhar</button>
-            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i>QR Code</button>
+            <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
+            <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
+            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i> YouTube</button>
+            <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i> Compartilhar</button>
+            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i> QR Code</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
     <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
-        <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
-        <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i>Recarregar</button>
-        <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
-        <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
-        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
+        <button id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
+        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
+        <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i> Recarregar</button>
+        <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
+        <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
+        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
     </div>
 </div>
 
-<!-- ===== BANNER VITALÍCIO ===== -->
+<!-- ===== BANNER ===== -->
 <div id="bannerVitalicio">
     <div class="banner-content">
         <span class="banner-timer" id="bannerTimer">20s</span>
         <img src="m12.png" alt="VDB Music" class="banner-icon">
-        <div class="banner-title">VAI DE BOA! VITALÍCIO</div>
-        <div class="banner-subtitle">Acesso permanente! Pague uma vez só</div>
+        <div class="banner-title">🚀 VAI DE BOA! PRO</div>
+        <div class="banner-subtitle">Acesso VITALÍCIO - Pague uma vez!</div>
         <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
         <div class="banner-features">
-            <div class="feature"><i class="fas fa-check-circle"></i> +3 mil músicas atualizadas</div>
-            <div class="feature"><i class="fas fa-check-circle"></i> Todos os gêneros disponíveis</div>
+            <div class="feature"><i class="fas fa-check-circle"></i> +3 mil músicas</div>
+            <div class="feature"><i class="fas fa-check-circle"></i> Todos os gêneros</div>
             <div class="feature"><i class="fas fa-check-circle"></i> Atualizações diárias</div>
             <div class="feature"><i class="fas fa-check-circle"></i> Sem mensalidades</div>
         </div>
@@ -1445,16 +328,16 @@
     </div>
 </div>
 
-<!-- ===== BLOCK OVERLAY ===== -->
+<!-- ===== BLOCK ===== -->
 <div id="blockOverlay">
     <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
     <p>Adquira a senha vitalícia!</p>
     <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
-    <button class="btn-pix" id="btnPix">Copiar PIX</button>
+    <button class="btn-pix" id="btnPix">📋 Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    <input type="password" class="senha-input" id="senhaPermanente" placeholder="Senha vitalícia">
-    <button class="btn-senha" id="btnSenhaPermanente">Liberar</button>
+    <input type="password" class="senha-input" id="senhaPermanente" placeholder="🔑 Senha vitalícia">
+    <button class="btn-senha" id="btnSenhaPermanente">🚀 Liberar</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
@@ -1463,7 +346,7 @@
     🔊 ATIVAR ÁUDIO
 </button>
 
-<!-- ===== NOTIFICATION ===== -->
+<!-- ===== NOTIFICAÇÃO ===== -->
 <div class="notification" id="notification"></div>
 
 <!-- ===== LOADING OVERLAY ===== -->
@@ -1473,7 +356,7 @@
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== FAVORITES MODAL ===== -->
+<!-- ===== FAVORITOS ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
@@ -1481,14 +364,14 @@
     <button class="close-btn" id="closeFavBtn">FECHAR</button>
 </div>
 
-<!-- ===== GENRES MODAL ===== -->
+<!-- ===== GÊNEROS ===== -->
 <div class="genres-modal" id="genresModal">
     <h3>🎵 ESCOLHA SEU ESTILO</h3>
     <div class="genres-grid" id="genresGrid"></div>
     <button class="close-genres" id="closeGenresBtn">FECHAR</button>
 </div>
 
-<!-- ===== FEEDBACK MODAL ===== -->
+<!-- ===== FEEDBACK ===== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -1498,8 +381,8 @@
         <i class="far fa-star star" data-rating="4"></i>
         <i class="far fa-star star" data-rating="5"></i>
     </div>
-    <textarea id="feedbackText" placeholder="Sua opinião..."></textarea>
-    <button class="btn-feedback" id="sendFeedbackBtn">Enviar</button>
+    <textarea id="feedbackText" placeholder="💬 Sua opinião..."></textarea>
+    <button class="btn-feedback" id="sendFeedbackBtn">📤 Enviar</button>
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
@@ -1526,11 +409,19 @@
         ✏️ EDITAR LETREIRO
     </button>
     
+    <!-- LISTA DE CLIENTES -->
+    <label style="margin-top:8px;">📋 Clientes ativos</label>
+    <div id="adminListaClientes"></div>
+    
+    <button class="admin-btn-remover" id="adminRemoverCliente">
+        🗑️ REMOVER CLIENTE
+    </button>
+    
     <button class="admin-close" id="adminCloseBtn">Fechar</button>
 </div>
 
 <!-- ============================================================ -->
-<!-- ===== SCRIPT ===== -->
+<!-- ===== SCRIPT COMPLETO ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -1551,6 +442,7 @@
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
     const MAX_TENTATIVAS = 3;
+    const DEZ_ANOS = 10 * 365 * 24 * 60 * 60 * 1000;
 
     // ============================================================
     // DOM CACHE
@@ -1593,6 +485,7 @@
         btnAtivarAudio: $('btnAtivarAudio'),
         adminEditarLetreiro: $('adminEditarLetreiro'),
         btnCopiarSenha: $('btnCopiarSenha'),
+        adminListaClientes: $('adminListaClientes'),
     };
 
     // ============================================================
@@ -1648,22 +541,12 @@
     };
 
     const CORES = {
-        'BÔNUS': '#ffd700',
-        'FLASHBACK': '#ffaa00',
-        'RELIGIOSA': '#aa55ff',
-        'ROMÂNTICA': '#ff2d7f',
-        'MPB': '#00ff88',
-        'POP': '#ff3366',
-        'SERTANEJO': '#ff8800',
-        'FORRÓ': '#ff8800',
-        'SAMBA': '#ffdd00',
-        'BREGA': '#ff66aa',
-        'REGGAE': '#00ffaa',
-        'MODA TOP': '#ff4400',
-        'FANK': '#ff3366',
-        'TESTE MIDIA': '#ffd700',
-        'MODÃO SERTANEJO': '#ff8c00',
-        'CHORINHO': '#1e90ff',
+        'BÔNUS': '#ffd700', 'FLASHBACK': '#ffaa00', 'RELIGIOSA': '#aa55ff',
+        'ROMÂNTICA': '#ff2d7f', 'MPB': '#00ff88', 'POP': '#ff3366',
+        'SERTANEJO': '#ff8800', 'FORRÓ': '#ff8800', 'SAMBA': '#ffdd00',
+        'BREGA': '#ff66aa', 'REGGAE': '#00ffaa', 'MODA TOP': '#ff4400',
+        'FANK': '#ff3366', 'TESTE MIDIA': '#ffd700', 'MODÃO SERTANEJO': '#ff8c00',
+        'CHORINHO': '#1e90ff'
     };
 
     const ORDEM = [
@@ -1719,10 +602,60 @@
         return div.textContent;
     }
 
+    function getFingerprint() {
+        const dados = navigator.userAgent + screen.width + screen.height + navigator.language + navigator.platform;
+        let hash = 0;
+        for (let i = 0; i < dados.length; i++) {
+            hash = ((hash << 5) - hash) + dados.charCodeAt(i);
+            hash = hash & hash;
+        }
+        return Math.abs(hash).toString(36).toUpperCase().slice(0, 10);
+    }
+
+    // ============================================================
+    // SISTEMA DE CLIENTES
+    // ============================================================
+    function getClientes() {
+        try {
+            return JSON.parse(localStorage.getItem('vdb_clientes') || '{}');
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function salvarClientes(clientes) {
+        localStorage.setItem('vdb_clientes', JSON.stringify(clientes));
+        atualizarListaClientes();
+    }
+
+    function atualizarListaClientes() {
+        const clientes = getClientes();
+        const lista = dom.adminListaClientes;
+        if (!lista) return;
+        
+        const chaves = Object.keys(clientes);
+        if (chaves.length === 0) {
+            lista.innerHTML = '<div style="color:#555;text-align:center;padding:10px;">Nenhum cliente ativo</div>';
+            return;
+        }
+        
+        let html = '';
+        chaves.forEach(senha => {
+            const c = clientes[senha];
+            if (c && c.ativo) {
+                html += `<div class="cliente-item">
+                    <span>${sanitize(c.nome || 'Cliente')} - ${sanitize(c.celular || '')}</span>
+                    <span style="font-size:0.6rem;color:#4ade80;">${c.dispositivos ? c.dispositivos.length : 0}/2</span>
+                </div>`;
+            }
+        });
+        lista.innerHTML = html || '<div style="color:#555;text-align:center;padding:10px;">Nenhum cliente ativo</div>';
+    }
+
     // ============================================================
     // NOTIFICAÇÕES
     // ============================================================
-    function notif(msg, dur = 1500) {
+    function notif(msg, dur = 2000) {
         if (!dom.notification) return;
         dom.notification.textContent = msg;
         dom.notification.classList.add('show');
@@ -1882,30 +815,6 @@
     }
 
     // ============================================================
-    // TOUCH / GESTOS
-    // ============================================================
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        showControls();
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX < 0) next();
-            else prev();
-        }
-    }, { passive: true });
-
-    // ============================================================
     // TIMER / BLOQUEIO
     // ============================================================
     function updateTimerDisplay() {
@@ -1943,20 +852,17 @@
         state.desbloqueado = false;
         dom.blockOverlay.classList.add('active');
         dom.audio.pause();
-        localStorage.setItem('vdb_bloqueado_permanente', 'true');
-        localStorage.removeItem('vdb_desbloqueado');
     }
 
     function desbloquear() {
         state.desbloqueado = true;
         dom.blockOverlay.classList.remove('active');
         localStorage.setItem('vdb_desbloqueado', 'true');
-        localStorage.removeItem('vdb_bloqueado_permanente');
-        localStorage.setItem('vdb_senha_permanente', 'true');
         dom.timerLib.textContent = '🔓 Lib';
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
+        notif('✅ Acesso liberado!');
     }
 
     // ============================================================
@@ -2136,7 +1042,7 @@
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
+        dom.scrollText.style.animation = 'scrollText 10s linear infinite';
     }
 
     // ============================================================
@@ -2148,7 +1054,7 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-            ];
+        ];
 
         midias.forEach((m, i) => {
             let el;
@@ -2345,46 +1251,59 @@
     }
 
     // ============================================================
-    // ADMIN: 13 CLIQUES NO LETREIRO
+    // ADMIN: 13 CLIQUES
     // ============================================================
     let adminClicks = 0;
 
     dom.infoScroll.onclick = () => {
         adminClicks++;
-        console.log('🔑 Cliques ADMIN:', adminClicks);
-        setTimeout(() => adminClicks = 0, 5000);
-        
         if (adminClicks >= 13) {
             adminClicks = 0;
             dom.adminPanel.classList.toggle('open');
-            notif('🔐 ADMIN ABERTO!');
+            if (dom.adminPanel.classList.contains('open')) {
+                atualizarListaClientes();
+                notif('🔐 ADMIN ABERTO!');
+            }
         }
+        setTimeout(() => adminClicks = 0, 3000);
     };
 
     // ============================================================
-    // ADMIN - GERAR SENHA SIMPLES
+    // ADMIN - GERAR SENHA (VITALÍCIA - 10 ANOS)
     // ============================================================
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value || 'cliente';
         const cel = document.getElementById('adminCelular').value || '000';
+        const nome = email.split('@')[0] || 'Cliente';
         
-        // Pega 3 primeiras letras do email (MAIÚSCULAS)
         const prefixo = email.substring(0, 3).toUpperCase();
-        
-        // Pega 3 últimos números do celular
         const numeros = cel.replace(/\D/g, '');
         const sufixo = numeros.slice(-3) || '000';
         
-        // Gera senha: VDB + prefixo + sufixo + @
-        // Exemplo: VDB CLI 978 @ → "VDBcli978@"
+        // Senha: VDB + prefixo + sufixo + @
         const senha = 'VDB' + prefixo + sufixo + '@';
         
+        // Salvar cliente com 10 ANOS de validade
+        const clientes = getClientes();
+        clientes[senha] = {
+            nome: nome,
+            email: email,
+            celular: cel,
+            criado: Date.now(),
+            expira: Date.now() + DEZ_ANOS, // 10 ANOS!
+            limite: 2,
+            dispositivos: [],
+            ativo: true,
+            vitalicio: true
+        };
+        
+        salvarClientes(clientes);
         document.getElementById('adminSenhaGerada').value = senha;
-        notif('✅ Senha: ' + senha);
+        notif('✅ Senha: ' + senha + ' | ♾️ 10 ANOS | 2 dispositivos');
     };
 
     // ============================================================
-    // ADMIN - COPIAR SENHA (BOTÃO COPIAR)
+    // ADMIN - COPIAR SENHA
     // ============================================================
     if (dom.btnCopiarSenha) {
         dom.btnCopiarSenha.onclick = () => {
@@ -2393,7 +1312,6 @@
                 navigator.clipboard.writeText(senha)
                     .then(() => notif('📋 Senha copiada!'))
                     .catch(() => {
-                        // Fallback
                         const input = document.getElementById('adminSenhaGerada');
                         input.select();
                         document.execCommand('copy');
@@ -2412,7 +1330,6 @@
         dom.adminEditarLetreiro.onclick = () => {
             const textoAtual = dom.scrollText.textContent;
             const novoTexto = prompt('✏️ Editar texto do letreiro:', textoAtual);
-            
             if (novoTexto && novoTexto.trim()) {
                 dom.scrollText.textContent = novoTexto.trim();
                 state.scrollPersonalizado = true;
@@ -2420,6 +1337,25 @@
             }
         };
     }
+
+    // ============================================================
+    // ADMIN - REMOVER CLIENTE
+    // ============================================================
+    document.getElementById('adminRemoverCliente').onclick = () => {
+        const senha = prompt('🔑 Digite a senha do cliente que deseja REMOVER:');
+        if (!senha) return;
+        
+        const clientes = getClientes();
+        if (clientes[senha]) {
+            if (confirm('❌ Tem certeza que quer remover o cliente ' + clientes[senha].nome + '?')) {
+                delete clientes[senha];
+                salvarClientes(clientes);
+                notif('✅ Cliente removido!');
+            }
+        } else {
+            notif('❌ Cliente não encontrado!');
+        }
+    };
 
     // ============================================================
     // ADMIN - FECHAR
@@ -2471,54 +1407,38 @@
         }, 1500);
 
         // Verificar bloqueio
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            bloquear();
-            return;
-        }
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             state.desbloqueado = true;
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             return;
         }
+        
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if (salvo && parseInt(salvo) > Date.now()) {
             state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
             startTimer();
-            return;
-        }
-        if (salvo) {
+        } else if (salvo) {
             bloquear();
-            return;
+        } else {
+            localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
+            state.tempoRestante = TEMPO_INICIAL;
+            startTimer();
         }
-        localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
-        state.tempoRestante = TEMPO_INICIAL;
-        startTimer();
 
         iniciarBannerLoop();
+        atualizarListaClientes();
     }
 
     // ============================================================
     // EVENTOS
     // ============================================================
 
-    // PLAY
     dom.playBtn.onclick = togglePlay;
-
-    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
-
-    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -2526,13 +1446,11 @@
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
-    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -2553,11 +1471,9 @@
         }
     };
 
-    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    // GENRES MODAL (via FAB)
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
@@ -2565,10 +1481,8 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
-    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -2605,7 +1519,6 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -2616,7 +1529,6 @@
         clearInterval(state.bannerTimeout);
     };
 
-    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -2649,7 +1561,6 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -2667,7 +1578,7 @@
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
     // ============================================================
-    // VALIDAÇÃO DE SENHA (ATUALIZADA)
+    // VALIDAÇÃO DE SENHA (SISTEMA HÍBRIDO)
     // ============================================================
     document.getElementById('btnSenhaPermanente').onclick = () => {
         if (state.tentativas >= MAX_TENTATIVAS) {
@@ -2678,8 +1589,10 @@
         }
         
         const senha = document.getElementById('senhaPermanente').value.trim();
+        const fingerprint = getFingerprint();
+        const clientes = getClientes();
         
-        // SENHA PADRÃO: Patico1685@
+        // 1. SENHA PADRÃO: Patico1685@
         if (senha === SENHA_FIXA) {
             desbloquear();
             state.tentativas = 0;
@@ -2691,26 +1604,57 @@
             return;
         }
         
-        // SENHA GERADA PELO ADMIN: VDB + 3 letras + 3 números + @
-        // Exemplo: VDBcli978@
-        const regex = /^VDB[a-zA-Z]{3}[0-9]{3}@$/;
-        if (regex.test(senha)) {
+        // 2. SENHA GERADA (VDB...@)
+        const cliente = clientes[senha];
+        
+        // Senha inválida
+        if (!cliente || !cliente.ativo) {
+            state.tentativas++;
+            const restam = MAX_TENTATIVAS - state.tentativas;
+            document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+            document.getElementById('senhaPermanente').value = '';
+            document.getElementById('senhaPermanente').focus();
+            return;
+        }
+        
+        // Verifica expiração (10 ANOS)
+        if (Date.now() > cliente.expira) {
+            document.getElementById('erroSenha').textContent = '❌ Senha expirada! (10 anos)';
+            document.getElementById('senhaPermanente').value = '';
+            return;
+        }
+        
+        // Verifica se o dispositivo já é autorizado
+        if (cliente.dispositivos && cliente.dispositivos.includes(fingerprint)) {
             desbloquear();
             state.tentativas = 0;
             document.getElementById('erroSenha').textContent = '';
             document.getElementById('senhaPermanente').value = '';
             dom.blockOverlay.classList.remove('active');
             dom.bannerVitalicio.classList.remove('active');
-            notif('✅ Liberado com senha gerada!');
+            notif('✅ Bem-vindo, ' + cliente.nome + '! ♾️');
             return;
         }
         
-        // SENHA INVÁLIDA
-        state.tentativas++;
-        const restam = MAX_TENTATIVAS - state.tentativas;
-        document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        // Verifica limite de dispositivos
+        if (cliente.dispositivos && cliente.dispositivos.length >= cliente.limite) {
+            document.getElementById('erroSenha').textContent = '❌ Limite de dispositivos atingido! (' + cliente.limite + ')';
+            document.getElementById('senhaPermanente').value = '';
+            return;
+        }
+        
+        // PRIMEIRO ACESSO - autoriza dispositivo
+        if (!cliente.dispositivos) cliente.dispositivos = [];
+        cliente.dispositivos.push(fingerprint);
+        salvarClientes(clientes);
+        
+        desbloquear();
+        state.tentativas = 0;
+        document.getElementById('erroSenha').textContent = '';
         document.getElementById('senhaPermanente').value = '';
-        document.getElementById('senhaPermanente').focus();
+        dom.blockOverlay.classList.remove('active');
+        dom.bannerVitalicio.classList.remove('active');
+        notif('✅ Dispositivo autorizado! Bem-vindo, ' + cliente.nome + ' ♾️');
     };
 
     document.getElementById('senhaPermanente').onkeydown = (e) => {
@@ -2738,6 +1682,28 @@
         if (!state.carregandoMusica) next();
     };
 
+    // TOUCH GESTOS
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        showControls();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX < 0) next();
+            else prev();
+        }
+    }, { passive: true });
+
     // VISIBILITY
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
@@ -2764,7 +1730,7 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // CLICK TO SHOW CONTROLS
+    // SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
