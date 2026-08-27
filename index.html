@@ -128,21 +128,68 @@
         }
         .top-right .menu-btn:active { background: rgba(255,255,255,0.15); }
 
-        /* ===== LETREIRO ===== */
+        /* ===== LETREIRO - SUBIU UM POUCO ===== */
         .info-scroll {
-            position: fixed; top: 56px; left: 0; right: 0; z-index: 30;
-            padding: 8px 16px; height: 42px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; cursor: pointer;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(6px);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            position: fixed;
+            top: 48px; /* ANTES ERA 56px - SUBIU 8px */
+            left: 0;
+            right: 0;
+            z-index: 30;
+            padding: 6px 16px;
+            height: 38px; /* UM POUCO MENOR */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-top: 1px solid rgba(255,255,255,0.02);
         }
+
+        /* ===== LETREIRO - CSS MELHORADO ===== */
         .info-scroll .letreiro {
-            color: #fff; font-size: 1rem; font-weight: 700;
-            white-space: nowrap; animation: scrollText 14s linear infinite;
-            pointer-events: none; text-shadow: 0 0 30px rgba(0,243,255,0.08);
-            letter-spacing: 0.3px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: scrollText 18s linear infinite;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            text-shadow: 
+                0 0 10px rgba(0,243,255,0.15),
+                0 0 20px rgba(0,243,255,0.05),
+                0 0 40px rgba(255,45,127,0.03);
+            background: linear-gradient(90deg, 
+                var(--neon-cyan), 
+                #fff 40%, 
+                var(--gold) 70%, 
+                var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            filter: drop-shadow(0 0 10px rgba(0,243,255,0.05));
         }
+
+        /* Efeito de brilho no texto */
+        .info-scroll .letreiro::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(0,243,255,0.02) 30%,
+                rgba(255,215,0,0.02) 60%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
         @keyframes scrollText {
             0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
@@ -240,7 +287,7 @@
 
         /* ===== MENU ===== */
         .menu-popup {
-            position: fixed; top: 56px; right: 10px;
+            position: fixed; top: 48px; right: 10px;
             background: rgba(10,10,30,0.95); backdrop-filter: blur(20px);
             border-radius: 14px; padding: 6px; z-index: 32;
             display: none; flex-direction: column; gap: 2px;
@@ -522,6 +569,12 @@
             color: var(--neon-pink); font-size: 0.75rem;
             min-height: 16px; margin-top: 2px;
         }
+        #blockOverlay .instrucao-senha {
+            color: #666;
+            font-size: 0.65rem;
+            margin-bottom: 4px;
+            max-width: 250px;
+        }
 
         /* ===== ADMIN PANEL ===== */
         #adminPanel {
@@ -588,7 +641,7 @@
             .btn-genero-fav .fav-badge { font-size: 0.5rem; min-width: 12px; line-height: 12px; }
             .top-right .timer-lib { font-size: 0.7rem; padding: 2px 8px; }
             .top-right .menu-btn { width: 28px; height: 28px; font-size: 0.8rem; }
-            .info-scroll .letreiro { font-size: 0.85rem; }
+            .info-scroll .letreiro { font-size: 0.8rem; }
             .fav-heart-center .fav-heart { font-size: 4rem; }
             .ctrl-btn { width: 38px; height: 38px; font-size: 0.85rem; }
             .play-big { width: 48px; height: 48px; font-size: 1.1rem; }
@@ -641,9 +694,9 @@
         </div>
     </div>
 
-    <!-- LETREIRO -->
+    <!-- LETREIRO - SUBIU -->
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
+        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
     </div>
 
     <!-- CORAÇÃO FAVORITO -->
@@ -717,13 +770,17 @@
 <!-- ===== BLOCK OVERLAY ===== -->
 <div id="blockOverlay">
     <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
-    <p>Adquira a senha vitalícia!</p>
+    <p>Adquira a senha vitalícia ou use o código do ADMIN</p>
     <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    <input type="password" class="senha-input" id="senhaPermanente" placeholder="Senha vitalícia">
-    <button class="btn-senha" id="btnSenhaPermanente">Liberar</button>
+    
+    <p class="instrucao-senha">Cole o código gerado no ADMIN ou a senha fixa</p>
+    
+    <input type="password" class="senha-input" id="senhaPermanente" 
+           placeholder="Cole o código de liberação" autocomplete="off">
+    <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
@@ -788,6 +845,27 @@
     'use strict';
 
     // ============================================================
+    // ═══════════════════════════════════════════════════════════════
+    // 🔧 CONFIGURAÇÃO - FRASES DO LETREIRO (EDITÁVEL)
+    // ═══════════════════════════════════════════════════════════════
+    // Adicione ou remova frases aqui. Elas serão exibidas
+    // alternadamente no letreiro.
+    // ============================================================
+    const FRASES_LETREIRO = [
+        '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵',
+        '🔥 As melhores músicas estão aqui!',
+        '💿 Flashback, MPB, Sertanejo e muito mais!',
+        '📻 Rádio online 24 horas por dia!',
+        '🎶 Música de qualidade sem interrupções!',
+        '🚀 O app que o Brasil está ouvindo!',
+        '❤️ Curta suas músicas favoritas!',
+        '🔊 Som de verdade, direto para você!',
+        '🎧 Ouça agora e compartilhe com os amigos!',
+        '⭐ Avalie o app e nos ajude a melhorar!',
+    ];
+    // ============================================================
+
+    // ============================================================
     // ANTI-DEBUG - VERSÃO CORRIGIDA (SEM FALSOS POSITIVOS)
     // ============================================================
     (function antiDebug() {
@@ -811,19 +889,16 @@
             }, 3000);
         }
 
-        // ====== DETECÇÃO DE DEBUGGER (MAIS SEGURA) ======
         let debuggerDetections = 0;
         const MAX_DEBUGGER_HITS = 3;
         
         function detectDebugger() {
             if (blocked) return;
-            
             const start = performance.now();
             debugger;
             const end = performance.now();
             const elapsed = end - start;
             
-            // Threshold aumentado para 300ms (menos falso positivo)
             if (elapsed > 300) {
                 debuggerDetections++;
                 if (debuggerDetections >= MAX_DEBUGGER_HITS) {
@@ -833,23 +908,17 @@
                 debuggerDetections = Math.max(0, debuggerDetections - 1);
             }
         }
-        
         setInterval(detectDebugger, 2000);
 
-        // ====== DETECÇÃO DE DEVTOOLS POR TAMANHO (CORRIGIDA) ======
         let devToolsDetections = 0;
         const MAX_DEVTOOLS_HITS = 3;
         
         function detectDevToolsBySize() {
             if (blocked) return;
-            
-            // Ignora em celulares (evita falso positivo)
             if (window.innerWidth < 768) return;
             
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
-            
-            // Threshold aumentado para 200px
             const hasDevTools = (widthDiff > 200 || heightDiff > 200);
             
             if (hasDevTools) {
@@ -861,10 +930,8 @@
                 devToolsDetections = Math.max(0, devToolsDetections - 1);
             }
         }
-        
         setInterval(detectDevToolsBySize, 3000);
 
-        // ====== BLOQUEIO DE TECLAS ======
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || 
                 (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
@@ -875,14 +942,12 @@
             }
         });
 
-        // ====== BLOQUEIO DE CLICK DIREITO ======
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             e.stopPropagation();
             return false;
         });
 
-        // ====== PROTEÇÃO CONTRA EVAL/FUNCTION ======
         try {
             window.eval = function() {
                 if (!blocked) blockAndReload();
@@ -986,6 +1051,9 @@
         bannerTimer: $('bannerTimer'),
         btnGeneroFav: $('btnGeneroFav'),
         generoNome: $('generoNome'),
+        senhaPermanente: $('senhaPermanente'),
+        erroSenha: $('erroSenha'),
+        btnSenhaPermanente: $('btnSenhaPermanente'),
     };
 
     // ============================================================
@@ -1016,6 +1084,8 @@
         scrollPersonalizado: false,
         bannerInterval: null,
         bannerTimeout: null,
+        fraseIndex: 0,
+        intervaloFrase: null,
     };
 
     // ============================================================
@@ -1055,6 +1125,42 @@
         const email = 'vitalicio@vdbmusic.com';
         const expiry = Date.now() + 365 * 24 * 60 * 60 * 1000;
         return generateToken(user, email, expiry);
+    }
+
+    // ============================================================
+    // LETREIRO - ROTACIONA FRASES
+    // ============================================================
+    function rotacionarFrase() {
+        if (state.scrollPersonalizado) return;
+        
+        // Usa as frases configuradas ou a música atual
+        if (FRASES_LETREIRO.length > 0) {
+            const frase = FRASES_LETREIRO[state.fraseIndex % FRASES_LETREIRO.length];
+            dom.scrollText.textContent = frase;
+            state.fraseIndex++;
+            reiniciarAnimacao();
+        }
+    }
+
+    function reiniciarAnimacao() {
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
+    }
+
+    function iniciarRotacaoFrases() {
+        clearInterval(state.intervaloFrase);
+        state.fraseIndex = 0;
+        
+        // Troca a frase a cada 12 segundos
+        state.intervaloFrase = setInterval(() => {
+            if (!state.scrollPersonalizado && !state.isPlaying) {
+                rotacionarFrase();
+            }
+        }, 12000);
+        
+        // Primeira frase imediatamente
+        setTimeout(rotacionarFrase, 500);
     }
 
     // ============================================================
@@ -1473,6 +1579,7 @@
             return;
         }
 
+        // Atualiza letreiro com a música
         atualizarLetreiro(musica);
         updateHeart(musica.id);
 
@@ -1562,9 +1669,7 @@
         if (!musica) return;
         const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
         dom.scrollText.textContent = texto;
-        dom.scrollText.style.animation = 'none';
-        dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
+        reiniciarAnimacao();
     }
 
     // ============================================================
@@ -1773,6 +1878,78 @@
     }
 
     // ============================================================
+    // SENHA - ACEITA TOKEN HMAC E SENHA FIXA
+    // ============================================================
+    function handleLiberar() {
+        if (state.tentativas >= MAX_TENTATIVAS) {
+            const ultimaTentativa = parseInt(localStorage.getItem('vdb_ultima_tentativa') || '0');
+            if (Date.now() - ultimaTentativa > 300000) {
+                state.tentativas = 0;
+                dom.senhaPermanente.disabled = false;
+                dom.btnSenhaPermanente.disabled = false;
+                dom.erroSenha.textContent = '';
+                localStorage.removeItem('vdb_ultima_tentativa');
+            } else {
+                dom.erroSenha.textContent = '❌ Aguarde 5 minutos para nova tentativa';
+                return;
+            }
+        }
+
+        const senha = dom.senhaPermanente.value.trim();
+        
+        // SENHA FIXA
+        if (senha === SENHA_FIXA) {
+            desbloquear();
+            state.tentativas = 0;
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado com senha!');
+            return;
+        }
+
+        // TOKEN HMAC
+        try {
+            const validation = validateToken(senha);
+            if (validation.valid) {
+                setToken(senha);
+                desbloquear();
+                state.tentativas = 0;
+                dom.erroSenha.textContent = '';
+                dom.senhaPermanente.value = '';
+                notif('✅ Liberado com token!');
+                return;
+            }
+        } catch(e) {}
+
+        // FORMATO ANTIGO
+        if (senha.split(':').length === 4) {
+            const parts = senha.split(':');
+            if (parts.length === 4) {
+                const token = generateToken(parts[0], parts[1], parseInt(parts[2]));
+                setToken(token);
+                desbloquear();
+                state.tentativas = 0;
+                dom.erroSenha.textContent = '';
+                dom.senhaPermanente.value = '';
+                notif('✅ Liberado com token!');
+                return;
+            }
+        }
+
+        // INVÁLIDA
+        state.tentativas++;
+        localStorage.setItem('vdb_ultima_tentativa', String(Date.now()));
+        const restam = MAX_TENTATIVAS - state.tentativas;
+        dom.erroSenha.textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        
+        if (state.tentativas >= MAX_TENTATIVAS) {
+            dom.senhaPermanente.disabled = true;
+            dom.btnSenhaPermanente.disabled = true;
+            dom.erroSenha.textContent = '❌ BLOQUEADO! Aguarde 5 minutos.';
+        }
+    }
+
+    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
@@ -1781,6 +1958,9 @@
         
         criarMidia();
         carregarFav();
+
+        // Inicia rotação de frases
+        iniciarRotacaoFrases();
 
         (async () => {
             for (const g of ORDEM) {
@@ -2025,28 +2205,10 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // SENHA - Compatível com token
-    document.getElementById('btnSenhaPermanente').onclick = () => {
-        if (state.tentativas >= MAX_TENTATIVAS) {
-            document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
-            document.getElementById('senhaPermanente').disabled = true;
-            document.getElementById('btnSenhaPermanente').disabled = true;
-            return;
-        }
-        const senha = document.getElementById('senhaPermanente').value.trim();
-        if (senha === SENHA_FIXA || senha.split(':').length === 4) {
-            desbloquear();
-            state.tentativas = 0;
-            document.getElementById('erroSenha').textContent = '';
-            notif('✅ Liberado!');
-        } else {
-            state.tentativas++;
-            const restam = MAX_TENTATIVAS - state.tentativas;
-            document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
-        }
-    };
-    document.getElementById('senhaPermanente').onkeydown = (e) => {
-        if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
+    // SENHA
+    dom.btnSenhaPermanente.onclick = handleLiberar;
+    dom.senhaPermanente.onkeydown = (e) => {
+        if (e.key === 'Enter') handleLiberar();
     };
 
     // WHATSAPP / PIX
@@ -2098,6 +2260,7 @@
         clearInterval(state.mediaTimer);
         clearInterval(state.bannerInterval);
         clearInterval(state.bannerTimeout);
+        clearInterval(state.intervaloFrase);
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
