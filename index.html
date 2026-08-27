@@ -1,2646 +1,1159 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC PRO</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="VDB Music Pro">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    <link rel="icon" type="image/png" href="fa123.png?v=2">
-    <link rel="apple-touch-icon" href="fa123.png?v=2">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%20PRO%22%2C%22short_name%22%3A%22VDB%20Pro%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image/png%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+(function() {
+    'use strict';
 
-    <style>
-        /* ===== CSS SIMPLES E FUNCIONAL ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        :root {
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff2d7f;
-            --gold: #ffd700;
-            --bg: #0a0a1a;
-            --text: #fff;
-            --font-base: 1.05rem;
-            --font-lg: 1.3rem;
-            --radius: 14px;
-        }
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: var(--text);
-        }
+    // ============================================================
+    // 1. CONFIGURAÇÕES
+    // ============================================================
+    const VERSAO = Date.now();
+    const SENHA_FIXA = atob('UGF0aWNvMTY4NUB='); // Patico1685@
+    const TEMPO_INICIAL = 300;
+    const NUMERO_WHATSAPP = '5512988461978';
+    const CHAVE_PIX = '12.988.461-978';
+    const MAX_TENTATIVAS = 3;
+    const SEGREDO = 'vdb_secret_2026_@#$%'; // ALTERE PARA UM VALOR ÚNICO
 
-        /* Loading */
-        #loadingScreen {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            flex-direction: column;
-            gap: 20px;
+    // ============================================================
+    // 2. DOM CACHE
+    // ============================================================
+    const $ = (id) => document.getElementById(id);
+    const dom = {
+        loadingScreen: $('loadingScreen'),
+        playerContainer: $('playerContainer'),
+        timerLib: $('timerLib'),
+        blockOverlay: $('blockOverlay'),
+        notification: $('notification'),
+        scrollText: $('scrollText'),
+        audio: $('musicPlayer'),
+        backgroundAudio: $('backgroundAudio'),
+        playBtn: $('playBtn'),
+        progressFill: $('progressFill'),
+        currentTime: $('currentTime'),
+        totalTime: $('totalTime'),
+        audioStatus: $('audioStatus'),
+        bottomControls: $('bottomControls'),
+        shuffleBtn: $('shuffleBtn'),
+        loadingOverlay: $('loadingOverlay'),
+        menuPopup: $('menuPopup'),
+        progressBar: $('progressBar'),
+        mediaContainer: $('mediaContainer'),
+        heartBtn: $('heartBtn'),
+        favBadge: $('favBadge'),
+        favList: $('favList'),
+        favModal: $('favModal'),
+        genresModal: $('genresModal'),
+        genresGrid: $('genresGrid'),
+        feedbackModal: $('feedbackModal'),
+        adminPanel: $('adminPanel'),
+        infoScroll: $('infoScroll'),
+        menuButton: $('menuButton'),
+        bannerVitalicio: $('bannerVitalicio'),
+        bannerTimer: $('bannerTimer'),
+        btnGeneroFav: $('btnGeneroFav'),
+        generoNome: $('generoNome'),
+    };
+
+    // ============================================================
+    // 3. ESTADO PRIVADO
+    // ============================================================
+    const _state = {
+        tempoRestante: TEMPO_INICIAL,
+        desbloqueado: false,
+        timerInterval: null,
+        backgroundInterval: null,
+        wakeLock: null,
+        musicas: [],
+        playlistAtual: [],
+        indiceAtual: 0,
+        isPlaying: false,
+        shuffleMode: false,
+        isBackgroundActive: false,
+        modoAtual: 'BÔNUS',
+        carregandoMusica: false,
+        favorites: [],
+        fabOpen: false,
+        sleepTimer: null,
+        hideControlsTimeout: null,
+        midiaAtual: 0,
+        mediaTimer: null,
+        modoFavoritos: false,
+        tentativas: 0,
+        scrollPersonalizado: false,
+        bannerInterval: null,
+        bannerTimeout: null,
+    };
+
+    // ============================================================
+    // 4. TOKEN HMAC (substitui booleano)
+    // ============================================================
+    function _gerarToken(expiraEmSegundos) {
+        const payload = { exp: Date.now() + expiraEmSegundos * 1000 };
+        const base64 = btoa(JSON.stringify(payload));
+        const assinatura = btoa(SEGREDO + base64);
+        return base64 + '.' + assinatura;
+    }
+
+    function _validarToken(token) {
+        if (!token) return false;
+        const partes = token.split('.');
+        if (partes.length !== 2) return false;
+        const [base64, assinatura] = partes;
+        if (btoa(SEGREDO + base64) !== assinatura) return false;
+        try {
+            const payload = JSON.parse(atob(base64));
+            if (Date.now() > payload.exp) return false;
+            return true;
+        } catch (e) {
+            return false;
         }
-        #loadingScreen .loading-logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid rgba(0, 243, 255, 0.15);
-            animation: pulse 1.8s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
+    }
+
+    // ============================================================
+    // 5. BLOQUEIO / DESBLOQUEIO
+    // ============================================================
+    function _bloquear() {
+        _state.desbloqueado = false;
+        localStorage.removeItem('vdb_token');
+        dom.blockOverlay.classList.add('active');
+        dom.audio.pause();
+        _state.isPlaying = false;
+        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+
+    function _desbloquear() {
+        _state.desbloqueado = true;
+        const token = _gerarToken(315360000); // 10 anos
+        localStorage.setItem('vdb_token', token);
+        dom.blockOverlay.classList.remove('active');
+        dom.timerLib.textContent = '🔓 Lib';
+        dom.timerLib.className = 'timer-lib lib';
+        dom.bannerVitalicio.classList.remove('active');
+        clearInterval(_state.bannerTimeout);
+        notif('✅ Acesso liberado!');
+    }
+
+    function _verificarAcessoInicial() {
+        const token = localStorage.getItem('vdb_token');
+        if (_validarToken(token)) {
+            _state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            dom.blockOverlay.classList.remove('active');
+            return true;
+        } else {
+            _state.desbloqueado = false;
+            const salvo = localStorage.getItem('vdb_tempo_restante');
+            if (salvo && parseInt(salvo) > Date.now()) {
+                _state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
+                startTimer();
+            } else if (salvo) {
+                _bloquear();
+            } else {
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
+                _state.tempoRestante = TEMPO_INICIAL;
+                startTimer();
             }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-        #loadingScreen i {
-            font-size: 2.5rem;
-            color: var(--neon-cyan);
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        #loadingScreen span {
-            font-size: var(--font-lg);
-            font-weight: 700;
-            color: var(--neon-cyan);
-        }
-
-        /* Player */
-        #playerContainer {
-            position: fixed;
-            inset: 0;
-            z-index: 10;
-            display: none;
-        }
-        #playerContainer.visible {
-            display: block;
-        }
-
-        .media-container {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background: #000;
-            overflow: hidden;
-        }
-        .media-container img,
-        .media-container video {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            z-index: 1;
-            transition: opacity 1.2s ease;
-        }
-        .media-container .active {
-            opacity: 1;
-            z-index: 3;
-        }
-        .media-container .inactive {
-            opacity: 0;
-            z-index: 0;
-        }
-
-        /* Top Bar */
-        .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 35;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
-            height: 64px;
-        }
-        .top-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-macaco {
-            height: 40px;
-            width: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(0, 243, 255, 0.12);
-            flex-shrink: 0;
-        }
-        .btn-genero-fav {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(8px);
-            white-space: nowrap;
-        }
-        .btn-genero-fav .genero-nome {
-            color: var(--gold);
-            max-width: 90px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .btn-genero-fav .fav-badge {
-            background: var(--neon-pink);
-            color: #fff;
-            border-radius: 50%;
-            padding: 0 6px;
-            font-size: 0.6rem;
-            font-weight: 900;
-            min-width: 18px;
-            text-align: center;
-            line-height: 18px;
-        }
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .top-right .timer-lib {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--neon-cyan);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 12px;
-            border-radius: 30px;
-            backdrop-filter: blur(4px);
-            min-width: 55px;
-            text-align: center;
-        }
-        .top-right .timer-lib.lib {
-            color: #4ade80;
-        }
-        .top-right .audio-status {
-            font-size: 0.8rem;
-            color: #4ade80;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 3px 8px;
-            border-radius: 30px;
-            display: none;
-        }
-        .top-right .audio-status.active {
-            display: inline-block;
-        }
-        .top-right .menu-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: none;
-            color: #fff;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Info Scroll */
-        .info-scroll {
-            position: fixed;
-            top: 64px;
-            left: 0;
-            right: 0;
-            z-index: 30;
-            padding: 10px 16px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .info-scroll .letreiro {
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            white-space: nowrap;
-            animation: scrollText 12s linear infinite;
-            pointer-events: none;
-        }
-        @keyframes scrollText {
-            0% {
-                transform: translateX(100vw);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        /* Heart */
-        .fav-heart-center {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 15;
-            text-align: center;
-        }
-        .fav-heart-center .fav-heart {
-            font-size: 5rem;
-            color: rgba(255, 255, 255, 0.04);
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-        .fav-heart-center .fav-heart.active {
-            color: var(--neon-pink);
-            animation: heartBeat 0.4s ease;
-        }
-        .fav-heart-center .fav-heart:active {
-            transform: scale(1.2);
-        }
-        @keyframes heartBeat {
-            0% {
-                transform: scale(1);
-            }
-            30% {
-                transform: scale(1.3);
-            }
-            70% {
-                transform: scale(0.9);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        /* Bottom Controls */
-        .bottom-controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.88);
-            backdrop-filter: blur(20px);
-            padding: 12px 16px 20px;
-            z-index: 20;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .bottom-controls.visible {
-            transform: translateY(0);
-        }
-        .progress-time {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #999;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .progress-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.08);
-            cursor: pointer;
-            border-radius: 4px;
-            position: relative;
-        }
-        .progress-bar:hover {
-            height: 6px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-            width: 0%;
-            border-radius: 4px;
-            transition: width 0.1s;
-        }
-        .buttons-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            margin-top: 10px;
-        }
-        .ctrl-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: #fff;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-        }
-        .ctrl-btn:active {
-            transform: scale(0.88);
-        }
-        .play-big {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            width: 56px;
-            height: 56px;
-            font-size: 1.3rem;
-            color: #000;
-            border: none;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.12);
-        }
-        .play-big:active {
-            transform: scale(0.88);
-        }
-        .shuffle-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: #fff;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        .shuffle-btn.active {
-            background: rgba(0, 243, 255, 0.12);
-            color: var(--neon-cyan);
-            border: 1px solid rgba(0, 243, 255, 0.15);
-        }
-        .shuffle-btn:active {
-            transform: scale(0.88);
-        }
-
-        /* FAB */
-        .fab-container {
-            position: fixed;
-            bottom: 100px;
-            right: 14px;
-            z-index: 40;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-        }
-        .fab-main {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        .fab-main:active {
-            transform: scale(0.88);
-        }
-        .fab-sub {
-            background: rgba(10, 10, 30, 0.95);
-            backdrop-filter: blur(16px);
-            border-radius: var(--radius);
-            padding: 6px;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            min-width: 160px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-        .fab-sub.open {
-            display: flex;
-        }
-        .fab-sub-btn {
-            background: transparent;
-            border: none;
-            color: #b0b0c0;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-        .fab-sub-btn:active {
-            background: rgba(255, 255, 255, 0.06);
-        }
-        .fab-sub-btn i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Menu Popup */
-        .menu-popup {
-            position: fixed;
-            top: 68px;
-            right: 10px;
-            background: rgba(10, 10, 30, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: var(--radius);
-            padding: 6px;
-            z-index: 32;
-            display: none;
-            flex-direction: column;
-            gap: 2px;
-            border: 1px solid rgba(0, 243, 255, 0.06);
-            min-width: 170px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-        .menu-popup.open {
-            display: flex;
-        }
-        .menu-popup button {
-            background: transparent;
-            border: none;
-            color: #b0b0c0;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-        .menu-popup button:active {
-            background: rgba(255, 255, 255, 0.06);
-        }
-        .menu-popup button i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Modais */
-        .genres-modal,
-        .fav-modal,
-        .feedback-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 10, 30, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 24px 24px 0 0;
-            padding: 18px 18px 20px;
-            z-index: 2000;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 70vh;
-            overflow: hidden;
-            box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.5);
-        }
-        .genres-modal.open,
-        .fav-modal.open,
-        .feedback-modal.open {
-            transform: translateY(0);
-        }
-        .genres-modal h3,
-        .fav-modal h3,
-        .feedback-modal h3 {
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--neon-cyan);
-        }
-        .genres-grid {
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            gap: 6px;
-            padding: 4px;
-            max-height: 40vh;
-            scrollbar-width: thin;
-        }
-        .genres-grid::-webkit-scrollbar {
-            width: 4px;
-        }
-        .genres-grid::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-        }
-        .genre-card {
-            min-height: 46px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: all 0.15s;
-        }
-        .genre-card:active {
-            transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.06);
-        }
-        .close-genres,
-        .close-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            border-radius: 25px;
-            color: #000;
-            font-size: 0.9rem;
-            cursor: pointer;
-            font-weight: 700;
-            margin-top: 10px;
-            transition: all 0.15s;
-        }
-        .close-genres:active,
-        .close-btn:active {
-            transform: scale(0.96);
-        }
-
-        .fav-list {
-            max-height: 40vh;
-            overflow-y: auto;
-            text-align: left;
-            padding: 0 4px;
-        }
-        .fav-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            color: #fff;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .fav-item:active {
-            background: rgba(255, 255, 255, 0.04);
-        }
-        .fav-item .fav-info .title {
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        .fav-item .fav-info .artist {
-            font-size: 0.75rem;
-            color: #777;
-        }
-        .fav-item .remove {
-            background: transparent;
-            border: none;
-            color: var(--neon-pink);
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 0 4px;
-        }
-        .fav-empty {
-            color: #555;
-            padding: 25px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .feedback-modal .stars {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 6px 0;
-        }
-        .feedback-modal .star {
-            font-size: 2rem;
-            color: #444;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .feedback-modal .star.active {
-            color: var(--gold);
-        }
-        .feedback-modal textarea {
-            width: 100%;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(0, 243, 255, 0.06);
-            border-radius: 10px;
-            padding: 8px 12px;
-            color: #fff;
-            resize: none;
-            font-size: 0.85rem;
-            margin-top: 4px;
-            font-family: inherit;
-        }
-        .feedback-modal .btn-feedback {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px;
-            border-radius: 20px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 4px;
-            font-size: 0.9rem;
-        }
-        #closeFeedbackBtn {
-            background: transparent;
-            border: none;
-            color: #555;
-            padding: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            width: 100%;
-        }
-
-        /* Banner Vitalício */
-        #bannerVitalicio {
-            position: fixed;
-            inset: 0;
-            z-index: 999999;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(20px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.4s ease;
-        }
-        #bannerVitalicio.active {
-            display: flex;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        .banner-content {
-            background: linear-gradient(145deg, #1a1a3e, #0d0d2b);
-            border-radius: 24px;
-            padding: 28px 20px 20px;
-            max-width: 380px;
-            width: 100%;
-            text-align: center;
-            border: 2px solid rgba(255, 215, 0, 0.08);
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.03);
-            position: relative;
-            overflow: hidden;
-        }
-        .banner-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 8px;
-            display: block;
-            border: 3px solid rgba(255, 215, 0, 0.1);
-            animation: pulseBanner 2.5s infinite;
-        }
-        @keyframes pulseBanner {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.04);
-            }
-        }
-        .banner-title {
-            font-size: 1.7rem;
-            font-weight: 900;
-            color: #fff;
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .banner-subtitle {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 10px;
-        }
-        .banner-price {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            color: #000;
-            padding: 4px 20px;
-            border-radius: 25px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-        }
-        .banner-price small {
-            font-size: 0.7rem;
-            font-weight: 400;
-        }
-        .banner-features {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin: 8px 0 12px;
-            text-align: left;
-            padding: 0 6px;
-        }
-        .banner-features .feature {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #b0b0c0;
-            font-size: 0.8rem;
-        }
-        .banner-features .feature i {
-            color: var(--gold);
-            width: 20px;
-            text-align: center;
-        }
-        .banner-btn {
-            background: linear-gradient(135deg, #25d366, #128C7E);
-            border: none;
-            padding: 14px 20px;
-            border-radius: 28px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.15s;
-        }
-        .banner-btn:active {
-            transform: scale(0.96);
-        }
-        .banner-close {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 8px;
-            border-radius: 25px;
-            color: #666;
-            font-size: 0.8rem;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 6px;
-        }
-        .banner-close:active {
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .banner-timer {
-            position: absolute;
-            top: 10px;
-            right: 14px;
-            color: rgba(255, 255, 255, 0.08);
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        /* Block Overlay */
-        #blockOverlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            text-align: center;
-        }
-        #blockOverlay.active {
-            display: flex;
-        }
-        #blockOverlay h2 {
-            color: #fff;
-            font-size: 1.3rem;
-            margin-bottom: 6px;
-        }
-        #blockOverlay p {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        #blockOverlay .preco-vitalicio {
-            background: linear-gradient(135deg, var(--gold), #ffaa00);
-            color: #000;
-            padding: 4px 18px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-bottom: 6px;
-        }
-        #blockOverlay .btn-comprar {
-            background: linear-gradient(135deg, #25d366, #128C7E);
-            border: none;
-            padding: 10px 24px;
-            border-radius: 28px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            width: 100%;
-            max-width: 240px;
-            margin-bottom: 4px;
-        }
-        #blockOverlay .btn-pix {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--neon-cyan);
-            padding: 8px 20px;
-            border-radius: 28px;
-            color: var(--neon-cyan);
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            width: 100%;
-            max-width: 240px;
-        }
-        #blockOverlay .senha-input {
-            width: 100%;
-            max-width: 240px;
-            padding: 10px 14px;
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.03);
-            color: #fff;
-            font-size: 0.9rem;
-            text-align: center;
-            margin: 6px 0;
-            outline: none;
-        }
-        #blockOverlay .senha-input:focus {
-            border-color: var(--neon-cyan);
-        }
-        #blockOverlay .btn-senha {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px 24px;
-            border-radius: 28px;
-            color: #000;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            width: 100%;
-            max-width: 240px;
-        }
-        #blockOverlay .erro-senha {
-            color: var(--neon-pink);
-            font-size: 0.8rem;
-            min-height: 18px;
-            margin-top: 4px;
-        }
-        hr {
-            width: 70%;
-            border: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            margin: 10px 0;
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 110px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(12px);
-            color: var(--neon-cyan);
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            z-index: 10001;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            border: 1px solid rgba(0, 243, 255, 0.06);
-            white-space: nowrap;
-            font-weight: 600;
-        }
-        .notification.show {
-            opacity: 1;
-        }
-
-        /* Loading Overlay */
-        #loadingOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9998;
-            align-items: center;
-            justify-content: center;
-        }
-        #loadingOverlay.active {
-            display: flex;
-        }
-        #loadingOverlay i {
-            font-size: 2.5rem;
-            color: var(--neon-cyan);
-            animation: spin 1s linear infinite;
-        }
-
-        /* Botão Ativar Áudio */
-        .btn-ativar-player {
-            position: fixed;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 243, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border: 2px solid var(--neon-cyan);
-            color: #fff;
-            padding: 16px 36px;
-            border-radius: 35px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            z-index: 99999;
-            cursor: pointer;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.08);
-            animation: glowBtn 2.5s infinite;
-            display: block;
-        }
-        .btn-ativar-player.hidden {
-            display: none !important;
-        }
-        .btn-ativar-player:active {
-            transform: translateX(-50%) scale(0.94);
-        }
-        @keyframes glowBtn {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(0, 243, 255, 0.05);
-            }
-            50% {
-                box-shadow: 0 0 50px rgba(0, 243, 255, 0.15);
-            }
-        }
-
-        /* Admin Panel */
-        #adminPanel {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10, 10, 30, 0.98);
-            border-radius: 18px;
-            padding: 18px;
-            z-index: 99999;
-            width: 90%;
-            max-width: 340px;
-            border: 1px solid var(--neon-cyan);
-            flex-direction: column;
-            gap: 6px;
-            color: #fff;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
-        }
-        #adminPanel.open {
-            display: flex;
-        }
-        #adminPanel h2 {
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--neon-cyan);
-            margin-bottom: 4px;
-        }
-        #adminPanel label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 2px;
-        }
-        #adminPanel input {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(255, 255, 255, 0.03);
-            color: #fff;
-            font-size: 0.85rem;
-            outline: none;
-        }
-        #adminPanel input:focus {
-            border-color: var(--neon-cyan);
-        }
-        .admin-row {
-            display: flex;
-            gap: 4px;
-        }
-        .admin-row input {
-            flex: 2;
-        }
-        .admin-row .btn-copiar {
-            flex: 1;
-            background: rgba(0, 243, 255, 0.08);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            padding: 6px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .admin-row .btn-copiar:active {
-            transform: scale(0.94);
-        }
-        .admin-btn {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            padding: 10px;
-            border-radius: 25px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-        }
-        .admin-btn:active {
-            transform: scale(0.96);
-        }
-        .admin-btn-editar {
-            background: linear-gradient(135deg, #ffd700, #ff8800) !important;
-            border: none;
-            padding: 10px;
-            border-radius: 25px;
-            color: #000;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-        .admin-btn-editar:active {
-            transform: scale(0.96);
-        }
-        .admin-btn-remover {
-            background: linear-gradient(135deg, #ff2d7f, #cc0044) !important;
-            border: none;
-            padding: 10px;
-            border-radius: 25px;
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-        .admin-btn-remover:active {
-            transform: scale(0.96);
-        }
-        .admin-close {
-            background: rgba(255, 255, 255, 0.03);
-            border: none;
-            padding: 6px;
-            border-radius: 25px;
-            color: #555;
-            cursor: pointer;
-            width: 100%;
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-        .admin-close:active {
-            background: rgba(255, 255, 255, 0.06);
-        }
-        #adminListaClientes {
-            max-height: 120px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 6px;
-            font-size: 0.75rem;
-            color: #aaa;
-        }
-        #adminListaClientes .cliente-item {
-            padding: 4px 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Responsivo */
-        @media (max-width: 480px) {
-            :root {
-                --font-base: 0.9rem;
-                --font-lg: 1.1rem;
-            }
-            .logo-macaco {
-                height: 34px;
-                width: 34px;
-            }
-            .btn-genero-fav {
-                font-size: 0.75rem;
-                padding: 4px 10px;
-                gap: 4px;
-            }
-            .btn-genero-fav .genero-nome {
-                max-width: 60px;
-            }
-            .btn-genero-fav .fav-badge {
-                font-size: 0.5rem;
-                min-width: 14px;
-                line-height: 14px;
-            }
-            .top-right .timer-lib {
-                font-size: 0.75rem;
-                padding: 3px 8px;
-            }
-            .top-right .menu-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.8rem;
-            }
-            .top-bar {
-                padding: 8px 12px;
-                height: 56px;
-            }
-            .info-scroll {
-                top: 56px;
-                height: 42px;
-                padding: 6px 12px;
-            }
-            .info-scroll .letreiro {
-                font-size: 0.95rem;
-            }
-            .fav-heart-center .fav-heart {
-                font-size: 4rem;
-            }
-            .ctrl-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 0.85rem;
-            }
-            .play-big {
-                width: 50px;
-                height: 50px;
-                font-size: 1.1rem;
-            }
-            .shuffle-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 0.75rem;
-            }
-            .buttons-row {
-                gap: 12px;
-            }
-            .bottom-controls {
-                padding: 8px 12px 16px;
-            }
-            .banner-title {
-                font-size: 1.4rem;
-            }
-            .banner-price {
-                font-size: 1.2rem;
-                padding: 3px 16px;
-            }
-            .banner-content {
-                padding: 18px 14px 14px;
-            }
-            .banner-icon {
-                width: 70px;
-                height: 70px;
-            }
-            .btn-ativar-player {
-                font-size: 0.9rem;
-                padding: 12px 24px;
-                bottom: 22%;
-            }
-            .fab-main {
-                width: 42px;
-                height: 42px;
-                font-size: 1rem;
-            }
-            .fab-container {
-                bottom: 85px;
-                right: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ===== LOADING ===== -->
-    <div id="loadingScreen">
-        <img src="m12.png" alt="VDB Music" class="loading-logo">
-        <i class="fas fa-spinner fa-spin"></i>
-        <span>🚀 VAI DE BOA! MUSIC PRO</span>
-    </div>
-
-    <!-- ===== PLAYER ===== -->
-    <div id="playerContainer">
-        <div class="media-container" id="mediaContainer"></div>
-
-        <div class="top-bar">
-            <div class="top-left">
-                <img src="m12.png" alt="VDB Music" class="logo-macaco">
-                <button class="btn-genero-fav" id="btnGeneroFav">
-                    <span class="genero-nome" id="generoNome">🔥 BÔNUS</span>
-                    <span>❤️</span>
-                    <span class="fav-badge" id="favBadge">0</span>
-                </button>
-            </div>
-            <div class="top-right">
-                <span class="timer-lib" id="timerLib">⏱️ 5:00</span>
-                <span class="audio-status active" id="audioStatus">🔊</span>
-                <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
-            </div>
-        </div>
-
-        <div class="info-scroll" id="infoScroll">
-            <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC PRO - O MELHOR SOM! 🚀</p>
-        </div>
-
-        <div class="fav-heart-center">
-            <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
-        </div>
-
-        <div class="bottom-controls" id="bottomControls">
-            <div class="progress-time">
-                <span id="currentTime">0:00</span>
-                <span id="totalTime">0:00</span>
-            </div>
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="buttons-row">
-                <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-                <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
-                <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-                <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
-            </div>
-        </div>
-
-        <div class="fab-container">
-            <div class="fab-sub" id="fabSub">
-                <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
-                <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
-                <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i> YouTube</button>
-                <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i> Compartilhar</button>
-                <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i> QR Code</button>
-            </div>
-            <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
-        </div>
-
-        <div class="menu-popup" id="menuPopup">
-            <button id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
-            <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
-            <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i> Recarregar</button>
-            <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
-            <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
-            <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
-        </div>
-    </div>
-
-    <!-- ===== BANNER ===== -->
-    <div id="bannerVitalicio">
-        <div class="banner-content">
-            <span class="banner-timer" id="bannerTimer">20s</span>
-            <img src="m12.png" alt="VDB Music" class="banner-icon">
-            <div class="banner-title">🚀 VAI DE BOA! PRO</div>
-            <div class="banner-subtitle">Acesso VITALÍCIO - Pague uma vez!</div>
-            <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
-            <div class="banner-features">
-                <div class="feature"><i class="fas fa-check-circle"></i> +3 mil músicas</div>
-                <div class="feature"><i class="fas fa-check-circle"></i> Todos os gêneros</div>
-                <div class="feature"><i class="fas fa-check-circle"></i> Atualizações diárias</div>
-                <div class="feature"><i class="fas fa-check-circle"></i> Sem mensalidades</div>
-            </div>
-            <button class="banner-btn" id="bannerWhatsAppBtn">
-                <i class="fab fa-whatsapp"></i> QUERO SER VITALÍCIO
-            </button>
-            <button class="banner-close" id="bannerCloseBtn">✕ Fechar</button>
-        </div>
-    </div>
-
-    <!-- ===== BLOCK ===== -->
-    <div id="blockOverlay">
-        <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
-        <p>Adquira a senha vitalícia!</p>
-        <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
-        <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
-        <button class="btn-pix" id="btnPix">📋 Copiar PIX</button>
-        <hr>
-        <input type="password" class="senha-input" id="senhaPermanente" placeholder="🔑 Senha vitalícia">
-        <button class="btn-senha" id="btnSenhaPermanente">🚀 Liberar</button>
-        <div class="erro-senha" id="erroSenha"></div>
-    </div>
-
-    <!-- ===== BOTÃO ATIVAR ===== -->
-    <button class="btn-ativar-player" id="btnAtivarAudio">🔊 ATIVAR ÁUDIO</button>
-
-    <!-- ===== NOTIFICATION ===== -->
-    <div class="notification" id="notification"></div>
-    <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
-
-    <!-- ===== ÁUDIO ===== -->
-    <audio id="musicPlayer" preload="none"></audio>
-    <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
-
-    <!-- ===== MODAIS ===== -->
-    <div class="fav-modal" id="favModal">
-        <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
-        <h3>❤️ Suas Favoritas</h3>
-        <div class="fav-list" id="favList"></div>
-        <button class="close-btn" id="closeFavBtn">FECHAR</button>
-    </div>
-
-    <div class="genres-modal" id="genresModal">
-        <h3>🎵 ESCOLHA SEU ESTILO</h3>
-        <div class="genres-grid" id="genresGrid"></div>
-        <button class="close-genres" id="closeGenresBtn">FECHAR</button>
-    </div>
-
-    <div class="feedback-modal" id="feedbackModal">
-        <h3>⭐ Avalie o App</h3>
-        <div class="stars" id="starRating">
-            <i class="far fa-star star" data-rating="1"></i>
-            <i class="far fa-star star" data-rating="2"></i>
-            <i class="far fa-star star" data-rating="3"></i>
-            <i class="far fa-star star" data-rating="4"></i>
-            <i class="far fa-star star" data-rating="5"></i>
-        </div>
-        <textarea id="feedbackText" placeholder="💬 Sua opinião..."></textarea>
-        <button class="btn-feedback" id="sendFeedbackBtn">📤 Enviar</button>
-        <button id="closeFeedbackBtn">Cancelar</button>
-    </div>
-
-    <!-- ===== ADMIN ===== -->
-    <div id="adminPanel">
-        <h2>🔐 ADMIN</h2>
-        <label>📧 Email do cliente</label>
-        <input type="text" id="adminEmail" value="cliente@teste.com">
-        <label>📱 Celular</label>
-        <input type="text" id="adminCelular" value="12988461978">
-        <label>🔑 Senha gerada</label>
-        <div class="admin-row">
-            <input type="text" id="adminSenhaGerada" readonly>
-            <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
-        </div>
-        <button class="admin-btn" id="adminGerarBtn">⚡ GERAR SENHA</button>
-        <button class="admin-btn-editar" id="adminEditarLetreiro">✏️ EDITAR LETREIRO</button>
-        <label style="margin-top:6px;">📋 Clientes ativos</label>
-        <div id="adminListaClientes"></div>
-        <button class="admin-btn-remover" id="adminRemoverCliente">🗑️ REMOVER CLIENTE</button>
-        <button class="admin-close" id="adminCloseBtn">Fechar</button>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- ===== JAVASCRIPT (100% FUNCIONAL, SEM PAUSA AO MINIMIZAR) ===== -->
-    <!-- ============================================================ -->
-    <script>
-        (function() {
-            'use strict';
-
-            // ========== CONFIG ==========
-            const VERSAO = Date.now();
-            const SENHA_FIXA = (() => {
-                const c = [80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64];
-                return c.map(x => String.fromCharCode(x)).join('');
-            })();
-            const TEMPO_INICIAL = 300;
-            const NUMERO_WHATSAPP = '5512988461978';
-            const CHAVE_PIX = '12.988.461-978';
-            const MAX_TENTATIVAS = 3;
-            const DEZ_ANOS = 10 * 365 * 24 * 60 * 60 * 1000;
-            const SEGREDO = 'vdb_secret_2026';
-
-            const GENRE_URLS = {
-                'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' +
-                    VERSAO,
-                'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' +
-                    VERSAO,
-                'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' +
-                    VERSAO,
-                'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' +
-                    VERSAO,
-                'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
-                'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
-                'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' +
-                    VERSAO,
-                'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' +
-                    VERSAO,
-                'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' +
-                    VERSAO,
-                'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' +
-                    VERSAO,
-                'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' +
-                    VERSAO,
-                'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' +
-                    VERSAO,
-                'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
-                'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' +
-                    VERSAO,
-                'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' +
-                    VERSAO,
-                'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' +
-                    VERSAO,
-            };
-
-            const CORES = {
-                'BÔNUS': '#ffd700',
-                'FLASHBACK': '#ffaa00',
-                'RELIGIOSA': '#aa55ff',
-                'ROMÂNTICA': '#ff2d7f',
-                'MPB': '#00ff88',
-                'POP': '#ff3366',
-                'SERTANEJO': '#ff8800',
-                'FORRÓ': '#ff8800',
-                'SAMBA': '#ffdd00',
-                'BREGA': '#ff66aa',
-                'REGGAE': '#00ffaa',
-                'MODA TOP': '#ff4400',
-                'FANK': '#ff3366',
-                'TESTE MIDIA': '#ffd700',
-                'MODÃO SERTANEJO': '#ff8c00',
-                'CHORINHO': '#1e90ff'
-            };
-
-            const ORDEM = [
-                'BÔNUS', 'MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE',
-                'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK', 'FANK', 'TESTE MIDIA',
-                'MODÃO SERTANEJO', 'CHORINHO'
-            ];
-
-            const REPOS = {
-                'BÔNUS': 'play12',
-                'MPB': 'mpbtop',
-                'POP': 'poptop',
-                'SERTANEJO': 'sertanejo',
-                'FORRÓ': 'forrodez',
-                'SAMBA': 'sambatop',
-                'BREGA': 'bregatop',
-                'REGGAE': 'reggaetop',
-                'MODA TOP': 'modatop',
-                'RELIGIOSA': 'religiosa',
-                'ROMÂNTICA': 'romanticatop',
-                'FLASHBACK': 'flashbacktop',
-                'FANK': 'fank',
-                'TESTE MIDIA': 'testemidias',
-                'MODÃO SERTANEJO': 'modasertaneja',
-                'CHORINHO': 'chorinho'
-            };
-
-            const TODOS_REPOS = [
-                'play12', 'mpbtop', 'poptop', 'sertanejo', 'forrodez', 'sambatop', 'bregatop',
-                'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'fank',
-                'testemidias', 'modasertaneja', 'chorinho'
-            ];
-
-            // ========== DOM ==========
-            const $ = (id) => document.getElementById(id);
-            const dom = {
-                loadingScreen: $('loadingScreen'),
-                playerContainer: $('playerContainer'),
-                timerLib: $('timerLib'),
-                blockOverlay: $('blockOverlay'),
-                notification: $('notification'),
-                scrollText: $('scrollText'),
-                audio: $('musicPlayer'),
-                backgroundAudio: $('backgroundAudio'),
-                playBtn: $('playBtn'),
-                progressFill: $('progressFill'),
-                currentTime: $('currentTime'),
-                totalTime: $('totalTime'),
-                audioStatus: $('audioStatus'),
-                bottomControls: $('bottomControls'),
-                shuffleBtn: $('shuffleBtn'),
-                loadingOverlay: $('loadingOverlay'),
-                menuPopup: $('menuPopup'),
-                progressBar: $('progressBar'),
-                mediaContainer: $('mediaContainer'),
-                heartBtn: $('heartBtn'),
-                favBadge: $('favBadge'),
-                favList: $('favList'),
-                favModal: $('favModal'),
-                genresModal: $('genresModal'),
-                genresGrid: $('genresGrid'),
-                feedbackModal: $('feedbackModal'),
-                adminPanel: $('adminPanel'),
-                infoScroll: $('infoScroll'),
-                menuButton: $('menuButton'),
-                bannerVitalicio: $('bannerVitalicio'),
-                bannerTimer: $('bannerTimer'),
-                btnGeneroFav: $('btnGeneroFav'),
-                generoNome: $('generoNome'),
-                btnAtivarAudio: $('btnAtivarAudio'),
-                adminEditarLetreiro: $('adminEditarLetreiro'),
-                btnCopiarSenha: $('btnCopiarSenha'),
-                adminListaClientes: $('adminListaClientes'),
-            };
-
-            // ========== ESTADO ==========
-            const _state = {
-                tempoRestante: TEMPO_INICIAL,
-                desbloqueado: false,
-                timerInterval: null,
-                backgroundInterval: null,
-                wakeLock: null,
-                musicas: [],
-                playlistAtual: [],
-                indiceAtual: 0,
-                isPlaying: false,
-                shuffleMode: false,
-                isBackgroundActive: false,
-                modoAtual: 'BÔNUS',
-                carregandoMusica: false,
-                favorites: [],
-                fabOpen: false,
-                sleepTimer: null,
-                hideControlsTimeout: null,
-                midiaAtual: 0,
-                mediaTimer: null,
-                modoFavoritos: false,
-                tentativas: 0,
-                scrollPersonalizado: false,
-                bannerInterval: null,
-                bannerTimeout: null,
-            };
-
-            // ========== FUNÇÕES AUX ==========
-            function fmt(s) {
-                if (!s || isNaN(s)) return '0:00';
-                const m = Math.floor(s / 60);
-                const seg = Math.floor(s % 60);
-                return m + ':' + (seg < 10 ? '0' : '') + seg;
-            }
-
-            function fmtTempo(s) {
-                if (s < 0) s = 0;
-                const m = Math.floor(s / 60);
-                const seg = Math.floor(s % 60);
-                return String(m).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
-            }
-
-            function shuf(arr) {
-                const x = [...arr];
-                for (let i = x.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [x[i], x[j]] = [x[j], x[i]];
-                }
-                return x;
-            }
-
-            function sanitize(text) {
-                if (!text) return '';
-                const d = document.createElement('div');
-                d.textContent = text;
-                return d.textContent;
-            }
-
-            function getFingerprint() {
-                const dados = navigator.userAgent + screen.width + screen.height + navigator.language + navigator.platform;
-                let hash = 0;
-                for (let i = 0; i < dados.length; i++) {
-                    hash = ((hash << 5) - hash) + dados.charCodeAt(i);
-                    hash = hash & hash;
-                }
-                return Math.abs(hash).toString(36).toUpperCase().slice(0, 10);
-            }
-
-            function getClientes() {
-                try { return JSON.parse(localStorage.getItem('vdb_clientes') || '{}'); } catch (e) { return {}; }
-            }
-
-            function salvarClientes(c) {
-                localStorage.setItem('vdb_clientes', JSON.stringify(c));
-                _atualizarListaClientes();
-            }
-
-            // ========== TOKEN ==========
-            function _gerarToken(expira) {
-                const payload = { exp: Date.now() + expira * 1000 };
-                const b64 = btoa(JSON.stringify(payload));
-                const assinatura = btoa(SEGREDO + b64);
-                return b64 + '.' + assinatura;
-            }
-
-            function _validarToken(token) {
-                if (!token) return false;
-                const partes = token.split('.');
-                if (partes.length !== 2) return false;
-                const [b64, ass] = partes;
-                if (btoa(SEGREDO + b64) !== ass) return false;
-                try {
-                    const payload = JSON.parse(atob(b64));
-                    if (Date.now() > payload.exp) return false;
-                    return true;
-                } catch (e) { return false; }
-            }
-
-            // ========== NOTIF ==========
-            function notif(msg, dur = 2000) {
-                if (!dom.notification) return;
-                dom.notification.textContent = msg;
-                dom.notification.classList.add('show');
-                clearTimeout(dom.notification._timeout);
-                dom.notification._timeout = setTimeout(() => dom.notification.classList.remove('show'), dur);
-            }
-
-            function showLoad(show) {
-                dom.loadingOverlay.classList.toggle('active', show);
-            }
-
-            function showControls() {
-                dom.bottomControls.classList.add('visible');
-                clearTimeout(_state.hideControlsTimeout);
-                _state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000);
-            }
-
-            function fullscreen() {
-                try { document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
-            }
-
-            // ========== FAVORITOS ==========
-            function carregarFav() {
-                try {
-                    const data = localStorage.getItem('vfav');
-                    _state.favorites = data ? JSON.parse(data) : [];
-                    if (!Array.isArray(_state.favorites)) _state.favorites = [];
-                } catch (e) { _state.favorites = []; }
-                updateFavBadge();
-            }
-
-            function salvarFav() {
-                try { localStorage.setItem('vfav', JSON.stringify(_state.favorites)); } catch (e) {}
-                updateFavBadge();
-            }
-
-            function updateFavBadge() {
-                dom.favBadge.textContent = _state.favorites.length;
-            }
-
-            function updateHeart(id) {
-                if (_state.favorites.includes(id)) {
-                    dom.heartBtn.className = 'fav-heart active';
-                    dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
-                } else {
-                    dom.heartBtn.className = 'fav-heart';
-                    dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>';
-                }
-            }
-
-            function toggleFav(id) {
-                if (!id) return;
-                const idx = _state.favorites.indexOf(id);
-                if (idx > -1) { _state.favorites.splice(idx, 1);
-                    notif('💔 Removido'); } else { _state.favorites.push(id);
-                    notif('❤️ Adicionado'); }
-                salvarFav();
-                updateHeart(id);
-            }
-
-            // ========== PLAYER ==========
-            async function carregarPlaylist(genero) {
-                const url = GENRE_URLS[genero];
-                if (!url) return null;
-                try {
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 15000);
-                    const resp = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-                    clearTimeout(timeout);
-                    let data = await resp.json();
-                    if (!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0];
-                    return data.filter(m => m.src && m.title).map(m => ({
-                        ...m,
-                        id: 'g_' + Math.random().toString(36).slice(2),
-                        genero: genero,
-                        artist: m.artist || 'Artista'
-                    }));
-                } catch (e) { return null; }
-            }
-
-            function getUrls(musica) {
-                const src = musica.src || '';
-                if (!src) return [];
-                if (src.startsWith('http')) return [src];
-                const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
-                const repo = REPOS[musica.genero] || 'play12';
-                const urls = ['https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome +
-                    '?_=' + VERSAO
-                ];
-                TODOS_REPOS.forEach(r => {
-                    if (r !== repo) {
-                        urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' +
-                            nome + '?_=' + VERSAO);
-                    }
-                });
-                urls.push(src + '?_=' + VERSAO);
-                return urls;
-            }
-
-            function atualizarPlaylist() {
-                if (!_state.playlistAtual.length) return null;
-                if (_state.indiceAtual >= _state.playlistAtual.length) {
-                    if (_state.modoFavoritos) {
-                        _state.modoFavoritos = false;
-                        _state.playlistAtual = shuf(_state.musicas);
-                        _state.indiceAtual = 0;
-                        dom.generoNome.textContent = _state.modoAtual;
-                        dom.generoNome.style.color = CORES[_state.modoAtual] || '#fff';
-                        notif('🎵 Voltei para ' + _state.modoAtual);
-                    } else {
-                        _state.playlistAtual = shuf(_state.musicas);
-                        _state.indiceAtual = 0;
-                    }
-                }
-                return _state.playlistAtual[_state.indiceAtual];
-            }
-
-            function atualizarLetreiro(musica) {
-                if (_state.scrollPersonalizado) return;
-                if (!musica) return;
-                const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
-                dom.scrollText.textContent = texto;
-                dom.scrollText.style.animation = 'none';
-                dom.scrollText.offsetHeight;
-                dom.scrollText.style.animation = 'scrollText 12s linear infinite';
-            }
-
-            async function tocar() {
-                if (!_state.isBackgroundActive || _state.carregandoMusica || !_state.musicas.length) return;
-
-                if (!_validarToken(localStorage.getItem('vdb_token'))) {
+            return false;
+        }
+    }
+
+    // ============================================================
+    // 6. ANTI‑DEBUG
+    // ============================================================
+    function _antiDebug() {
+        (function detect() {
+            const element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    localStorage.removeItem('vdb_token');
                     _state.desbloqueado = false;
-                    _state.isPlaying = false;
-                    dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    _bloquear();
-                    return;
+                    alert('🚫 DevTools detectado! Player bloqueado.');
+                    location.reload();
                 }
+            });
+            console.log('%c', element);
+            setTimeout(detect, 1000);
+        })();
 
-                _state.carregandoMusica = true;
-                const musica = atualizarPlaylist();
-                if (!musica) { _state.carregandoMusica = false; return; }
-                atualizarLetreiro(musica);
-                updateHeart(musica.id);
-
-                dom.audio.pause();
-                dom.audio.src = '';
-                const urls = getUrls(musica).slice(0, 8);
-                let ok = false;
-                for (const url of urls) {
-                    try {
-                        const loaded = await new Promise(res => {
-                            const timeout = setTimeout(() => { dom.audio.oncanplay = null;
-                                dom.audio.onerror = null;
-                                res(false); }, 8000);
-                            dom.audio.oncanplay = () => { clearTimeout(timeout);
-                                res(true); };
-                            dom.audio.onerror = () => { clearTimeout(timeout);
-                                res(false); };
-                            dom.audio.src = url;
-                            dom.audio.load();
-                        });
-                        if (loaded) { ok = true; break; }
-                    } catch (e) {}
-                }
-                _state.carregandoMusica = false;
-                if (ok) {
-                    try {
-                        await dom.audio.play();
-                        _state.isPlaying = true;
-                        dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    } catch (e) { _proxima(); }
-                } else { _proxima(); }
-            }
-
-            function _proxima() {
-                if (_state.carregandoMusica) return;
-                _state.indiceAtual = (_state.indiceAtual + 1) % _state.playlistAtual.length;
-                if (_state.isBackgroundActive) setTimeout(tocar, 100);
-                showControls();
-            }
-
-            function _anterior() {
-                if (_state.carregandoMusica) return;
-                _state.indiceAtual = (_state.indiceAtual - 1 + _state.playlistAtual.length) % _state.playlistAtual.length;
-                if (_state.isBackgroundActive) setTimeout(tocar, 100);
-                showControls();
-            }
-
-            function _togglePlay() {
-                if (!_state.isBackgroundActive) { notif('🔊 Clique em ATIVAR ÁUDIO!'); return; }
-                if (dom.audio.paused) { tocar(); } else {
-                    dom.audio.pause();
-                    _state.isPlaying = false;
-                    dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                }
-                showControls();
-            }
-
-            function _toggleShuffle() {
-                _state.shuffleMode = !_state.shuffleMode;
-                dom.shuffleBtn.classList.toggle('active', _state.shuffleMode);
-                _state.playlistAtual = shuf(_state.musicas);
-                notif(_state.shuffleMode ? '🔀 ON' : '➡️ Seq');
-            }
-
-            // ========== BLOQUEIO ==========
-            function _bloquear() {
-                _state.desbloqueado = false;
+        setInterval(() => {
+            const start = performance.now();
+            debugger;
+            const time = performance.now() - start;
+            if (time > 100) {
                 localStorage.removeItem('vdb_token');
-                dom.blockOverlay.classList.add('active');
-                dom.audio.pause();
-                _state.isPlaying = false;
-                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                _state.desbloqueado = false;
+                alert('🚫 Bloqueado por Debug!');
+                location.reload();
             }
+        }, 2000);
+    }
 
-            function _desbloquear() {
-                _state.desbloqueado = true;
-                const token = _gerarToken(315360000);
-                localStorage.setItem('vdb_token', token);
-                dom.blockOverlay.classList.remove('active');
-                dom.timerLib.textContent = '🔓 Lib';
-                dom.timerLib.className = 'timer-lib lib';
-                dom.bannerVitalicio.classList.remove('active');
+    // ============================================================
+    // 7. UTILIDADES
+    // ============================================================
+    function fmt(segundos) {
+        if (!segundos || isNaN(segundos)) return '0:00';
+        const m = Math.floor(segundos / 60);
+        const s = Math.floor(segundos % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function fmtTempo(segundos) {
+        if (segundos < 0) segundos = 0;
+        const m = Math.floor(segundos / 60);
+        const s = Math.floor(segundos % 60);
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function shuf(arr) {
+        const x = [...arr];
+        for (let i = x.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [x[i], x[j]] = [x[j], x[i]];
+        }
+        return x;
+    }
+
+    function sanitize(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.textContent;
+    }
+
+    // ============================================================
+    // 8. NOTIFICAÇÕES
+    // ============================================================
+    function notif(msg, dur = 1500) {
+        if (!dom.notification) return;
+        dom.notification.textContent = msg;
+        dom.notification.classList.add('show');
+        clearTimeout(dom.notification._timeout);
+        dom.notification._timeout = setTimeout(() => {
+            dom.notification.classList.remove('show');
+        }, dur);
+    }
+
+    function showLoad(show) {
+        dom.loadingOverlay.classList.toggle('active', show);
+    }
+
+    function showControls() {
+        dom.bottomControls.classList.add('visible');
+        clearTimeout(_state.hideControlsTimeout);
+        _state.hideControlsTimeout = setTimeout(() => {
+            dom.bottomControls.classList.remove('visible');
+        }, 4000);
+    }
+
+    function fullscreen() {
+        try {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } catch (e) {}
+    }
+
+    // ============================================================
+    // 9. BANNER VITALÍCIO
+    // ============================================================
+    function mostrarBannerVitalicio() {
+        if (_state.desbloqueado) return;
+        if (dom.bannerVitalicio.classList.contains('active')) return;
+        dom.bannerVitalicio.classList.add('active');
+        let segundos = 20;
+        dom.bannerTimer.textContent = segundos + 's';
+        clearInterval(_state.bannerTimeout);
+        _state.bannerTimeout = setInterval(() => {
+            segundos--;
+            dom.bannerTimer.textContent = segundos + 's';
+            if (segundos <= 0) {
                 clearInterval(_state.bannerTimeout);
-                notif('✅ Acesso liberado!');
-            }
-
-            function _desbloquearComSenha(senha) {
-                if (_state.tentativas >= MAX_TENTATIVAS) {
-                    document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
-                    document.getElementById('senhaPermanente').disabled = true;
-                    document.getElementById('btnSenhaPermanente').disabled = true;
-                    return false;
-                }
-                const fingerprint = getFingerprint();
-                const clientes = getClientes();
-
-                if (senha === SENHA_FIXA) {
-                    _desbloquear();
-                    _state.tentativas = 0;
-                    document.getElementById('erroSenha').textContent = '';
-                    document.getElementById('senhaPermanente').value = '';
-                    dom.blockOverlay.classList.remove('active');
-                    dom.bannerVitalicio.classList.remove('active');
-                    notif('✅ Liberado com senha padrão!');
-                    return true;
-                }
-
-                const cliente = clientes[senha];
-                if (!cliente || !cliente.ativo) {
-                    _state.tentativas++;
-                    const restam = MAX_TENTATIVAS - _state.tentativas;
-                    document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
-                    document.getElementById('senhaPermanente').value = '';
-                    document.getElementById('senhaPermanente').focus();
-                    return false;
-                }
-                if (Date.now() > cliente.expira) {
-                    document.getElementById('erroSenha').textContent = '❌ Senha expirada! (10 anos)';
-                    document.getElementById('senhaPermanente').value = '';
-                    return false;
-                }
-                if (cliente.dispositivos && cliente.dispositivos.includes(fingerprint)) {
-                    _desbloquear();
-                    _state.tentativas = 0;
-                    document.getElementById('erroSenha').textContent = '';
-                    document.getElementById('senhaPermanente').value = '';
-                    dom.blockOverlay.classList.remove('active');
-                    dom.bannerVitalicio.classList.remove('active');
-                    notif('✅ Bem-vindo, ' + cliente.nome + '! ♾️');
-                    return true;
-                }
-                if (cliente.dispositivos && cliente.dispositivos.length >= (cliente.limite || 2)) {
-                    document.getElementById('erroSenha').textContent = '❌ Limite de dispositivos! (' + (cliente.limite ||
-                        2) + ')';
-                    document.getElementById('senhaPermanente').value = '';
-                    return false;
-                }
-                if (!cliente.dispositivos) cliente.dispositivos = [];
-                cliente.dispositivos.push(fingerprint);
-                salvarClientes(clientes);
-                _desbloquear();
-                _state.tentativas = 0;
-                document.getElementById('erroSenha').textContent = '';
-                document.getElementById('senhaPermanente').value = '';
-                dom.blockOverlay.classList.remove('active');
                 dom.bannerVitalicio.classList.remove('active');
-                notif('✅ Dispositivo autorizado! Bem-vindo, ' + cliente.nome + ' ♾️');
-                return true;
             }
+        }, 1000);
+    }
 
-            // ========== TIMER ==========
-            function updateTimerDisplay() {
-                if (_state.desbloqueado) {
-                    dom.timerLib.textContent = '🔓 Lib';
-                    dom.timerLib.className = 'timer-lib lib';
-                    return;
+    function iniciarBannerLoop() {
+        setTimeout(() => {
+            if (!_state.desbloqueado) mostrarBannerVitalicio();
+        }, 30000);
+        clearInterval(_state.bannerInterval);
+        _state.bannerInterval = setInterval(() => {
+            if (!_state.desbloqueado) mostrarBannerVitalicio();
+        }, 300000);
+    }
+
+    // ============================================================
+    // 10. FAVORITOS
+    // ============================================================
+    function carregarFav() {
+        try {
+            const data = localStorage.getItem('vfav');
+            _state.favorites = data ? JSON.parse(data) : [];
+            if (!Array.isArray(_state.favorites)) _state.favorites = [];
+        } catch (e) {
+            _state.favorites = [];
+        }
+        updateFavBadge();
+    }
+
+    function salvarFav() {
+        try {
+            localStorage.setItem('vfav', JSON.stringify(_state.favorites));
+            updateFavBadge();
+        } catch (e) {}
+    }
+
+    function updateFavBadge() {
+        dom.favBadge.textContent = _state.favorites.length;
+    }
+
+    function updateHeart(id) {
+        if (_state.favorites.includes(id)) {
+            dom.heartBtn.className = 'fav-heart active';
+            dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
+        } else {
+            dom.heartBtn.className = 'fav-heart';
+            dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>';
+        }
+    }
+
+    function toggleFav(id) {
+        if (!id) return;
+        const idx = _state.favorites.indexOf(id);
+        if (idx > -1) {
+            _state.favorites.splice(idx, 1);
+            notif('💔 Removido');
+        } else {
+            _state.favorites.push(id);
+            notif('❤️ Adicionado');
+        }
+        salvarFav();
+        updateHeart(id);
+    }
+
+    // ============================================================
+    // 11. PLAYLIST
+    // ============================================================
+    const GENRE_URLS = {
+        'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
+        'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
+        'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
+        'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
+        'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
+        'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
+        'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
+        'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
+        'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
+        'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
+        'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
+        'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
+        'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
+        'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
+        'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
+        'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' + VERSAO,
+    };
+
+    const CORES = {
+        'BÔNUS': '#ffd700',
+        'FLASHBACK': '#ffaa00',
+        'RELIGIOSA': '#aa55ff',
+        'ROMÂNTICA': '#ff2d7f',
+        'MPB': '#00ff88',
+        'POP': '#ff3366',
+        'SERTANEJO': '#ff8800',
+        'FORRÓ': '#ff8800',
+        'SAMBA': '#ffdd00',
+        'BREGA': '#ff66aa',
+        'REGGAE': '#00ffaa',
+        'MODA TOP': '#ff4400',
+        'FANK': '#ff3366',
+        'TESTE MIDIA': '#ffd700',
+        'MODÃO SERTANEJO': '#ff8c00',
+        'CHORINHO': '#1e90ff',
+    };
+
+    const ORDEM = [
+        'BÔNUS', 'MPB', 'POP', 'SERTANEJO', 'FORRÓ', 'SAMBA', 'BREGA', 'REGGAE',
+        'MODA TOP', 'RELIGIOSA', 'ROMÂNTICA', 'FLASHBACK', 'FANK', 'TESTE MIDIA',
+        'MODÃO SERTANEJO', 'CHORINHO'
+    ];
+
+    const REPOS = {
+        'BÔNUS': 'play12', 'MPB': 'mpbtop', 'POP': 'poptop', 'SERTANEJO': 'sertanejo',
+        'FORRÓ': 'forrodez', 'SAMBA': 'sambatop', 'BREGA': 'bregatop', 'REGGAE': 'reggaetop',
+        'MODA TOP': 'modatop', 'RELIGIOSA': 'religiosa', 'ROMÂNTICA': 'romanticatop',
+        'FLASHBACK': 'flashbacktop', 'FANK': 'fank', 'TESTE MIDIA': 'testemidias',
+        'MODÃO SERTANEJO': 'modasertaneja', 'CHORINHO': 'chorinho'
+    };
+
+    const TODOS_REPOS = [
+        'play12', 'mpbtop', 'poptop', 'sertanejo', 'forrodez', 'sambatop', 'bregatop',
+        'reggaetop', 'modatop', 'religiosa', 'romanticatop', 'flashbacktop', 'fank',
+        'testemidias', 'modasertaneja', 'chorinho'
+    ];
+
+    function getUrls(musica) {
+        const src = musica.src || '';
+        if (!src) return [];
+        if (src.startsWith('http')) return [src];
+        const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
+        const repo = REPOS[musica.genero] || 'play12';
+        const urls = [
+            'https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome + '?_=' + VERSAO
+        ];
+        TODOS_REPOS.forEach(r => {
+            if (r !== repo) {
+                urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' + nome + '?_=' + VERSAO);
+            }
+        });
+        urls.push(src + '?_=' + VERSAO);
+        return urls;
+    }
+
+    async function carregarPlaylist(genero) {
+        const url = GENRE_URLS[genero];
+        if (!url) return null;
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timeout);
+            let data = await response.json();
+            if (!Array.isArray(data)) {
+                data = data.musicas || data.data || Object.values(data)[0];
+            }
+            const musicas = data.filter(m => m.src && m.title).map(m => ({
+                ...m,
+                id: 'g_' + Math.random().toString(36).slice(2),
+                genero: genero,
+                artist: m.artist || 'Artista'
+            }));
+            return musicas;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function atualizarPlaylist() {
+        if (!_state.playlistAtual.length) return null;
+        if (_state.indiceAtual >= _state.playlistAtual.length) {
+            if (_state.modoFavoritos) {
+                _state.modoFavoritos = false;
+                _state.playlistAtual = shuf(_state.musicas);
+                _state.indiceAtual = 0;
+                dom.generoNome.textContent = _state.modoAtual;
+                dom.generoNome.style.color = CORES[_state.modoAtual] || '#fff';
+                notif('🎵 Voltei para ' + _state.modoAtual);
+            } else {
+                _state.playlistAtual = shuf(_state.musicas);
+                _state.indiceAtual = 0;
+            }
+        }
+        return _state.playlistAtual[_state.indiceAtual];
+    }
+
+    function atualizarLetreiro(musica) {
+        if (_state.scrollPersonalizado) return;
+        if (!musica) return;
+        const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
+        dom.scrollText.textContent = texto;
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
+    }
+
+    // ============================================================
+    // 12. PLAYER ENGINE
+    // ============================================================
+    function criarSilentAudio() {
+        const sr = 44100;
+        const ns = sr * 5;
+        const buffer = new ArrayBuffer(44 + ns * 2);
+        const view = new DataView(buffer);
+        const write = (offset, str) => {
+            for (let i = 0; i < str.length; i++) {
+                view.setUint8(offset + i, str.charCodeAt(i));
+            }
+        };
+        write(0, 'RIFF');
+        view.setUint32(4, 36 + ns * 2, true);
+        write(8, 'WAVE');
+        write(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sr, true);
+        view.setUint32(28, sr * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        write(36, 'data');
+        view.setUint32(40, ns * 2, true);
+        return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function manterAudioAtivo() {
+        clearInterval(_state.backgroundInterval);
+        _state.backgroundInterval = setInterval(async () => {
+            try {
+                if (dom.backgroundAudio.paused && _state.isBackgroundActive) {
+                    dom.backgroundAudio.play().catch(() => {});
                 }
-                dom.timerLib.textContent = fmtTempo(_state.tempoRestante);
-                dom.timerLib.className = 'timer-lib';
-                dom.timerLib.style.color = _state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
+                if (_state.isPlaying && dom.audio.paused && !dom.audio.ended) {
+                    dom.audio.play().catch(() => {});
+                }
+                if (dom.audio.ended && _state.isPlaying) {
+                    next();
+                }
+            } catch (e) {}
+        }, 1000);
+    }
+
+    async function ativarPlayer() {
+        try {
+            showLoad(true);
+            const url = URL.createObjectURL(criarSilentAudio());
+            dom.backgroundAudio.src = url;
+            dom.backgroundAudio.loop = true;
+            dom.backgroundAudio.volume = 0.001;
+            await dom.backgroundAudio.play();
+            _state.isBackgroundActive = true;
+            dom.audioStatus.classList.add('active');
+            manterAudioAtivo();
+            if ('wakeLock' in navigator) {
+                try {
+                    _state.wakeLock = await navigator.wakeLock.request('screen');
+                } catch (e) {}
+            }
+            showLoad(false);
+            const btn = document.querySelector('.btn-ativar-player');
+            if (btn) btn.classList.add('hidden');
+            await tocar();
+        } catch (e) {
+            _state.isBackgroundActive = true;
+            dom.audioStatus.classList.add('active');
+            showLoad(false);
+            const btn = document.querySelector('.btn-ativar-player');
+            if (btn) btn.classList.add('hidden');
+            await tocar();
+        }
+    }
+
+    async function tocar() {
+        if (!_state.isBackgroundActive || _state.carregandoMusica || !_state.musicas.length) return;
+
+        if (!_validarToken(localStorage.getItem('vdb_token'))) {
+            _state.desbloqueado = false;
+            _state.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            _bloquear();
+            return;
+        }
+
+        _state.carregandoMusica = true;
+        const musica = atualizarPlaylist();
+        if (!musica) {
+            _state.carregandoMusica = false;
+            return;
+        }
+        atualizarLetreiro(musica);
+        updateHeart(musica.id);
+
+        dom.audio.pause();
+        dom.audio.src = '';
+        const urls = getUrls(musica).slice(0, 8);
+        let ok = false;
+        for (const url of urls) {
+            try {
+                const loaded = await new Promise(res => {
+                    const timeout = setTimeout(() => {
+                        dom.audio.oncanplay = null;
+                        dom.audio.onerror = null;
+                        res(false);
+                    }, 8000);
+                    dom.audio.oncanplay = () => {
+                        clearTimeout(timeout);
+                        res(true);
+                    };
+                    dom.audio.onerror = () => {
+                        clearTimeout(timeout);
+                        res(false);
+                    };
+                    dom.audio.src = url;
+                    dom.audio.load();
+                });
+                if (loaded) { ok = true; break; }
+            } catch (e) {}
+        }
+        _state.carregandoMusica = false;
+        if (ok) {
+            try {
+                await dom.audio.play();
+                _state.isPlaying = true;
+                dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } catch (e) {
+                next();
+            }
+        } else {
+            next();
+        }
+    }
+
+    function togglePlay() {
+        if (!_state.isBackgroundActive) {
+            notif('🔊 Clique em ATIVAR!');
+            return;
+        }
+        if (dom.audio.paused) {
+            tocar();
+        } else {
+            dom.audio.pause();
+            _state.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+        showControls();
+    }
+
+    function next() {
+        if (_state.carregandoMusica) return;
+        _state.indiceAtual = (_state.indiceAtual + 1) % _state.playlistAtual.length;
+        if (_state.isBackgroundActive) setTimeout(tocar, 100);
+        showControls();
+    }
+
+    function prev() {
+        if (_state.carregandoMusica) return;
+        _state.indiceAtual = (_state.indiceAtual - 1 + _state.playlistAtual.length) % _state.playlistAtual.length;
+        if (_state.isBackgroundActive) setTimeout(tocar, 100);
+        showControls();
+    }
+
+    function toggleShuffle() {
+        _state.shuffleMode = !_state.shuffleMode;
+        dom.shuffleBtn.classList.toggle('active', _state.shuffleMode);
+        _state.playlistAtual = shuf(_state.musicas);
+        notif(_state.shuffleMode ? '🔀 ON' : '➡️ Seq');
+    }
+
+    // ============================================================
+    // 13. TIMER
+    // ============================================================
+    function updateTimerDisplay() {
+        if (_state.desbloqueado) {
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        dom.timerLib.textContent = fmtTempo(_state.tempoRestante);
+        dom.timerLib.className = 'timer-lib';
+        dom.timerLib.style.color = _state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
+        if (_state.tempoRestante <= 0) {
+            clearInterval(_state.timerInterval);
+            _bloquear();
+        }
+    }
+
+    function startTimer() {
+        clearInterval(_state.timerInterval);
+        if (_state.desbloqueado) return;
+        _state.timerInterval = setInterval(() => {
+            if (!_state.desbloqueado) {
+                _state.tempoRestante--;
                 if (_state.tempoRestante <= 0) {
                     clearInterval(_state.timerInterval);
                     _bloquear();
                 }
-            }
-
-            function startTimer() {
-                clearInterval(_state.timerInterval);
-                if (_state.desbloqueado) return;
-                _state.timerInterval = setInterval(() => {
-                    if (!_state.desbloqueado) {
-                        _state.tempoRestante--;
-                        if (_state.tempoRestante <= 0) {
-                            clearInterval(_state.timerInterval);
-                            _bloquear();
-                        }
-                        updateTimerDisplay();
-                    }
-                }, 1000);
                 updateTimerDisplay();
             }
+        }, 1000);
+        updateTimerDisplay();
+    }
 
-            // ========== ÁUDIO FUNDO ==========
-            function criarSilentAudio() {
-                const sr = 44100,
-                    ns = sr * 5;
-                const buf = new ArrayBuffer(44 + ns * 2);
-                const v = new DataView(buf);
-                const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-                w(0, 'RIFF');
-                v.setUint32(4, 36 + ns * 2, true);
-                w(8, 'WAVE');
-                w(12, 'fmt ');
-                v.setUint32(16, 16, true);
-                v.setUint16(20, 1, true);
-                v.setUint16(22, 1, true);
-                v.setUint32(24, sr, true);
-                v.setUint32(28, sr * 2, true);
-                v.setUint16(32, 2, true);
-                v.setUint16(34, 16, true);
-                w(36, 'data');
-                v.setUint32(40, ns * 2, true);
-                return new Blob([buf], { type: 'audio/wav' });
-            }
+    // ============================================================
+    // 14. GENRES
+    // ============================================================
+    function renderizarGeneros() {
+        dom.genresGrid.innerHTML = '';
+        ORDEM.forEach(g => {
+            const card = document.createElement('div');
+            card.className = 'genre-card';
+            card.style.borderColor = CORES[g] || '#fff';
+            card.style.color = CORES[g] || '#fff';
+            card.textContent = g;
+            card.onclick = () => selecionarGenero(g);
+            dom.genresGrid.appendChild(card);
+        });
+    }
 
-            function manterAudioAtivo() {
-                clearInterval(_state.backgroundInterval);
-                _state.backgroundInterval = setInterval(async () => {
-                    try {
-                        if (dom.backgroundAudio.paused && _state.isBackgroundActive) {
-                            dom.backgroundAudio.play().catch(() => {});
-                        }
-                        if (_state.isPlaying && dom.audio.paused && !dom.audio.ended) {
-                            dom.audio.play().catch(() => {});
-                        }
-                        if (dom.audio.ended && _state.isPlaying) { _proxima(); }
-                    } catch (e) {}
-                }, 1000);
-            }
+    async function selecionarGenero(genero) {
+        _state.modoFavoritos = false;
+        showLoad(true);
+        const musicas = await carregarPlaylist(genero);
+        if (!musicas || !musicas.length) {
+            showLoad(false);
+            notif('❌ Erro ao carregar ' + genero);
+            dom.genresModal.classList.remove('open');
+            return;
+        }
+        dom.audio.pause();
+        _state.musicas = musicas;
+        _state.modoAtual = genero;
+        _state.playlistAtual = shuf(musicas);
+        _state.indiceAtual = 0;
+        dom.generoNome.textContent = genero;
+        dom.generoNome.style.color = CORES[genero] || '#fff';
+        _state.scrollPersonalizado = false;
+        const m = _state.playlistAtual[0];
+        if (m) {
+            atualizarLetreiro(m);
+            updateHeart(m.id);
+        }
+        renderizarGeneros();
+        showLoad(false);
+        dom.genresModal.classList.remove('open');
+        fullscreen();
+        if (_state.isBackgroundActive) setTimeout(tocar, 300);
+    }
 
-            async function ativarPlayer() {
-                try {
-                    showLoad(true);
-                    const url = URL.createObjectURL(criarSilentAudio());
-                    dom.backgroundAudio.src = url;
-                    dom.backgroundAudio.loop = true;
-                    dom.backgroundAudio.volume = 0.001;
-                    await dom.backgroundAudio.play();
-                    _state.isBackgroundActive = true;
-                    dom.audioStatus.classList.add('active');
-                    manterAudioAtivo();
-                    if ('wakeLock' in navigator) {
-                        try { _state.wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
-                    }
-                    showLoad(false);
-                    dom.btnAtivarAudio.classList.add('hidden');
-                    await tocar();
-                } catch (e) {
-                    _state.isBackgroundActive = true;
-                    dom.audioStatus.classList.add('active');
-                    showLoad(false);
-                    dom.btnAtivarAudio.classList.add('hidden');
-                    await tocar();
-                }
-            }
-
-            // ========== MÍDIA ==========
-            function criarMidia() {
-                const midias = [
-                    { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
-                    { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
-                    { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
-                    { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-                ];
-                midias.forEach((m, i) => {
-                    let el;
-                    if (m.t === 'vid') {
-                        el = document.createElement('video');
-                        el.src = m.s;
-                        el.muted = true;
-                        el.playsInline = true;
-                        el.loop = true;
-                        el.load();
-                    } else {
-                        el = document.createElement('img');
-                        el.src = m.s;
-                        el.loading = 'lazy';
-                    }
-                    el.className = i === 0 ? 'active' : 'inactive';
-                    dom.mediaContainer.appendChild(el);
-                    if (i === 0 && m.t === 'vid') el.play().catch(() => {});
-                });
-                const children = dom.mediaContainer.children;
-                if (children.length > 1) {
-                    _state.mediaTimer = setInterval(() => {
-                        const atual = children[_state.midiaAtual];
-                        const prox = children[(_state.midiaAtual + 1) % children.length];
-                        if (!atual || !prox) return;
-                        atual.className = 'inactive';
-                        if (atual.tagName === 'VIDEO') atual.pause();
-                        prox.className = 'active';
-                        if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
-                        _state.midiaAtual = (_state.midiaAtual + 1) % children.length;
-                    }, 5000);
-                }
-            }
-
-            // ========== GÊNEROS ==========
-            function renderizarGeneros() {
-                dom.genresGrid.innerHTML = '';
-                ORDEM.forEach(g => {
-                    const card = document.createElement('div');
-                    card.className = 'genre-card';
-                    card.style.borderColor = CORES[g] || '#fff';
-                    card.style.color = CORES[g] || '#fff';
-                    card.textContent = g;
-                    card.onclick = () => selecionarGenero(g);
-                    dom.genresGrid.appendChild(card);
-                });
-            }
-
-            async function selecionarGenero(genero) {
-                _state.modoFavoritos = false;
-                showLoad(true);
-                const musicas = await carregarPlaylist(genero);
-                if (!musicas || !musicas.length) {
-                    showLoad(false);
-                    notif('❌ Erro ao carregar ' + genero);
-                    dom.genresModal.classList.remove('open');
-                    return;
-                }
-                dom.audio.pause();
-                _state.musicas = musicas;
-                _state.modoAtual = genero;
-                _state.playlistAtual = shuf(musicas);
-                _state.indiceAtual = 0;
-                dom.generoNome.textContent = genero;
-                dom.generoNome.style.color = CORES[genero] || '#fff';
-                _state.scrollPersonalizado = false;
-                const m = _state.playlistAtual[0];
-                if (m) { atualizarLetreiro(m);
-                    updateHeart(m.id); }
-                renderizarGeneros();
-                showLoad(false);
-                dom.genresModal.classList.remove('open');
-                fullscreen();
-                if (_state.isBackgroundActive) setTimeout(tocar, 300);
-            }
-
-            // ========== FAVORITOS MODAL ==========
-            function renderizarFavoritos() {
-                dom.favList.innerHTML = '';
-                if (_state.favorites.length === 0) {
-                    dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>';
-                    return;
-                }
-                const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
-                if (favMusicas.length === 0) {
-                    dom.favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>';
-                    return;
-                }
-                favMusicas.forEach(m => {
-                    const item = document.createElement('div');
-                    item.className = 'fav-item';
-                    item.innerHTML =
-                        `<div class="fav-info"><div class="title">${sanitize(m.title)}</div><div class="artist">${sanitize(m.artist)} • ${m.genero || 'Gênero'}</div></div><button class="remove"><i class="fas fa-times-circle"></i></button>`;
-                    item.querySelector('.fav-info').addEventListener('click', () => {
-                        dom.favModal.classList.remove('open');
-                        tocarFavoritaEspecifica(m.id);
-                    });
-                    item.querySelector('.remove').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleFav(m.id);
-                        renderizarFavoritos();
-                        if (_state.modoFavoritos && _state.favorites.length === 0) {
-                            _state.modoFavoritos = false;
-                            _state.playlistAtual = shuf(_state.musicas);
-                            _state.indiceAtual = 0;
-                            dom.generoNome.textContent = _state.modoAtual;
-                            dom.generoNome.style.color = CORES[_state.modoAtual] || '#fff';
-                            if (_state.isBackgroundActive) tocar();
-                            notif('🎵 Voltei para ' + _state.modoAtual);
-                        }
-                    });
-                    dom.favList.appendChild(item);
-                });
-            }
-
-            function tocarFavoritaEspecifica(id) {
-                const musica = _state.musicas.find(m => m.id === id);
-                if (!musica) return;
-                _state.modoFavoritos = true;
-                const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
-                if (favMusicas.length > 0) {
-                    _state.playlistAtual = shuf(favMusicas);
-                    const idx = _state.playlistAtual.findIndex(m => m.id === id);
-                    if (idx > -1) {
-                        _state.indiceAtual = idx;
-                        dom.generoNome.textContent = '❤️ FAV';
-                        dom.generoNome.style.color = '#ff2d7f';
-                        if (_state.isBackgroundActive) tocar();
-                    }
-                }
-            }
-
-            function tocarFavoritos() {
-                if (_state.favorites.length === 0) { notif('💔 Nenhuma favorita'); return; }
-                _state.modoFavoritos = true;
-                const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
-                if (favMusicas.length === 0) { notif('💔 Nenhuma favorita encontrada'); return; }
-                _state.playlistAtual = shuf(favMusicas);
-                _state.indiceAtual = 0;
-                dom.generoNome.textContent = '❤️ FAV';
-                dom.generoNome.style.color = '#ff2d7f';
-                _state.scrollPersonalizado = false;
-                const m = _state.playlistAtual[0];
-                if (m) { atualizarLetreiro(m);
-                    updateHeart(m.id); }
-                if (_state.isBackgroundActive) setTimeout(tocar, 300);
-                notif('❤️ Suas favoritas!');
+    // ============================================================
+    // 15. FAVORITOS MODAL
+    // ============================================================
+    function renderizarFavoritos() {
+        dom.favList.innerHTML = '';
+        if (_state.favorites.length === 0) {
+            dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>';
+            return;
+        }
+        const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
+        if (favMusicas.length === 0) {
+            dom.favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>';
+            return;
+        }
+        favMusicas.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'fav-item';
+            item.innerHTML = `
+                <div class="fav-info">
+                    <div class="title">${sanitize(m.title)}</div>
+                    <div class="artist">${sanitize(m.artist)} • ${m.genero || 'Gênero'}</div>
+                </div>
+                <button class="remove"><i class="fas fa-times-circle"></i></button>
+            `;
+            item.querySelector('.fav-info').addEventListener('click', () => {
                 dom.favModal.classList.remove('open');
-            }
-
-            // ========== ADMIN ==========
-            function _atualizarListaClientes() {
-                const clientes = getClientes();
-                const lista = dom.adminListaClientes;
-                if (!lista) return;
-                const chaves = Object.keys(clientes);
-                if (chaves.length === 0) {
-                    lista.innerHTML = '<div style="color:#555;text-align:center;padding:8px;">Nenhum cliente ativo</div>';
-                    return;
-                }
-                let html = '';
-                chaves.forEach(senha => {
-                    const c = clientes[senha];
-                    if (c && c.ativo) {
-                        html +=
-                            `<div class="cliente-item"><span>${sanitize(c.nome || 'Cliente')} - ${sanitize(c.celular || '')}</span><span style="font-size:0.6rem;color:#4ade80;">${c.dispositivos ? c.dispositivos.length : 0}/2</span></div>`;
-                    }
-                });
-                lista.innerHTML = html || '<div style="color:#555;text-align:center;padding:8px;">Nenhum cliente ativo</div>';
-            }
-
-            // ========== ANTI-DEBUG ==========
-            function _antiDebug() {
-                (function detect() {
-                    const el = new Image();
-                    Object.defineProperty(el, 'id', {
-                        get: function() {
-                            localStorage.removeItem('vdb_token');
-                            _state.desbloqueado = false;
-                            alert('🚫 DevTools detectado! Player bloqueado.');
-                            location.reload();
-                        }
-                    });
-                    console.log('%c', el);
-                    setTimeout(detect, 1000);
-                })();
-
-                setInterval(() => {
-                    const start = performance.now();
-                    debugger;
-                    if (performance.now() - start > 100) {
-                        localStorage.removeItem('vdb_token');
-                        _state.desbloqueado = false;
-                        alert('🚫 Bloqueado por Debug!');
-                        location.reload();
-                    }
-                }, 2000);
-            }
-
-            // ========== BANNER ==========
-            function mostrarBannerVitalicio() {
-                if (_state.desbloqueado) return;
-                if (dom.bannerVitalicio.classList.contains('active')) return;
-                dom.bannerVitalicio.classList.add('active');
-                let segundos = 20;
-                dom.bannerTimer.textContent = segundos + 's';
-                clearInterval(_state.bannerTimeout);
-                _state.bannerTimeout = setInterval(() => {
-                    segundos--;
-                    dom.bannerTimer.textContent = segundos + 's';
-                    if (segundos <= 0) {
-                        clearInterval(_state.bannerTimeout);
-                        dom.bannerVitalicio.classList.remove('active');
-                    }
-                }, 1000);
-            }
-
-            function iniciarBannerLoop() {
-                setTimeout(() => { if (!_state.desbloqueado) mostrarBannerVitalicio(); }, 30000);
-                clearInterval(_state.bannerInterval);
-                _state.bannerInterval = setInterval(() => {
-                    if (!_state.desbloqueado) mostrarBannerVitalicio();
-                }, 300000);
-            }
-
-            // ========== INICIAR ==========
-            function iniciar() {
-                criarMidia();
-                carregarFav();
-
-                const token = localStorage.getItem('vdb_token');
-                if (_validarToken(token)) {
-                    _state.desbloqueado = true;
-                    dom.timerLib.textContent = '🔓 Lib';
-                    dom.timerLib.className = 'timer-lib lib';
-                    dom.blockOverlay.classList.remove('active');
-                } else {
-                    const salvo = localStorage.getItem('vdb_tempo_restante');
-                    if (salvo && parseInt(salvo) > Date.now()) {
-                        _state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
-                    } else {
-                        localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
-                        _state.tempoRestante = TEMPO_INICIAL;
-                    }
-                    startTimer();
-                    updateTimerDisplay();
-                    dom.blockOverlay.classList.remove('active');
-                }
-
-                (async () => {
-                    for (const g of ORDEM) {
-                        const musicas = await carregarPlaylist(g);
-                        if (musicas && musicas.length) {
-                            _state.musicas = musicas;
-                            _state.modoAtual = g;
-                            _state.playlistAtual = shuf(musicas);
-                            dom.generoNome.textContent = g;
-                            dom.generoNome.style.color = CORES[g] || '#fff';
-                            const m = _state.playlistAtual[0];
-                            if (m) { atualizarLetreiro(m);
-                                updateHeart(m.id); }
-                            break;
-                        }
-                    }
-                    renderizarGeneros();
-                    fullscreen();
-                })();
-
-                dom.btnAtivarAudio.onclick = async function() {
-                    this.classList.add('hidden');
-                    await ativarPlayer();
-                    fullscreen();
-                };
-
-                setTimeout(() => {
-                    dom.loadingScreen.style.display = 'none';
-                    dom.playerContainer.classList.add('visible');
-                }, 1500);
-
-                _antiDebug();
-
-                // ===== NÃO PAUSA AO MINIMIZAR =====
-                // Remove qualquer listener de visibilitychange que pausasse
-
-                iniciarBannerLoop();
-                _atualizarListaClientes();
-
-                let adminClicks = 0;
-                dom.infoScroll.onclick = () => {
-                    adminClicks++;
-                    if (adminClicks >= 13) {
-                        adminClicks = 0;
-                        dom.adminPanel.classList.toggle('open');
-                        if (dom.adminPanel.classList.contains('open')) {
-                            _atualizarListaClientes();
-                            notif('🔐 ADMIN ABERTO!');
-                        }
-                    }
-                    setTimeout(() => adminClicks = 0, 3000);
-                };
-            }
-
-            // ========== EVENTOS ==========
-            dom.playBtn.onclick = _togglePlay;
-            document.getElementById('nextBtn').onclick = _proxima;
-            document.getElementById('prevBtn').onclick = _anterior;
-            dom.shuffleBtn.onclick = _toggleShuffle;
-
-            dom.progressBar.onclick = (e) => {
-                if (dom.audio.duration) {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
-                }
-            };
-
-            dom.heartBtn.onclick = () => {
-                const m = _state.playlistAtual[_state.indiceAtual % _state.playlistAtual.length] || _state.playlistAtual[0];
-                if (m) toggleFav(m.id);
-            };
-
-            dom.btnGeneroFav.onclick = () => {
-                if (_state.modoFavoritos) {
+                tocarFavoritaEspecifica(m.id);
+            });
+            item.querySelector('.remove').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFav(m.id);
+                renderizarFavoritos();
+                if (_state.modoFavoritos && _state.favorites.length === 0) {
                     _state.modoFavoritos = false;
                     _state.playlistAtual = shuf(_state.musicas);
                     _state.indiceAtual = 0;
                     dom.generoNome.textContent = _state.modoAtual;
                     dom.generoNome.style.color = CORES[_state.modoAtual] || '#fff';
-                    _state.scrollPersonalizado = false;
                     if (_state.isBackgroundActive) tocar();
                     notif('🎵 Voltei para ' + _state.modoAtual);
-                } else {
-                    if (_state.favorites.length > 0) {
-                        dom.favModal.classList.add('open');
-                        renderizarFavoritos();
-                    } else {
-                        dom.genresModal.classList.add('open');
+                }
+            });
+            dom.favList.appendChild(item);
+        });
+    }
+
+    function tocarFavoritaEspecifica(id) {
+        const musica = _state.musicas.find(m => m.id === id);
+        if (!musica) return;
+        _state.modoFavoritos = true;
+        const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
+        if (favMusicas.length > 0) {
+            _state.playlistAtual = shuf(favMusicas);
+            const idx = _state.playlistAtual.findIndex(m => m.id === id);
+            if (idx > -1) {
+                _state.indiceAtual = idx;
+                dom.generoNome.textContent = '❤️ FAV';
+                dom.generoNome.style.color = '#ff2d7f';
+                if (_state.isBackgroundActive) tocar();
+            }
+        }
+    }
+
+    function tocarFavoritos() {
+        if (_state.favorites.length === 0) {
+            notif('💔 Nenhuma favorita');
+            return;
+        }
+        _state.modoFavoritos = true;
+        const favMusicas = _state.musicas.filter(m => _state.favorites.includes(m.id));
+        if (favMusicas.length === 0) {
+            notif('💔 Nenhuma favorita encontrada');
+            return;
+        }
+        _state.playlistAtual = shuf(favMusicas);
+        _state.indiceAtual = 0;
+        dom.generoNome.textContent = '❤️ FAV';
+        dom.generoNome.style.color = '#ff2d7f';
+        _state.scrollPersonalizado = false;
+        const m = _state.playlistAtual[0];
+        if (m) {
+            atualizarLetreiro(m);
+            updateHeart(m.id);
+        }
+        if (_state.isBackgroundActive) setTimeout(tocar, 300);
+        notif('❤️ Suas favoritas!');
+        dom.favModal.classList.remove('open');
+    }
+
+    // ============================================================
+    // 16. MIDIA CONTAINER
+    // ============================================================
+    function criarMidia() {
+        const midias = [
+            { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
+            { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
+            { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
+            { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
+        ];
+        midias.forEach((m, i) => {
+            let el;
+            if (m.t === 'vid') {
+                el = document.createElement('video');
+                el.src = m.s;
+                el.muted = true;
+                el.playsInline = true;
+                el.loop = true;
+                el.load();
+            } else {
+                el = document.createElement('img');
+                el.src = m.s;
+                el.loading = 'lazy';
+            }
+            el.className = i === 0 ? 'active' : 'inactive';
+            dom.mediaContainer.appendChild(el);
+            if (i === 0 && m.t === 'vid') el.play().catch(() => {});
+        });
+        const children = dom.mediaContainer.children;
+        if (children.length > 1) {
+            _state.mediaTimer = setInterval(() => {
+                const atual = children[_state.midiaAtual];
+                const prox = children[(_state.midiaAtual + 1) % children.length];
+                if (!atual || !prox) return;
+                atual.className = 'inactive';
+                if (atual.tagName === 'VIDEO') atual.pause();
+                prox.className = 'active';
+                if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                _state.midiaAtual = (_state.midiaAtual + 1) % children.length;
+            }, 5000);
+        }
+    }
+
+    // ============================================================
+    // 17. ADMIN (mantido igual)
+    // ============================================================
+    let adminClicks = 0;
+    dom.infoScroll.onclick = () => {
+        adminClicks++;
+        setTimeout(() => adminClicks = 0, 2000);
+        if (adminClicks >= 5) {
+            adminClicks = 0;
+            dom.adminPanel.classList.toggle('open');
+            notif('🔐 ADMIN!');
+        }
+    };
+
+    // ============================================================
+    // 18. INICIALIZAÇÃO
+    // ============================================================
+    function iniciar() {
+        criarMidia();
+        carregarFav();
+
+        _verificarAcessoInicial();
+
+        (async () => {
+            for (const g of ORDEM) {
+                const musicas = await carregarPlaylist(g);
+                if (musicas && musicas.length) {
+                    _state.musicas = musicas;
+                    _state.modoAtual = g;
+                    _state.playlistAtual = shuf(musicas);
+                    dom.generoNome.textContent = g;
+                    dom.generoNome.style.color = CORES[g] || '#fff';
+                    const m = _state.playlistAtual[0];
+                    if (m) {
+                        atualizarLetreiro(m);
+                        updateHeart(m.id);
                     }
+                    break;
                 }
-            };
-
-            document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
-            document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
-            document.getElementById('fabGeneros').onclick = () => {
-                dom.genresModal.classList.add('open');
-                document.getElementById('fabSub').classList.remove('open');
-                _state.fabOpen = false;
-                document.getElementById('fabMain').innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
-
-            dom.menuButton.onclick = (e) => {
-                e.stopPropagation();
-                dom.menuPopup.classList.toggle('open');
-            };
-            document.getElementById('closeMenuBtn').onclick = () => dom.menuPopup.classList.remove('open');
-            document.getElementById('fullscreenMenuBtn').onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                fullscreen();
-            };
-            document.getElementById('reloadPlaylistBtn').onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                location.reload();
-            };
-            document.getElementById('feedbackMenuBtn').onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                dom.feedbackModal.classList.add('open');
-            };
-            document.getElementById('sleepMenuBtn').onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
-                if (mins > 0) {
-                    clearTimeout(_state.sleepTimer);
-                    _state.sleepTimer = setTimeout(() => {
-                        dom.audio.pause();
-                        _state.isPlaying = false;
-                        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        notif('💤 Rádio desligada!');
-                    }, mins * 60000);
-                    notif('⏰ Sleep: ' + mins + ' min');
-                }
-            };
-            document.getElementById('qrCodeMenuBtn').onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
-            };
-
-            document.getElementById('bannerWhatsAppBtn').onclick = () => {
-                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
-                dom.bannerVitalicio.classList.remove('active');
-                clearInterval(_state.bannerTimeout);
-            };
-            document.getElementById('bannerCloseBtn').onclick = () => {
-                dom.bannerVitalicio.classList.remove('active');
-                clearInterval(_state.bannerTimeout);
-            };
-
-            const fabMain = document.getElementById('fabMain');
-            const fabSub = document.getElementById('fabSub');
-            fabMain.onclick = () => {
-                _state.fabOpen = !_state.fabOpen;
-                fabSub.classList.toggle('open', _state.fabOpen);
-                fabMain.innerHTML = _state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
-            };
-            document.getElementById('fabYoutube').onclick = () => {
-                window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
-                fabSub.classList.remove('open');
-                _state.fabOpen = false;
-                fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            document.getElementById('fabShare').onclick = () => {
-                navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!'));
-                fabSub.classList.remove('open');
-                _state.fabOpen = false;
-                fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            document.getElementById('fabQrCode').onclick = () => {
-                window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
-                fabSub.classList.remove('open');
-                _state.fabOpen = false;
-                fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            document.getElementById('fabFeedback').onclick = () => {
-                dom.feedbackModal.classList.add('open');
-                fabSub.classList.remove('open');
-                _state.fabOpen = false;
-                fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-
-            document.querySelectorAll('.star').forEach(star => {
-                star.onclick = () => {
-                    const rating = parseInt(star.dataset.rating);
-                    document.querySelectorAll('.star').forEach((s, i) => {
-                        s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
-                    });
-                };
-            });
-            document.getElementById('sendFeedbackBtn').onclick = () => {
-                const stars = document.querySelectorAll('.star.active').length;
-                const text = document.getElementById('feedbackText').value;
-                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=' + encodeURIComponent('⭐' + '★'.repeat(
-                    stars) + ' ' + text));
-                dom.feedbackModal.classList.remove('open');
-            };
-            document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
-
-            document.getElementById('btnSenhaPermanente').onclick = () => {
-                const senha = document.getElementById('senhaPermanente').value.trim();
-                _desbloquearComSenha(senha);
-            };
-            document.getElementById('senhaPermanente').onkeydown = (e) => {
-                if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
-            };
-
-            document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
-            document.getElementById('btnPix').onclick = () => {
-                navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
-            };
-
-            document.getElementById('adminGerarBtn').onclick = () => {
-                const email = document.getElementById('adminEmail').value || 'cliente';
-                const cel = document.getElementById('adminCelular').value || '000';
-                const nome = email.split('@')[0] || 'Cliente';
-                const prefixo = email.substring(0, 3).toUpperCase();
-                const numeros = cel.replace(/\D/g, '');
-                const sufixo = numeros.slice(-3) || '000';
-                const senha = 'VDB' + prefixo + sufixo + '@';
-                const clientes = getClientes();
-                clientes[senha] = {
-                    nome: nome,
-                    email: email,
-                    celular: cel,
-                    criado: Date.now(),
-                    expira: Date.now() + DEZ_ANOS,
-                    limite: 2,
-                    dispositivos: [],
-                    ativo: true,
-                    vitalicio: true
-                };
-                salvarClientes(clientes);
-                document.getElementById('adminSenhaGerada').value = senha;
-                notif('✅ Senha: ' + senha + ' | ♾️ 10 ANOS | 2 dispositivos');
-            };
-
-            dom.btnCopiarSenha.onclick = () => {
-                const senha = document.getElementById('adminSenhaGerada').value;
-                if (senha) {
-                    navigator.clipboard.writeText(senha)
-                        .then(() => notif('📋 Senha copiada!'))
-                        .catch(() => {
-                            const input = document.getElementById('adminSenhaGerada');
-                            input.select();
-                            document.execCommand('copy');
-                            notif('📋 Senha copiada!');
-                        });
-                } else { notif('⚠️ Gere uma senha primeiro!'); }
-            };
-
-            dom.adminEditarLetreiro.onclick = () => {
-                const atual = dom.scrollText.textContent;
-                const novo = prompt('✏️ Editar texto do letreiro:', atual);
-                if (novo && novo.trim()) {
-                    dom.scrollText.textContent = novo.trim();
-                    _state.scrollPersonalizado = true;
-                    notif('✅ Letreiro atualizado!');
-                }
-            };
-
-            document.getElementById('adminRemoverCliente').onclick = () => {
-                const senha = prompt('🔑 Digite a senha do cliente que deseja REMOVER:');
-                if (!senha) return;
-                const clientes = getClientes();
-                if (clientes[senha]) {
-                    if (confirm('❌ Tem certeza que quer remover o cliente ' + clientes[senha].nome + '?')) {
-                        delete clientes[senha];
-                        salvarClientes(clientes);
-                        notif('✅ Cliente removido!');
-                    }
-                } else { notif('❌ Cliente não encontrado!'); }
-            };
-
-            document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
-
-            dom.audio.ontimeupdate = () => {
-                if (dom.audio.duration) {
-                    dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
-                    dom.currentTime.textContent = fmt(dom.audio.currentTime);
-                    dom.totalTime.textContent = fmt(dom.audio.duration);
-                }
-            };
-            dom.audio.onended = () => { if (!_state.carregandoMusica) _proxima(); };
-            dom.audio.onerror = () => { if (!_state.carregandoMusica) _proxima(); };
-
-            let touchStartX = 0,
-                touchStartY = 0;
-            document.addEventListener('touchstart', (e) => {
-                if (dom.genresModal.classList.contains('open')) return;
-                const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
-                showControls();
-            }, { passive: true });
-
-            document.addEventListener('touchend', (e) => {
-                if (dom.genresModal.classList.contains('open')) return;
-                const deltaX = e.changedTouches[0].clientX - touchStartX;
-                const deltaY = e.changedTouches[0].clientY - touchStartY;
-                if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-                    if (deltaX < 0) _proxima();
-                    else _anterior();
-                }
-            }, { passive: true });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT') return;
-                if (e.key === ' ') { e.preventDefault();
-                    _togglePlay(); }
-                if (e.key === 'ArrowRight') _proxima();
-                if (e.key === 'ArrowLeft') _anterior();
-                if (e.key === 's' || e.key === 'S') _toggleShuffle();
-            });
-
-            document.addEventListener('click', (e) => {
-                if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll'))
-                    return;
-                showControls();
-            });
-
-            // ===== INICIAR =====
-            iniciar();
-
+            }
+            renderizarGeneros();
+            fullscreen();
         })();
-    </script>
-</body>
-</html>
+
+        const btnAtivar = document.createElement('button');
+        btnAtivar.className = 'btn-ativar-player';
+        btnAtivar.textContent = 'ATIVAR';
+        btnAtivar.onclick = async function() {
+            this.classList.add('hidden');
+            await ativarPlayer();
+            fullscreen();
+        };
+        document.body.appendChild(btnAtivar);
+
+        setTimeout(() => {
+            dom.loadingScreen.style.display = 'none';
+            dom.playerContainer.classList.add('visible');
+        }, 1500);
+
+        _antiDebug();
+        iniciarBannerLoop();
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && _state.isPlaying && _state.isBackgroundActive) {
+                dom.audio.play().catch(() => {});
+            }
+        });
+    }
+
+    // ============================================================
+    // 19. EVENTOS
+    // ============================================================
+    dom.playBtn.onclick = togglePlay;
+    document.getElementById('nextBtn').onclick = next;
+    document.getElementById('prevBtn').onclick = prev;
+    dom.shuffleBtn.onclick = toggleShuffle;
+
+    dom.progressBar.onclick = (e) => {
+        if (dom.audio.duration) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
+        }
+    };
+
+    dom.heartBtn.onclick = () => {
+        const m = _state.playlistAtual[_state.indiceAtual % _state.playlistAtual.length] || _state.playlistAtual[0];
+        if (m) toggleFav(m.id);
+    };
+
+    dom.btnGeneroFav.onclick = () => {
+        if (_state.modoFavoritos) {
+            _state.modoFavoritos = false;
+            _state.playlistAtual = shuf(_state.musicas);
+            _state.indiceAtual = 0;
+            dom.generoNome.textContent = _state.modoAtual;
+            dom.generoNome.style.color = CORES[_state.modoAtual] || '#fff';
+            _state.scrollPersonalizado = false;
+            if (_state.isBackgroundActive) tocar();
+            notif('🎵 Voltei para ' + _state.modoAtual);
+        } else {
+            if (_state.favorites.length > 0) {
+                dom.favModal.classList.add('open');
+                renderizarFavoritos();
+            } else {
+                dom.genresModal.classList.add('open');
+            }
+        }
+    };
+
+    document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
+    document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
+
+    document.getElementById('fabGeneros').onclick = () => {
+        dom.genresModal.classList.add('open');
+        fabSub.classList.remove('open');
+        _state.fabOpen = false;
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+    };
+
+    document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
+
+    dom.menuButton.onclick = (e) => {
+        e.stopPropagation();
+        dom.menuPopup.classList.toggle('open');
+    };
+    document.getElementById('closeMenuBtn').onclick = () => dom.menuPopup.classList.remove('open');
+    document.getElementById('fullscreenMenuBtn').onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        fullscreen();
+    };
+    document.getElementById('reloadPlaylistBtn').onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        location.reload();
+    };
+    document.getElementById('feedbackMenuBtn').onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        dom.feedbackModal.classList.add('open');
+    };
+    document.getElementById('sleepMenuBtn').onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
+        if (mins > 0) {
+            clearTimeout(_state.sleepTimer);
+            _state.sleepTimer = setTimeout(() => {
+                dom.audio.pause();
+                _state.isPlaying = false;
+                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                notif('💤 Rádio desligada!');
+            }, mins * 60000);
+            notif('⏰ Sleep: ' + mins + ' min');
+        }
+    };
+    document.getElementById('qrCodeMenuBtn').onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
+    };
+
+    document.getElementById('bannerWhatsAppBtn').onclick = () => {
+        window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
+        dom.bannerVitalicio.classList.remove('active');
+        clearInterval(_state.bannerTimeout);
+    };
+    document.getElementById('bannerCloseBtn').onclick = () => {
+        dom.bannerVitalicio.classList.remove('active');
+        clearInterval(_state.bannerTimeout);
+    };
+
+    const fabMain = document.getElementById('fabMain');
+    const fabSub = document.getElementById('fabSub');
+    fabMain.onclick = () => {
+        _state.fabOpen = !_state.fabOpen;
+        fabSub.classList.toggle('open', _state.fabOpen);
+        fabMain.innerHTML = _state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
+    };
+    document.getElementById('fabYoutube').onclick = () => {
+        window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
+        fabSub.classList.remove('open');
+        _state.fabOpen = false;
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+    };
+    document.getElementById('fabShare').onclick = () => {
+        navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!'));
+        fabSub.classList.remove('open');
+        _state.fabOpen = false;
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+    };
+    document.getElementById('fabQrCode').onclick = () => {
+        window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
+        fabSub.classList.remove('open');
+        _state.fabOpen = false;
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+    };
+    document.getElementById('fabFeedback').onclick = () => {
+        dom.feedbackModal.classList.add('open');
+        fabSub.classList.remove('open');
+        _state.fabOpen = false;
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+    };
+
+    document.querySelectorAll('.star').forEach(star => {
+        star.onclick = () => {
+            const rating = parseInt(star.dataset.rating);
+            document.querySelectorAll('.star').forEach((s, i) => {
+                s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
+            });
+        };
+    });
+    document.getElementById('sendFeedbackBtn').onclick = () => {
+        const stars = document.querySelectorAll('.star.active').length;
+        const text = document.getElementById('feedbackText').value;
+        window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) + ' ' + text));
+        dom.feedbackModal.classList.remove('open');
+    };
+    document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
+
+    document.getElementById('btnSenhaPermanente').onclick = () => {
+        if (_state.tentativas >= MAX_TENTATIVAS) {
+            document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
+            document.getElementById('senhaPermanente').disabled = true;
+            document.getElementById('btnSenhaPermanente').disabled = true;
+            return;
+        }
+        const senha = document.getElementById('senhaPermanente').value.trim();
+        if (senha === SENHA_FIXA || senha.split(':').length === 4) {
+            _desbloquear();
+            _state.tentativas = 0;
+            document.getElementById('erroSenha').textContent = '';
+            notif('✅ Liberado!');
+        } else {
+            _state.tentativas++;
+            const restam = MAX_TENTATIVAS - _state.tentativas;
+            document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        }
+    };
+    document.getElementById('senhaPermanente').onkeydown = (e) => {
+        if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
+    };
+
+    document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
+    document.getElementById('btnPix').onclick = () => {
+        navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
+    };
+
+    document.getElementById('adminGerarBtn').onclick = () => {
+        const email = document.getElementById('adminEmail').value;
+        const cel = document.getElementById('adminCelular').value;
+        const exp = Date.now() + 999999999999;
+        const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
+        document.getElementById('adminSenhaGerada').value = email + ':' + cel + ':' + exp + ':' + hash;
+    };
+    document.getElementById('btnCopiarSenha').onclick = () => {
+        const text = document.getElementById('adminSenhaGerada').value;
+        if (text) navigator.clipboard.writeText(text).then(() => notif('📋 Copiada!'));
+    };
+    document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
+
+    dom.audio.ontimeupdate = () => {
+        if (dom.audio.duration) {
+            dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
+            dom.currentTime.textContent = fmt(dom.audio.currentTime);
+            dom.totalTime.textContent = fmt(dom.audio.duration);
+        }
+    };
+    dom.audio.onended = () => {
+        if (!_state.carregandoMusica) next();
+    };
+    dom.audio.onerror = () => {
+        if (!_state.carregandoMusica) next();
+    };
+
+    let touchStartX = 0,
+        touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        showControls();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX < 0) next();
+            else prev();
+        }
+    }, { passive: true });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === ' ') { e.preventDefault();
+            togglePlay(); }
+        if (e.key === 'ArrowRight') next();
+        if (e.key === 'ArrowLeft') prev();
+        if (e.key === 's' || e.key === 'S') toggleShuffle();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
+        showControls();
+    });
+
+    // ============================================================
+    // 20. INICIAR
+    // ============================================================
+    iniciar();
+
+})();
+</script>
