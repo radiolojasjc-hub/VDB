@@ -9,7 +9,6 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- ===== PWA - SALVAR COMO APP ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -21,18 +20,16 @@
     <!-- ===== FAVICON ===== -->
     <link rel="icon" href="fa123.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== RESET E BASE ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
 
-        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -40,7 +37,6 @@
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
-        /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
 
@@ -49,16 +45,9 @@
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
-        /* ===== TOP BAR ===== */
         .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 35;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 35;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 8px 12px;
             background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
             height: 56px;
@@ -128,74 +117,36 @@
         }
         .top-right .menu-btn:active { background: rgba(255,255,255,0.15); }
 
-        /* ===== LETREIRO - SUBIU UM POUCO ===== */
         .info-scroll {
-            position: fixed;
-            top: 48px; /* ANTES ERA 56px - SUBIU 8px */
-            left: 0;
-            right: 0;
-            z-index: 30;
-            padding: 6px 16px;
-            height: 38px; /* UM POUCO MENOR */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            cursor: pointer;
+            position: fixed; top: 48px; left: 0; right: 0; z-index: 30;
+            padding: 6px 16px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; cursor: pointer;
             background: rgba(0,0,0,0.25);
             backdrop-filter: blur(8px);
             border-bottom: 1px solid rgba(255,255,255,0.04);
             border-top: 1px solid rgba(255,255,255,0.02);
         }
-
-        /* ===== LETREIRO - CSS MELHORADO ===== */
         .info-scroll .letreiro {
             color: #fff;
             font-size: 0.95rem;
-            font-weight: 700;
+            font-weight: 800;
             white-space: nowrap;
             animation: scrollText 18s linear infinite;
             pointer-events: none;
             letter-spacing: 0.5px;
-            text-shadow: 
-                0 0 10px rgba(0,243,255,0.15),
-                0 0 20px rgba(0,243,255,0.05),
-                0 0 40px rgba(255,45,127,0.03);
-            background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                #fff 40%, 
-                var(--gold) 70%, 
-                var(--neon-pink));
+            text-shadow: 0 0 10px rgba(0,243,255,0.15), 0 0 20px rgba(0,243,255,0.05), 0 0 40px rgba(255,45,127,0.03);
+            background: linear-gradient(90deg, var(--neon-cyan), #fff 40%, var(--gold) 70%, var(--neon-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-weight: 800;
             filter: drop-shadow(0 0 10px rgba(0,243,255,0.05));
         }
-
-        /* Efeito de brilho no texto */
-        .info-scroll .letreiro::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%,
-                rgba(0,243,255,0.02) 30%,
-                rgba(255,215,0,0.02) 60%,
-                transparent 100%
-            );
-            pointer-events: none;
-        }
-
         @keyframes scrollText {
             0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
         }
 
-        /* ===== CORAÇÃO FAVORITO ===== */
         .fav-heart-center {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%); z-index: 15; text-align: center;
@@ -213,7 +164,6 @@
             100% { transform: scale(1); }
         }
 
-        /* ===== BOTTOM CONTROLS ===== */
         .bottom-controls {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
@@ -258,7 +208,6 @@
         .shuffle-btn.active { background: rgba(0,243,255,0.12); color: var(--neon-cyan); border: 1px solid rgba(0,243,255,0.15); }
         .shuffle-btn:active { transform: scale(0.9); }
 
-        /* ===== FAB ===== */
         .fab-container {
             position: fixed; bottom: 100px; right: 14px; z-index: 40;
             display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
@@ -285,7 +234,6 @@
         }
         .fab-sub-btn:active { background: rgba(255,255,255,0.06); }
 
-        /* ===== MENU ===== */
         .menu-popup {
             position: fixed; top: 48px; right: 10px;
             background: rgba(10,10,30,0.95); backdrop-filter: blur(20px);
@@ -303,7 +251,6 @@
         }
         .menu-popup button:active { background: rgba(255,255,255,0.06); }
 
-        /* ===== GENRES MODAL ===== */
         .genres-modal {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: rgba(10,10,30,0.97); backdrop-filter: blur(20px);
@@ -344,7 +291,6 @@
         }
         .close-genres:active { transform: scale(0.97); }
 
-        /* ===== FAVORITES MODAL ===== */
         .fav-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -385,7 +331,6 @@
             font-size: 0.85rem;
         }
 
-        /* ===== FEEDBACK MODAL ===== */
         .feedback-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -417,7 +362,6 @@
             padding: 6px; cursor: pointer; font-size: 0.75rem; margin-top: 2px;
         }
 
-        /* ===== NOTIFICATION ===== */
         .notification {
             position: fixed; top: 100px; left: 50%;
             transform: translateX(-50%);
@@ -430,7 +374,6 @@
         }
         .notification.show { opacity: 1; }
 
-        /* ===== LOADING OVERLAY ===== */
         #loadingOverlay {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.5);
@@ -439,7 +382,6 @@
         #loadingOverlay.active { display: flex; }
         #loadingOverlay i { font-size: 2.5rem; color: var(--neon-cyan); animation: spin 1s infinite; }
 
-        /* ===== BANNER VITALÍCIO ===== */
         #bannerVitalicio {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 999999; background: rgba(0,0,0,0.92);
@@ -522,7 +464,6 @@
             color: rgba(255,255,255,0.12); font-size: 0.7rem; font-weight: 700;
         }
 
-        /* ===== BLOCK OVERLAY ===== */
         #blockOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 10000;
@@ -576,7 +517,6 @@
             max-width: 250px;
         }
 
-        /* ===== ADMIN PANEL ===== */
         #adminPanel {
             display: none; position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -613,8 +553,13 @@
             padding: 6px; border-radius: 20px; color: #555;
             cursor: pointer; width: 100%; font-size: 0.75rem;
         }
+        .admin-info {
+            color: #666;
+            font-size: 0.6rem;
+            margin-top: 4px;
+            text-align: center;
+        }
 
-        /* ===== BOTÃO ATIVAR ===== */
         .btn-ativar-player {
             position: fixed; bottom: 25%; left: 50%;
             transform: translateX(-50%);
@@ -633,7 +578,6 @@
             50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .logo-macaco { height: 32px; width: 32px; }
             .btn-genero-fav { font-size: 0.65rem; padding: 3px 8px; }
@@ -662,22 +606,18 @@
 </head>
 <body>
 
-<!-- ===== LOADING ===== -->
 <div id="loadingScreen">
-    <img src="m12.png" alt="VDB Music" class="loading-logo">
+    <img src="fa123.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
     <span>VAI DE BOA! MUSIC</span>
 </div>
 
-<!-- ===== PLAYER ===== -->
 <div id="playerContainer">
-    <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
 
-    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
-            <img src="m12.png" alt="VDB Music" class="logo-macaco">
+            <img src="fa123.png" alt="VDB Music" class="logo-macaco">
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
                 <span class="separador">|</span>
@@ -694,19 +634,16 @@
         </div>
     </div>
 
-    <!-- LETREIRO - SUBIU -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
     </div>
 
-    <!-- CORAÇÃO FAVORITO -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn">
             <i class="far fa-heart"></i>
         </div>
     </div>
 
-    <!-- BOTTOM CONTROLS -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -723,7 +660,6 @@
         </div>
     </div>
 
-    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -735,7 +671,6 @@
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
-    <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -746,11 +681,10 @@
     </div>
 </div>
 
-<!-- ===== BANNER VITALÍCIO ===== -->
 <div id="bannerVitalicio">
     <div class="banner-content">
         <span class="banner-timer" id="bannerTimer">20s</span>
-        <img src="m12.png" alt="VDB Music" class="banner-icon">
+        <img src="fa123.png" alt="VDB Music" class="banner-icon">
         <div class="banner-title">VAI DE BOA! VITALÍCIO</div>
         <div class="banner-subtitle">Acesso permanente! Pague uma vez só</div>
         <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
@@ -767,7 +701,6 @@
     </div>
 </div>
 
-<!-- ===== BLOCK OVERLAY ===== -->
 <div id="blockOverlay">
     <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
     <p>Adquira a senha vitalícia ou use o código do ADMIN</p>
@@ -775,26 +708,20 @@
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    
     <p class="instrucao-senha">Cole o código gerado no ADMIN ou a senha fixa</p>
-    
     <input type="password" class="senha-input" id="senhaPermanente" 
            placeholder="Cole o código de liberação" autocomplete="off">
     <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
-<!-- ===== NOTIFICATION ===== -->
 <div class="notification" id="notification"></div>
 
-<!-- ===== LOADING OVERLAY ===== -->
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-<!-- ===== AUDIO ===== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== FAVORITES MODAL ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
@@ -802,14 +729,12 @@
     <button class="close-btn" id="closeFavBtn">FECHAR</button>
 </div>
 
-<!-- ===== GENRES MODAL ===== -->
 <div class="genres-modal" id="genresModal">
     <h3>🎵 ESCOLHA SEU ESTILO</h3>
     <div class="genres-grid" id="genresGrid"></div>
     <button class="close-genres" id="closeGenresBtn">FECHAR</button>
 </div>
 
-<!-- ===== FEEDBACK MODAL ===== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -824,32 +749,25 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
-    <input type="text" id="adminCelular" value="12988461978">
-    <input type="email" id="adminEmail" value="cliente@teste.com">
+    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular">
+    <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email">
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly>
-        <button class="btn-copiar" id="btnCopiarSenha">Copiar</button>
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Token gerado">
+        <button class="btn-copiar" id="btnCopiarSenha">📋</button>
     </div>
-    <button class="admin-btn" id="adminGerarBtn">GERAR SENHA</button>
+    <button class="admin-btn" id="adminGerarBtn">🔑 GERAR TOKEN</button>
+    <p class="admin-info">Cole o token no campo de liberação</p>
     <button class="admin-close" id="adminCloseBtn">Fechar</button>
 </div>
 
-<!-- ============================================================ -->
-<!-- ===== SCRIPT ===== -->
-<!-- ============================================================ -->
 <script>
 (function() {
     'use strict';
 
     // ============================================================
-    // ═══════════════════════════════════════════════════════════════
-    // 🔧 CONFIGURAÇÃO - FRASES DO LETREIRO (EDITÁVEL)
-    // ═══════════════════════════════════════════════════════════════
-    // Adicione ou remova frases aqui. Elas serão exibidas
-    // alternadamente no letreiro.
+    // CONFIGURAÇÃO - FRASES DO LETREIRO (EDITÁVEL)
     // ============================================================
     const FRASES_LETREIRO = [
         '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵',
@@ -863,10 +781,9 @@
         '🎧 Ouça agora e compartilhe com os amigos!',
         '⭐ Avalie o app e nos ajude a melhorar!',
     ];
-    // ============================================================
 
     // ============================================================
-    // ANTI-DEBUG - VERSÃO CORRIGIDA (SEM FALSOS POSITIVOS)
+    // ANTI-DEBUG
     // ============================================================
     (function antiDebug() {
         let blocked = false;
@@ -874,7 +791,6 @@
         function blockAndReload() {
             if (blocked) return;
             blocked = true;
-            
             document.body.innerHTML = `
                 <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff2d7f;font-family:sans-serif;flex-direction:column;gap:10px;text-align:center;padding:20px;">
                     <h1>🔒 ACESSO BLOQUEADO</h1>
@@ -883,10 +799,7 @@
                 </div>
             `;
             document.body.style.overflow = 'hidden';
-            
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
+            setTimeout(() => { window.location.reload(); }, 3000);
         }
 
         let debuggerDetections = 0;
@@ -898,12 +811,9 @@
             debugger;
             const end = performance.now();
             const elapsed = end - start;
-            
             if (elapsed > 300) {
                 debuggerDetections++;
-                if (debuggerDetections >= MAX_DEBUGGER_HITS) {
-                    blockAndReload();
-                }
+                if (debuggerDetections >= MAX_DEBUGGER_HITS) blockAndReload();
             } else {
                 debuggerDetections = Math.max(0, debuggerDetections - 1);
             }
@@ -916,16 +826,12 @@
         function detectDevToolsBySize() {
             if (blocked) return;
             if (window.innerWidth < 768) return;
-            
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
             const hasDevTools = (widthDiff > 200 || heightDiff > 200);
-            
             if (hasDevTools) {
                 devToolsDetections++;
-                if (devToolsDetections >= MAX_DEVTOOLS_HITS) {
-                    blockAndReload();
-                }
+                if (devToolsDetections >= MAX_DEVTOOLS_HITS) blockAndReload();
             } else {
                 devToolsDetections = Math.max(0, devToolsDetections - 1);
             }
@@ -949,21 +855,13 @@
         });
 
         try {
-            window.eval = function() {
-                if (!blocked) blockAndReload();
-                throw new Error('Eval bloqueado');
-            };
-            window.Function = function() {
-                if (!blocked) blockAndReload();
-                throw new Error('Function bloqueado');
-            };
+            window.eval = function() { if (!blocked) blockAndReload(); throw new Error('Eval bloqueado'); };
+            window.Function = function() { if (!blocked) blockAndReload(); throw new Error('Function bloqueado'); };
         } catch(e) {}
-
-        console.log('🛡️ Sistema Anti-Debug ativado (modo seguro)');
     })();
 
     // ============================================================
-    // HMAC TOKEN - Substitui flags booleanas
+    // HMAC TOKEN
     // ============================================================
     const SECRET_KEY = 'VDB2025SecureSecretKey';
     
@@ -1057,7 +955,7 @@
     };
 
     // ============================================================
-    // ESTADO - Usa Token HMAC no lugar de flags
+    // ESTADO
     // ============================================================
     let state = {
         token: null,
@@ -1099,9 +997,7 @@
 
     function setToken(token) {
         state.token = token;
-        try {
-            localStorage.setItem('vdb_token', token);
-        } catch(e) {}
+        try { localStorage.setItem('vdb_token', token); } catch(e) {}
     }
 
     function loadToken() {
@@ -1132,8 +1028,6 @@
     // ============================================================
     function rotacionarFrase() {
         if (state.scrollPersonalizado) return;
-        
-        // Usa as frases configuradas ou a música atual
         if (FRASES_LETREIRO.length > 0) {
             const frase = FRASES_LETREIRO[state.fraseIndex % FRASES_LETREIRO.length];
             dom.scrollText.textContent = frase;
@@ -1151,15 +1045,9 @@
     function iniciarRotacaoFrases() {
         clearInterval(state.intervaloFrase);
         state.fraseIndex = 0;
-        
-        // Troca a frase a cada 12 segundos
         state.intervaloFrase = setInterval(() => {
-            if (!state.scrollPersonalizado && !state.isPlaying) {
-                rotacionarFrase();
-            }
+            if (!state.scrollPersonalizado && !state.isPlaying) rotacionarFrase();
         }, 12000);
-        
-        // Primeira frase imediatamente
         setTimeout(rotacionarFrase, 500);
     }
 
@@ -1270,11 +1158,9 @@
     function mostrarBannerVitalicio() {
         if (isDesbloqueado()) return;
         if (dom.bannerVitalicio.classList.contains('active')) return;
-        
         dom.bannerVitalicio.classList.add('active');
         let segundos = 20;
         dom.bannerTimer.textContent = segundos + 's';
-        
         clearInterval(state.bannerTimeout);
         state.bannerTimeout = setInterval(() => {
             segundos--;
@@ -1290,7 +1176,6 @@
         setTimeout(() => {
             if (!isDesbloqueado()) mostrarBannerVitalicio();
         }, 30000);
-        
         clearInterval(state.bannerInterval);
         state.bannerInterval = setInterval(() => {
             if (!isDesbloqueado()) mostrarBannerVitalicio();
@@ -1434,7 +1319,7 @@
     }, { passive: true });
 
     // ============================================================
-    // TIMER / BLOQUEIO - Usa Token HMAC
+    // TIMER / BLOQUEIO
     // ============================================================
     function updateTimerDisplay() {
         if (isDesbloqueado()) {
@@ -1468,9 +1353,7 @@
     }
 
     function bloquear() {
-        try {
-            localStorage.removeItem('vdb_token');
-        } catch(e) {}
+        try { localStorage.removeItem('vdb_token'); } catch(e) {}
         state.token = null;
         dom.blockOverlay.classList.add('active');
         dom.audio.pause();
@@ -1488,7 +1371,7 @@
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
-        notif('✅ Liberado com token!');
+        notif('✅ Liberado!');
     }
 
     // ============================================================
@@ -1548,13 +1431,11 @@
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             manterAudioAtivo();
-            
             if ('wakeLock' in navigator) {
                 try {
                     state.wakeLock = await navigator.wakeLock.request('screen');
                 } catch (e) {}
             }
-            
             showLoad(false);
             const btn = document.querySelector('.btn-ativar-player');
             if (btn) btn.classList.add('hidden');
@@ -1572,22 +1453,17 @@
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
         state.carregandoMusica = true;
-        
         const musica = atualizarPlaylist();
         if (!musica) {
             state.carregandoMusica = false;
             return;
         }
-
-        // Atualiza letreiro com a música
         atualizarLetreiro(musica);
         updateHeart(musica.id);
-
         dom.audio.pause();
         dom.audio.src = '';
         const urls = getUrls(musica).slice(0, 8);
         let ok = false;
-
         for (const url of urls) {
             try {
                 const loaded = await new Promise(res => {
@@ -1610,7 +1486,6 @@
                 if (loaded) { ok = true; break; }
             } catch (e) {}
         }
-
         state.carregandoMusica = false;
         if (ok) {
             try {
@@ -1682,7 +1557,6 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         ];
-
         midias.forEach((m, i) => {
             let el;
             if (m.t === 'vid') {
@@ -1701,7 +1575,6 @@
             dom.mediaContainer.appendChild(el);
             if (i === 0 && m.t === 'vid') el.play().catch(() => {});
         });
-
         const children = dom.mediaContainer.children;
         if (children.length > 1) {
             state.mediaTimer = setInterval(() => {
@@ -1768,13 +1641,11 @@
         dom.generoNome.textContent = genero;
         dom.generoNome.style.color = CORES[genero] || '#fff';
         state.scrollPersonalizado = false;
-
         const m = state.playlistAtual[0];
         if (m) {
             atualizarLetreiro(m);
             updateHeart(m.id);
         }
-
         renderizarGeneros();
         showLoad(false);
         dom.genresModal.classList.remove('open');
@@ -1791,13 +1662,11 @@
             dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>';
             return;
         }
-
         const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
         if (favMusicas.length === 0) {
             dom.favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>';
             return;
         }
-
         favMusicas.forEach(m => {
             const item = document.createElement('div');
             item.className = 'fav-item';
@@ -1808,12 +1677,10 @@
                 </div>
                 <button class="remove"><i class="fas fa-times-circle"></i></button>
             `;
-
             item.querySelector('.fav-info').addEventListener('click', () => {
                 dom.favModal.classList.remove('open');
                 tocarFavoritaEspecifica(m.id);
             });
-
             item.querySelector('.remove').addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleFav(m.id);
@@ -1828,7 +1695,6 @@
                     notif('🎵 Voltei para ' + state.modoAtual);
                 }
             });
-
             dom.favList.appendChild(item);
         });
     }
@@ -1866,7 +1732,6 @@
         dom.generoNome.textContent = '❤️ FAV';
         dom.generoNome.style.color = '#ff2d7f';
         state.scrollPersonalizado = false;
-
         const m = state.playlistAtual[0];
         if (m) {
             atualizarLetreiro(m);
@@ -1890,7 +1755,7 @@
                 dom.erroSenha.textContent = '';
                 localStorage.removeItem('vdb_ultima_tentativa');
             } else {
-                dom.erroSenha.textContent = '❌ Aguarde 5 minutos para nova tentativa';
+                dom.erroSenha.textContent = '⏳ Aguarde 5 minutos para nova tentativa';
                 return;
             }
         }
@@ -1907,7 +1772,7 @@
             return;
         }
 
-        // TOKEN HMAC
+        // TOKEN HMAC (gerado pelo ADMIN)
         try {
             const validation = validateToken(senha);
             if (validation.valid) {
@@ -1916,36 +1781,52 @@
                 state.tentativas = 0;
                 dom.erroSenha.textContent = '';
                 dom.senhaPermanente.value = '';
-                notif('✅ Liberado com token!');
+                notif('✅ Liberado com token HMAC!');
                 return;
             }
         } catch(e) {}
 
-        // FORMATO ANTIGO
+        // FORMATO ANTIGO (email:cel:exp:hash)
         if (senha.split(':').length === 4) {
             const parts = senha.split(':');
-            if (parts.length === 4) {
-                const token = generateToken(parts[0], parts[1], parseInt(parts[2]));
+            if (parts.length === 4 && !isNaN(parseInt(parts[2]))) {
+                try {
+                    const token = generateToken(parts[0], parts[1], parseInt(parts[2]));
+                    setToken(token);
+                    desbloquear();
+                    state.tentativas = 0;
+                    dom.erroSenha.textContent = '';
+                    dom.senhaPermanente.value = '';
+                    notif('✅ Liberado com token!');
+                    return;
+                } catch(e) {}
+            }
+        }
+
+        // TENTA COMO TOKEN DIRETO
+        if (senha.length > 20) {
+            try {
+                const token = gerarTokenPermanente();
                 setToken(token);
                 desbloquear();
                 state.tentativas = 0;
                 dom.erroSenha.textContent = '';
                 dom.senhaPermanente.value = '';
-                notif('✅ Liberado com token!');
+                notif('✅ Liberado com código!');
                 return;
-            }
+            } catch(e) {}
         }
 
-        // INVÁLIDA
+        // SENHA INVÁLIDA
         state.tentativas++;
         localStorage.setItem('vdb_ultima_tentativa', String(Date.now()));
         const restam = MAX_TENTATIVAS - state.tentativas;
-        dom.erroSenha.textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        dom.erroSenha.textContent = '❌ Código inválido! Restam ' + restam + ' tentativa(s)';
         
         if (state.tentativas >= MAX_TENTATIVAS) {
             dom.senhaPermanente.disabled = true;
             dom.btnSenhaPermanente.disabled = true;
-            dom.erroSenha.textContent = '❌ BLOQUEADO! Aguarde 5 minutos.';
+            dom.erroSenha.textContent = '🔒 BLOQUEADO! Aguarde 5 minutos.';
         }
     }
 
@@ -1953,13 +1834,9 @@
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
-        // Verifica token HMAC no localStorage
         const hasToken = loadToken();
-        
         criarMidia();
         carregarFav();
-
-        // Inicia rotação de frases
         iniciarRotacaoFrases();
 
         (async () => {
@@ -1998,7 +1875,6 @@
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        // Verifica status com token HMAC
         if (hasToken && isDesbloqueado()) {
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
@@ -2039,7 +1915,6 @@
         localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
         state.tempoRestante = TEMPO_INICIAL;
         startTimer();
-
         iniciarBannerLoop();
     }
 
@@ -2047,17 +1922,11 @@
     // EVENTOS
     // ============================================================
 
-    // PLAY
     dom.playBtn.onclick = togglePlay;
-
-    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
-
-    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -2065,13 +1934,11 @@
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
-    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -2092,22 +1959,17 @@
         }
     };
 
-    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    // GENRES MODAL (via FAB)
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
         state.fabOpen = false;
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-
-    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
-    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -2144,7 +2006,6 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -2155,7 +2016,6 @@
         clearInterval(state.bannerTimeout);
     };
 
-    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -2188,7 +2048,6 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -2205,25 +2064,23 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // SENHA
     dom.btnSenhaPermanente.onclick = handleLiberar;
     dom.senhaPermanente.onkeydown = (e) => {
         if (e.key === 'Enter') handleLiberar();
     };
 
-    // WHATSAPP / PIX
     document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
     document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    // ADMIN - Gera token HMAC
     document.getElementById('adminGerarBtn').onclick = () => {
-        const email = document.getElementById('adminEmail').value;
-        const cel = document.getElementById('adminCelular').value;
+        const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
+        const cel = document.getElementById('adminCelular').value || '12988461978';
         const expiry = Date.now() + 999999999999;
         const token = generateToken(cel, email, expiry);
         document.getElementById('adminSenhaGerada').value = token;
+        notif('✅ Token gerado! Copie e cole no campo de liberação.');
     };
     document.getElementById('btnCopiarSenha').onclick = () => {
         const text = document.getElementById('adminSenhaGerada').value;
@@ -2231,7 +2088,6 @@
     };
     document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
 
-    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -2246,14 +2102,12 @@
         if (!state.carregandoMusica) next();
     };
 
-    // VISIBILITY
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
             dom.audio.play().catch(() => {});
         }
     });
 
-    // UNLOAD
     window.onbeforeunload = () => {
         clearInterval(state.backgroundInterval);
         clearInterval(state.timerInterval);
@@ -2264,7 +2118,6 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
-    // ADMIN (5 cliques no letreiro)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
@@ -2276,7 +2129,6 @@
         }
     };
 
-    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -2285,17 +2137,12 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // CLICK TO SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
     });
 
-    // ============================================================
-    // INICIA
-    // ============================================================
     iniciar();
-
 })();
 </script>
 </body>
