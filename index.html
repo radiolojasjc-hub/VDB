@@ -9,7 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- ===== PWA ===== -->
+    <!-- ===== PWA - SALVAR COMO APP ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -18,24 +18,19 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON fa123.png ===== -->
-    <link rel="icon" type="image/png" sizes="16x16" href="fa123.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="fa123.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="fa123.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="fa123.png">
-    
-    <!-- ===== MANIFEST ===== -->
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image/png%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image/png%22%7D%5D%7D">
+    <!-- ===== FAVICON fa12.png ===== -->
+    <link rel="icon" href="fa12.png" type="image/png">
+    <link rel="apple-touch-icon" href="fa12.png">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ===== RESET E BASE ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
 
         /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
@@ -48,189 +43,1293 @@
         /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
+
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
         /* ===== TOP BAR ===== */
-        .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.9) 0%,transparent 100%);height:56px}
-        .top-left{display:flex;align-items:center;gap:4px}
-        .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.2);box-shadow:0 0 20px rgba(0,243,255,0.1);flex-shrink:0}
-        .logo-macaco:active{transform:scale(0.92)}
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            height: 56px;
+        }
 
-        .btn-genero-fav{background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.15);color:#fff;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);transition:all 0.3s;white-space:nowrap}
-        .btn-genero-fav:active{transform:scale(0.95);background:rgba(255,255,255,0.1)}
-        .btn-genero-fav .genero-nome{color:var(--gold);font-size:0.7rem}
-        .btn-genero-fav .fav-badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 5px;font-size:0.55rem;font-weight:900;min-width:14px;text-align:center;line-height:14px;animation:badgePulse 2s infinite}
-        @keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-        .top-right{display:flex;align-items:center;gap:6px}
-        .top-right .timer-lib{font-size:0.8rem;font-weight:700;color:var(--neon-cyan);background:rgba(0,0,0,0.4);padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px);letter-spacing:0.5px;font-family:'Courier New',monospace}
-        .top-right .timer-lib.lib{color:#4ade80}
-        .top-right .audio-status{font-size:0.6rem;color:#4ade80;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:20px;display:none;backdrop-filter:blur(4px);animation:statusPulse 1s infinite}
-        .top-right .audio-status.active{display:inline-block}
-        @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:0.3}}
-        .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-        .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
+        /* LOGO MACAQUINHO */
+        .logo-macaco {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(0,243,255,0.12);
+            box-shadow: 0 0 15px rgba(0,243,255,0.03);
+            background: rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
 
-        /* ===== LETREIRO (MAIOR E MAIS ALTO) ===== */
-        .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;padding:10px 16px;height:48px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.05)}
-        .info-scroll .letreiro{color:#fff;font-size:1.2rem;font-weight:700;white-space:nowrap;animation:scrollText 10s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.1);letter-spacing:0.5px}
-        @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+        .logo-macaco:active {
+            transform: scale(0.92);
+        }
 
-        /* ===== CORAÇÃO ===== */
-        .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
-        .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.05);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
-        .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
-        .fav-heart-center .fav-heart:active{transform:scale(1.2)}
-        @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+        /* BOTÃO FAVORITO */
+        .btn-genero-fav {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,215,0,0.1);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-genero-fav:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn-genero-fav .fav-badge {
+            background: var(--neon-pink);
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 5px;
+            font-size: 0.55rem;
+            font-weight: 900;
+            min-width: 14px;
+            text-align: center;
+            line-height: 14px;
+        }
+
+        .btn-genero-fav .genero-nome {
+            color: var(--gold);
+            font-size: 0.7rem;
+        }
+
+        .btn-genero-fav .separador {
+            color: rgba(255,255,255,0.1);
+            font-weight: 300;
+        }
+
+        .btn-genero-fav .coracao-icon {
+            font-size: 0.6rem;
+        }
+
+        /* Lado direito: LIB + Menu */
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-right .timer-lib {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            background: rgba(0,0,0,0.4);
+            padding: 3px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
+        }
+
+        .top-right .timer-lib.lib {
+            color: #4ade80;
+        }
+
+        .top-right .audio-status {
+            font-size: 0.6rem;
+            color: #4ade80;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 20px;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .top-right .audio-status.active {
+            display: inline-block;
+        }
+
+        .top-right .menu-btn {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .top-right .menu-btn:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* ===== LETREIRO ===== */
+        .info-scroll {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            padding: 8px 16px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .info-scroll .letreiro {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: scrollText 14s linear infinite;
+            pointer-events: none;
+            text-shadow: 0 0 30px rgba(0,243,255,0.08);
+            letter-spacing: 0.3px;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== CORAÇÃO FAVORITO ===== */
+        .fav-heart-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            text-align: center;
+        }
+
+        .fav-heart-center .fav-heart {
+            font-size: 5rem;
+            color: rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-shadow: 0 0 60px rgba(0,0,0,0.9);
+        }
+
+        .fav-heart-center .fav-heart.active {
+            color: var(--neon-pink);
+            animation: heartBeat 0.3s ease;
+        }
+
+        .fav-heart-center .fav-heart:active {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
 
         /* ===== BOTTOM CONTROLS ===== */
-        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
-        .bottom-controls.visible{transform:translateY(0)}
-        .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500;font-family:'Courier New',monospace}
-        .progress-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
-        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:2px;transition:width 0.1s}
-        .buttons-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:8px}
-        .ctrl-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-        .ctrl-btn:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
-        .play-big{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));width:54px;height:54px;font-size:1.3rem;color:#000;border:none;border-radius:50%;box-shadow:0 0 30px rgba(0,243,255,0.2)}
-        .play-big:active{transform:scale(0.9)}
-        .shuffle-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
-        .shuffle-btn.active{background:rgba(0,243,255,0.15);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.2)}
-        .shuffle-btn:active{transform:scale(0.9)}
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            padding: 10px 16px 18px;
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-controls.visible {
+            transform: translateY(0);
+        }
+
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s;
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .play-big {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            width: 54px;
+            height: 54px;
+            font-size: 1.3rem;
+            color: #000;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,243,255,0.12);
+        }
+
+        .play-big:active {
+            transform: scale(0.9);
+        }
+
+        .shuffle-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .shuffle-btn.active {
+            background: rgba(0,243,255,0.12);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0,243,255,0.15);
+        }
+
+        .shuffle-btn:active {
+            transform: scale(0.9);
+        }
 
         /* ===== FAB ===== */
-        .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-        .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06)}
-        .fab-main:active{transform:scale(0.9)}
-        .fab-sub{background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);border-radius:14px;padding:6px;display:none;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,0.05)}
-        .fab-sub.open{display:flex}
-        .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px}
-        .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 14px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .fab-main {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s;
+        }
+
+        .fab-main:active {
+            transform: scale(0.9);
+        }
+
+        .fab-sub {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(16px);
+            border-radius: 14px;
+            padding: 6px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .fab-sub.open {
+            display: flex;
+        }
+
+        .fab-sub-btn {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .fab-sub-btn:active {
+            background: rgba(255,255,255,0.06);
+        }
 
         /* ===== MENU ===== */
-        .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.98);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
-        .menu-popup.open{display:flex}
-        .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px}
-        .menu-popup button:active{background:rgba(255,255,255,0.06)}
+        .menu-popup {
+            position: fixed;
+            top: 56px;
+            right: 10px;
+            background: rgba(10,10,30,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 14px;
+            padding: 6px;
+            z-index: 32;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid rgba(0,243,255,0.06);
+            min-width: 160px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
 
-        /* ===== MODAIS ===== */
-        .genres-modal,.fav-modal,.feedback-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.98);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
-        .genres-modal.open,.fav-modal.open,.feedback-modal.open{transform:translateY(0)}
-        .genres-modal h3,.fav-modal h3,.feedback-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:1px}
-        .genres-grid{display:flex;flex-direction:column;overflow-y:auto;gap:6px;padding:4px;max-height:40vh;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-        .genres-grid::-webkit-scrollbar{display:none}
-        .genre-card{min-height:48px;scroll-snap-align:center;flex-shrink:0;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 14px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
-        .genre-card:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .close-genres,.close-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.9rem;cursor:pointer;font-weight:700;margin-top:10px}
-        .close-genres:active,.close-btn:active{transform:scale(0.97)}
+        .menu-popup.open {
+            display: flex;
+        }
 
-        .fav-list{max-height:45vh;overflow-y:auto;text-align:left;padding:0 4px}
-        .fav-item{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.03);color:white;cursor:pointer;border-radius:6px}
-        .fav-item:active{background:rgba(255,255,255,0.03)}
-        .fav-item .fav-info .title{font-weight:700;font-size:0.85rem}
-        .fav-item .fav-info .artist{font-size:0.7rem;color:#777}
-        .fav-item .remove{background:transparent;border:none;color:var(--neon-pink);font-size:1rem;cursor:pointer;padding:0 4px}
-        .fav-empty{color:#555;padding:25px;text-align:center;font-size:0.85rem}
+        .menu-popup button {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
 
-        .feedback-modal .stars{display:flex;justify-content:center;gap:6px;margin:6px 0}
-        .feedback-modal .star{font-size:2rem;color:#444;cursor:pointer;transition:color 0.2s}
-        .feedback-modal .star.active{color:var(--gold)}
-        .feedback-modal textarea{width:100%;height:50px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,243,255,0.06);border-radius:10px;padding:6px 10px;color:#fff;resize:none;font-size:0.8rem;margin-top:4px}
-        .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.85rem}
-        #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
+        .menu-popup button:active {
+            background: rgba(255,255,255,0.06);
+        }
 
-        /* ===== BANNER ===== */
-        #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
-        #bannerVitalicio.active{display:flex}
-        @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-        .banner-content{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:25px;padding:30px 22px 22px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.12);box-shadow:0 0 60px rgba(255,215,0,0.05);position:relative;overflow:hidden}
-        .banner-content::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 30%,rgba(255,215,0,0.03),transparent 70%);pointer-events:none}
-        .banner-icon{width:90px;height:90px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:3px solid rgba(255,215,0,0.15);animation:bannerPulse 2s infinite;box-shadow:0 0 40px rgba(255,215,0,0.03)}
-        @keyframes bannerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .banner-title{font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:2px;background:linear-gradient(135deg,var(--gold),#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .banner-subtitle{font-size:0.9rem;color:#aaa;margin-bottom:12px}
-        .banner-price{display:inline-block;background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 20px;border-radius:25px;font-weight:900;font-size:1.4rem;margin-bottom:10px;box-shadow:0 0 30px rgba(255,215,0,0.12)}
-        .banner-price small{font-size:0.7rem;font-weight:400}
-        .banner-features{display:flex;flex-direction:column;gap:4px;margin:10px 0 14px;text-align:left;padding:0 8px}
-        .banner-features .feature{display:flex;align-items:center;gap:10px;color:#ccc;font-size:0.8rem}
-        .banner-features .feature i{color:var(--gold);font-size:0.9rem;width:20px;text-align:center}
-        .banner-btn{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:14px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:1.05rem;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.2s;box-shadow:0 4px 25px rgba(37,211,102,0.2)}
-        .banner-btn:active{transform:scale(0.96)}
-        .banner-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;width:100%;margin-top:6px}
-        .banner-close:active{background:rgba(255,255,255,0.08)}
-        .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
+        /* ===== GENRES MODAL ===== */
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10,10,30,0.97);
+            backdrop-filter: blur(20px);
+            border-radius: 25px 25px 0 0;
+            padding: 16px 18px 20px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 60vh;
+            overflow: hidden;
+        }
 
-        /* ===== BLOCK OVERLAY ===== */
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-        #blockOverlay.active{display:flex}
-        #blockOverlay h2{color:#fff;font-size:1.4rem;margin-bottom:6px}
-        #blockOverlay p{color:#888;font-size:0.9rem;margin-bottom:10px}
-        #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 16px;border-radius:20px;font-weight:700;font-size:0.85rem;display:inline-block;margin-bottom:6px}
-        #blockOverlay .btn-comprar{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:10px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:4px}
-        #blockOverlay .btn-pix{background:rgba(255,255,255,0.04);border:1px solid var(--neon-cyan);padding:8px 20px;border-radius:30px;color:var(--neon-cyan);font-weight:700;font-size:0.85rem;cursor:pointer}
-        #blockOverlay .senha-input{width:100%;max-width:250px;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.9rem;text-align:center;margin:6px 0;outline:none}
-        #blockOverlay .senha-input:focus{border-color:var(--neon-cyan)}
-        #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer}
-        #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px}
+        .genres-modal.open {
+            transform: translateY(0);
+        }
 
-        /* ===== NOTIFICAÇÃO ===== */
-        .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
-        .notification.show{opacity:1}
+        .genres-modal h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+        }
+
+        .genres-grid {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            gap: 6px;
+            padding: 4px;
+            max-height: 38vh;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .genres-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .genre-card {
+            min-height: 48px;
+            scroll-snap-align: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
+        }
+
+        .genre-card:active {
+            transform: scale(0.96);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .close-genres {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .close-genres:active {
+            transform: scale(0.97);
+        }
+
+        /* ===== FAVORITES MODAL ===== */
+        .fav-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 5000;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(255,45,127,0.1);
+        }
+
+        .fav-modal.open {
+            display: block;
+            animation: modalFade 0.3s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .fav-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--neon-cyan);
+        }
+
+        .fav-modal .close-fav {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #555;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .fav-list {
+            max-height: 45vh;
+            overflow-y: auto;
+            text-align: left;
+            padding: 0 4px;
+        }
+
+        .fav-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .fav-item:active {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .fav-item .fav-info .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .fav-item .fav-info .artist {
+            font-size: 0.7rem;
+            color: #777;
+        }
+
+        .fav-item .remove {
+            background: transparent;
+            border: none;
+            color: var(--neon-pink);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .fav-empty {
+            color: #555;
+            padding: 25px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .fav-modal .close-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* ===== FEEDBACK MODAL ===== */
+        .feedback-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 5000;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(0,243,255,0.08);
+        }
+
+        .feedback-modal.open {
+            display: block;
+            animation: modalFade 0.3s ease;
+        }
+
+        .feedback-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--neon-cyan);
+        }
+
+        .feedback-modal .stars {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .feedback-modal .star {
+            font-size: 2rem;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .feedback-modal .star.active {
+            color: var(--gold);
+        }
+
+        .feedback-modal textarea {
+            width: 100%;
+            height: 50px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,243,255,0.06);
+            border-radius: 10px;
+            padding: 6px 10px;
+            color: #fff;
+            resize: none;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .feedback-modal .btn-feedback {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+
+        #closeFeedbackBtn {
+            background: transparent;
+            border: none;
+            color: #555;
+            padding: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        /* ===== NOTIFICATION ===== */
+        .notification {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: var(--neon-cyan);
+            padding: 6px 18px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border: 1px solid rgba(0,243,255,0.06);
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
 
         /* ===== LOADING OVERLAY ===== */
-        #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
-        #loadingOverlay.active{display:flex}
-        #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
 
-        /* ===== BOTÃO ATIVAR ÁUDIO ===== */
-        .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.1);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:16px 40px;border-radius:35px;font-weight:700;font-size:1.2rem;z-index:99999;cursor:pointer;letter-spacing:2px;text-transform:uppercase;box-shadow:0 0 40px rgba(0,243,255,0.2);animation:glow 2s infinite;display:block}
-        .btn-ativar-player.hidden{display:none!important}
-        .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
-        @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,243,255,0.1)}50%{box-shadow:0 0 60px rgba(0,243,255,0.3)}}
+        #loadingOverlay.active {
+            display: flex;
+        }
 
-        /* ===== ADMIN ===== */
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white}
-        #adminPanel.open{display:flex}
-        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan);margin-bottom:4px}
-        #adminPanel input{width:100%;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.8rem;outline:none}
-        #adminPanel input:focus{border-color:var(--neon-cyan)}
-        .admin-row{display:flex;gap:4px}
-        .admin-row input{flex:2}
-        .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);padding:6px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600}
-        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:transform 0.2s}
-        .admin-btn:active{transform:scale(0.95)}
-        .admin-btn-editar{background:linear-gradient(135deg,#ffd700,#ff8800)!important;border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:transform 0.2s;margin-top:4px}
-        .admin-btn-editar:active{transform:scale(0.95)}
-        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem;margin-top:4px}
-        .admin-close:active{background:rgba(255,255,255,0.06)}
+        #loadingOverlay i {
+            font-size: 2.5rem;
+            color: var(--neon-cyan);
+            animation: spin 1s infinite;
+        }
+
+        /* ===== BANNER VITALÍCIO ===== */
+        #bannerVitalicio {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: bannerFadeIn 0.5s ease;
+        }
+
+        #bannerVitalicio.active {
+            display: flex;
+        }
+
+        @keyframes bannerFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .banner-content {
+            background: linear-gradient(145deg, #1a1a3e, #0d0d2b);
+            border-radius: 25px;
+            padding: 30px 22px 22px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid rgba(255,215,0,0.12);
+            box-shadow: 0 0 60px rgba(255,215,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.03), transparent 70%);
+            pointer-events: none;
+        }
+
+        .banner-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 8px;
+            display: block;
+            border: 3px solid rgba(255,215,0,0.15);
+            animation: bannerPulse 2s infinite;
+            box-shadow: 0 0 40px rgba(255,215,0,0.03);
+        }
+
+        @keyframes bannerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .banner-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .banner-subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .banner-price {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            color: #000;
+            padding: 4px 20px;
+            border-radius: 25px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            box-shadow: 0 0 30px rgba(255,215,0,0.12);
+        }
+
+        .banner-price small {
+            font-size: 0.7rem;
+            font-weight: 400;
+        }
+
+        .banner-features {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 10px 0 14px;
+            text-align: left;
+            padding: 0 8px;
+        }
+
+        .banner-features .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ccc;
+            font-size: 0.8rem;
+        }
+
+        .banner-features .feature i {
+            color: var(--gold);
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .banner-btn {
+            background: linear-gradient(135deg, #25d366, #128C7E);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 25px rgba(37, 211, 102, 0.2);
+        }
+
+        .banner-btn:active {
+            transform: scale(0.96);
+        }
+
+        .banner-close {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 25px;
+            color: #666;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            transition: background 0.2s;
+        }
+
+        .banner-close:active {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .banner-timer {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            color: rgba(255,255,255,0.12);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* ===== BLOCK OVERLAY ===== */
+        #blockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        #blockOverlay.active {
+            display: flex;
+        }
+
+        #blockOverlay h2 {
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+
+        #blockOverlay p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        #blockOverlay .preco-vitalicio {
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            color: #000;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        #blockOverlay .btn-comprar {
+            background: linear-gradient(135deg, #25d366, #128C7E);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+
+        #blockOverlay .btn-pix {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--neon-cyan);
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: var(--neon-cyan);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        #blockOverlay .senha-input {
+            width: 100%;
+            max-width: 250px;
+            padding: 10px 14px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            font-size: 0.9rem;
+            text-align: center;
+            margin: 6px 0;
+            outline: none;
+        }
+
+        #blockOverlay .senha-input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        #blockOverlay .btn-senha {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        #blockOverlay .erro-senha {
+            color: var(--neon-pink);
+            font-size: 0.75rem;
+            min-height: 16px;
+            margin-top: 2px;
+        }
+
+        /* ===== ADMIN PANEL ===== */
+        #adminPanel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 99999;
+            width: 90%;
+            max-width: 360px;
+            border: 1px solid var(--neon-cyan);
+            flex-direction: column;
+            gap: 6px;
+            color: white;
+        }
+
+        #adminPanel.open {
+            display: flex;
+        }
+
+        #adminPanel h2 {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+        }
+
+        #adminPanel label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        #adminPanel input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            color: white;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        #adminPanel input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .admin-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .admin-row input {
+            flex: 2;
+        }
+
+        .admin-row .btn-copiar {
+            flex: 1;
+            background: rgba(0,243,255,0.08);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 6px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .admin-row .btn-copiar:active {
+            transform: scale(0.95);
+            background: rgba(0,243,255,0.15);
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .admin-btn:active {
+            transform: scale(0.95);
+        }
+
+        .admin-btn-editar {
+            background: linear-gradient(135deg, #ffd700, #ff8800) !important;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            margin-top: 4px;
+        }
+
+        .admin-btn-editar:active {
+            transform: scale(0.95);
+        }
+
+        .admin-close {
+            background: rgba(255,255,255,0.03);
+            border: none;
+            padding: 6px;
+            border-radius: 20px;
+            color: #555;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            transition: all 0.2s;
+        }
+
+        .admin-close:active {
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* ===== BOTÃO ATIVAR ===== */
+        .btn-ativar-player {
+            position: fixed;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,243,255,0.06);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--neon-cyan);
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 35px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 99999;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px rgba(0,243,255,0.1);
+            animation: glow 2s infinite;
+            display: block;
+        }
+
+        .btn-ativar-player.hidden {
+            display: none !important;
+        }
+
+        .btn-ativar-player:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0,243,255,0.08); }
+            50% { box-shadow: 0 0 40px rgba(0,243,255,0.25); }
+        }
 
         /* ===== RESPONSIVE ===== */
-        @media(max-width:480px){
-            .logo-macaco{height:32px;width:32px}
-            .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
-            .btn-genero-fav .genero-nome{font-size:0.6rem}
-            .btn-genero-fav .fav-badge{font-size:0.5rem;min-width:12px;line-height:12px}
-            .top-right .timer-lib{font-size:0.7rem;padding:2px 8px}
-            .top-right .menu-btn{width:28px;height:28px;font-size:0.8rem}
-            .info-scroll .letreiro{font-size:1rem}
-            .fav-heart-center .fav-heart{font-size:4rem}
-            .ctrl-btn{width:38px;height:38px;font-size:0.85rem}
-            .play-big{width:48px;height:48px;font-size:1.1rem}
-            .shuffle-btn{width:38px;height:38px;font-size:0.75rem}
-            .buttons-row{gap:10px}
-            .bottom-controls{padding:8px 12px 14px}
-            .banner-title{font-size:1.4rem}
-            .banner-price{font-size:1.2rem;padding:3px 16px}
-            .banner-features .feature{font-size:0.7rem}
-            .banner-btn{font-size:0.95rem;padding:12px 20px}
-            .banner-content{padding:18px 16px 16px}
-            .banner-icon{width:70px;height:70px}
-            .btn-ativar-player{font-size:0.95rem;padding:12px 24px;bottom:22%}
-            .fab-main{width:42px;height:42px;font-size:1rem}
-            .fab-container{bottom:85px;right:10px}
+        @media (max-width: 480px) {
+            .logo-macaco {
+                height: 32px;
+                width: 32px;
+            }
+            .btn-genero-fav {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .btn-genero-fav .genero-nome {
+                font-size: 0.6rem;
+            }
+            .btn-genero-fav .fav-badge {
+                font-size: 0.5rem;
+                min-width: 12px;
+                line-height: 12px;
+            }
+            .top-right .timer-lib {
+                font-size: 0.7rem;
+                padding: 2px 8px;
+            }
+            .top-right .menu-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            .info-scroll .letreiro {
+                font-size: 0.85rem;
+            }
+            .fav-heart-center .fav-heart {
+                font-size: 4rem;
+            }
+            .ctrl-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
+            }
+            .play-big {
+                width: 48px;
+                height: 48px;
+                font-size: 1.1rem;
+            }
+            .shuffle-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.75rem;
+            }
+            .buttons-row {
+                gap: 10px;
+            }
+            .bottom-controls {
+                padding: 8px 12px 14px;
+            }
+            .banner-title {
+                font-size: 1.4rem;
+            }
+            .banner-price {
+                font-size: 1.2rem;
+                padding: 3px 16px;
+            }
+            .banner-features .feature {
+                font-size: 0.7rem;
+            }
+            .banner-btn {
+                font-size: 0.95rem;
+                padding: 12px 20px;
+            }
+            .banner-content {
+                padding: 18px 16px 16px;
+            }
+            .banner-icon {
+                width: 70px;
+                height: 70px;
+            }
+            .btn-ativar-player {
+                font-size: 0.95rem;
+                padding: 12px 24px;
+                bottom: 22%;
+            }
+            .fab-main {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            .fab-container {
+                bottom: 85px;
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -245,33 +1344,44 @@
 
 <!-- ===== PLAYER ===== -->
 <div id="playerContainer">
+    <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
 
     <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
+            <!-- LOGO MACAQUINHO -->
             <img src="m12.png" alt="VDB Music" class="logo-macaco">
+            
+            <!-- BOTÃO FAVORITO -->
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
-                <span>❤️</span>
+                <span class="separador">|</span>
+                <span class="coracao-icon">❤️</span>
                 <span class="fav-badge" id="favBadge">0</span>
             </button>
         </div>
+
+        <!-- Lado direito: LIB + Menu -->
         <div class="top-right">
             <span class="timer-lib" id="timerLib">5:00</span>
             <span class="audio-status active" id="audioStatus">●</span>
-            <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
+            <button class="menu-btn" id="menuButton">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
         </div>
     </div>
 
     <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
+        <p class="letreiro" id="scrollText">🎵 EDITDE AQUI LETREIRO 🎵</p>
     </div>
 
-    <!-- CORAÇÃO -->
+    <!-- CORAÇÃO FAVORITO -->
     <div class="fav-heart-center">
-        <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
+        <div class="fav-heart" id="heartBtn">
+            <i class="far fa-heart"></i>
+        </div>
     </div>
 
     <!-- BOTTOM CONTROLS -->
@@ -294,23 +1404,23 @@
     <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
-            <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
-            <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
-            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i> YouTube</button>
-            <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i> Compartilhar</button>
-            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i> QR Code</button>
+            <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
+            <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i>Feedback</button>
+            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i>YouTube</button>
+            <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i>Compartilhar</button>
+            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i>QR Code</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
     <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
-        <button id="closeMenuBtn"><i class="fas fa-times"></i> Fechar</button>
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
-        <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i> Recarregar</button>
-        <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
-        <button id="sleepMenuBtn"><i class="fas fa-moon"></i> Sleep Timer</button>
-        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i> QR Code</button>
+        <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
+        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
+        <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i>Recarregar</button>
+        <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
+        <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
+        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
     </div>
 </div>
 
@@ -323,8 +1433,8 @@
         <div class="banner-subtitle">Acesso permanente! Pague uma vez só</div>
         <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
         <div class="banner-features">
-            <div class="feature"><i class="fas fa-check-circle"></i> +3 mil músicas</div>
-            <div class="feature"><i class="fas fa-check-circle"></i> Todos os gêneros</div>
+            <div class="feature"><i class="fas fa-check-circle"></i> +3 mil músicas atualizadas</div>
+            <div class="feature"><i class="fas fa-check-circle"></i> Todos os gêneros disponíveis</div>
             <div class="feature"><i class="fas fa-check-circle"></i> Atualizações diárias</div>
             <div class="feature"><i class="fas fa-check-circle"></i> Sem mensalidades</div>
         </div>
@@ -353,7 +1463,7 @@
     🔊 ATIVAR ÁUDIO
 </button>
 
-<!-- ===== NOTIFICAÇÃO ===== -->
+<!-- ===== NOTIFICATION ===== -->
 <div class="notification" id="notification"></div>
 
 <!-- ===== LOADING OVERLAY ===== -->
@@ -363,7 +1473,7 @@
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== FAVORITOS ===== -->
+<!-- ===== FAVORITES MODAL ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
@@ -371,14 +1481,14 @@
     <button class="close-btn" id="closeFavBtn">FECHAR</button>
 </div>
 
-<!-- ===== GÊNEROS ===== -->
+<!-- ===== GENRES MODAL ===== -->
 <div class="genres-modal" id="genresModal">
     <h3>🎵 ESCOLHA SEU ESTILO</h3>
     <div class="genres-grid" id="genresGrid"></div>
     <button class="close-genres" id="closeGenresBtn">FECHAR</button>
 </div>
 
-<!-- ===== FEEDBACK ===== -->
+<!-- ===== FEEDBACK MODAL ===== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -397,12 +1507,16 @@
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
     
-    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular">
-    <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email">
+    <label>📧 Email do cliente</label>
+    <input type="text" id="adminEmail" value="cliente@teste.com" placeholder="Email">
     
+    <label>📱 Celular do cliente</label>
+    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular">
+    
+    <label>🔑 Senha gerada</label>
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada">
-        <button class="btn-copiar" id="btnCopiarSenha">📋</button>
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Clique em GERAR SENHA">
+        <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
     </div>
     
     <button class="admin-btn" id="adminGerarBtn">⚡ GERAR SENHA</button>
@@ -416,7 +1530,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- ===== SCRIPT COMPLETO ===== -->
+<!-- ===== SCRIPT ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -428,8 +1542,7 @@
     const VERSAO = Date.now();
     
     // SENHA OFUSCADA: Patico1685@
-    // Códigos ASCII: P=80, a=97, t=116, i=105, c=99, o=111, 1=49, 6=54, 8=56, 5=53, @=64
-    const SENHA = (() => {
+    const SENHA_FIXA = (() => {
         const codigos = [80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64];
         return codigos.map(c => String.fromCharCode(c)).join('');
     })();
@@ -479,6 +1592,7 @@
         generoNome: $('generoNome'),
         btnAtivarAudio: $('btnAtivarAudio'),
         adminEditarLetreiro: $('adminEditarLetreiro'),
+        btnCopiarSenha: $('btnCopiarSenha'),
     };
 
     // ============================================================
@@ -515,22 +1629,22 @@
     // GENRES
     // ============================================================
     const GENRE_URLS = {
-        'BÔNUS': `https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=${VERSAO}`,
-        'FLASHBACK': `https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=${VERSAO}`,
-        'RELIGIOSA': `https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=${VERSAO}`,
-        'ROMÂNTICA': `https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=${VERSAO}`,
-        'MPB': `https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=${VERSAO}`,
-        'POP': `https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=${VERSAO}`,
-        'SERTANEJO': `https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=${VERSAO}`,
-        'FORRÓ': `https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=${VERSAO}`,
-        'SAMBA': `https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=${VERSAO}`,
-        'BREGA': `https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=${VERSAO}`,
-        'REGGAE': `https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=${VERSAO}`,
-        'MODA TOP': `https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=${VERSAO}`,
-        'FANK': `https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=${VERSAO}`,
-        'TESTE MIDIA': `https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=${VERSAO}`,
-        'MODÃO SERTANEJO': `https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=${VERSAO}`,
-        'CHORINHO': `https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=${VERSAO}`,
+        'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
+        'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
+        'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
+        'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
+        'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
+        'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
+        'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
+        'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
+        'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
+        'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
+        'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
+        'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
+        'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
+        'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
+        'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
+        'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' + VERSAO,
     };
 
     const CORES = {
@@ -623,6 +1737,39 @@
     }
 
     // ============================================================
+    // BANNER VITALÍCIO
+    // ============================================================
+    function mostrarBannerVitalicio() {
+        if (state.desbloqueado) return;
+        if (dom.bannerVitalicio.classList.contains('active')) return;
+        
+        dom.bannerVitalicio.classList.add('active');
+        let segundos = 20;
+        dom.bannerTimer.textContent = segundos + 's';
+        
+        clearInterval(state.bannerTimeout);
+        state.bannerTimeout = setInterval(() => {
+            segundos--;
+            dom.bannerTimer.textContent = segundos + 's';
+            if (segundos <= 0) {
+                clearInterval(state.bannerTimeout);
+                dom.bannerVitalicio.classList.remove('active');
+            }
+        }, 1000);
+    }
+
+    function iniciarBannerLoop() {
+        setTimeout(() => {
+            if (!state.desbloqueado) mostrarBannerVitalicio();
+        }, 30000);
+        
+        clearInterval(state.bannerInterval);
+        state.bannerInterval = setInterval(() => {
+            if (!state.desbloqueado) mostrarBannerVitalicio();
+        }, 300000);
+    }
+
+    // ============================================================
     // FAVORITOS
     // ============================================================
     function carregarFav() {
@@ -681,14 +1828,14 @@
         const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
         const repo = REPOS[musica.genero] || 'play12';
         const urls = [
-            `https://raw.githubusercontent.com/radiolojasjc-hub/${repo}/refs/heads/main/${nome}?_=${VERSAO}`
+            'https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome + '?_=' + VERSAO
         ];
         TODOS_REPOS.forEach(r => {
             if (r !== repo) {
-                urls.push(`https://raw.githubusercontent.com/radiolojasjc-hub/${r}/refs/heads/main/${nome}?_=${VERSAO}`);
+                urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' + nome + '?_=' + VERSAO);
             }
         });
-        urls.push(src + `?_=${VERSAO}`);
+        urls.push(src + '?_=' + VERSAO);
         return urls;
     }
 
@@ -700,15 +1847,13 @@
             const timeout = setTimeout(() => controller.abort(), 15000);
             const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
             clearTimeout(timeout);
-            if (!response.ok) return null;
             let data = await response.json();
             if (!Array.isArray(data)) {
                 data = data.musicas || data.data || Object.values(data)[0];
             }
-            if (!Array.isArray(data)) return null;
             const musicas = data.filter(m => m.src && m.title).map(m => ({
                 ...m,
-                id: 'g_' + Math.random().toString(36).slice(2) + '_' + Date.now(),
+                id: 'g_' + Math.random().toString(36).slice(2),
                 genero: genero,
                 artist: m.artist || 'Artista'
             }));
@@ -735,6 +1880,30 @@
         }
         return state.playlistAtual[state.indiceAtual];
     }
+
+    // ============================================================
+    // TOUCH / GESTOS
+    // ============================================================
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        showControls();
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (dom.genresModal.classList.contains('open')) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX < 0) next();
+            else prev();
+        }
+    }, { passive: true });
 
     // ============================================================
     // TIMER / BLOQUEIO
@@ -856,16 +2025,7 @@
             
             showLoad(false);
             if (dom.btnAtivarAudio) dom.btnAtivarAudio.classList.add('hidden');
-            
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.setActionHandler('play', togglePlay);
-                navigator.mediaSession.setActionHandler('pause', togglePlay);
-                navigator.mediaSession.setActionHandler('nexttrack', next);
-                navigator.mediaSession.setActionHandler('previoustrack', prev);
-            }
-            
             await tocar();
-            notif('🔊 Áudio ativado!');
         } catch (e) {
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
@@ -887,16 +2047,6 @@
 
         atualizarLetreiro(musica);
         updateHeart(musica.id);
-
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: musica.title || 'Música',
-                artist: musica.artist || 'Artista',
-                artwork: [
-                    { src: 'fa123.png', sizes: '512x512', type: 'image/png' }
-                ]
-            });
-        }
 
         dom.audio.pause();
         dom.audio.src = '';
@@ -986,7 +2136,7 @@
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 10s linear infinite';
+        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
     }
 
     // ============================================================
@@ -998,7 +2148,7 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-        ];
+            ];
 
         midias.forEach((m, i) => {
             let el;
@@ -1195,39 +2345,6 @@
     }
 
     // ============================================================
-    // BANNER VITALÍCIO
-    // ============================================================
-    function mostrarBannerVitalicio() {
-        if (state.desbloqueado) return;
-        if (dom.bannerVitalicio.classList.contains('active')) return;
-        
-        dom.bannerVitalicio.classList.add('active');
-        let segundos = 20;
-        dom.bannerTimer.textContent = segundos + 's';
-        
-        clearInterval(state.bannerTimeout);
-        state.bannerTimeout = setInterval(() => {
-            segundos--;
-            dom.bannerTimer.textContent = segundos + 's';
-            if (segundos <= 0) {
-                clearInterval(state.bannerTimeout);
-                dom.bannerVitalicio.classList.remove('active');
-            }
-        }, 1000);
-    }
-
-    function iniciarBannerLoop() {
-        setTimeout(() => {
-            if (!state.desbloqueado) mostrarBannerVitalicio();
-        }, 30000);
-        
-        clearInterval(state.bannerInterval);
-        state.bannerInterval = setInterval(() => {
-            if (!state.desbloqueado) mostrarBannerVitalicio();
-        }, 300000);
-    }
-
-    // ============================================================
     // ADMIN: 13 CLIQUES NO LETREIRO
     // ============================================================
     let adminClicks = 0;
@@ -1245,18 +2362,21 @@
     };
 
     // ============================================================
-    // ADMIN - GERAR SENHA
+    // ADMIN - GERAR SENHA SIMPLES
     // ============================================================
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value || 'cliente';
         const cel = document.getElementById('adminCelular').value || '000';
         
+        // Pega 3 primeiras letras do email (MAIÚSCULAS)
         const prefixo = email.substring(0, 3).toUpperCase();
+        
+        // Pega 3 últimos números do celular
         const numeros = cel.replace(/\D/g, '');
         const sufixo = numeros.slice(-3) || '000';
         
         // Gera senha: VDB + prefixo + sufixo + @
-        // Exemplo: VDB CLI 978 @
+        // Exemplo: VDB CLI 978 @ → "VDBcli978@"
         const senha = 'VDB' + prefixo + sufixo + '@';
         
         document.getElementById('adminSenhaGerada').value = senha;
@@ -1264,16 +2384,26 @@
     };
 
     // ============================================================
-    // ADMIN - COPIAR SENHA
+    // ADMIN - COPIAR SENHA (BOTÃO COPIAR)
     // ============================================================
-    document.getElementById('btnCopiarSenha').onclick = () => {
-        const senha = document.getElementById('adminSenhaGerada').value;
-        if (senha) {
-            navigator.clipboard.writeText(senha)
-                .then(() => notif('📋 Senha copiada!'))
-                .catch(() => notif('❌ Erro ao copiar'));
-        }
-    };
+    if (dom.btnCopiarSenha) {
+        dom.btnCopiarSenha.onclick = () => {
+            const senha = document.getElementById('adminSenhaGerada').value;
+            if (senha) {
+                navigator.clipboard.writeText(senha)
+                    .then(() => notif('📋 Senha copiada!'))
+                    .catch(() => {
+                        // Fallback
+                        const input = document.getElementById('adminSenhaGerada');
+                        input.select();
+                        document.execCommand('copy');
+                        notif('📋 Senha copiada!');
+                    });
+            } else {
+                notif('⚠️ Gere uma senha primeiro!');
+            }
+        };
+    }
 
     // ============================================================
     // ADMIN - EDITAR LETREIRO
@@ -1301,53 +2431,30 @@
     // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
-    async function iniciar() {
+    function iniciar() {
         criarMidia();
         carregarFav();
 
-        for (const g of ORDEM) {
-            const musicas = await carregarPlaylist(g);
-            if (musicas && musicas.length) {
-                state.musicas = musicas;
-                state.modoAtual = g;
-                state.playlistAtual = shuf(musicas);
-                dom.generoNome.textContent = g;
-                dom.generoNome.style.color = CORES[g] || '#fff';
-                const m = state.playlistAtual[0];
-                if (m) {
-                    atualizarLetreiro(m);
-                    updateHeart(m.id);
+        (async () => {
+            for (const g of ORDEM) {
+                const musicas = await carregarPlaylist(g);
+                if (musicas && musicas.length) {
+                    state.musicas = musicas;
+                    state.modoAtual = g;
+                    state.playlistAtual = shuf(musicas);
+                    dom.generoNome.textContent = g;
+                    dom.generoNome.style.color = CORES[g] || '#fff';
+                    const m = state.playlistAtual[0];
+                    if (m) {
+                        atualizarLetreiro(m);
+                        updateHeart(m.id);
+                    }
+                    break;
                 }
-                break;
             }
-        }
-        
-        renderizarGeneros();
-        fullscreen();
-
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
-            desbloquear();
-        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            bloquear();
-        } else if (localStorage.getItem('vdb_desbloqueado') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-        } else {
-            const salvo = localStorage.getItem('vdb_tempo_restante');
-            if (salvo && parseInt(salvo) > Date.now()) {
-                state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
-                startTimer();
-            } else if (salvo) {
-                bloquear();
-            } else {
-                localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
-                state.tempoRestante = TEMPO_INICIAL;
-                startTimer();
-            }
-        }
-
-        iniciarBannerLoop();
+            renderizarGeneros();
+            fullscreen();
+        })();
 
         // BOTÃO ATIVAR ÁUDIO
         if (dom.btnAtivarAudio) {
@@ -1362,17 +2469,56 @@
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
         }, 1500);
+
+        // Verificar bloqueio
+        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+            bloquear();
+            return;
+        }
+        if (localStorage.getItem('vdb_desbloqueado') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        const salvo = localStorage.getItem('vdb_tempo_restante');
+        if (salvo && parseInt(salvo) > Date.now()) {
+            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
+            startTimer();
+            return;
+        }
+        if (salvo) {
+            bloquear();
+            return;
+        }
+        localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
+        state.tempoRestante = TEMPO_INICIAL;
+        startTimer();
+
+        iniciarBannerLoop();
     }
 
     // ============================================================
     // EVENTOS
     // ============================================================
 
+    // PLAY
     dom.playBtn.onclick = togglePlay;
+
+    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
+
+    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
+    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1380,11 +2526,13 @@
         }
     };
 
+    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
+    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -1405,9 +2553,11 @@
         }
     };
 
+    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
+    // GENRES MODAL (via FAB)
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
@@ -1415,8 +2565,10 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
+    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
+    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -1453,6 +2605,7 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
+    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -1463,6 +2616,7 @@
         clearInterval(state.bannerTimeout);
     };
 
+    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -1495,6 +2649,7 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
+    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -1511,6 +2666,9 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
+    // ============================================================
+    // VALIDAÇÃO DE SENHA (ATUALIZADA)
+    // ============================================================
     document.getElementById('btnSenhaPermanente').onclick = () => {
         if (state.tentativas >= MAX_TENTATIVAS) {
             document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
@@ -1518,32 +2676,54 @@
             document.getElementById('btnSenhaPermanente').disabled = true;
             return;
         }
+        
         const senha = document.getElementById('senhaPermanente').value.trim();
-        if (senha === SENHA) {
+        
+        // SENHA PADRÃO: Patico1685@
+        if (senha === SENHA_FIXA) {
             desbloquear();
             state.tentativas = 0;
             document.getElementById('erroSenha').textContent = '';
             document.getElementById('senhaPermanente').value = '';
             dom.blockOverlay.classList.remove('active');
             dom.bannerVitalicio.classList.remove('active');
-            notif('✅ Liberado!');
-        } else {
-            state.tentativas++;
-            const restam = MAX_TENTATIVAS - state.tentativas;
-            document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
-            document.getElementById('senhaPermanente').value = '';
-            document.getElementById('senhaPermanente').focus();
+            notif('✅ Liberado com senha padrão!');
+            return;
         }
+        
+        // SENHA GERADA PELO ADMIN: VDB + 3 letras + 3 números + @
+        // Exemplo: VDBcli978@
+        const regex = /^VDB[a-zA-Z]{3}[0-9]{3}@$/;
+        if (regex.test(senha)) {
+            desbloquear();
+            state.tentativas = 0;
+            document.getElementById('erroSenha').textContent = '';
+            document.getElementById('senhaPermanente').value = '';
+            dom.blockOverlay.classList.remove('active');
+            dom.bannerVitalicio.classList.remove('active');
+            notif('✅ Liberado com senha gerada!');
+            return;
+        }
+        
+        // SENHA INVÁLIDA
+        state.tentativas++;
+        const restam = MAX_TENTATIVAS - state.tentativas;
+        document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        document.getElementById('senhaPermanente').value = '';
+        document.getElementById('senhaPermanente').focus();
     };
+
     document.getElementById('senhaPermanente').onkeydown = (e) => {
         if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
     };
 
+    // WHATSAPP / PIX
     document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
     document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
+    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -1558,33 +2738,14 @@
         if (!state.carregandoMusica) next();
     };
 
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        showControls();
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX < 0) next();
-            else prev();
-        }
-    }, { passive: true });
-
+    // VISIBILITY
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
             dom.audio.play().catch(() => {});
         }
     });
 
+    // UNLOAD
     window.onbeforeunload = () => {
         clearInterval(state.backgroundInterval);
         clearInterval(state.timerInterval);
@@ -1594,6 +2755,7 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
+    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1602,6 +2764,7 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
+    // CLICK TO SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
