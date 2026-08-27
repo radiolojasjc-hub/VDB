@@ -788,53 +788,83 @@
     'use strict';
 
     // ============================================================
-    // ANTI-DEBUG - DETECTA DEVTOOLS E DEBUGGER
+    // ANTI-DEBUG - VERSÃO CORRIGIDA (SEM FALSOS POSITIVOS)
     // ============================================================
     (function antiDebug() {
-        const threshold = 160;
+        let blocked = false;
         
-        function detectDevTools() {
+        function blockAndReload() {
+            if (blocked) return;
+            blocked = true;
+            
+            document.body.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff2d7f;font-family:sans-serif;flex-direction:column;gap:10px;text-align:center;padding:20px;">
+                    <h1>🔒 ACESSO BLOQUEADO</h1>
+                    <p style="color:#888;font-size:0.9rem;">Ferramentas de desenvolvedor detectadas</p>
+                    <p style="color:#555;font-size:0.7rem;margin-top:10px;">Recarregando em 3 segundos...</p>
+                </div>
+            `;
+            document.body.style.overflow = 'hidden';
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+
+        // ====== DETECÇÃO DE DEBUGGER (MAIS SEGURA) ======
+        let debuggerDetections = 0;
+        const MAX_DEBUGGER_HITS = 3;
+        
+        function detectDebugger() {
+            if (blocked) return;
+            
             const start = performance.now();
             debugger;
             const end = performance.now();
-            if (end - start > threshold) {
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff2d7f;font-family:sans-serif;flex-direction:column;gap:10px;"><h1>🔒 BLOQUEADO</h1><p>Ferramentas de desenvolvedor detectadas</p></div>';
-                document.body.style.overflow = 'hidden';
-                if (window.location) {
-                    setTimeout(() => { window.location.reload(); }, 1000);
+            const elapsed = end - start;
+            
+            // Threshold aumentado para 300ms (menos falso positivo)
+            if (elapsed > 300) {
+                debuggerDetections++;
+                if (debuggerDetections >= MAX_DEBUGGER_HITS) {
+                    blockAndReload();
                 }
-                throw new Error('Anti-debug');
+            } else {
+                debuggerDetections = Math.max(0, debuggerDetections - 1);
             }
         }
+        
+        setInterval(detectDebugger, 2000);
 
-        function checkDevTools() {
-            const element = new Image();
-            Object.defineProperty(element, 'id', {
-                get: function() {
-                    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff2d7f;font-family:sans-serif;flex-direction:column;gap:10px;"><h1>🔒 BLOQUEADO</h1><p>Ferramentas de desenvolvedor detectadas</p></div>';
-                    document.body.style.overflow = 'hidden';
-                    setTimeout(() => { window.location.reload(); }, 1000);
-                    throw new Error('Anti-debug');
-                }
-            });
-            console.log('%c', element);
-        }
-
-        // Detecta debugger
-        setInterval(detectDevTools, 500);
-
-        // Detecta DevTools via tamanho
-        setInterval(() => {
+        // ====== DETECÇÃO DE DEVTOOLS POR TAMANHO (CORRIGIDA) ======
+        let devToolsDetections = 0;
+        const MAX_DEVTOOLS_HITS = 3;
+        
+        function detectDevToolsBySize() {
+            if (blocked) return;
+            
+            // Ignora em celulares (evita falso positivo)
+            if (window.innerWidth < 768) return;
+            
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
-            if (widthDiff > 100 || heightDiff > 100) {
-                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#000;color:#ff2d7f;font-family:sans-serif;flex-direction:column;gap:10px;"><h1>🔒 BLOQUEADO</h1><p>Ferramentas de desenvolvedor detectadas</p></div>';
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => { window.location.reload(); }, 1000);
+            
+            // Threshold aumentado para 200px
+            const hasDevTools = (widthDiff > 200 || heightDiff > 200);
+            
+            if (hasDevTools) {
+                devToolsDetections++;
+                if (devToolsDetections >= MAX_DEVTOOLS_HITS) {
+                    blockAndReload();
+                }
+            } else {
+                devToolsDetections = Math.max(0, devToolsDetections - 1);
             }
-        }, 1000);
+        }
+        
+        setInterval(detectDevToolsBySize, 3000);
 
-        // Bloqueia F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        // ====== BLOQUEIO DE TECLAS ======
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || 
                 (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
@@ -845,28 +875,26 @@
             }
         });
 
-        // Bloqueia click direito
+        // ====== BLOQUEIO DE CLICK DIREITO ======
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             e.stopPropagation();
             return false;
         });
 
-        // Detecta se console está aberto via tamanho
+        // ====== PROTEÇÃO CONTRA EVAL/FUNCTION ======
         try {
-            checkDevTools();
+            window.eval = function() {
+                if (!blocked) blockAndReload();
+                throw new Error('Eval bloqueado');
+            };
+            window.Function = function() {
+                if (!blocked) blockAndReload();
+                throw new Error('Function bloqueado');
+            };
         } catch(e) {}
 
-        // Protege contra eval e Function
-        const originalEval = window.eval;
-        window.eval = function() {
-            throw new Error('Eval bloqueado por segurança');
-        };
-        window.Function = function() {
-            throw new Error('Function bloqueado por segurança');
-        };
-
-        console.log('🔒 Sistema de segurança ativado');
+        console.log('🛡️ Sistema Anti-Debug ativado (modo seguro)');
     })();
 
     // ============================================================
@@ -875,7 +903,6 @@
     const SECRET_KEY = 'VDB2025SecureSecretKey';
     
     function hmacToken(data) {
-        // Simulação de HMAC - em produção usar Web Crypto API
         let hash = 0;
         const str = data + SECRET_KEY;
         for (let i = 0; i < str.length; i++) {
@@ -965,7 +992,7 @@
     // ESTADO - Usa Token HMAC no lugar de flags
     // ============================================================
     let state = {
-        token: null, // Token HMAC de acesso
+        token: null,
         tempoRestante: TEMPO_INICIAL,
         timerInterval: null,
         backgroundInterval: null,
@@ -1026,7 +1053,7 @@
     function gerarTokenPermanente() {
         const user = 'vitalicio';
         const email = 'vitalicio@vdbmusic.com';
-        const expiry = Date.now() + 365 * 24 * 60 * 60 * 1000; // 1 ano
+        const expiry = Date.now() + 365 * 24 * 60 * 60 * 1000;
         return generateToken(user, email, expiry);
     }
 
@@ -1549,7 +1576,7 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-            ];
+        ];
 
         midias.forEach((m, i) => {
             let el;
