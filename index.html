@@ -9,6 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
+    <!-- ===== PWA - SALVAR COMO APP ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -17,21 +18,27 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
+    <!-- ====================================================== -->
     <!-- ===== FAVICON fa123.png ===== -->
+    <!-- ====================================================== -->
     <link rel="icon" href="fa123.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123.png">
     
+    <!-- ====================================================== -->
     <!-- ===== MANIFEST COM fa123.png ===== -->
+    <!-- ====================================================== -->
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ===== RESET E BASE ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
 
+        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -39,6 +46,7 @@
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
+        /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
 
@@ -47,6 +55,7 @@
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
+        /* ===== TOP BAR ===== */
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);height:56px}
         .top-left{display:flex;align-items:center;gap:4px}
         .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
@@ -65,16 +74,49 @@
         .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
         .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
 
-        .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:8px 16px;height:42px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
-        .info-scroll .letreiro{color:#fff;font-size:1rem;font-weight:700;white-space:nowrap;animation:scrollText 14s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.08);letter-spacing:0.3px}
-        @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+        /* ================================================================ */
+        /* ===== LETREIRO - EDITE A POSIÇÃO AQUI (top) ===== */
+        /* ================================================================ */
+        .info-scroll {
+            position: fixed;
+            top: 38px; /* ⬅️⬅️⬅️ EDITE AQUI - quanto menor, mais sobe */
+            left: 0;
+            right: 0;
+            z-index: 30;
+            padding: 6px 16px; /* ⬅️ EDITE AQUI - altura do letreiro */
+            height: 36px; /* ⬅️ EDITE AQUI - altura total */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .info-scroll .letreiro {
+            color: #fff;
+            font-size: 0.95rem; /* ⬅️ EDITE AQUI - tamanho da fonte */
+            font-weight: 700;
+            white-space: nowrap;
+            animation: scrollText 14s linear infinite; /* ⬅️ EDITE AQUI - velocidade */
+            pointer-events: none;
+            text-shadow: 0 0 30px rgba(0,243,255,0.08);
+            letter-spacing: 0.3px;
+        }
+        @keyframes scrollText {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
 
+        /* ===== CORAÇÃO FAVORITO ===== */
         .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
         .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
         .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
         .fav-heart-center .fav-heart:active{transform:scale(1.2)}
         @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
+        /* ===== BOTTOM CONTROLS ===== */
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500}
@@ -89,6 +131,7 @@
         .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
         .shuffle-btn:active{transform:scale(0.9)}
 
+        /* ===== FAB ===== */
         .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
         .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
         .fab-main:active{transform:scale(0.9)}
@@ -97,11 +140,13 @@
         .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
 
+        /* ===== MENU ===== */
         .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
         .menu-popup.open{display:flex}
         .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .menu-popup button:active{background:rgba(255,255,255,0.06)}
 
+        /* ===== GENRES MODAL ===== */
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:60vh;overflow:hidden}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:1px}
@@ -112,6 +157,7 @@
         .close-genres{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.9rem;cursor:pointer;font-weight:700;margin-top:10px;letter-spacing:0.5px}
         .close-genres:active{transform:scale(0.97)}
 
+        /* ===== FAVORITES MODAL ===== */
         .fav-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(255,45,127,0.1)}
         .fav-modal.open{display:block;animation:modalFade 0.3s ease}
         @keyframes modalFade{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -126,6 +172,7 @@
         .fav-empty{color:#555;padding:25px;text-align:center;font-size:0.85rem}
         .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:6px;font-size:0.85rem}
 
+        /* ===== FEEDBACK MODAL ===== */
         .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
         .feedback-modal.open{display:block;animation:modalFade 0.3s ease}
         .feedback-modal h3{font-size:1.1rem;margin-bottom:8px;color:var(--neon-cyan)}
@@ -136,13 +183,16 @@
         .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.85rem}
         #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
 
+        /* ===== NOTIFICATION ===== */
         .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
         .notification.show{opacity:1}
 
+        /* ===== LOADING OVERLAY ===== */
         #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
 
+        /* ===== BANNER VITALÍCIO ===== */
         #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
         #bannerVitalicio.active{display:flex}
         @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
@@ -163,6 +213,7 @@
         .banner-close:active{background:rgba(255,255,255,0.08)}
         .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
 
+        /* ===== BLOCK OVERLAY ===== */
         #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
         #blockOverlay.active{display:flex}
         #blockOverlay h2{color:#fff;font-size:1.4rem;margin-bottom:6px}
@@ -175,6 +226,7 @@
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer}
         #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px}
 
+        /* ===== ADMIN PANEL ===== */
         #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white}
         #adminPanel.open{display:flex}
         #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan)}
@@ -186,11 +238,119 @@
         .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem}
         .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem}
 
+        /* ===== BOTÃO ATIVAR ===== */
         .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.06);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:14px 32px;border-radius:35px;font-weight:700;font-size:1.1rem;z-index:99999;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 30px rgba(0,243,255,0.1);animation:glow 2s infinite;display:block}
         .btn-ativar-player.hidden{display:none !important}
         .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
         @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(0,243,255,0.08)}50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}}
 
+        /* ===== OVERLAY DE CONTROLES (TELA BLOQUEADA) ===== */
+        .overlay-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .overlay-controls.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .overlay-content {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px 25px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .overlay-track-info p {
+            color: #fff;
+            margin: 2px 0;
+        }
+        .overlay-track-info #overlayTrackName {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .overlay-track-info #overlayTrackArtist {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        .overlay-progress {
+            margin: 15px 0;
+        }
+        .overlay-progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .overlay-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            width: 0%;
+            border-radius: 4px;
+        }
+        .overlay-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+        .overlay-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 15px 0 10px;
+        }
+        .overlay-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .overlay-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.2);
+        }
+        .overlay-play {
+            width: 70px;
+            height: 70px;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0,243,255,0.2);
+        }
+        .overlay-tap-hint {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.7rem;
+            margin-top: 8px;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width:480px){
             .logo-macaco{height:32px;width:32px}
             .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
@@ -214,20 +374,27 @@
             .btn-ativar-player{font-size:0.95rem;padding:12px 24px;bottom:22%}
             .fab-main{width:42px;height:42px;font-size:1rem}
             .fab-container{bottom:85px;right:10px}
+            .overlay-content{padding:20px 15px}
+            .overlay-btn{width:45px;height:45px;font-size:1rem}
+            .overlay-play{width:60px;height:60px;font-size:1.6rem}
         }
     </style>
 </head>
 <body>
 
+<!-- ===== LOADING ===== -->
 <div id="loadingScreen">
     <img src="m12.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
     <span>VAI DE BOA! MUSIC</span>
 </div>
 
+<!-- ===== PLAYER ===== -->
 <div id="playerContainer">
+    <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
 
+    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
             <img src="m12.png" alt="VDB Music" class="logo-macaco">
@@ -247,16 +414,19 @@
         </div>
     </div>
 
+    <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
     </div>
 
+    <!-- CORAÇÃO FAVORITO -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn">
             <i class="far fa-heart"></i>
         </div>
     </div>
 
+    <!-- BOTTOM CONTROLS -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -273,6 +443,7 @@
         </div>
     </div>
 
+    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -284,6 +455,7 @@
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
+    <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -294,6 +466,32 @@
     </div>
 </div>
 
+<!-- ===== OVERLAY DE CONTROLES (TELA BLOQUEADA) ===== -->
+<div class="overlay-controls" id="overlayControls">
+    <div class="overlay-content">
+        <div class="overlay-track-info">
+            <p id="overlayTrackName">🎵 Carregando...</p>
+            <p id="overlayTrackArtist">Artista</p>
+        </div>
+        <div class="overlay-progress">
+            <div class="overlay-progress-bar" id="overlayProgressBar">
+                <div class="overlay-progress-fill" id="overlayProgressFill"></div>
+            </div>
+            <div class="overlay-time">
+                <span id="overlayCurrentTime">0:00</span>
+                <span id="overlayTotalTime">0:00</span>
+            </div>
+        </div>
+        <div class="overlay-buttons">
+            <button class="overlay-btn" id="overlayPrev"><i class="fas fa-backward-step"></i></button>
+            <button class="overlay-btn overlay-play" id="overlayPlay"><i class="fas fa-play"></i></button>
+            <button class="overlay-btn" id="overlayNext"><i class="fas fa-forward-step"></i></button>
+        </div>
+        <div class="overlay-tap-hint"><i class="fas fa-hand-pointer"></i> Toque para controles</div>
+    </div>
+</div>
+
+<!-- ===== BANNER VITALÍCIO ===== -->
 <div id="bannerVitalicio">
     <div class="banner-content">
         <span class="banner-timer" id="bannerTimer">20s</span>
@@ -314,6 +512,7 @@
     </div>
 </div>
 
+<!-- ===== BLOCK OVERLAY ===== -->
 <div id="blockOverlay">
     <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
     <p>Adquira a senha vitalícia!</p>
@@ -326,12 +525,15 @@
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
+<!-- ===== NOTIFICATION ===== -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
+<!-- ===== AUDIO ===== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
+<!-- ===== FAVORITES MODAL ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
@@ -339,12 +541,14 @@
     <button class="close-btn" id="closeFavBtn">FECHAR</button>
 </div>
 
+<!-- ===== GENRES MODAL ===== -->
 <div class="genres-modal" id="genresModal">
     <h3>🎵 ESCOLHA SEU ESTILO</h3>
     <div class="genres-grid" id="genresGrid"></div>
     <button class="close-genres" id="closeGenresBtn">FECHAR</button>
 </div>
 
+<!-- ===== FEEDBACK MODAL ===== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -359,6 +563,7 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
+<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
     <input type="text" id="adminCelular" value="12988461978">
@@ -375,13 +580,54 @@
 (function() {
     'use strict';
 
+    // ================================================================
+    // ⬇️⬇️⬇️ EDITE AQUI - LETREIRO (texto, cor, tamanho, velocidade)
+    // ================================================================
+    const LETREIRO_CONFIG = {
+        texto: '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵', // ⬅️ EDITE O TEXTO AQUI
+        cor: '#ffffff',                                     // ⬅️ EDITE A COR AQUI
+        tamanho: '0.95rem',                                 // ⬅️ EDITE O TAMANHO AQUI
+        velocidade: '14s',                                  // ⬅️ EDITE A VELOCIDADE AQUI
+        ativo: true                                         // ⬅️ false = desliga o letreiro
+    };
+
+    // ================================================================
+    // ⬇️⬇️⬇️ EDITE AQUI - TEMPO TESTE (em segundos)
+    // ================================================================
+    const TEMPO_INICIAL = 300; // ⬅️ EDITE AQUI! 300 = 5 min | 600 = 10 min | 3600 = 1 hora
+
+    // ================================================================
+    // ⬇️⬇️⬇️ EDITE AQUI - MÍDIAS (PNG, JPG, MP4)
+    // ================================================================
+    // ADICIONE OU TROQUE OS LINKS ABAIXO:
+    // - Para imagens: { t: 'img', s: 'URL_DA_IMAGEM.png' }
+    // - Para vídeos:  { t: 'vid', s: 'URL_DO_VIDEO.mp4' }
+    // ================================================================
+    const MIDIAS_PERSONALIZADAS = [
+        // ⬇️⬇️⬇️ ADICIONE SUAS IMAGENS E VÍDEOS AQUI ⬇️⬇️⬇️
+        { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
+        { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
+        { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
+        { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
+        // EXEMPLOS DE VÍDEO (MP4) - DESCOMENTE E COLOQUE SEUS ARQUIVOS:
+        // { t: 'vid', s: 'https://SEU_SITE.com/video1.mp4' },
+        // { t: 'vid', s: 'https://SEU_SITE.com/clipe2.mp4' },
+        // ⬆️⬆️⬆️ ADICIONE SUAS IMAGENS E VÍDEOS ACIMA ⬆️⬆️⬆️
+    ];
+
+    // ================================================================
+    // FIM DAS EDIÇÕES - NÃO MEXA DAQUI PRA BAIXO
+    // ================================================================
+
     const VERSAO = Date.now();
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
-    const TEMPO_INICIAL = 300;
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
     const MAX_TENTATIVAS = 3;
 
+    // ============================================================
+    // DOM CACHE
+    // ============================================================
     const $ = (id) => document.getElementById(id);
     const dom = {
         loadingScreen: $('loadingScreen'),
@@ -417,8 +663,21 @@
         bannerTimer: $('bannerTimer'),
         btnGeneroFav: $('btnGeneroFav'),
         generoNome: $('generoNome'),
+        overlayControls: $('overlayControls'),
+        overlayPlay: $('overlayPlay'),
+        overlayPrev: $('overlayPrev'),
+        overlayNext: $('overlayNext'),
+        overlayTrackName: $('overlayTrackName'),
+        overlayTrackArtist: $('overlayTrackArtist'),
+        overlayProgressFill: $('overlayProgressFill'),
+        overlayCurrentTime: $('overlayCurrentTime'),
+        overlayTotalTime: $('overlayTotalTime'),
+        overlayProgressBar: $('overlayProgressBar'),
     };
 
+    // ============================================================
+    // ESTADO
+    // ============================================================
     let state = {
         tempoRestante: TEMPO_INICIAL,
         desbloqueado: false,
@@ -444,8 +703,12 @@
         scrollPersonalizado: false,
         bannerInterval: null,
         bannerTimeout: null,
+        overlayTimeout: null,
     };
 
+    // ============================================================
+    // GENRES
+    // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
         'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
@@ -504,6 +767,9 @@
         'testemidias', 'modasertaneja', 'chorinho'
     ];
 
+    // ============================================================
+    // UTILIDADES
+    // ============================================================
     function fmt(segundos) {
         if (!segundos || isNaN(segundos)) return '0:00';
         const m = Math.floor(segundos / 60);
@@ -534,6 +800,9 @@
         return div.textContent;
     }
 
+    // ============================================================
+    // NOTIFICAÇÕES
+    // ============================================================
     function notif(msg, dur = 1500) {
         if (!dom.notification) return;
         dom.notification.textContent = msg;
@@ -548,6 +817,9 @@
         dom.loadingOverlay.classList.toggle('active', show);
     }
 
+    // ============================================================
+    // BANNER VITALÍCIO
+    // ============================================================
     function mostrarBannerVitalicio() {
         if (state.desbloqueado) return;
         if (dom.bannerVitalicio.classList.contains('active')) return;
@@ -578,6 +850,9 @@
         }, 300000);
     }
 
+    // ============================================================
+    // FAVORITOS
+    // ============================================================
     function carregarFav() {
         try {
             const data = localStorage.getItem('vfav');
@@ -624,6 +899,9 @@
         updateHeart(id);
     }
 
+    // ============================================================
+    // PLAYLIST
+    // ============================================================
     function getUrls(musica) {
         const src = musica.src || '';
         if (!src) return [];
@@ -684,6 +962,9 @@
         return state.playlistAtual[state.indiceAtual];
     }
 
+    // ============================================================
+    // TOUCH / GESTOS
+    // ============================================================
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -705,6 +986,9 @@
         }
     }, { passive: true });
 
+    // ============================================================
+    // TIMER / BLOQUEIO
+    // ============================================================
     function updateTimerDisplay() {
         if (state.desbloqueado) {
             dom.timerLib.textContent = '🔓 Lib';
@@ -756,6 +1040,9 @@
         clearInterval(state.bannerTimeout);
     }
 
+    // ============================================================
+    // ÁUDIO DE FUNDO (mantém tocando com tela bloqueada)
+    // ============================================================
     function criarSilentAudio() {
         const sr = 44100;
         const ns = sr * 5;
@@ -799,6 +1086,9 @@
         }, 1000);
     }
 
+    // ============================================================
+    // AUDIO ENGINE
+    // ============================================================
     async function ativarPlayer() {
         try {
             showLoad(true);
@@ -843,6 +1133,7 @@
 
         atualizarLetreiro(musica);
         updateHeart(musica.id);
+        updateOverlayInfo(musica);
 
         dom.audio.pause();
         dom.audio.src = '';
@@ -878,6 +1169,7 @@
                 await dom.audio.play();
                 state.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                dom.overlayPlay.innerHTML = '<i class="fas fa-pause"></i>';
             } catch (e) {
                 next();
             }
@@ -897,6 +1189,7 @@
             dom.audio.pause();
             state.isPlaying = false;
             dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            dom.overlayPlay.innerHTML = '<i class="fas fa-play"></i>';
         }
         showControls();
     }
@@ -922,23 +1215,41 @@
         notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq');
     }
 
+    // ============================================================
+    // LETREIRO (EDITÁVEL)
+    // ============================================================
     function atualizarLetreiro(musica) {
         if (state.scrollPersonalizado) return;
         if (!musica) return;
-        const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
-        dom.scrollText.textContent = texto;
+        
+        const textoBase = LETREIRO_CONFIG.texto || '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵';
+        const musicaText = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
+        
+        if (LETREIRO_CONFIG.ativo) {
+            dom.scrollText.textContent = musicaText + ' | ' + textoBase;
+        } else {
+            dom.scrollText.textContent = musicaText;
+        }
+        
+        dom.scrollText.style.color = LETREIRO_CONFIG.cor || '#ffffff';
+        dom.scrollText.style.fontSize = LETREIRO_CONFIG.tamanho || '0.95rem';
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 14s linear infinite';
+        dom.scrollText.style.animation = 'scrollText ' + (LETREIRO_CONFIG.velocidade || '14s') + ' linear infinite';
     }
 
+    // ============================================================
+    // MEDIA CONTAINER (EDITÁVEL COM PNG E MP4)
+    // ============================================================
     function criarMidia() {
-        const midias = [
+        const midias = MIDIAS_PERSONALIZADAS.length > 0 ? MIDIAS_PERSONALIZADAS : [
             { t: 'img', s: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         ];
+
+        dom.mediaContainer.innerHTML = '';
 
         midias.forEach((m, i) => {
             let el;
@@ -974,6 +1285,9 @@
         }
     }
 
+    // ============================================================
+    // SHOW CONTROLS
+    // ============================================================
     function showControls() {
         dom.bottomControls.classList.add('visible');
         clearTimeout(state.hideControlsTimeout);
@@ -988,6 +1302,92 @@
         } catch (e) {}
     }
 
+    // ============================================================
+    // OVERLAY DE CONTROLES (TELA BLOQUEADA)
+    // ============================================================
+    function showOverlayControls() {
+        dom.overlayControls.classList.add('visible');
+        clearTimeout(state.overlayTimeout);
+        state.overlayTimeout = setTimeout(() => {
+            dom.overlayControls.classList.remove('visible');
+        }, 4000);
+    }
+
+    function updateOverlayInfo(musica) {
+        if (!musica) {
+            const track = state.playlistAtual[state.indiceAtual] || state.playlistAtual[0];
+            if (track) {
+                dom.overlayTrackName.textContent = track.title || '🎵 Carregando...';
+                dom.overlayTrackArtist.textContent = track.artist || 'Artista';
+            }
+            return;
+        }
+        dom.overlayTrackName.textContent = musica.title || '🎵 Carregando...';
+        dom.overlayTrackArtist.textContent = musica.artist || 'Artista';
+    }
+
+    function updateOverlayProgress() {
+        if (dom.audio.duration) {
+            const percent = (dom.audio.currentTime / dom.audio.duration) * 100;
+            dom.overlayProgressFill.style.width = percent + '%';
+            dom.overlayCurrentTime.textContent = fmt(dom.audio.currentTime);
+            dom.overlayTotalTime.textContent = fmt(dom.audio.duration);
+        }
+    }
+
+    // EVENTOS DO OVERLAY
+    dom.overlayPlay.onclick = function(e) {
+        e.stopPropagation();
+        togglePlay();
+        showOverlayControls();
+    };
+
+    dom.overlayPrev.onclick = function(e) {
+        e.stopPropagation();
+        prev();
+        setTimeout(() => updateOverlayInfo(), 100);
+        showOverlayControls();
+    };
+
+    dom.overlayNext.onclick = function(e) {
+        e.stopPropagation();
+        next();
+        setTimeout(() => updateOverlayInfo(), 100);
+        showOverlayControls();
+    };
+
+    dom.overlayProgressBar.onclick = function(e) {
+        e.stopPropagation();
+        if (dom.audio.duration) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
+        }
+        showOverlayControls();
+    };
+
+    // TOQUE NA TELA PARA MOSTRAR O OVERLAY
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('button')) return;
+        if (e.target.closest('.bottom-controls')) return;
+        if (e.target.closest('.menu-popup')) return;
+        if (e.target.closest('.fab-sub')) return;
+        if (e.target.closest('.genres-modal')) return;
+        if (e.target.closest('.fav-modal')) return;
+        if (e.target.closest('.feedback-modal')) return;
+        if (e.target.closest('#infoScroll')) return;
+        if (e.target.closest('.overlay-controls')) return;
+        showOverlayControls();
+        updateOverlayInfo();
+    });
+
+    // ATUALIZA O OVERLAY QUANDO A MÚSICA TOCA
+    dom.audio.ontimeupdate = function() {
+        updateOverlayProgress();
+    };
+
+    // ============================================================
+    // GENRES
+    // ============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         ORDEM.forEach(g => {
@@ -1024,6 +1424,7 @@
         if (m) {
             atualizarLetreiro(m);
             updateHeart(m.id);
+            updateOverlayInfo(m);
         }
 
         renderizarGeneros();
@@ -1033,6 +1434,9 @@
         if (state.isBackgroundActive) setTimeout(tocar, 300);
     }
 
+    // ============================================================
+    // FAVORITOS MODAL
+    // ============================================================
     function renderizarFavoritos() {
         dom.favList.innerHTML = '';
         if (state.favorites.length === 0) {
@@ -1119,6 +1523,7 @@
         if (m) {
             atualizarLetreiro(m);
             updateHeart(m.id);
+            updateOverlayInfo(m);
         }
         if (state.isBackgroundActive) setTimeout(tocar, 300);
         notif('❤️ Suas favoritas!');
@@ -1126,12 +1531,15 @@
     }
 
     // ============================================================
-    // SEGUNDO PLANO - NÃO PAUSA (toca sempre!)
+    // PAUSE EM SEGUNDO PLANO - NÃO PAUSA (toca sempre)
     // ============================================================
     document.addEventListener('visibilitychange', function() {
-        // Não faz nada - o áudio de fundo mantém tocando
+        // Não faz nada - mantém tocando sempre
     });
 
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
     function iniciar() {
         criarMidia();
         carregarFav();
@@ -1149,6 +1557,7 @@
                     if (m) {
                         atualizarLetreiro(m);
                         updateHeart(m.id);
+                        updateOverlayInfo(m);
                     }
                     break;
                 }
@@ -1284,6 +1693,7 @@
                 dom.audio.pause();
                 state.isPlaying = false;
                 dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                dom.overlayPlay.innerHTML = '<i class="fas fa-play"></i>';
                 notif('💤 Rádio desligada!');
             }, mins * 60000);
             notif('⏰ Sleep: ' + mins + ' min');
@@ -1398,6 +1808,7 @@
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
             dom.currentTime.textContent = fmt(dom.audio.currentTime);
             dom.totalTime.textContent = fmt(dom.audio.duration);
+            updateOverlayProgress();
         }
     };
     dom.audio.onended = () => {
