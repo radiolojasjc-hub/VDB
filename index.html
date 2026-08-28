@@ -840,85 +840,19 @@
     };
 
     // ============================================================
-    // GERAR ID ÚNICO DO DISPOSITIVO - VERSÃO MELHORADA
+    // GERAR ID ÚNICO DO DISPOSITIVO - USANDO LOCAL STORAGE
     // ============================================================
     function gerarIdDispositivo() {
-        // Tenta usar o fingerprint do dispositivo
-        let fingerprint = '';
-        
-        // 1. Informações do navegador
-        fingerprint += navigator.userAgent || '';
-        fingerprint += navigator.language || '';
-        fingerprint += navigator.platform || '';
-        fingerprint += navigator.hardwareConcurrency || '';
-        fingerprint += navigator.deviceMemory || '';
-        
-        // 2. Informações da tela
-        fingerprint += screen.width + 'x' + screen.height;
-        fingerprint += screen.colorDepth || '';
-        fingerprint += screen.pixelDepth || '';
-        
-        // 3. Timezone
-        fingerprint += Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        
-        // 4. Plugins do navegador
-        try {
-            for (let i = 0; i < navigator.plugins.length; i++) {
-                fingerprint += navigator.plugins[i].name || '';
-                fingerprint += navigator.plugins[i].filename || '';
-            }
-        } catch(e) {}
-        
-        // 5. Fontes disponíveis (via canvas)
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const txt = 'VDB Music Device ID';
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#f60';
-            ctx.fillRect(125, 1, 62, 20);
-            ctx.fillStyle = '#069';
-            ctx.fillText(txt, 2, 15);
-            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-            ctx.fillText(txt, 4, 17);
-            fingerprint += canvas.toDataURL();
-        } catch(e) {}
-        
-        // 6. WebGL
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (gl) {
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (debugInfo) {
-                    fingerprint += gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '';
-                    fingerprint += gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '';
-                }
-            }
-        } catch(e) {}
-        
-        // 7. AudioContext
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            fingerprint += audioCtx.sampleRate || '';
-            fingerprint += audioCtx.state || '';
-            audioCtx.close();
-        } catch(e) {}
-        
-        // Gera um hash único a partir de todas as informações
-        let hash = 0;
-        const str = fingerprint;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
+        let id = localStorage.getItem('vdb_device_id');
+        if (id) {
+            return id;
         }
-        
-        // Adiciona um timestamp para garantir unicidade
+        const random1 = Math.random().toString(36).substring(2, 10);
+        const random2 = Math.random().toString(36).substring(2, 10);
         const timestamp = Date.now().toString(36);
-        
-        return 'dev_' + Math.abs(hash).toString(36) + '_' + timestamp;
+        id = 'dev_' + random1 + random2 + '_' + timestamp;
+        localStorage.setItem('vdb_device_id', id);
+        return id;
     }
 
     // ============================================================
@@ -927,12 +861,11 @@
     function verificarSenhaDispositivo() {
         const senhaSalva = localStorage.getItem('vdb_senha_ativa');
         const dispositivoSalvo = localStorage.getItem('vdb_dispositivo_id');
+        const dispositivoAtual = gerarIdDispositivo();
         
         if (!senhaSalva || !dispositivoSalvo) {
             return false;
         }
-        
-        const dispositivoAtual = gerarIdDispositivo();
         
         if (dispositivoSalvo === dispositivoAtual) {
             state.desbloqueado = true;
@@ -941,7 +874,6 @@
             return true;
         }
         
-        // DISPOSITIVO DIFERENTE - REMOVE A SENHA SALVA
         localStorage.removeItem('vdb_senha_ativa');
         localStorage.removeItem('vdb_dispositivo_id');
         return false;
