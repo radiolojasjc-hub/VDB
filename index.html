@@ -694,8 +694,8 @@
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    <input type="password" class="senha-input" id="senhaPermanente" placeholder="Senha vitalícia">
-    <button class="btn-senha" id="btnSenhaPermanente">Liberar</button>
+    <input type="text" class="senha-input" id="senhaPermanente" placeholder="Cole a senha vitalícia" autocomplete="off">
+    <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
@@ -735,14 +735,15 @@
 
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
-    <input type="text" id="adminCelular" value="12988461978">
-    <input type="email" id="adminEmail" value="cliente@teste.com">
+    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular do cliente">
+    <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email do cliente">
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly>
-        <button class="btn-copiar" id="btnCopiarSenha">Copiar</button>
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada" style="font-size:0.6rem;">
+        <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
     </div>
-    <button class="admin-btn" id="adminGerarBtn">GERAR SENHA</button>
-    <button class="admin-close" id="adminCloseBtn">Fechar</button>
+    <button class="admin-btn" id="adminGerarBtn">🔑 GERAR SENHA VITALÍCIA</button>
+    <p style="color:#555;font-size:0.6rem;text-align:center;margin-top:4px;">Envie a senha para o cliente via WhatsApp</p>
+    <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
 </div>
 
 <script>
@@ -1155,7 +1156,7 @@
     }
 
     // ============================================================
-    // DESBLOQUEAR - CORRIGIDO
+    // DESBLOQUEAR - FUNCIONAL
     // ============================================================
     function desbloquear() {
         state.desbloqueado = true;
@@ -1167,7 +1168,7 @@
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
-        notif('✅ Liberado!');
+        notif('✅ Liberado com sucesso!');
     }
 
     // ============================================================
@@ -1796,7 +1797,7 @@
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
     // ============================================================
-    // SENHA - CORRIGIDO PARA ACEITAR O TOKEN
+    // SENHA - ACEITA O FORMATO GERADO PELO ADMIN
     // ============================================================
     document.getElementById('btnSenhaPermanente').onclick = () => {
         if (state.tentativas >= MAX_TENTATIVAS) {
@@ -1823,7 +1824,7 @@
             state.tentativas = 0;
             document.getElementById('erroSenha').textContent = '';
             document.getElementById('senhaPermanente').value = '';
-            notif('✅ Liberado!');
+            notif('✅ Liberado com sucesso!');
             return;
         }
         
@@ -1833,15 +1834,15 @@
             state.tentativas = 0;
             document.getElementById('erroSenha').textContent = '';
             document.getElementById('senhaPermanente').value = '';
-            notif('✅ Liberado!');
+            notif('✅ Liberado com sucesso!');
             return;
         }
         
         state.tentativas++;
         const restam = MAX_TENTATIVAS - state.tentativas;
-        document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        document.getElementById('erroSenha').textContent = '❌ Senha inválida! Restam ' + restam + ' tentativa(s)';
     };
-    
+
     document.getElementById('senhaPermanente').onkeydown = (e) => {
         if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
     };
@@ -1853,28 +1854,28 @@
     };
 
     // ============================================================
-    // ADMIN - CORRIGIDO
+    // ADMIN - GERAR SENHA VITALÍCIA
     // ============================================================
     document.getElementById('adminGerarBtn').onclick = () => {
-        const email = document.getElementById('adminEmail').value;
-        const cel = document.getElementById('adminCelular').value;
-        const exp = Date.now() + 999999999999;
+        const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
+        const cel = document.getElementById('adminCelular').value || '12988461978';
+        const exp = Date.now() + 999999999999; // VITALÍCIO - NUNCA EXPIRA!
         const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
         const senha = email + ':' + cel + ':' + exp + ':' + hash;
         document.getElementById('adminSenhaGerada').value = senha;
-        notif('✅ Senha gerada! Copie e cole no campo de liberação.');
+        notif('✅ Senha vitalícia gerada! Copie e envie para o cliente.');
     };
 
     document.getElementById('btnCopiarSenha').onclick = () => {
         const text = document.getElementById('adminSenhaGerada').value;
         if (text) {
             navigator.clipboard.writeText(text).then(() => {
-                notif('📋 Senha copiada! Cole no campo de liberação.');
+                notif('📋 Senha copiada! Envie para o cliente.');
             }).catch(() => {
                 const input = document.getElementById('adminSenhaGerada');
                 input.select();
                 document.execCommand('copy');
-                notif('📋 Senha copiada!');
+                notif('📋 Senha copiada! Envie para o cliente.');
             });
         } else {
             notif('⚠️ Gere uma senha primeiro!');
