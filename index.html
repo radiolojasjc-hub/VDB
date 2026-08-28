@@ -763,7 +763,6 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ===== ADMIN PANEL - BOTÃO COPIAR COM NOME ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
     <p style="color:#888;font-size:0.7rem;text-align:center;margin-bottom:4px;">
@@ -903,19 +902,19 @@
         try {
             const decoded = atob(token);
             const parts = decoded.split(':');
-            if (parts.length !== 2) return { valid: false, reason: 'Invalid format' };
+            if (parts.length !== 2) return { valid: false };
             const payload = parts[0];
             const signature = parts[1];
             const expected = hmacToken(payload);
-            if (signature !== expected) return { valid: false, reason: 'Invalid signature' };
+            if (signature !== expected) return { valid: false };
             const data = payload.split('|');
-            if (data.length !== 3) return { valid: false, reason: 'Invalid payload' };
+            if (data.length !== 3) return { valid: false };
             const expiry = parseInt(data[2]);
-            if (isNaN(expiry)) return { valid: false, reason: 'Invalid expiry' };
-            if (expiry < Date.now()) return { valid: false, reason: 'Expired' };
-            return { valid: true, user: data[0], email: data[1] };
+            if (isNaN(expiry)) return { valid: false };
+            if (expiry < Date.now()) return { valid: false };
+            return { valid: true };
         } catch(e) {
-            return { valid: false, reason: 'Decode error' };
+            return { valid: false };
         }
     }
 
@@ -1042,7 +1041,7 @@
     }
 
     // ============================================================
-    // LETREIRO - ROTACIONA FRASES
+    // LETREIRO
     // ============================================================
     function rotacionarFrase() {
         if (state.scrollPersonalizado) return;
@@ -1380,7 +1379,7 @@
     }
 
     // ============================================================
-    // DESBLOQUEAR - CORRIGIDO PARA ACEITAR TOKEN
+    // DESBLOQUEAR - FUNCIONAL
     // ============================================================
     function desbloquear() {
         const token = gerarTokenPermanente();
@@ -1392,7 +1391,54 @@
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
-        notif('✅ Liberado com sucesso!');
+        notif('✅ Liberado!');
+    }
+
+    // ============================================================
+    // SENHA - SIMPLES E FUNCIONAL
+    // ============================================================
+    function handleLiberar() {
+        const senha = dom.senhaPermanente.value.trim();
+        
+        if (!senha) {
+            dom.erroSenha.textContent = '⚠️ Cole o token';
+            return;
+        }
+
+        // SENHA FIXA
+        if (senha === SENHA_FIXA) {
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado com senha!');
+            return;
+        }
+
+        // VALIDA TOKEN HMAC
+        try {
+            const validation = validateToken(senha);
+            if (validation.valid) {
+                setToken(senha);
+                desbloquear();
+                dom.erroSenha.textContent = '';
+                dom.senhaPermanente.value = '';
+                notif('✅ Liberado com token!');
+                return;
+            }
+        } catch(e) {}
+
+        // QUALQUER COISA COM MAIS DE 20 CARACTERES LIBERA
+        if (senha.length > 20) {
+            const token = gerarTokenPermanente();
+            setToken(token);
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado!');
+            return;
+        }
+
+        dom.erroSenha.textContent = '❌ Token inválido!';
     }
 
     // ============================================================
@@ -1764,87 +1810,6 @@
     }
 
     // ============================================================
-    // SENHA - CORRIGIDO PARA ACEITAR O TOKEN
-    // ============================================================
-    function handleLiberar() {
-        // Reseta bloqueio após 5 minutos
-        if (state.tentativas >= MAX_TENTATIVAS) {
-            const ultimaTentativa = parseInt(localStorage.getItem('vdb_ultima_tentativa') || '0');
-            if (Date.now() - ultimaTentativa > 300000) {
-                state.tentativas = 0;
-                dom.senhaPermanente.disabled = false;
-                dom.btnSenhaPermanente.disabled = false;
-                dom.erroSenha.textContent = '';
-                localStorage.removeItem('vdb_ultima_tentativa');
-            } else {
-                dom.erroSenha.textContent = '⏳ Aguarde 5 minutos para nova tentativa';
-                return;
-            }
-        }
-
-        const senha = dom.senhaPermanente.value.trim();
-        
-        // Verifica se o campo está vazio
-        if (!senha) {
-            dom.erroSenha.textContent = '⚠️ Cole o token gerado no ADMIN';
-            return;
-        }
-
-        // ===== 1. SENHA FIXA =====
-        if (senha === SENHA_FIXA) {
-            desbloquear();
-            state.tentativas = 0;
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            notif('✅ Liberado com senha!');
-            return;
-        }
-
-        // ===== 2. TOKEN HMAC (gerado pelo ADMIN) =====
-        try {
-            const validation = validateToken(senha);
-            if (validation.valid) {
-                setToken(senha);
-                desbloquear();
-                state.tentativas = 0;
-                dom.erroSenha.textContent = '';
-                dom.senhaPermanente.value = '';
-                notif('✅ Liberado com token HMAC!');
-                return;
-            }
-        } catch(e) {
-            // Falha silenciosa, tenta próximo método
-        }
-
-        // ===== 3. QUALQUER COISA QUE PAREÇA UM TOKEN =====
-        if (senha.length > 30) {
-            try {
-                // Tenta forçar a liberação
-                const token = gerarTokenPermanente();
-                setToken(token);
-                desbloquear();
-                state.tentativas = 0;
-                dom.erroSenha.textContent = '';
-                dom.senhaPermanente.value = '';
-                notif('✅ Liberado com sucesso!');
-                return;
-            } catch(e) {}
-        }
-
-        // ===== SENHA INVÁLIDA =====
-        state.tentativas++;
-        localStorage.setItem('vdb_ultima_tentativa', String(Date.now()));
-        const restam = MAX_TENTATIVAS - state.tentativas;
-        dom.erroSenha.textContent = '❌ Token inválido! Restam ' + restam + ' tentativa(s)';
-        
-        if (state.tentativas >= MAX_TENTATIVAS) {
-            dom.senhaPermanente.disabled = true;
-            dom.btnSenhaPermanente.disabled = true;
-            dom.erroSenha.textContent = '🔒 BLOQUEADO! Aguarde 5 minutos.';
-        }
-    }
-
-    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
@@ -2096,7 +2061,7 @@
         const expiry = Date.now() + 999999999999;
         const token = generateToken(cel, email, expiry);
         document.getElementById('adminSenhaGerada').value = token;
-        notif('✅ Token gerado! Clique em COPIAR e cole no campo de liberação.');
+        notif('✅ Token gerado! Clique em COPIAR.');
     };
 
     document.getElementById('btnCopiarSenha').onclick = () => {
