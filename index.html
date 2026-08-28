@@ -840,22 +840,85 @@
     };
 
     // ============================================================
-    // FUNÇÃO PARA GERAR ID ÚNICO DO DISPOSITIVO
+    // GERAR ID ÚNICO DO DISPOSITIVO - VERSÃO MELHORADA
     // ============================================================
     function gerarIdDispositivo() {
-        const navegador = navigator.userAgent || '';
-        const idioma = navigator.language || '';
-        const tela = screen.width + 'x' + screen.height;
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        const data = navegador + idioma + tela + timezone;
+        // Tenta usar o fingerprint do dispositivo
+        let fingerprint = '';
         
+        // 1. Informações do navegador
+        fingerprint += navigator.userAgent || '';
+        fingerprint += navigator.language || '';
+        fingerprint += navigator.platform || '';
+        fingerprint += navigator.hardwareConcurrency || '';
+        fingerprint += navigator.deviceMemory || '';
+        
+        // 2. Informações da tela
+        fingerprint += screen.width + 'x' + screen.height;
+        fingerprint += screen.colorDepth || '';
+        fingerprint += screen.pixelDepth || '';
+        
+        // 3. Timezone
+        fingerprint += Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        
+        // 4. Plugins do navegador
+        try {
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                fingerprint += navigator.plugins[i].name || '';
+                fingerprint += navigator.plugins[i].filename || '';
+            }
+        } catch(e) {}
+        
+        // 5. Fontes disponíveis (via canvas)
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const txt = 'VDB Music Device ID';
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText(txt, 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText(txt, 4, 17);
+            fingerprint += canvas.toDataURL();
+        } catch(e) {}
+        
+        // 6. WebGL
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    fingerprint += gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '';
+                    fingerprint += gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '';
+                }
+            }
+        } catch(e) {}
+        
+        // 7. AudioContext
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            fingerprint += audioCtx.sampleRate || '';
+            fingerprint += audioCtx.state || '';
+            audioCtx.close();
+        } catch(e) {}
+        
+        // Gera um hash único a partir de todas as informações
         let hash = 0;
-        for (let i = 0; i < data.length; i++) {
-            const char = data.charCodeAt(i);
+        const str = fingerprint;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash;
         }
-        return 'dev_' + Math.abs(hash).toString(36) + '_' + Date.now().toString(36);
+        
+        // Adiciona um timestamp para garantir unicidade
+        const timestamp = Date.now().toString(36);
+        
+        return 'dev_' + Math.abs(hash).toString(36) + '_' + timestamp;
     }
 
     // ============================================================
@@ -878,6 +941,7 @@
             return true;
         }
         
+        // DISPOSITIVO DIFERENTE - REMOVE A SENHA SALVA
         localStorage.removeItem('vdb_senha_ativa');
         localStorage.removeItem('vdb_dispositivo_id');
         return false;
@@ -1326,7 +1390,6 @@
             const btn = document.querySelector('.btn-ativar-player');
             if (btn) btn.classList.add('hidden');
             
-            // ===== TELA CHEIA AUTOMÁTICA =====
             fullscreen();
             
             await tocar();
@@ -1337,7 +1400,6 @@
             const btn = document.querySelector('.btn-ativar-player');
             if (btn) btn.classList.add('hidden');
             
-            // ===== TELA CHEIA AUTOMÁTICA =====
             fullscreen();
             
             await tocar();
