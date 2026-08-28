@@ -840,17 +840,46 @@
     };
 
     // ============================================================
-    // FUNÇÃO PARA VERIFICAR SE JÁ TEM SENHA SALVA
+    // FUNÇÃO PARA GERAR ID ÚNICO DO DISPOSITIVO
+    // ============================================================
+    function gerarIdDispositivo() {
+        const navegador = navigator.userAgent || '';
+        const idioma = navigator.language || '';
+        const tela = screen.width + 'x' + screen.height;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const data = navegador + idioma + tela + timezone;
+        
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+            const char = data.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return 'dev_' + Math.abs(hash).toString(36) + '_' + Date.now().toString(36);
+    }
+
+    // ============================================================
+    // VERIFICA SE A SENHA ESTÁ SALVA NESTE DISPOSITIVO
     // ============================================================
     function verificarSenhaDispositivo() {
         const senhaSalva = localStorage.getItem('vdb_senha_ativa');
-        if (senhaSalva) {
-            // SENHA JÁ ESTÁ SALVA NESTE DISPOSITIVO - LIBERA!
+        const dispositivoSalvo = localStorage.getItem('vdb_dispositivo_id');
+        
+        if (!senhaSalva || !dispositivoSalvo) {
+            return false;
+        }
+        
+        const dispositivoAtual = gerarIdDispositivo();
+        
+        if (dispositivoSalvo === dispositivoAtual) {
             state.desbloqueado = true;
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             return true;
         }
+        
+        localStorage.removeItem('vdb_senha_ativa');
+        localStorage.removeItem('vdb_dispositivo_id');
         return false;
     }
 
@@ -1177,7 +1206,7 @@
     }
 
     // ============================================================
-    // DESBLOQUEAR - FUNCIONAL
+    // DESBLOQUEAR
     // ============================================================
     function desbloquear() {
         state.desbloqueado = true;
@@ -1189,6 +1218,44 @@
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
         notif('✅ Liberado com sucesso!');
+    }
+
+    // ============================================================
+    // SENHA - FUNCIONA SÓ NO DISPOSITIVO QUE ATIVOU
+    // ============================================================
+    function handleLiberar() {
+        const senha = dom.senhaPermanente.value.trim();
+        
+        if (!senha) {
+            dom.erroSenha.textContent = '⚠️ Cole a senha';
+            return;
+        }
+
+        // ===== SENHA FIXA (ADMIN) =====
+        if (senha === SENHA_FIXA) {
+            const dispositivoId = gerarIdDispositivo();
+            localStorage.setItem('vdb_senha_ativa', senha);
+            localStorage.setItem('vdb_dispositivo_id', dispositivoId);
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado neste dispositivo!');
+            return;
+        }
+
+        // ===== VALIDA A SENHA =====
+        if (senha.split(':').length === 4 || senha.length > 20) {
+            const dispositivoId = gerarIdDispositivo();
+            localStorage.setItem('vdb_senha_ativa', senha);
+            localStorage.setItem('vdb_dispositivo_id', dispositivoId);
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado neste dispositivo!');
+            return;
+        }
+
+        dom.erroSenha.textContent = '❌ Senha inválida!';
     }
 
     // ============================================================
@@ -1258,6 +1325,10 @@
             showLoad(false);
             const btn = document.querySelector('.btn-ativar-player');
             if (btn) btn.classList.add('hidden');
+            
+            // ===== TELA CHEIA AUTOMÁTICA =====
+            fullscreen();
+            
             await tocar();
         } catch (e) {
             state.isBackgroundActive = true;
@@ -1265,6 +1336,10 @@
             showLoad(false);
             const btn = document.querySelector('.btn-ativar-player');
             if (btn) btn.classList.add('hidden');
+            
+            // ===== TELA CHEIA AUTOMÁTICA =====
+            fullscreen();
+            
             await tocar();
         }
     }
@@ -1431,7 +1506,13 @@
 
     function fullscreen() {
         try {
-            document.documentElement.requestFullscreen().catch(() => {});
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
         } catch (e) {}
     }
 
@@ -1579,53 +1660,16 @@
     }
 
     // ============================================================
-    // SENHA - FUNCIONA SÓ NO DISPOSITIVO QUE ATIVOU
-    // ============================================================
-    function handleLiberar() {
-        const senha = dom.senhaPermanente.value.trim();
-        
-        if (!senha) {
-            dom.erroSenha.textContent = '⚠️ Cole a senha';
-            return;
-        }
-
-        // ===== SENHA FIXA (ADMIN) =====
-        if (senha === SENHA_FIXA) {
-            localStorage.setItem('vdb_senha_ativa', senha);
-            desbloquear();
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            notif('✅ Liberado!');
-            return;
-        }
-
-        // ===== VALIDA A SENHA (formato email:cel:exp:hash ou >20 caracteres) =====
-        if (senha.split(':').length === 4 || senha.length > 20) {
-            // SALVA A SENHA NO DISPOSITIVO
-            localStorage.setItem('vdb_senha_ativa', senha);
-            desbloquear();
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            notif('✅ Liberado neste dispositivo!');
-            return;
-        }
-
-        dom.erroSenha.textContent = '❌ Senha inválida!';
-    }
-
-    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
         // ===== VERIFICA SE JÁ TEM SENHA SALVA NESTE DISPOSITIVO =====
         if (verificarSenhaDispositivo()) {
-            // JÁ ESTÁ LIBERADO, CARREGA O PLAYER
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
             criarMidia();
             carregarFav();
             
-            // Carrega as músicas
             (async () => {
                 for (const g of ORDEM) {
                     const musicas = await carregarPlaylist(g);
@@ -1647,7 +1691,6 @@
                 fullscreen();
             })();
 
-            // Botão ativar
             const btnAtivar = document.createElement('button');
             btnAtivar.className = 'btn-ativar-player';
             btnAtivar.textContent = 'ATIVAR';
@@ -1660,7 +1703,6 @@
             return;
         }
         
-        // ===== NÃO TEM SENHA SALVA - MOSTRA O BLOQUEIO =====
         criarMidia();
         carregarFav();
 
@@ -1737,17 +1779,11 @@
     // EVENTOS
     // ============================================================
 
-    // PLAY
     dom.playBtn.onclick = togglePlay;
-
-    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
-
-    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1755,13 +1791,11 @@
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
-    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -1782,22 +1816,17 @@
         }
     };
 
-    // CLOSE FAV MODAL
     document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
     document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    // GENRES MODAL (via FAB)
     document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
         fabSub.classList.remove('open');
         state.fabOpen = false;
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-
-    // CLOSE GENRES
     document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
 
-    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
@@ -1834,7 +1863,6 @@
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    // BANNER VITALÍCIO
     document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
@@ -1845,7 +1873,6 @@
         clearInterval(state.bannerTimeout);
     };
 
-    // FAB
     const fabMain = document.getElementById('fabMain');
     const fabSub = document.getElementById('fabSub');
     fabMain.onclick = () => {
@@ -1878,7 +1905,6 @@
         fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
-    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -1895,23 +1921,20 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // ===== SENHA =====
     dom.btnSenhaPermanente.onclick = handleLiberar;
     dom.senhaPermanente.onkeydown = (e) => {
         if (e.key === 'Enter') handleLiberar();
     };
 
-    // WHATSAPP / PIX
     document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
     document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    // ===== ADMIN - GERAR SENHA VITALÍCIA ÚNICA =====
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
         const cel = document.getElementById('adminCelular').value || '12988461978';
-        const exp = Date.now() + 999999999999; // VITALÍCIO - NUNCA EXPIRA!
+        const exp = Date.now() + 999999999999;
         const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
         const senha = email + ':' + cel + ':' + exp + ':' + hash;
         document.getElementById('adminSenhaGerada').value = senha;
@@ -1936,7 +1959,6 @@
 
     document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
 
-    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -1951,14 +1973,12 @@
         if (!state.carregandoMusica) next();
     };
 
-    // VISIBILITY
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
             dom.audio.play().catch(() => {});
         }
     });
 
-    // UNLOAD
     window.onbeforeunload = () => {
         clearInterval(state.backgroundInterval);
         clearInterval(state.timerInterval);
@@ -1968,7 +1988,6 @@
         if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
-    // ADMIN (5 cliques no letreiro)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
@@ -1980,7 +1999,6 @@
         }
     };
 
-    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1989,15 +2007,11 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // CLICK TO SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
     });
 
-    // ============================================================
-    // INICIA
-    // ============================================================
     iniciar();
 
 })();
