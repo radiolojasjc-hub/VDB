@@ -545,6 +545,12 @@
             padding: 6px; border-radius: 20px; color: #555;
             cursor: pointer; width: 100%; font-size: 0.75rem;
         }
+        .admin-info {
+            color: #555;
+            font-size: 0.6rem;
+            text-align: center;
+            margin-top: 4px;
+        }
 
         .btn-ativar-player {
             position: fixed; bottom: 25%; left: 50%;
@@ -742,7 +748,7 @@
         <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
     </div>
     <button class="admin-btn" id="adminGerarBtn">🔑 GERAR SENHA VITALÍCIA</button>
-    <p style="color:#555;font-size:0.6rem;text-align:center;margin-top:4px;">Envie a senha para o cliente via WhatsApp</p>
+    <p class="admin-info">Senha única por dispositivo - Envie via WhatsApp</p>
     <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
 </div>
 
@@ -832,6 +838,21 @@
         bannerInterval: null,
         bannerTimeout: null,
     };
+
+    // ============================================================
+    // FUNÇÃO PARA VERIFICAR SE JÁ TEM SENHA SALVA
+    // ============================================================
+    function verificarSenhaDispositivo() {
+        const senhaSalva = localStorage.getItem('vdb_senha_ativa');
+        if (senhaSalva) {
+            // SENHA JÁ ESTÁ SALVA NESTE DISPOSITIVO - LIBERA!
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return true;
+        }
+        return false;
+    }
 
     // ============================================================
     // GENRES
@@ -1163,7 +1184,6 @@
         dom.blockOverlay.classList.remove('active');
         localStorage.setItem('vdb_desbloqueado', 'true');
         localStorage.removeItem('vdb_bloqueado_permanente');
-        localStorage.setItem('vdb_senha_permanente', 'true');
         dom.timerLib.textContent = '🔓 Lib';
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
@@ -1559,9 +1579,88 @@
     }
 
     // ============================================================
+    // SENHA - FUNCIONA SÓ NO DISPOSITIVO QUE ATIVOU
+    // ============================================================
+    function handleLiberar() {
+        const senha = dom.senhaPermanente.value.trim();
+        
+        if (!senha) {
+            dom.erroSenha.textContent = '⚠️ Cole a senha';
+            return;
+        }
+
+        // ===== SENHA FIXA (ADMIN) =====
+        if (senha === SENHA_FIXA) {
+            localStorage.setItem('vdb_senha_ativa', senha);
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado!');
+            return;
+        }
+
+        // ===== VALIDA A SENHA (formato email:cel:exp:hash ou >20 caracteres) =====
+        if (senha.split(':').length === 4 || senha.length > 20) {
+            // SALVA A SENHA NO DISPOSITIVO
+            localStorage.setItem('vdb_senha_ativa', senha);
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            notif('✅ Liberado neste dispositivo!');
+            return;
+        }
+
+        dom.erroSenha.textContent = '❌ Senha inválida!';
+    }
+
+    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
+        // ===== VERIFICA SE JÁ TEM SENHA SALVA NESTE DISPOSITIVO =====
+        if (verificarSenhaDispositivo()) {
+            // JÁ ESTÁ LIBERADO, CARREGA O PLAYER
+            dom.loadingScreen.style.display = 'none';
+            dom.playerContainer.classList.add('visible');
+            criarMidia();
+            carregarFav();
+            
+            // Carrega as músicas
+            (async () => {
+                for (const g of ORDEM) {
+                    const musicas = await carregarPlaylist(g);
+                    if (musicas && musicas.length) {
+                        state.musicas = musicas;
+                        state.modoAtual = g;
+                        state.playlistAtual = shuf(musicas);
+                        dom.generoNome.textContent = g;
+                        dom.generoNome.style.color = CORES[g] || '#fff';
+                        const m = state.playlistAtual[0];
+                        if (m) {
+                            atualizarLetreiro(m);
+                            updateHeart(m.id);
+                        }
+                        break;
+                    }
+                }
+                renderizarGeneros();
+                fullscreen();
+            })();
+
+            // Botão ativar
+            const btnAtivar = document.createElement('button');
+            btnAtivar.className = 'btn-ativar-player';
+            btnAtivar.textContent = 'ATIVAR';
+            btnAtivar.onclick = async function() {
+                this.classList.add('hidden');
+                await ativarPlayer();
+                fullscreen();
+            };
+            document.body.appendChild(btnAtivar);
+            return;
+        }
+        
+        // ===== NÃO TEM SENHA SALVA - MOSTRA O BLOQUEIO =====
         criarMidia();
         carregarFav();
 
@@ -1796,55 +1895,10 @@
     };
     document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    // ============================================================
-    // SENHA - ACEITA O FORMATO GERADO PELO ADMIN
-    // ============================================================
-    document.getElementById('btnSenhaPermanente').onclick = () => {
-        if (state.tentativas >= MAX_TENTATIVAS) {
-            document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
-            document.getElementById('senhaPermanente').disabled = true;
-            document.getElementById('btnSenhaPermanente').disabled = true;
-            return;
-        }
-        const senha = document.getElementById('senhaPermanente').value.trim();
-        
-        // SENHA FIXA
-        if (senha === SENHA_FIXA) {
-            desbloquear();
-            state.tentativas = 0;
-            document.getElementById('erroSenha').textContent = '';
-            document.getElementById('senhaPermanente').value = '';
-            notif('✅ Liberado com senha!');
-            return;
-        }
-        
-        // FORMATO GERADO PELO ADMIN (email:cel:exp:hash)
-        if (senha.split(':').length === 4) {
-            desbloquear();
-            state.tentativas = 0;
-            document.getElementById('erroSenha').textContent = '';
-            document.getElementById('senhaPermanente').value = '';
-            notif('✅ Liberado com sucesso!');
-            return;
-        }
-        
-        // QUALQUER COISA COM MAIS DE 20 CARACTERES
-        if (senha.length > 20) {
-            desbloquear();
-            state.tentativas = 0;
-            document.getElementById('erroSenha').textContent = '';
-            document.getElementById('senhaPermanente').value = '';
-            notif('✅ Liberado com sucesso!');
-            return;
-        }
-        
-        state.tentativas++;
-        const restam = MAX_TENTATIVAS - state.tentativas;
-        document.getElementById('erroSenha').textContent = '❌ Senha inválida! Restam ' + restam + ' tentativa(s)';
-    };
-
-    document.getElementById('senhaPermanente').onkeydown = (e) => {
-        if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
+    // ===== SENHA =====
+    dom.btnSenhaPermanente.onclick = handleLiberar;
+    dom.senhaPermanente.onkeydown = (e) => {
+        if (e.key === 'Enter') handleLiberar();
     };
 
     // WHATSAPP / PIX
@@ -1853,9 +1907,7 @@
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    // ============================================================
-    // ADMIN - GERAR SENHA VITALÍCIA
-    // ============================================================
+    // ===== ADMIN - GERAR SENHA VITALÍCIA ÚNICA =====
     document.getElementById('adminGerarBtn').onclick = () => {
         const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
         const cel = document.getElementById('adminCelular').value || '12988461978';
