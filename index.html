@@ -5,28 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🎵 VAI DE BOA! MUSIC</title>
 
+    <!-- ===== META TAGS ===== -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1a">
     <meta name="msapplication-TileColor" content="#0a0a1a">
-    <meta name="apple-touch-fullscreen" content="yes">
 
+    <!-- ===== FAVICON ===== -->
     <link rel="icon" href="fa123.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123.png">
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a1a%22%2C%22theme_color%22%3A%22%230a0a1a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 
+    <!-- ===== FONTES ===== -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         /* ================================================================
-           🎨 CSS COMPLETO - MELHOR VERSÃO
+           🎨 CSS COMPLETO - VERSÃO MAIS BONITA E CLARA
            ================================================================ */
 
         /* ===== RESET + BASE ===== */
@@ -38,27 +39,39 @@
         }
 
         :root {
+            /* Cores principais - MAIS CLARAS E VIBRANTES */
             --neon-cyan: #00e5ff;
             --neon-pink: #ff4081;
             --gold: #ffd700;
+            --purple: #7c3aed;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.85);
             --text-muted: rgba(255, 255, 255, 0.5);
-            --glass-bg: rgba(255, 255, 255, 0.06);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            /* Glassmorphism - MAIS CLARO */
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            
+            /* Gradientes - MAIS VIVOS */
             --gradient-primary: linear-gradient(135deg, #00e5ff, #ff4081);
             --gradient-gold: linear-gradient(135deg, #ffd700, #ffaa00);
+            --gradient-dark: linear-gradient(180deg, rgba(10, 10, 30, 0.85), rgba(0, 0, 0, 0.95));
+            
+            /* Fundo - MAIS CLARO (azul escuro ao invés de preto puro) */
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            
+            /* Espaçamentos */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        html,
-        body {
+        html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background: #0a0a1a;
+            background: var(--bg-primary);
             overflow: hidden;
             position: fixed;
             width: 100%;
@@ -69,7 +82,9 @@
             user-select: none;
         }
 
-        /* ===== LOADING ===== */
+        /* ================================================================
+           🔄 LOADING SCREEN - MAIS BONITO
+           ================================================================ */
         #loadingScreen {
             position: fixed;
             top: 0;
@@ -83,30 +98,48 @@
             z-index: 99999;
             flex-direction: column;
             gap: 20px;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
         #loadingScreen.hidden {
             opacity: 0;
+            visibility: hidden;
             pointer-events: none;
         }
+        
+        .loading-logo-wrapper {
+            position: relative;
+        }
+        .loading-logo-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -25px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--neon-cyan), var(--neon-pink), var(--gold), var(--neon-cyan));
+            animation: spinGlow 4s linear infinite;
+            opacity: 0.15;
+            filter: blur(25px);
+        }
+        @keyframes spinGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .loading-logo {
             width: 90px;
             height: 90px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid rgba(0, 229, 255, 0.15);
+            position: relative;
+            z-index: 1;
             animation: pulseLogo 2s ease-in-out infinite;
             box-shadow: 0 0 60px rgba(0, 229, 255, 0.05);
         }
         @keyframes pulseLogo {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
+        
         .loading-title {
             font-size: 1.8rem;
             font-weight: 900;
@@ -115,32 +148,32 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 3px;
+            text-shadow: 0 0 60px rgba(0, 229, 255, 0.05);
         }
         .loading-subtitle {
             color: var(--text-secondary);
-            font-size: 0.8rem;
-            letter-spacing: 4px;
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 6px;
             text-transform: uppercase;
             opacity: 0.6;
         }
         .loading-spinner {
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(0, 229, 255, 0.05);
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(0, 229, 255, 0.05);
             border-top-color: var(--neon-cyan);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            0% {
-                transform: rotate(0);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* ===== PLAYER ===== */
+        /* ================================================================
+           🎬 PLAYER CONTAINER
+           ================================================================ */
         #playerContainer {
             position: fixed;
             top: 0;
@@ -149,13 +182,15 @@
             height: 100%;
             z-index: 10;
             display: none;
-            background: #0a0a1a;
+            background: var(--bg-primary);
         }
         #playerContainer.visible {
             display: block;
         }
 
-        /* ===== MEDIA ===== */
+        /* ================================================================
+           🖼️ MEDIA CONTAINER
+           ================================================================ */
         .media-container {
             position: fixed;
             top: 0;
@@ -170,10 +205,11 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(ellipse at center, rgba(0, 229, 255, 0.02), transparent 70%);
+            background: radial-gradient(ellipse at center, rgba(0, 229, 255, 0.03), transparent 70%);
             z-index: 2;
             pointer-events: none;
         }
+        
         .media-container video,
         .media-container img {
             position: absolute;
@@ -185,7 +221,7 @@
             opacity: 0;
             z-index: 1;
             transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: brightness(0.7) saturate(0.8);
+            filter: brightness(0.7) saturate(0.8) contrast(1.1);
         }
         .media-container .active {
             opacity: 1;
@@ -195,15 +231,23 @@
             opacity: 0;
             z-index: 0;
         }
+        
         .media-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(10, 10, 30, 0.2) 0%, rgba(10, 10, 30, 0.05) 30%, rgba(10, 10, 30, 0.3) 60%, rgba(10, 10, 30, 0.7) 100%);
+            background: linear-gradient(180deg, 
+                rgba(10,10,30,0.2) 0%,
+                rgba(10,10,30,0.05) 30%,
+                rgba(10,10,30,0.3) 60%,
+                rgba(10,10,30,0.7) 100%
+            );
             z-index: 4;
             pointer-events: none;
         }
 
-        /* ===== TOP BAR ===== */
+        /* ================================================================
+           📌 TOP BAR - MAIS ELEGANTE
+           ================================================================ */
         .top-bar {
             position: fixed;
             top: 0;
@@ -215,29 +259,34 @@
             justify-content: space-between;
             padding: 12px 16px;
             padding-top: calc(12px + var(--safe-top));
-            background: linear-gradient(180deg, rgba(10, 10, 30, 0.85) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(10,10,30,0.85) 0%, transparent 100%);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             height: 64px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
+        
         .top-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        
         .logo-macaco {
             height: 40px;
             width: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid rgba(0, 229, 255, 0.08);
-            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.02);
+            background: rgba(0,0,0,0.3);
             flex-shrink: 0;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .logo-macaco:active {
             transform: scale(0.92);
         }
+        
         .btn-genero-fav {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -251,16 +300,22 @@
             align-items: center;
             gap: 8px;
             backdrop-filter: blur(12px);
-            transition: all 0.3s;
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
             box-shadow: var(--glass-shadow);
         }
         .btn-genero-fav:active {
             transform: scale(0.95);
+            background: rgba(255,255,255,0.1);
         }
         .btn-genero-fav .genero-nome {
             font-size: 0.75rem;
             font-weight: 800;
+        }
+        .btn-genero-fav .separador {
+            color: var(--text-muted);
+            font-weight: 300;
         }
         .btn-genero-fav .fav-badge {
             background: var(--neon-pink);
@@ -272,8 +327,9 @@
             min-width: 18px;
             text-align: center;
             line-height: 18px;
-            box-shadow: 0 0 20px rgba(255, 64, 129, 0.15);
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.2);
         }
+        
         .top-right {
             display: flex;
             align-items: center;
@@ -283,10 +339,11 @@
             font-size: 0.75rem;
             font-weight: 800;
             color: var(--neon-cyan);
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0,0,0,0.4);
             padding: 4px 14px;
             border-radius: 100px;
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             letter-spacing: 0.5px;
             border: 1px solid rgba(0, 229, 255, 0.05);
         }
@@ -297,7 +354,7 @@
         .top-right .audio-status {
             font-size: 0.5rem;
             color: #4ade80;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,0.3);
             padding: 3px 8px;
             border-radius: 100px;
             display: none;
@@ -309,13 +366,8 @@
             animation: pulseDot 1.5s ease-in-out infinite;
         }
         @keyframes pulseDot {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.2;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
         }
         .top-right .menu-btn {
             background: var(--glass-bg);
@@ -330,14 +382,18 @@
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(8px);
-            transition: all 0.3s;
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
             box-shadow: var(--glass-shadow);
         }
         .top-right .menu-btn:active {
             transform: scale(0.9);
+            background: rgba(255,255,255,0.08);
         }
 
-        /* ===== INFO SCROLL ===== */
+        /* ================================================================
+           📜 INFO SCROLL - MAIS ALTO E BONITO
+           ================================================================ */
         .info-scroll {
             position: fixed;
             top: 64px;
@@ -351,15 +407,17 @@
             justify-content: center;
             overflow: hidden;
             cursor: pointer;
-            background: linear-gradient(180deg, rgba(10, 10, 30, 0.6) 0%, rgba(10, 10, 30, 0.15) 100%);
+            background: linear-gradient(180deg, rgba(10,10,30,0.6) 0%, rgba(10,10,30,0.15) 100%);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-top: 1px solid rgba(255,255,255,0.02);
         }
         .info-scroll .letreiro {
             font-size: 1.05rem;
             font-weight: 700;
             white-space: nowrap;
+            animation: scrollText 18s linear infinite;
             pointer-events: none;
             letter-spacing: 0.5px;
             background: linear-gradient(90deg, #ffffff, var(--neon-cyan), #ffffff);
@@ -370,24 +428,17 @@
             animation: scrollText 18s linear infinite, shimmerText 5s linear infinite;
         }
         @keyframes scrollText {
-            0% {
-                transform: translateX(100vw);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
         }
         @keyframes shimmerText {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
-        /* ===== HEART ===== */
+        /* ================================================================
+           ❤️ FAV HEART - CENTRAL
+           ================================================================ */
         .fav-heart-center {
             position: fixed;
             top: 50%;
@@ -399,59 +450,53 @@
         }
         .fav-heart-center .fav-heart {
             font-size: 5rem;
-            color: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.05);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: inline-block;
-            text-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+            text-shadow: 0 0 80px rgba(0,0,0,0.9);
             pointer-events: auto;
-            filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
         }
         .fav-heart-center .fav-heart.active {
             color: var(--neon-pink);
             animation: heartBeat 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 0 50px rgba(255, 64, 129, 0.15));
+            filter: drop-shadow(0 0 60px rgba(255, 64, 129, 0.15));
         }
         .fav-heart-center .fav-heart:active {
             transform: scale(1.2) !important;
         }
         @keyframes heartBeat {
-            0% {
-                transform: scale(1);
-            }
-            25% {
-                transform: scale(1.35);
-            }
-            50% {
-                transform: scale(0.9);
-            }
-            75% {
-                transform: scale(1.15);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            25% { transform: scale(1.35); }
+            50% { transform: scale(0.9); }
+            75% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
 
-        /* ===== BOTTOM CONTROLS ===== */
+        /* ================================================================
+           🎛️ BOTTOM CONTROLS - MAIS PREMIUM
+           ================================================================ */
         .bottom-controls {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(180deg, rgba(10, 10, 30, 0.3) 0%, rgba(10, 10, 30, 0.95) 100%);
+            background: linear-gradient(180deg, rgba(10,10,30,0.3) 0%, rgba(10,10,30,0.95) 100%);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             padding: 12px 20px 24px;
             padding-bottom: calc(24px + var(--safe-bottom));
             z-index: 20;
             transform: translateY(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            box-shadow: 0 -10px 60px rgba(0,0,0,0.3);
         }
         .bottom-controls.visible {
             transform: translateY(0);
         }
+        
         .progress-time {
             display: flex;
             justify-content: space-between;
@@ -459,14 +504,16 @@
             color: var(--text-muted);
             margin-bottom: 4px;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .progress-bar {
             height: 4px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255,255,255,0.06);
             cursor: pointer;
             border-radius: 4px;
             position: relative;
             overflow: hidden;
+            transition: height 0.2s ease;
         }
         .progress-bar:hover {
             height: 6px;
@@ -490,12 +537,13 @@
             border-radius: 50%;
             opacity: 0;
             transition: opacity 0.3s ease;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
             pointer-events: none;
         }
         .progress-bar:hover .progress-handle {
             opacity: 1;
         }
+        
         .buttons-row {
             display: flex;
             justify-content: center;
@@ -515,12 +563,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             box-shadow: var(--glass-shadow);
         }
         .ctrl-btn:active {
             transform: scale(0.9);
+            background: rgba(255,255,255,0.08);
         }
         .play-big {
             background: var(--gradient-primary);
@@ -530,8 +580,8 @@
             color: #0a0a1a;
             border: none;
             border-radius: 50%;
-            box-shadow: 0 0 50px rgba(0, 229, 255, 0.05);
-            transition: all 0.3s;
+            box-shadow: 0 0 50px rgba(0, 229, 255, 0.05), 0 0 100px rgba(255, 64, 129, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .play-big:active {
             transform: scale(0.9);
@@ -545,20 +595,24 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 0.8rem;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             box-shadow: var(--glass-shadow);
         }
         .shuffle-btn.active {
             background: rgba(0, 229, 255, 0.08);
             color: var(--neon-cyan);
             border-color: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
         }
         .shuffle-btn:active {
             transform: scale(0.9);
         }
 
-        /* ===== FAB ===== */
+        /* ================================================================
+           🧩 FAB - MAIS ELEGANTE
+           ================================================================ */
         .fab-container {
             position: fixed;
             bottom: 110px;
@@ -572,6 +626,7 @@
         .fab-main {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -582,15 +637,16 @@
             color: var(--text-primary);
             font-size: 1.2rem;
             border: 1px solid var(--glass-border);
-            transition: all 0.3s;
-            box-shadow: var(--glass-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--glass-shadow), 0 0 40px rgba(0, 229, 255, 0.01);
         }
         .fab-main:active {
             transform: scale(0.9);
         }
         .fab-sub {
-            background: rgba(10, 10, 30, 0.92);
+            background: rgba(10,10,30,0.92);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 16px;
             padding: 6px;
             display: none;
@@ -605,14 +661,8 @@
             animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .fab-sub-btn {
             background: transparent;
@@ -625,21 +675,30 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .fab-sub-btn:active {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255,255,255,0.04);
             color: var(--text-primary);
         }
+        .fab-sub-btn i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
 
-        /* ===== MENU ===== */
+        /* ================================================================
+           📋 MENU POPUP
+           ================================================================ */
         .menu-popup {
             position: fixed;
             top: 64px;
             right: 12px;
-            background: rgba(10, 10, 30, 0.95);
+            background: rgba(10,10,30,0.95);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-radius: 16px;
             padding: 6px;
             z-index: 32;
@@ -648,7 +707,8 @@
             gap: 2px;
             border: 1px solid var(--glass-border);
             min-width: 180px;
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--glass-shadow), 0 20px 80px rgba(0,0,0,0.5);
+            animation: slideUp 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-popup.open {
             display: flex;
@@ -665,22 +725,29 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             font-weight: 600;
         }
         .menu-popup button:active {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255,255,255,0.04);
             color: var(--text-primary);
         }
+        .menu-popup button i {
+            width: 16px;
+            text-align: center;
+        }
 
-        /* ===== MODALS ===== */
+        /* ================================================================
+           🎵 GENRES MODAL
+           ================================================================ */
         .genres-modal {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(10, 10, 30, 0.98);
+            background: rgba(10,10,30,0.98);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-radius: 28px 28px 0 0;
             padding: 20px 20px 24px;
             z-index: 2000;
@@ -689,7 +756,7 @@
             max-height: 65vh;
             overflow: hidden;
             border-top: 1px solid var(--glass-border);
-            box-shadow: 0 -20px 80px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 -20px 80px rgba(0,0,0,0.5);
         }
         .genres-modal.open {
             transform: translateY(0);
@@ -697,7 +764,7 @@
         .genres-modal .modal-handle {
             width: 40px;
             height: 4px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255,255,255,0.08);
             border-radius: 4px;
             margin: 0 auto 12px;
         }
@@ -710,14 +777,17 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 1px;
         }
         .genres-grid {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            scroll-snap-type: y mandatory;
             gap: 8px;
             padding: 4px;
             max-height: 38vh;
+            -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
         .genres-grid::-webkit-scrollbar {
@@ -725,24 +795,41 @@
         }
         .genre-card {
             min-height: 50px;
+            scroll-snap-align: center;
+            flex-shrink: 0;
             border-radius: 14px;
             cursor: pointer;
             border: 1px solid var(--glass-border);
             padding: 12px 16px;
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-primary);
             font-weight: 700;
             font-size: 0.95rem;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: var(--glass-shadow);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .genre-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
         }
         .genre-card:active {
             transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255,255,255,0.06);
+        }
+        .genre-card:active::before {
+            transform: translateX(100%);
         }
         .close-genres {
             width: 100%;
@@ -755,18 +842,23 @@
             cursor: pointer;
             font-weight: 800;
             margin-top: 12px;
-            transition: all 0.3s;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.03);
         }
         .close-genres:active {
             transform: scale(0.97);
         }
 
+        /* ================================================================
+           ❤️ FAV MODAL
+           ================================================================ */
         .fav-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 30, 0.98);
+            background: rgba(10,10,30,0.98);
             border-radius: 20px;
             padding: 20px;
             z-index: 5000;
@@ -775,22 +867,17 @@
             text-align: center;
             display: none;
             border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--glass-shadow), 0 20px 80px rgba(0,0,0,0.6);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
         .fav-modal.open {
             display: block;
             animation: modalFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes modalFade {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
         .fav-modal .close-fav {
             position: absolute;
@@ -801,6 +888,11 @@
             color: var(--text-muted);
             font-size: 1.2rem;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .fav-modal .close-fav:active {
+            transform: scale(0.9);
+            color: var(--text-secondary);
         }
         .fav-modal h3 {
             font-size: 1.1rem;
@@ -816,19 +908,31 @@
             overflow-y: auto;
             text-align: left;
             padding: 0 4px;
+            scrollbar-width: thin;
+        }
+        .fav-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .fav-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .fav-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
         }
         .fav-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.02);
             color: var(--text-primary);
             cursor: pointer;
             border-radius: 8px;
+            transition: all 0.2s ease;
         }
         .fav-item:active {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
         }
         .fav-item .fav-info .title {
             font-weight: 700;
@@ -845,6 +949,10 @@
             font-size: 1.1rem;
             cursor: pointer;
             padding: 4px 8px;
+            transition: all 0.2s ease;
+        }
+        .fav-item .remove:active {
+            transform: scale(0.9);
         }
         .fav-empty {
             color: var(--text-muted);
@@ -862,18 +970,22 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: all 0.3s;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
         }
         .fav-modal .close-btn:active {
             transform: scale(0.97);
         }
 
+        /* ================================================================
+           ⭐ FEEDBACK MODAL
+           ================================================================ */
         .feedback-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 30, 0.98);
+            background: rgba(10,10,30,0.98);
             border-radius: 20px;
             padding: 20px;
             z-index: 5000;
@@ -882,8 +994,9 @@
             text-align: center;
             display: none;
             border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--glass-shadow), 0 20px 80px rgba(0,0,0,0.6);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
         .feedback-modal.open {
             display: block;
@@ -908,24 +1021,20 @@
             font-size: 2rem;
             color: #333;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         .feedback-modal .star.active {
             color: var(--gold);
             animation: starPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes starPop {
-            0% {
-                transform: scale(0);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
         .feedback-modal textarea {
             width: 100%;
             height: 60px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             padding: 10px 14px;
@@ -933,6 +1042,7 @@
             resize: none;
             font-size: 0.8rem;
             font-family: inherit;
+            transition: all 0.3s ease;
             outline: none;
         }
         .feedback-modal textarea:focus {
@@ -948,7 +1058,8 @@
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
-            transition: all 0.3s;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
         }
         .feedback-modal .btn-feedback:active {
             transform: scale(0.97);
@@ -960,16 +1071,24 @@
             padding: 8px;
             cursor: pointer;
             font-size: 0.7rem;
+            margin-top: 4px;
+            transition: all 0.2s ease;
+        }
+        #closeFeedbackBtn:active {
+            color: var(--text-secondary);
         }
 
-        /* ===== NOTIFICATION ===== */
+        /* ================================================================
+           🔔 NOTIFICATION
+           ================================================================ */
         .notification {
             position: fixed;
             top: 100px;
             left: 50%;
             transform: translateX(-50%) translateY(-10px);
-            background: rgba(10, 10, 30, 0.92);
+            background: rgba(10,10,30,0.92);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             color: var(--text-primary);
             padding: 10px 28px;
             border-radius: 100px;
@@ -981,21 +1100,25 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
         .notification.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
 
-        /* ===== PWA BANNER ===== */
+        /* ================================================================
+           📲 BANNER "BAIXE O APP" (PWA)
+           ================================================================ */
         #pwaBanner {
             position: fixed;
             top: 64px;
             left: 0;
             right: 0;
             z-index: 9999998;
-            background: linear-gradient(135deg, rgba(10, 10, 30, 0.95), rgba(20, 20, 50, 0.95));
+            background: linear-gradient(135deg, rgba(10,10,30,0.95), rgba(20,20,50,0.95));
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 2px solid var(--neon-cyan);
             padding: 10px 16px;
             display: none;
@@ -1009,14 +1132,8 @@
             display: flex;
         }
         @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         #pwaBanner .pwa-info {
             display: flex;
@@ -1066,7 +1183,8 @@
             font-weight: 800;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.05);
         }
         #pwaBanner .pwa-install-btn:active {
             transform: scale(0.95);
@@ -1078,14 +1196,16 @@
             font-size: 1.1rem;
             cursor: pointer;
             padding: 4px 6px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         #pwaBanner .pwa-close-btn:active {
             color: #fff;
             transform: scale(0.9);
         }
 
-        /* ===== BLOCK OVERLAY ===== */
+        /* ================================================================
+           🔒 BLOCK OVERLAY
+           ================================================================ */
         #blockOverlay {
             position: fixed;
             top: 0;
@@ -1107,12 +1227,8 @@
             animation: fadeIn 0.5s ease;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         #blockOverlay .block-icon {
             font-size: 4rem;
@@ -1137,6 +1253,7 @@
             font-size: 0.85rem;
             display: inline-block;
             margin-bottom: 6px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.05);
         }
         #blockOverlay .btn-comprar {
             background: linear-gradient(135deg, #25d366, #128C7E);
@@ -1148,7 +1265,8 @@
             font-size: 0.95rem;
             cursor: pointer;
             margin-bottom: 4px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 30px rgba(37, 211, 102, 0.1);
         }
         #blockOverlay .btn-comprar:active {
             transform: scale(0.96);
@@ -1162,7 +1280,7 @@
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         #blockOverlay .btn-pix:active {
             transform: scale(0.96);
@@ -1173,13 +1291,14 @@
             padding: 12px 16px;
             border-radius: 100px;
             border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             color: var(--text-primary);
             font-size: 0.85rem;
             text-align: center;
             margin: 4px 0;
             outline: none;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
         #blockOverlay .senha-input:focus {
             border-color: rgba(0, 229, 255, 0.1);
@@ -1193,7 +1312,8 @@
             font-weight: 800;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 30px rgba(0, 229, 255, 0.05);
         }
         #blockOverlay .btn-senha:active {
             transform: scale(0.96);
@@ -1206,7 +1326,9 @@
             font-weight: 600;
         }
 
-        /* ===== BANNER VITALÍCIO ===== */
+        /* ================================================================
+           🏆 BANNER VITALÍCIO
+           ================================================================ */
         #bannerVitalicio {
             position: fixed;
             top: 0;
@@ -1214,8 +1336,9 @@
             width: 100%;
             height: 100%;
             z-index: 999999;
-            background: rgba(0, 0, 0, 0.88);
+            background: rgba(0,0,0,0.88);
             backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             display: none;
             align-items: center;
             justify-content: center;
@@ -1226,14 +1349,8 @@
             display: flex;
         }
         @keyframes bannerFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
         .banner-content {
             background: linear-gradient(145deg, #14143a, #0a0a1a);
@@ -1243,7 +1360,7 @@
             width: 100%;
             text-align: center;
             border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--glass-shadow), 0 0 80px rgba(255, 215, 0, 0.01);
             position: relative;
             overflow: hidden;
         }
@@ -1266,6 +1383,7 @@
             display: block;
             border: 2px solid rgba(255, 215, 0, 0.08);
             animation: pulseLogo 2s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.01);
         }
         .banner-title {
             font-size: 1.8rem;
@@ -1290,6 +1408,7 @@
             font-weight: 900;
             font-size: 1.3rem;
             margin-bottom: 12px;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.03);
         }
         .banner-price small {
             font-size: 0.65rem;
@@ -1331,13 +1450,14 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 30px rgba(37, 211, 102, 0.08);
         }
         .banner-btn:active {
             transform: scale(0.96);
         }
         .banner-close {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             border: 1px solid var(--glass-border);
             padding: 10px;
             border-radius: 100px;
@@ -1346,11 +1466,11 @@
             cursor: pointer;
             width: 100%;
             margin-top: 6px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-weight: 600;
         }
         .banner-close:active {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             color: var(--text-secondary);
         }
         .banner-timer {
@@ -1360,20 +1480,22 @@
             color: var(--text-muted);
             font-size: 0.7rem;
             font-weight: 700;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0,0,0,0.3);
             padding: 2px 10px;
             border-radius: 100px;
             border: 1px solid var(--glass-border);
         }
 
-        /* ===== ADMIN ===== */
+        /* ================================================================
+           🔧 ADMIN PANEL
+           ================================================================ */
         #adminPanel {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(10, 10, 30, 0.98);
+            background: rgba(10,10,30,0.98);
             border-radius: 20px;
             padding: 20px;
             z-index: 99999;
@@ -1383,8 +1505,9 @@
             flex-direction: column;
             gap: 8px;
             color: var(--text-primary);
-            box-shadow: var(--glass-shadow);
+            box-shadow: var(--glass-shadow), 0 20px 80px rgba(0,0,0,0.6);
             backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
         #adminPanel.open {
             display: flex;
@@ -1404,11 +1527,12 @@
             padding: 10px 14px;
             border-radius: 100px;
             border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             color: var(--text-primary);
             font-size: 0.8rem;
             outline: none;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
         #adminPanel input:focus {
             border-color: rgba(0, 229, 255, 0.1);
@@ -1430,6 +1554,7 @@
             cursor: pointer;
             font-size: 0.7rem;
             font-weight: 700;
+            transition: all 0.3s ease;
         }
         .admin-row .btn-copiar:active {
             transform: scale(0.95);
@@ -1444,13 +1569,13 @@
             cursor: pointer;
             width: 100%;
             font-size: 0.85rem;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         .admin-btn:active {
             transform: scale(0.97);
         }
         .admin-close {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255,255,255,0.03);
             border: none;
             padding: 8px;
             border-radius: 100px;
@@ -1458,6 +1583,7 @@
             cursor: pointer;
             width: 100%;
             font-size: 0.7rem;
+            transition: all 0.3s ease;
             font-weight: 600;
         }
         .admin-close:active {
@@ -1470,7 +1596,9 @@
             margin-top: 2px;
         }
 
-        /* ===== BOTÃO ATIVAR ===== */
+        /* ================================================================
+           🔘 BOTÃO ATIVAR PLAYER
+           ================================================================ */
         .btn-ativar-player {
             position: fixed;
             bottom: 30%;
@@ -1478,6 +1606,7 @@
             transform: translateX(-50%);
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 2px solid var(--neon-cyan);
             color: var(--text-primary);
             padding: 16px 40px;
@@ -1488,10 +1617,10 @@
             cursor: pointer;
             letter-spacing: 1px;
             text-transform: uppercase;
-            box-shadow: 0 0 60px rgba(0, 229, 255, 0.02);
+            box-shadow: 0 0 60px rgba(0, 229, 255, 0.02), inset 0 0 60px rgba(0, 229, 255, 0.01);
             animation: glowPulse 2.5s ease-in-out infinite;
             display: block;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         .btn-ativar-player.hidden {
             display: none !important;
@@ -1500,12 +1629,11 @@
             transform: translateX(-50%) scale(0.95);
         }
         @keyframes glowPulse {
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(0, 229, 255, 0.02);
+            0%, 100% { 
+                box-shadow: 0 0 30px rgba(0, 229, 255, 0.02), inset 0 0 30px rgba(0, 229, 255, 0.01);
             }
-            50% {
-                box-shadow: 0 0 60px rgba(0, 229, 255, 0.05);
+            50% { 
+                box-shadow: 0 0 60px rgba(0, 229, 255, 0.05), inset 0 0 60px rgba(0, 229, 255, 0.02);
             }
         }
         .btn-ativar-player .btn-sub {
@@ -1517,158 +1645,67 @@
             margin-top: 2px;
         }
 
-        /* ===== RESPONSIVO ===== */
+        /* ================================================================
+           📱 RESPONSIVO
+           ================================================================ */
         @media (max-width: 480px) {
-            .logo-macaco {
-                height: 34px;
-                width: 34px;
-            }
-            .btn-genero-fav {
-                font-size: 0.6rem;
-                padding: 4px 10px;
-            }
-            .btn-genero-fav .genero-nome {
-                font-size: 0.6rem;
-            }
-            .btn-genero-fav .fav-badge {
-                font-size: 0.45rem;
-                min-width: 14px;
-                line-height: 14px;
-            }
-            .top-right .timer-lib {
-                font-size: 0.65rem;
-                padding: 3px 10px;
-            }
-            .top-right .menu-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 0.75rem;
-            }
-            .info-scroll {
-                height: 46px;
-                padding: 8px 12px;
-            }
-            .info-scroll .letreiro {
-                font-size: 0.85rem;
-            }
-            .fav-heart-center .fav-heart {
-                font-size: 3.8rem;
-            }
-            .ctrl-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 0.8rem;
-            }
-            .play-big {
-                width: 50px;
-                height: 50px;
-                font-size: 1.1rem;
-            }
-            .shuffle-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 0.7rem;
-            }
-            .buttons-row {
-                gap: 12px;
-            }
-            .bottom-controls {
-                padding: 10px 16px 18px;
-            }
-            .banner-title {
-                font-size: 1.4rem;
-            }
-            .banner-price {
-                font-size: 1.1rem;
-                padding: 4px 18px;
-            }
-            .banner-features .feature {
-                font-size: 0.7rem;
-            }
-            .banner-btn {
-                font-size: 0.9rem;
-                padding: 12px 20px;
-            }
-            .banner-content {
-                padding: 20px 16px 16px;
-            }
-            .banner-icon {
-                width: 65px;
-                height: 65px;
-            }
-            .btn-ativar-player {
-                font-size: 0.95rem;
-                padding: 14px 28px;
-                bottom: 25%;
-            }
-            .fab-main {
-                width: 44px;
-                height: 44px;
-                font-size: 1rem;
-            }
-            .fab-container {
-                bottom: 95px;
-                right: 12px;
-            }
-            .genres-modal {
-                padding: 16px 16px 20px;
-                max-height: 70vh;
-            }
-            .genre-card {
-                min-height: 44px;
-                font-size: 0.85rem;
-                padding: 10px 14px;
-            }
-            #pwaBanner .pwa-info .pwa-text .pwa-title {
-                font-size: 0.7rem;
-            }
-            #pwaBanner .pwa-info .pwa-text .pwa-sub {
-                font-size: 0.55rem;
-            }
-            #pwaBanner .pwa-install-btn {
-                font-size: 0.6rem;
-                padding: 6px 12px;
-            }
-            #pwaBanner .pwa-close-btn {
-                font-size: 0.9rem;
-            }
+            .logo-macaco { height: 34px; width: 34px; }
+            .btn-genero-fav { font-size: 0.6rem; padding: 4px 10px; }
+            .btn-genero-fav .genero-nome { font-size: 0.6rem; }
+            .btn-genero-fav .fav-badge { font-size: 0.45rem; min-width: 14px; line-height: 14px; }
+            .top-right .timer-lib { font-size: 0.65rem; padding: 3px 10px; }
+            .top-right .menu-btn { width: 30px; height: 30px; font-size: 0.75rem; }
+            .info-scroll { height: 46px; padding: 8px 12px; }
+            .info-scroll .letreiro { font-size: 0.85rem; }
+            .fav-heart-center .fav-heart { font-size: 3.8rem; }
+            .ctrl-btn { width: 40px; height: 40px; font-size: 0.8rem; }
+            .play-big { width: 50px; height: 50px; font-size: 1.1rem; }
+            .shuffle-btn { width: 40px; height: 40px; font-size: 0.7rem; }
+            .buttons-row { gap: 12px; }
+            .bottom-controls { padding: 10px 16px 18px; }
+            .banner-title { font-size: 1.4rem; }
+            .banner-price { font-size: 1.1rem; padding: 4px 18px; }
+            .banner-features .feature { font-size: 0.7rem; }
+            .banner-btn { font-size: 0.9rem; padding: 12px 20px; }
+            .banner-content { padding: 20px 16px 16px; }
+            .banner-icon { width: 65px; height: 65px; }
+            .btn-ativar-player { font-size: 0.95rem; padding: 14px 28px; bottom: 25%; }
+            .fab-main { width: 44px; height: 44px; font-size: 1rem; }
+            .fab-container { bottom: 95px; right: 12px; }
+            .genres-modal { padding: 16px 16px 20px; max-height: 70vh; }
+            .genre-card { min-height: 44px; font-size: 0.85rem; padding: 10px 14px; }
+            #pwaBanner .pwa-info .pwa-text .pwa-title { font-size: 0.7rem; }
+            #pwaBanner .pwa-info .pwa-text .pwa-sub { font-size: 0.55rem; }
+            #pwaBanner .pwa-install-btn { font-size: 0.6rem; padding: 6px 12px; }
+            #pwaBanner .pwa-close-btn { font-size: 0.9rem; }
         }
         @media (max-width: 380px) {
-            .top-bar {
-                padding: 8px 10px;
-            }
-            .btn-genero-fav {
-                font-size: 0.55rem;
-                padding: 3px 8px;
-            }
-            .btn-genero-fav .genero-nome {
-                max-width: 60px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            .info-scroll {
-                height: 40px;
-            }
-            .info-scroll .letreiro {
-                font-size: 0.75rem;
-            }
-            .fav-heart-center .fav-heart {
-                font-size: 3.2rem;
-            }
+            .top-bar { padding: 8px 10px; }
+            .btn-genero-fav { font-size: 0.55rem; padding: 3px 8px; }
+            .btn-genero-fav .genero-nome { max-width: 60px; overflow: hidden; text-overflow: ellipsis; }
+            .info-scroll { height: 40px; }
+            .info-scroll .letreiro { font-size: 0.75rem; }
+            .fav-heart-center .fav-heart { font-size: 3.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== LOADING ===== -->
+    <!-- ================================================================
+         🔄 LOADING SCREEN
+         ================================================================ -->
     <div id="loadingScreen">
-        <img src="fa123.png" alt="VDB Music" class="loading-logo">
+        <div class="loading-logo-wrapper">
+            <img src="fa123.png" alt="VDB Music" class="loading-logo">
+        </div>
         <div class="loading-title">VAI DE BOA! MUSIC</div>
         <div class="loading-subtitle">🎵 O Som do Macaco</div>
         <div class="loading-spinner"></div>
     </div>
 
-    <!-- ===== PWA BANNER ===== -->
+    <!-- ================================================================
+         📲 BANNER "BAIXE O APP" (PWA)
+         ================================================================ -->
     <div id="pwaBanner">
         <div class="pwa-info">
             <img src="fa123.png" alt="VDB Music" class="pwa-icon">
@@ -1683,8 +1720,11 @@
         </div>
     </div>
 
-    <!-- ===== PLAYER ===== -->
+    <!-- ================================================================
+         🎬 PLAYER CONTAINER
+         ================================================================ -->
     <div id="playerContainer">
+        <!-- Media Container -->
         <div class="media-container" id="mediaContainer">
             <div class="media-overlay"></div>
         </div>
@@ -1695,6 +1735,7 @@
                 <img src="fa123.png" alt="VDB Music" class="logo-macaco">
                 <button class="btn-genero-fav" id="btnGeneroFav">
                     <span class="genero-nome" id="generoNome" style="color:#ffd700;">BÔNUS</span>
+                    <span class="separador">|</span>
                     <span class="fav-badge" id="favBadge">0</span>
                 </button>
             </div>
@@ -1712,7 +1753,7 @@
             <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
         </div>
 
-        <!-- Heart -->
+        <!-- Fav Heart -->
         <div class="fav-heart-center">
             <div class="fav-heart" id="heartBtn">
                 <i class="far fa-heart"></i>
@@ -1749,7 +1790,7 @@
             <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
         </div>
 
-        <!-- Menu -->
+        <!-- Menu Popup -->
         <div class="menu-popup" id="menuPopup">
             <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
             <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -1761,7 +1802,9 @@
         </div>
     </div>
 
-    <!-- ===== BANNER VITALÍCIO ===== -->
+    <!-- ================================================================
+         🏆 BANNER VITALÍCIO
+         ================================================================ -->
     <div id="bannerVitalicio">
         <div class="banner-content">
             <span class="banner-timer" id="bannerTimer">20s</span>
@@ -1782,7 +1825,9 @@
         </div>
     </div>
 
-    <!-- ===== BLOCK OVERLAY ===== -->
+    <!-- ================================================================
+         🔒 BLOCK OVERLAY
+         ================================================================ -->
     <div id="blockOverlay">
         <div class="block-icon">🔒</div>
         <h2>TESTE EXPIRADO!</h2>
@@ -1796,17 +1841,26 @@
         <div class="erro-senha" id="erroSenha"></div>
     </div>
 
-    <!-- ===== NOTIFICATION ===== -->
+    <!-- ================================================================
+         🔔 NOTIFICATION
+         ================================================================ -->
     <div class="notification" id="notification"></div>
 
-    <!-- ===== LOADING OVERLAY ===== -->
+    <!-- ================================================================
+         ⏳ LOADING OVERLAY
+         ================================================================ -->
     <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-    <!-- ===== AUDIO ===== -->
+    <!-- ================================================================
+         🎵 AUDIO
+         ================================================================ -->
     <audio id="musicPlayer" preload="none"></audio>
     <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-    <!-- ===== MODALS ===== -->
+    <!-- ================================================================
+         📋 MODALS
+         ================================================================ -->
+    <!-- Fav Modal -->
     <div class="fav-modal" id="favModal">
         <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
         <h3>❤️ Suas Favoritas</h3>
@@ -1814,6 +1868,7 @@
         <button class="close-btn" id="closeFavBtn">FECHAR</button>
     </div>
 
+    <!-- Genres Modal -->
     <div class="genres-modal" id="genresModal">
         <div class="modal-handle"></div>
         <h3>🎵 ESCOLHA SEU ESTILO</h3>
@@ -1821,6 +1876,7 @@
         <button class="close-genres" id="closeGenresBtn">FECHAR</button>
     </div>
 
+    <!-- Feedback Modal -->
     <div class="feedback-modal" id="feedbackModal">
         <h3>⭐ Avalie o App</h3>
         <div class="stars" id="starRating">
@@ -1835,6 +1891,7 @@
         <button id="closeFeedbackBtn">Cancelar</button>
     </div>
 
+    <!-- Admin Panel -->
     <div id="adminPanel">
         <h2>🔐 ADMIN</h2>
         <input type="text" id="adminCelular" value="12988461978" placeholder="Celular do cliente">
@@ -1848,15 +1905,20 @@
         <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
     </div>
 
-    <!-- ===== BOTÃO ATIVAR ===== -->
+    <!-- ================================================================
+         🔘 BOTÃO ATIVAR PLAYER
+         ================================================================ -->
     <button class="btn-ativar-player" id="btnAtivarPlayer">
         ▶ ATIVAR
         <span class="btn-sub">TOQUE PARA INICIAR</span>
     </button>
 
+    <!-- ================================================================
+         📜 SCRIPT COMPLETO
+         ================================================================ -->
     <script>
         // ================================================================
-        // 🚀 VAI DE BOA! MUSIC - MELHOR VERSÃO
+        // 🚀 VAI DE BOA! MUSIC - SCRIPT COMPLETO REFEITO
         // ================================================================
 
         (function() {
@@ -1872,7 +1934,7 @@
             const CHAVE_PIX = '12.988.461-978';
 
             // ============================================================
-            // 📦 FRASES DO LETREIRO
+            // 📦 FRASES DO LETREIRO (EDITÁVEL)
             // ============================================================
             const FRASES_PERSONALIZADAS = [
                 '🎵 VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵',
@@ -1905,9 +1967,9 @@
                 'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' +
                     VERSAO,
                 'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' +
-                    VERSAO,
+                VERSAO,
                 'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' +
-                    VERSAO,
+                VERSAO,
                 'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' +
                     VERSAO,
                 'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' +
@@ -1921,7 +1983,7 @@
                 'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' +
                     VERSAO,
                 'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' +
-                    VERSAO,
+                VERSAO,
                 'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' +
                     VERSAO,
                 'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' +
@@ -2239,48 +2301,6 @@
                 return urls;
             }
 
-            async function carregarPlaylist(genero) {
-                const url = GENRE_URLS[genero];
-                if (!url) return null;
-                try {
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 15000);
-                    const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-                    clearTimeout(timeout);
-                    let data = await response.json();
-                    if (!Array.isArray(data)) {
-                        data = data.musicas || data.data || Object.values(data)[0];
-                    }
-                    const musicas = data.filter(m => m.src && m.title).map(m => ({
-                        ...m,
-                        id: 'g_' + Math.random().toString(36).slice(2),
-                        genero: genero,
-                        artist: m.artist || 'Artista'
-                    }));
-                    return musicas;
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function atualizarPlaylist() {
-                if (!state.playlistAtual.length) return null;
-                if (state.indiceAtual >= state.playlistAtual.length) {
-                    if (state.modoFavoritos) {
-                        state.modoFavoritos = false;
-                        state.playlistAtual = shuf(state.musicas);
-                        state.indiceAtual = 0;
-                        dom.generoNome.textContent = state.modoAtual;
-                        dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
-                        notif('🎵 Voltei para ' + state.modoAtual);
-                    } else {
-                        state.playlistAtual = shuf(state.musicas);
-                        state.indiceAtual = 0;
-                    }
-                }
-                return state.playlistAtual[state.indiceAtual];
-            }
-
             // ============================================================
             // 🖼️ MEDIA
             // ============================================================
@@ -2333,7 +2353,7 @@
             }
 
             // ============================================================
-            // 🎯 ÁUDIO EM SEGUNDO PLANO
+            // 🎯 ÁUDIO EM SEGUNDO PLANO (EXTRAÍDO DO SEU CÓDIGO)
             // ============================================================
             function criarSilentAudio() {
                 const sr = 44100;
@@ -2375,7 +2395,7 @@
                             next();
                         }
                     } catch (e) {}
-                }, 1000);
+                }, 1500);
             }
 
             async function ativarPlayer() {
@@ -2400,16 +2420,13 @@
                     dom.btnAtivarPlayer.classList.add('hidden');
 
                     fullscreen();
-
                     await tocar();
                 } catch (e) {
                     state.isBackgroundActive = true;
                     dom.audioStatus.classList.add('active');
                     showLoad(false);
                     dom.btnAtivarPlayer.classList.add('hidden');
-
                     fullscreen();
-
                     await tocar();
                 }
             }
@@ -2487,14 +2504,14 @@
             function next() {
                 if (state.carregandoMusica) return;
                 state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length;
-                if (state.isBackgroundActive) setTimeout(tocar, 100);
+                if (state.isBackgroundActive) setTimeout(tocar, 150);
                 showControls();
             }
 
             function prev() {
                 if (state.carregandoMusica) return;
                 state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length;
-                if (state.isBackgroundActive) setTimeout(tocar, 100);
+                if (state.isBackgroundActive) setTimeout(tocar, 150);
                 showControls();
             }
 
@@ -2503,6 +2520,24 @@
                 dom.shuffleBtn.classList.toggle('active', state.shuffleMode);
                 state.playlistAtual = shuf(state.musicas);
                 notif(state.shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequência');
+            }
+
+            function atualizarPlaylist() {
+                if (!state.playlistAtual.length) return null;
+                if (state.indiceAtual >= state.playlistAtual.length) {
+                    if (state.modoFavoritos) {
+                        state.modoFavoritos = false;
+                        state.playlistAtual = shuf(state.musicas);
+                        state.indiceAtual = 0;
+                        dom.generoNome.textContent = state.modoAtual;
+                        dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
+                        notif('🎵 Voltei para ' + state.modoAtual);
+                    } else {
+                        state.playlistAtual = shuf(state.musicas);
+                        state.indiceAtual = 0;
+                    }
+                }
+                return state.playlistAtual[state.indiceAtual];
             }
 
             // ============================================================
@@ -2531,6 +2566,30 @@
             // ============================================================
             // 🎵 GENRES
             // ============================================================
+            async function carregarPlaylist(genero) {
+                const url = GENRE_URLS[genero];
+                if (!url) return null;
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 15000);
+                    const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+                    clearTimeout(timeout);
+                    let data = await response.json();
+                    if (!Array.isArray(data)) {
+                        data = data.musicas || data.data || Object.values(data)[0];
+                    }
+                    const musicas = data.filter(m => m.src && m.title).map(m => ({
+                        ...m,
+                        id: 'g_' + Math.random().toString(36).slice(2),
+                        genero: genero,
+                        artist: m.artist || 'Artista'
+                    }));
+                    return musicas;
+                } catch (e) {
+                    return null;
+                }
+            }
+
             function renderizarGeneros() {
                 dom.genresGrid.innerHTML = '';
                 ORDEM.forEach(g => {
@@ -2837,208 +2896,9 @@
             });
 
             // ============================================================
-            // 📱 QR CODE PERSONALIZADO "VAI DE BOA"
-            // ============================================================
-            function abrirQRCodePersonalizado() {
-                const cor = '00e5ff';
-                const corFundo = '0a0a1a';
-                const tamanho = 300;
-
-                const urlBase = 'https://api.qrserver.com/v1/create-qr-code/';
-                const params = new URLSearchParams({
-                    data: window.location.href,
-                    size: tamanho + 'x' + tamanho,
-                    margin: 20,
-                    format: 'png',
-                    bgcolor: corFundo,
-                    color: cor,
-                    mask: 'H',
-                    level: 'H'
-                });
-
-                const qrUrl = urlBase + '?' + params.toString();
-
-                const win = window.open('', '_blank', 'width=450,height=550,scrollbars=no');
-                if (!win) {
-                    window.location.href = qrUrl;
-                    return;
-                }
-
-                win.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>VAI DE BOA - QR Code</title>
-                        <style>
-                            * { margin: 0; padding: 0; box-sizing: border-box; }
-                            body {
-                                background: #0a0a1a;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                min-height: 100vh;
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                                padding: 20px;
-                            }
-                            .qr-container {
-                                background: linear-gradient(145deg, #12122a, #0a0a1a);
-                                border-radius: 30px;
-                                padding: 30px 25px 25px;
-                                text-align: center;
-                                border: 2px solid rgba(0, 229, 255, 0.12);
-                                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-                                max-width: 400px;
-                                width: 100%;
-                            }
-                            .qr-container .title {
-                                color: #fff;
-                                font-size: 1.4rem;
-                                font-weight: 900;
-                                margin-bottom: 4px;
-                                background: linear-gradient(135deg, #00e5ff, #ff4081);
-                                -webkit-background-clip: text;
-                                -webkit-text-fill-color: transparent;
-                                background-clip: text;
-                                letter-spacing: 2px;
-                            }
-                            .qr-container .subtitle {
-                                color: rgba(255,255,255,0.4);
-                                font-size: 0.7rem;
-                                letter-spacing: 3px;
-                                text-transform: uppercase;
-                                margin-bottom: 16px;
-                            }
-                            .qr-container .qr-wrapper {
-                                position: relative;
-                                display: inline-block;
-                                padding: 8px;
-                                background: rgba(255,255,255,0.02);
-                                border-radius: 16px;
-                                border: 1px solid rgba(255,255,255,0.04);
-                            }
-                            .qr-container .qr-wrapper img {
-                                display: block;
-                                width: 100%;
-                                max-width: 280px;
-                                height: auto;
-                                border-radius: 12px;
-                            }
-                            .qr-container .qr-wrapper .logo-overlay {
-                                position: absolute;
-                                top: 50%;
-                                left: 50%;
-                                transform: translate(-50%, -50%);
-                                width: 50px;
-                                height: 50px;
-                                border-radius: 50%;
-                                background: #0a0a1a;
-                                border: 2px solid rgba(0, 229, 255, 0.08);
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-size: 1.8rem;
-                                box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
-                                pointer-events: none;
-                                color: #00e5ff;
-                            }
-                            .qr-container .site-name {
-                                color: rgba(255,255,255,0.6);
-                                font-size: 0.75rem;
-                                margin-top: 8px;
-                                font-weight: 600;
-                                letter-spacing: 0.5px;
-                            }
-                            .qr-container .site-name span { color: #00e5ff; }
-                            .qr-container .divider {
-                                width: 60px;
-                                height: 2px;
-                                background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.15), transparent);
-                                margin: 12px auto;
-                                border-radius: 2px;
-                            }
-                            .qr-container .actions {
-                                display: flex;
-                                gap: 10px;
-                                justify-content: center;
-                                margin-top: 12px;
-                            }
-                            .qr-container .actions button {
-                                background: rgba(255,255,255,0.04);
-                                border: 1px solid rgba(255,255,255,0.06);
-                                color: rgba(255,255,255,0.7);
-                                padding: 8px 18px;
-                                border-radius: 25px;
-                                font-size: 0.7rem;
-                                cursor: pointer;
-                                transition: all 0.2s ease;
-                                font-weight: 600;
-                            }
-                            .qr-container .actions button:active {
-                                transform: scale(0.95);
-                                background: rgba(255,255,255,0.08);
-                            }
-                            .qr-container .actions button.download {
-                                background: linear-gradient(135deg, #00e5ff, #ff4081);
-                                color: #0a0a1a;
-                                border: none;
-                            }
-                            .qr-container .actions button.download:active { opacity: 0.8; }
-                            .qr-container .footer {
-                                color: rgba(255,255,255,0.1);
-                                font-size: 0.5rem;
-                                margin-top: 12px;
-                                letter-spacing: 1px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="qr-container">
-                            <div class="title">🎵 VAI DE BOA!</div>
-                            <div class="subtitle">MUSIC • O SOM DO MACACO</div>
-                            <div class="qr-wrapper">
-                                <img src="${qrUrl}" alt="QR Code VAI DE BOA" id="qrImage">
-                                <div class="logo-overlay">🐒</div>
-                            </div>
-                            <div class="site-name">
-                                <span>📲</span> Escaneie e ouça agora!
-                            </div>
-                            <div class="divider"></div>
-                            <div class="actions">
-                                <button onclick="window.close()">✕ Fechar</button>
-                                <button class="download" onclick="baixarQR()">📥 Baixar QR</button>
-                            </div>
-                            <div class="footer">VAI DE BOA! MUSIC • v2.0</div>
-                        </div>
-                        <script>
-                            function baixarQR() {
-                                const img = document.getElementById('qrImage');
-                                const link = document.createElement('a');
-                                link.download = 'vai_de_boa_qrcode.png';
-                                link.href = img.src;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                            }
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-
-                win.document.close();
-            }
-
-            // ============================================================
             // 🚀 INICIALIZAÇÃO
             // ============================================================
             async function iniciar() {
-                // LIMPA TIMER QUEBRADO
-                const tempoSalvo = localStorage.getItem('vdb_tempo_restante');
-                if (tempoSalvo && parseInt(tempoSalvo) < Date.now()) {
-                    localStorage.removeItem('vdb_tempo_restante');
-                }
-
                 carregarFav();
                 criarMidia();
 
@@ -3060,6 +2920,7 @@
                 }
                 renderizarGeneros();
 
+                // Mostrar banner PWA
                 setTimeout(mostrarBannerPWA, 2000);
 
                 if (verificarSenhaDispositivo()) {
@@ -3087,14 +2948,14 @@
                     return;
                 }
 
-                // TIMER NOVO
                 const salvo = localStorage.getItem('vdb_tempo_restante');
                 if (salvo && parseInt(salvo) > Date.now()) {
                     state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
                     startTimer();
+                } else if (salvo) {
+                    bloquear();
                 } else {
-                    const novoExpira = Date.now() + TEMPO_INICIAL * 1000;
-                    localStorage.setItem('vdb_tempo_restante', String(novoExpira));
+                    localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
                     state.tempoRestante = TEMPO_INICIAL;
                     startTimer();
                 }
@@ -3191,7 +3052,14 @@
             };
             document.getElementById('qrCodeMenuBtn').onclick = () => {
                 dom.menuPopup.classList.remove('open');
-                abrirQRCodePersonalizado();
+                const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href);
+                window.open(qrUrl, '_blank');
+                // Fallback se não abrir
+                setTimeout(() => {
+                    if (document.hidden) {
+                        window.location.href = qrUrl;
+                    }
+                }, 500);
             };
 
             document.getElementById('editScrollBtn').onclick = () => {
@@ -3200,8 +3068,7 @@
             };
 
             document.getElementById('bannerWhatsAppBtn').onclick = () => {
-                window.open('https://wa.me/' + NUMERO_WHATSAPP +
-                    '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
+                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
                 dom.bannerVitalicio.classList.remove('active');
                 clearInterval(state.bannerTimeout);
             };
@@ -3230,7 +3097,13 @@
                 fabMain.innerHTML = '<i class="fas fa-plus"></i>';
             };
             document.getElementById('fabQrCode').onclick = () => {
-                abrirQRCodePersonalizado();
+                const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href);
+                window.open(qrUrl, '_blank');
+                setTimeout(() => {
+                    if (document.hidden) {
+                        window.location.href = qrUrl;
+                    }
+                }, 500);
                 fabSub.classList.remove('open');
                 state.fabOpen = false;
                 fabMain.innerHTML = '<i class="fas fa-plus"></i>';
@@ -3253,8 +3126,8 @@
             document.getElementById('sendFeedbackBtn').onclick = () => {
                 const stars = document.querySelectorAll('.star.active').length;
                 const text = document.getElementById('feedbackText').value;
-                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=' + encodeURIComponent('⭐' + '★'.repeat(
-                    stars) + ' ' + text));
+                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) +
+                    ' ' + text));
                 dom.feedbackModal.classList.remove('open');
             };
             document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
@@ -3331,38 +3204,41 @@
             };
 
             // ============================================================
-            // 🔄 PAUSA EM SEGUNDO PLANO - CORRIGIDA
+            // 🔄 PAUSA EM SEGUNDO PLANO (EXTRAÍDO DO SEU CÓDIGO)
             // ============================================================
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     // MINIMIZOU - PAUSA
-                    if (state.isPlaying) {
+                    if (state.isPlaying && state.isBackgroundActive) {
                         dom.audio.pause();
                         state.isPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        console.log('⏸️ Pausado - app em segundo plano');
+                        state.pausadoPorBackground = true;
                     }
                 } else {
                     // VOLTOU - RETOMA
-                    if (state.isBackgroundActive && dom.audio.paused && dom.audio.src) {
-                        dom.audio.play().then(() => {
-                            state.isPlaying = true;
-                            dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                            console.log('▶️ Música retomada!');
-                        }).catch(() => {
-                            if (state.playlistAtual.length) {
-                                tocar();
-                            }
-                        });
+                    if (state.pausadoPorBackground && state.isBackgroundActive) {
+                        state.pausadoPorBackground = false;
+                        if (dom.audio.paused && dom.audio.src) {
+                            dom.audio.play().then(() => {
+                                state.isPlaying = true;
+                                dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            }).catch(() => {
+                                if (state.playlistAtual.length) {
+                                    tocar();
+                                }
+                            });
+                        } else if (state.playlistAtual.length) {
+                            tocar();
+                        }
                     }
-                    // Recupera áudio de fundo
+                    // Recupera o áudio de fundo
                     if (state.isBackgroundActive && dom.backgroundAudio.paused) {
                         const url = URL.createObjectURL(criarSilentAudio());
                         dom.backgroundAudio.src = url;
                         dom.backgroundAudio.loop = true;
                         dom.backgroundAudio.volume = 0.001;
                         dom.backgroundAudio.play().catch(() => {});
-                        console.log('🔊 Áudio de fundo recuperado');
                     }
                 }
             });
