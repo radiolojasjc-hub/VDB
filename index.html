@@ -19,23 +19,26 @@
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== TODO O CSS AQUI (MESMO DE ANTES) ===== */
+        /* ===== RESET E BASE ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
+
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         #loadingScreen i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1.5s infinite}
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
+
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);height:56px}
         .top-left{display:flex;align-items:center;gap:4px}
         .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0;cursor:pointer}
@@ -46,6 +49,7 @@
         .btn-genero-fav .genero-nome{color:var(--gold);font-size:0.7rem}
         .btn-genero-fav .separador{color:rgba(255,255,255,0.1);font-weight:300}
         .btn-genero-fav .coracao-icon{font-size:0.6rem}
+
         .top-right{display:flex;align-items:center;gap:6px}
         .top-right .timer-lib{font-size:0.8rem;font-weight:700;color:var(--neon-cyan);background:rgba(0,0,0,0.4);padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px);letter-spacing:0.5px}
         .top-right .timer-lib.lib{color:#4ade80}
@@ -54,14 +58,17 @@
         @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:0.2}}
         .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
         .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
+
         .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:8px 16px;height:42px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
         .info-scroll .letreiro{color:#fff;font-size:1rem;font-weight:700;white-space:nowrap;animation:scrollText 14s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.08);letter-spacing:0.3px}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+
         .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
         .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
         .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
         .fav-heart-center .fav-heart:active{transform:scale(1.2)}
         @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500}
@@ -75,6 +82,7 @@
         .shuffle-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
         .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
         .shuffle-btn:active{transform:scale(0.9)}
+
         .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
         .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
         .fab-main:active{transform:scale(0.9)}
@@ -83,10 +91,12 @@
         @keyframes slideUp{from{opacity:0;transform:translateY(10px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
         .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
+
         .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
         .menu-popup.open{display:flex}
         .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .menu-popup button:active{background:rgba(255,255,255,0.06)}
+
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:60vh;overflow:hidden}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:1px}
@@ -96,6 +106,7 @@
         .genre-card:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
         .close-genres{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.9rem;cursor:pointer;font-weight:700;margin-top:10px;letter-spacing:0.5px;transition:all 0.3s}
         .close-genres:active{transform:scale(0.97)}
+
         .fav-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(255,45,127,0.1)}
         .fav-modal.open{display:block;animation:modalFade 0.3s ease}
         @keyframes modalFade{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -110,6 +121,7 @@
         .fav-empty{color:#555;padding:25px;text-align:center;font-size:0.85rem}
         .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:6px;font-size:0.85rem;transition:all 0.3s}
         .fav-modal .close-btn:active{transform:scale(0.97)}
+
         .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
         .feedback-modal.open{display:block;animation:modalFade 0.3s ease}
         .feedback-modal h3{font-size:1.1rem;margin-bottom:8px;color:var(--neon-cyan)}
@@ -120,11 +132,14 @@
         .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.85rem;transition:all 0.3s}
         .feedback-modal .btn-feedback:active{transform:scale(0.97)}
         #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
+
         .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
         .notification.show{opacity:1}
+
         #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
+
         #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
         #bannerVitalicio.active{display:flex}
         @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
@@ -144,6 +159,7 @@
         .banner-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;width:100%;margin-top:6px;transition:background 0.2s}
         .banner-close:active{background:rgba(255,255,255,0.08)}
         .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
+
         #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -159,6 +175,7 @@
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.3s}
         #blockOverlay .btn-senha:active{transform:scale(0.96)}
         #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px;font-weight:600}
+
         #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white}
         #adminPanel.open{display:flex;animation:modalFade 0.3s ease}
         #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan)}
@@ -172,11 +189,13 @@
         .admin-btn:active{transform:scale(0.97)}
         .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem}
         .admin-info{font-size:0.65rem;color:#666;text-align:center;margin:0;padding:0}
+
         .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.06);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:14px 32px;border-radius:35px;font-weight:700;font-size:1.1rem;z-index:99999;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 30px rgba(0,243,255,0.1);animation:glow 2s infinite;display:block;transition:all 0.3s;text-align:center}
         .btn-ativar-player .btn-sub{display:block;font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px}
         .btn-ativar-player.hidden{display:none !important}
         .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
         @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(0,243,255,0.08)}50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}}
+
         @media(max-width:480px){
             .logo-macaco{height:32px;width:32px}
             .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
@@ -227,7 +246,7 @@
         </div>
         <div class="top-right">
             <span class="timer-lib" id="timerLib">5:00</span>
-            <span class="audio-status active" id="audioStatus">●</span>
+            <span class="audio-status" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton">
                 <i class="fas fa-ellipsis-v"></i>
             </button>
@@ -361,7 +380,7 @@
 </button>
 
 <!-- ============================================================ -->
-<!-- ===== JAVASCRIPT COMPLETO (com reset e lógica correta) ===== -->
+<!-- ===== JAVASCRIPT - LÓGICA PURA (SEM PERSISTÊNCIA) ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -575,7 +594,7 @@
     }
 
     // ============================================================
-    // NOTIF
+    // NOTIFICAÇÕES
     // ============================================================
     function notif(msg, dur = 1500) {
         if (!dom.notification) return;
@@ -595,8 +614,7 @@
     // BANNER VITALÍCIO
     // ============================================================
     function mostrarBannerVitalicio() {
-        if (state.desbloqueado) return;
-        if (dom.bannerVitalicio.classList.contains('active')) return;
+        if (state.desbloqueado || dom.bannerVitalicio.classList.contains('active')) return;
         dom.bannerVitalicio.classList.add('active');
         let segundos = 20;
         dom.bannerTimer.textContent = segundos + 's';
@@ -758,7 +776,7 @@
     }, { passive: true });
 
     // ============================================================
-    // TIMER / BLOQUEIO
+    // TIMER / BLOQUEIO (SEM PERSISTÊNCIA)
     // ============================================================
     function updateTimerDisplay() {
         if (state.desbloqueado) {
@@ -795,26 +813,22 @@
         state.desbloqueado = false;
         dom.blockOverlay.classList.add('active');
         dom.audio.pause();
-        localStorage.setItem('vdb_bloqueado_permanente', 'true');
-        localStorage.removeItem('vdb_desbloqueado');
-        // para garantir que o timer pare
         clearInterval(state.timerInterval);
+        clearInterval(state.backgroundInterval);
     }
 
     function desbloquear() {
         state.desbloqueado = true;
         dom.blockOverlay.classList.remove('active');
-        localStorage.setItem('vdb_desbloqueado', 'true');
-        localStorage.removeItem('vdb_bloqueado_permanente');
         dom.timerLib.textContent = '🔓 Lib';
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
         clearInterval(state.timerInterval);
-        notif('✅ Liberado com sucesso!');
+        notif('✅ Liberado!');
     }
 
-    // 🔄 RESET DO TESTE (5 toques na logo)
+    // Reset manual (5 toques na logo)
     let resetClicks = 0;
     dom.logoMacaco.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -822,12 +836,6 @@
         setTimeout(() => { resetClicks = 0; }, 3000);
         if (resetClicks >= 5) {
             resetClicks = 0;
-            // Limpa tudo
-            localStorage.removeItem('vdb_bloqueado_permanente');
-            localStorage.removeItem('vdb_desbloqueado');
-            localStorage.removeItem('vdb_tempo_restante');
-            localStorage.removeItem('vdb_senha_permanente');
-            // Reseta estado
             state.desbloqueado = false;
             state.tempoRestante = TEMPO_INICIAL;
             dom.blockOverlay.classList.remove('active');
@@ -838,7 +846,6 @@
             clearInterval(state.timerInterval);
             clearInterval(state.bannerTimeout);
             clearInterval(state.bannerInterval);
-            // Inicia timer novamente
             startTimer();
             iniciarBannerLoop();
             notif('🔄 Teste reiniciado! 5 minutos.', 2000);
@@ -1018,8 +1025,7 @@
     // LETREIRO
     // ============================================================
     function atualizarLetreiro(musica) {
-        if (state.scrollPersonalizado) return;
-        if (!musica) return;
+        if (state.scrollPersonalizado || !musica) return;
         const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
@@ -1073,7 +1079,7 @@
     }
 
     // ============================================================
-    // SHOW CONTROLS
+    // CONTROLES
     // ============================================================
     function showControls() {
         dom.bottomControls.classList.add('visible');
@@ -1297,40 +1303,9 @@
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        // Verifica se já está bloqueado permanentemente
-        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            bloquear();
-            return;
-        }
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-        if (localStorage.getItem('vdb_desbloqueado') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-
-        // Se não tem nada, inicia o timer do zero
-        const salvo = localStorage.getItem('vdb_tempo_restante');
-        if (salvo && parseInt(salvo) > Date.now()) {
-            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
-            if (state.tempoRestante <= 0) {
-                bloquear();
-                return;
-            }
-            startTimer();
-        } else {
-            // Primeira vez ou expirou
-            localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
-            state.tempoRestante = TEMPO_INICIAL;
-            startTimer();
-        }
-
+        // SEM PERSISTÊNCIA: sempre inicia com 5 minutos
+        state.tempoRestante = TEMPO_INICIAL;
+        startTimer();
         iniciarBannerLoop();
     }
 
@@ -1493,8 +1468,7 @@
         const cel = dom.adminCelular.value || '12988461978';
         const exp = Date.now() + 999999999999;
         const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
-        const senha = email + ':' + cel + ':' + exp + ':' + hash;
-        dom.adminSenhaGerada.value = senha;
+        dom.adminSenhaGerada.value = email + ':' + cel + ':' + exp + ':' + hash;
         notif('✅ Senha vitalícia gerada! Copie e envie para o cliente.');
     };
     dom.btnCopiarSenha.onclick = () => {
@@ -1561,7 +1535,6 @@
         fullscreen();
     };
 
-    // ADMIN (5 cliques no letreiro)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
@@ -1596,7 +1569,6 @@
     };
 
     iniciar();
-
 })();
 </script>
 </body>
