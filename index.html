@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== CSS DO CÓDIGO 2 (mais completo) - MANTIDO ===== */
+        /* ===== CSS COMPLETO ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
@@ -47,7 +47,7 @@
 
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);height:56px}
         .top-left{display:flex;align-items:center;gap:4px}
-        .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
+        .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0;cursor:pointer}
         .logo-macaco:active{transform:scale(0.92)}
         .btn-genero-fav{background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.1);color:#fff;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);letter-spacing:0.2px;transition:all 0.2s;white-space:nowrap}
         .btn-genero-fav:active{transform:scale(0.95);background:rgba(255,255,255,0.1)}
@@ -244,7 +244,7 @@
     <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
-            <img src="fa123.png" alt="VDB Music" class="logo-macaco">
+            <img src="fa123.png" alt="VDB Music" class="logo-macaco" id="logoMacaco">
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
                 <span class="separador">|</span>
@@ -405,7 +405,7 @@
 </button>
 
 <!-- ============================================================ -->
-<!-- ===== JAVASCRIPT UNIFICADO (baseado no Código 2) ===== -->
+<!-- ===== JAVASCRIPT UNIFICADO COM RESET NA LOGO ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -491,6 +491,7 @@
         adminSenhaGerada: $('adminSenhaGerada'),
         adminCelular: $('adminCelular'),
         adminEmail: $('adminEmail'),
+        logoMacaco: $('logoMacaco'),
     };
 
     // ============================================================
@@ -524,7 +525,7 @@
     };
 
     // ============================================================
-    // GENRES
+    // GENRES (MANTIDOS IGUAIS)
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -633,6 +634,44 @@
     function showLoad(show) {
         dom.loadingOverlay.classList.toggle('active', show);
     }
+
+    // ============================================================
+    // RESET DO TESTE (5 toques na logo)
+    // ============================================================
+    let resetClicks = 0;
+    let resetTimer = null;
+
+    dom.logoMacaco.addEventListener('click', function() {
+        resetClicks++;
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+            resetClicks = 0;
+        }, 1000);
+
+        if (resetClicks >= 5) {
+            resetClicks = 0;
+            clearTimeout(resetTimer);
+            // Limpa todos os dados de bloqueio
+            localStorage.removeItem('vdb_bloqueado_permanente');
+            localStorage.removeItem('vdb_desbloqueado');
+            localStorage.removeItem('vdb_tempo_restante');
+            localStorage.removeItem('vdb_senha_permanente');
+            // Reseta o estado
+            state.desbloqueado = false;
+            state.tempoRestante = TEMPO_INICIAL;
+            dom.blockOverlay.classList.remove('active');
+            dom.bannerVitalicio.classList.remove('active');
+            clearInterval(state.timerInterval);
+            clearInterval(state.bannerTimeout);
+            // Reinicia o timer
+            startTimer();
+            notif('🔄 Teste reiniciado! 5:00');
+            // Tenta tocar música se já estiver ativo
+            if (state.isBackgroundActive) {
+                tocar();
+            }
+        }
+    });
 
     // ============================================================
     // BANNER VITALÍCIO
@@ -1313,36 +1352,37 @@
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
+        // Verifica se já está bloqueado permanentemente
         if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
             bloquear();
             return;
         }
+
+        // Verifica se já foi desbloqueado
         if (localStorage.getItem('vdb_desbloqueado') === 'true') {
             state.desbloqueado = true;
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             return;
         }
+
+        // Verifica se tem tempo restante salvo
         const salvo = localStorage.getItem('vdb_tempo_restante');
         if (salvo && parseInt(salvo) > Date.now()) {
             state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
             startTimer();
             return;
         }
+
+        // Se não tem nada, inicia do zero
         if (salvo) {
             bloquear();
             return;
         }
+
         localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
         state.tempoRestante = TEMPO_INICIAL;
         startTimer();
-
         iniciarBannerLoop();
     }
 
