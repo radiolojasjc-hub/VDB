@@ -983,7 +983,7 @@
 
     <script>
         // ================================================================
-        // 🚀 VAI DE BOA! MUSIC - CÓDIGO QUE FUNCIONA
+        // 🚀 VAI DE BOA! MUSIC - SEM ÁUDIO SILENCIOSO!
         // ================================================================
 
         (function() {
@@ -1442,76 +1442,36 @@
             }
 
             // ============================================================
-            // 🎯 ÁUDIO EM SEGUNDO PLANO - FUNCIONA!
+            // 🎯 ATIVAÇÃO SEM ÁUDIO SILENCIOSO!
             // ============================================================
-            function createSilentAudio() {
-                const sampleRate = 44100;
-                const duration = 5;
-                const numSamples = sampleRate * duration;
-                const buffer = new ArrayBuffer(44 + numSamples * 2);
-                const view = new DataView(buffer);
-
-                const writeString = (view, offset, str) => {
-                    for (let i = 0; i < str.length; i++) {
-                        view.setUint8(offset + i, str.charCodeAt(i));
-                    }
-                };
-
-                writeString(view, 0, 'RIFF');
-                view.setUint32(4, 36 + numSamples * 2, true);
-                writeString(view, 8, 'WAVE');
-                writeString(view, 12, 'fmt ');
-                view.setUint32(16, 16, true);
-                view.setUint16(20, 1, true);
-                view.setUint16(22, 1, true);
-                view.setUint32(24, sampleRate, true);
-                view.setUint32(28, sampleRate * 2, true);
-                view.setUint16(32, 2, true);
-                view.setUint16(34, 16, true);
-                writeString(view, 36, 'data');
-                view.setUint32(40, numSamples * 2, true);
-
-                let offset = 44;
-                for (let i = 0; i < numSamples; i++) {
-                    view.setInt16(offset, 0, true);
-                    offset += 2;
-                }
-
-                return new Blob([buffer], { type: 'audio/wav' });
-            }
-
-            function iniciarManutencaoConstante() {
-                if (state.backgroundInterval) clearInterval(state.backgroundInterval);
-
-                state.backgroundInterval = setInterval(async () => {
-                    try {
-                        if (dom.backgroundAudio.paused && state.isBackgroundActive) {
-                            await dom.backgroundAudio.play().catch(() => {});
-                        }
-                        if (state.isPlaying && dom.audio.paused && !dom.audio.ended) {
-                            await dom.audio.play().catch(() => {});
-                        }
-                        if (dom.audio.ended && state.isPlaying) {
-                            next();
-                        }
-                    } catch (e) {}
-                }, 1000);
-            }
-
             async function ativarPlayer() {
                 try {
                     showLoad(true);
 
-                    const url = URL.createObjectURL(createSilentAudio());
-                    dom.backgroundAudio.src = url;
-                    dom.backgroundAudio.loop = true;
-                    dom.backgroundAudio.volume = 0.001;
-                    await dom.backgroundAudio.play();
-
+                    // ===== SEM ÁUDIO SILENCIOSO! =====
+                    // Apenas marca como ativo e pede permissão
                     state.isBackgroundActive = true;
                     dom.audioStatus.classList.add('active');
-                    iniciarManutencaoConstante();
 
+                    // ===== INICIA O CONTEXTO DE ÁUDIO =====
+                    if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                        try {
+                            const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                            if (ctx.state === 'suspended') {
+                                await ctx.resume();
+                            }
+                            // Cria um buffer de silêncio para ativar o contexto
+                            const buffer = ctx.createBuffer(1, 1, 44100);
+                            const source = ctx.createBufferSource();
+                            source.buffer = buffer;
+                            source.connect(ctx.destination);
+                            source.start();
+                        } catch (e) {
+                            console.log('Erro no AudioContext:', e);
+                        }
+                    }
+
+                    // ===== WAKE LOCK =====
                     if ('wakeLock' in navigator) {
                         try {
                             state.wakeLock = await navigator.wakeLock.request('screen');
@@ -1523,10 +1483,23 @@
                         } catch (e) {}
                     }
 
+                    // ===== MEDIA SESSION (para controle no bloqueio) =====
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.setActionHandler('play', () => {
+                            if (state.isPlaying) tocar();
+                        });
+                        navigator.mediaSession.setActionHandler('pause', () => {
+                            dom.audio.pause();
+                            state.isPlaying = false;
+                            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        });
+                        navigator.mediaSession.setActionHandler('previoustrack', () => prev());
+                        navigator.mediaSession.setActionHandler('nexttrack', () => next());
+                    }
+
                     showLoad(false);
                     dom.btnAtivarPlayer.classList.add('hidden');
                     fullscreen();
-                    await tocar();
 
                     notif('✅ Áudio ativado com sucesso!', 2000);
 
@@ -1537,12 +1510,17 @@
                     showLoad(false);
                     dom.btnAtivarPlayer.classList.add('hidden');
                     fullscreen();
-                    await tocar();
+                    notif('⚠️ Áudio ativado parcialmente', 2000);
                 }
             }
 
             async function tocar() {
-                if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
+                if (!state.isBackgroundActive) {
+                    notif('🔊 Clique em ATIVAR!');
+                    return;
+                }
+
+                if (state.carregandoMusica || !state.musicas.length) return;
                 state.carregandoMusica = true;
 
                 const musica = atualizarPlaylist();
@@ -2290,13 +2268,11 @@
                             }
                         });
                     }
-                    if (state.isBackgroundActive && dom.backgroundAudio.paused) {
-                        const url = URL.createObjectURL(createSilentAudio());
-                        dom.backgroundAudio.src = url;
-                        dom.backgroundAudio.loop = true;
-                        dom.backgroundAudio.volume = 0.001;
-                        dom.backgroundAudio.play().catch(() => {});
-                        console.log('🔊 Áudio de fundo recuperado');
+                    // Recupera wake lock
+                    if ('wakeLock' in navigator && !state.wakeLock) {
+                        try {
+                            state.wakeLock = await navigator.wakeLock.request('screen');
+                        } catch (e) {}
                     }
                 }
             });
@@ -2353,7 +2329,6 @@
             // 🧹 CLEANUP
             // ============================================================
             window.onbeforeunload = () => {
-                clearInterval(state.backgroundInterval);
                 clearInterval(state.timerInterval);
                 clearInterval(state.mediaTimer);
                 clearInterval(state.bannerInterval);
