@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VAI DE BOA! MUSIC</title>
+    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    
+    <!-- ===== PWA - SALVAR COMO APP ===== -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -14,10 +17,14 @@
     <meta name="theme-color" content="#000000">
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
-    <link rel="icon" href="fa123.png" type="image/png">
-    <link rel="apple-touch-icon" href="fa123.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    
+    <!-- ===== FAVICON fa12.png ===== -->
+    <link rel="icon" href="fa12.png" type="image/png">
+    <link rel="apple-touch-icon" href="fa12.png">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22m12.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         /* ===== RESET E BASE ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
@@ -25,6 +32,7 @@
         body{background:#000;overflow:hidden}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
 
+        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -32,193 +40,1255 @@
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
+        /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
+
         .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
-        .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);height:56px}
-        .top-left{display:flex;align-items:center;gap:4px}
-        .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0;cursor:pointer}
-        .logo-macaco:active{transform:scale(0.92)}
-        .btn-genero-fav{background:rgba(255,255,255,0.05);border:1px solid rgba(255,215,0,0.1);color:#fff;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(8px);letter-spacing:0.2px;transition:all 0.2s;white-space:nowrap}
-        .btn-genero-fav:active{transform:scale(0.95);background:rgba(255,255,255,0.1)}
-        .btn-genero-fav .fav-badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 5px;font-size:0.55rem;font-weight:900;min-width:14px;text-align:center;line-height:14px;box-shadow:0 0 20px rgba(255,45,127,0.2)}
-        .btn-genero-fav .genero-nome{color:var(--gold);font-size:0.7rem}
-        .btn-genero-fav .separador{color:rgba(255,255,255,0.1);font-weight:300}
-        .btn-genero-fav .coracao-icon{font-size:0.6rem}
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            height: 56px;
+        }
 
-        .top-right{display:flex;align-items:center;gap:6px}
-        .top-right .timer-lib{font-size:0.8rem;font-weight:700;color:var(--neon-cyan);background:rgba(0,0,0,0.4);padding:3px 10px;border-radius:20px;backdrop-filter:blur(4px);letter-spacing:0.5px}
-        .top-right .timer-lib.lib{color:#4ade80}
-        .top-right .audio-status{font-size:0.6rem;color:#4ade80;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:20px;display:none;backdrop-filter:blur(4px)}
-        .top-right .audio-status.active{display:inline-block;animation:pulseDot 1.5s ease-in-out infinite}
-        @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:0.2}}
-        .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-        .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 4px; /* REDUZIDO - mais perto da logo */
+        }
 
-        .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:8px 16px;height:42px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
-        .info-scroll .letreiro{color:#fff;font-size:1rem;font-weight:700;white-space:nowrap;animation:scrollText 14s linear infinite;pointer-events:none;text-shadow:0 0 30px rgba(0,243,255,0.08);letter-spacing:0.3px}
-        @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+        /* LOGO MACAQUINHO */
+        .logo-macaco {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(0,243,255,0.12);
+            box-shadow: 0 0 15px rgba(0,243,255,0.03);
+            background: rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
 
-        .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
-        .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
-        .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
-        .fav-heart-center .fav-heart:active{transform:scale(1.2)}
-        @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+        .logo-macaco:active {
+            transform: scale(0.92);
+        }
 
-        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
-        .bottom-controls.visible{transform:translateY(0)}
-        .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500}
-        .progress-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
-        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:2px;transition:width 0.1s}
-        .buttons-row{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:8px}
-        .ctrl-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-        .ctrl-btn:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
-        .play-big{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));width:54px;height:54px;font-size:1.3rem;color:#000;border:none;border-radius:50%;box-shadow:0 0 30px rgba(0,243,255,0.12)}
-        .play-big:active{transform:scale(0.9)}
-        .shuffle-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
-        .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
-        .shuffle-btn:active{transform:scale(0.9)}
+        /* BOTÃO FAVORITO - MENOR E MAIS PERTO DA LOGO */
+        .btn-genero-fav {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,215,0,0.1);
+            color: #fff;
+            padding: 4px 10px; /* MENOR */
+            border-radius: 20px;
+            font-size: 0.75rem; /* MENOR */
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px; /* MENOR */
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
 
-        .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-        .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
-        .fab-main:active{transform:scale(0.9)}
-        .fab-sub{background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);border-radius:14px;padding:6px;display:none;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,0.05)}
-        .fab-sub.open{display:flex;animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1)}
-        @keyframes slideUp{from{opacity:0;transform:translateY(10px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-        .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
-        .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
+        .btn-genero-fav:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.1);
+        }
 
-        .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
-        .menu-popup.open{display:flex}
-        .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.2s}
-        .menu-popup button:active{background:rgba(255,255,255,0.06)}
+        .btn-genero-fav .fav-badge {
+            background: var(--neon-pink);
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 5px;
+            font-size: 0.55rem;
+            font-weight: 900;
+            min-width: 14px;
+            text-align: center;
+            line-height: 14px;
+        }
 
-        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:60vh;overflow:hidden}
-        .genres-modal.open{transform:translateY(0)}
-        .genres-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:1px}
-        .genres-grid{display:flex;flex-direction:column;overflow-y:auto;scroll-snap-type:y mandatory;gap:6px;padding:4px;max-height:38vh;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-        .genres-grid::-webkit-scrollbar{display:none}
-        .genre-card{min-height:48px;scroll-snap-align:center;flex-shrink:0;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 14px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(0,0,0,0.15);letter-spacing:0.3px}
-        .genre-card:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .close-genres{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.9rem;cursor:pointer;font-weight:700;margin-top:10px;letter-spacing:0.5px;transition:all 0.3s}
-        .close-genres:active{transform:scale(0.97)}
+        .btn-genero-fav .genero-nome {
+            color: var(--gold);
+            font-size: 0.7rem;
+        }
 
-        .fav-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(255,45,127,0.1)}
-        .fav-modal.open{display:block;animation:modalFade 0.3s ease}
-        @keyframes modalFade{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-        .fav-modal h3{font-size:1.1rem;margin-bottom:10px;color:var(--neon-cyan)}
-        .fav-modal .close-fav{position:absolute;top:8px;right:10px;background:transparent;border:none;color:#555;font-size:1.1rem;cursor:pointer}
-        .fav-list{max-height:45vh;overflow-y:auto;text-align:left;padding:0 4px}
-        .fav-item{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.03);color:white;cursor:pointer;border-radius:6px}
-        .fav-item:active{background:rgba(255,255,255,0.03)}
-        .fav-item .fav-info .title{font-weight:700;font-size:0.85rem}
-        .fav-item .fav-info .artist{font-size:0.7rem;color:#777}
-        .fav-item .remove{background:transparent;border:none;color:var(--neon-pink);font-size:1rem;cursor:pointer;padding:0 4px}
-        .fav-empty{color:#555;padding:25px;text-align:center;font-size:0.85rem}
-        .fav-modal .close-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:6px;font-size:0.85rem;transition:all 0.3s}
-        .fav-modal .close-btn:active{transform:scale(0.97)}
+        .btn-genero-fav .separador {
+            color: rgba(255,255,255,0.1);
+            font-weight: 300;
+        }
 
-        .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
-        .feedback-modal.open{display:block;animation:modalFade 0.3s ease}
-        .feedback-modal h3{font-size:1.1rem;margin-bottom:8px;color:var(--neon-cyan)}
-        .feedback-modal .stars{display:flex;justify-content:center;gap:6px;margin:6px 0}
-        .feedback-modal .star{font-size:2rem;color:#444;cursor:pointer;transition:color 0.2s}
-        .feedback-modal .star.active{color:var(--gold)}
-        .feedback-modal textarea{width:100%;height:50px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,243,255,0.06);border-radius:10px;padding:6px 10px;color:#fff;resize:none;font-size:0.8rem;margin-top:4px}
-        .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.85rem;transition:all 0.3s}
-        .feedback-modal .btn-feedback:active{transform:scale(0.97)}
-        #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
+        .btn-genero-fav .coracao-icon {
+            font-size: 0.6rem;
+        }
 
-        .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
-        .notification.show{opacity:1}
+        /* Lado direito: LIB + Menu */
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-        #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
-        #loadingOverlay.active{display:flex}
-        #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
+        .top-right .timer-lib {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            background: rgba(0,0,0,0.4);
+            padding: 3px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
+        }
 
-        #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
-        #bannerVitalicio.active{display:flex}
-        @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-        .banner-content{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:25px;padding:30px 22px 22px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.12);box-shadow:0 0 60px rgba(255,215,0,0.05);position:relative;overflow:hidden}
-        .banner-content::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 30%, rgba(255,215,0,0.03), transparent 70%);pointer-events:none}
-        .banner-icon{width:90px;height:90px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:3px solid rgba(255,215,0,0.15);animation:bannerPulse 2s infinite;box-shadow:0 0 40px rgba(255,215,0,0.03)}
-        @keyframes bannerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .banner-title{font-size:1.8rem;font-weight:900;color:#fff;margin-bottom:2px;background:linear-gradient(135deg,var(--gold),#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .banner-subtitle{font-size:0.9rem;color:#aaa;margin-bottom:12px}
-        .banner-price{display:inline-block;background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 20px;border-radius:25px;font-weight:900;font-size:1.4rem;margin-bottom:10px;box-shadow:0 0 30px rgba(255,215,0,0.12)}
-        .banner-price small{font-size:0.7rem;font-weight:400}
-        .banner-features{display:flex;flex-direction:column;gap:4px;margin:10px 0 14px;text-align:left;padding:0 8px}
-        .banner-features .feature{display:flex;align-items:center;gap:10px;color:#ccc;font-size:0.8rem}
-        .banner-features .feature i{color:var(--gold);font-size:0.9rem;width:20px;text-align:center}
-        .banner-btn{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:14px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:1.05rem;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.2s;box-shadow:0 4px 25px rgba(37,211,102,0.2)}
-        .banner-btn:active{transform:scale(0.96)}
-        .banner-close{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;width:100%;margin-top:6px;transition:background 0.2s}
-        .banner-close:active{background:rgba(255,255,255,0.08)}
-        .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
+        .top-right .timer-lib.lib {
+            color: #4ade80;
+        }
 
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-        #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        #blockOverlay h2{color:#fff;font-size:1.4rem;margin-bottom:6px}
-        #blockOverlay p{color:#888;font-size:0.9rem;margin-bottom:10px}
-        #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:4px 16px;border-radius:20px;font-weight:700;font-size:0.85rem;display:inline-block;margin-bottom:6px}
-        #blockOverlay .btn-comprar{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:10px 24px;border-radius:30px;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:4px;transition:all 0.3s}
-        #blockOverlay .btn-comprar:active{transform:scale(0.96)}
-        #blockOverlay .btn-pix{background:rgba(255,255,255,0.04);border:1px solid var(--neon-cyan);padding:8px 20px;border-radius:30px;color:var(--neon-cyan);font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.3s}
-        #blockOverlay .btn-pix:active{transform:scale(0.96)}
-        #blockOverlay .senha-input{width:100%;max-width:250px;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.9rem;text-align:center;margin:6px 0;outline:none}
-        #blockOverlay .senha-input:focus{border-color:var(--neon-cyan)}
-        #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.3s}
-        #blockOverlay .btn-senha:active{transform:scale(0.96)}
-        #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px;font-weight:600}
+        .top-right .audio-status {
+            font-size: 0.6rem;
+            color: #4ade80;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 20px;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
 
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:360px;border:1px solid var(--neon-cyan);flex-direction:column;gap:6px;color:white}
-        #adminPanel.open{display:flex;animation:modalFade 0.3s ease}
-        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--neon-cyan)}
-        #adminPanel input{width:100%;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.8rem;outline:none}
-        #adminPanel input:focus{border-color:var(--neon-cyan)}
-        .admin-row{display:flex;gap:4px}
-        .admin-row input{flex:2}
-        .admin-row .btn-copiar{flex:1;background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);padding:6px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.3s}
-        .admin-row .btn-copiar:active{transform:scale(0.95)}
-        .admin-btn{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:all 0.3s}
-        .admin-btn:active{transform:scale(0.97)}
-        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem}
-        .admin-info{font-size:0.65rem;color:#666;text-align:center;margin:0;padding:0}
+        .top-right .audio-status.active {
+            display: inline-block;
+        }
 
-        .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.06);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:14px 32px;border-radius:35px;font-weight:700;font-size:1.1rem;z-index:99999;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 30px rgba(0,243,255,0.1);animation:glow 2s infinite;display:block;transition:all 0.3s;text-align:center}
-        .btn-ativar-player .btn-sub{display:block;font-size:0.6rem;font-weight:400;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px}
-        .btn-ativar-player.hidden{display:none !important}
-        .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
-        @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(0,243,255,0.08)}50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}}
+        .top-right .menu-btn {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
 
-        @media(max-width:480px){
-            .logo-macaco{height:32px;width:32px}
-            .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
-            .btn-genero-fav .genero-nome{font-size:0.6rem}
-            .btn-genero-fav .fav-badge{font-size:0.5rem;min-width:12px;line-height:12px}
-            .top-right .timer-lib{font-size:0.7rem;padding:2px 8px}
-            .top-right .menu-btn{width:28px;height:28px;font-size:0.8rem}
-            .info-scroll .letreiro{font-size:0.85rem}
-            .fav-heart-center .fav-heart{font-size:4rem}
-            .ctrl-btn{width:38px;height:38px;font-size:0.85rem}
-            .play-big{width:48px;height:48px;font-size:1.1rem}
-            .shuffle-btn{width:38px;height:38px;font-size:0.75rem}
-            .buttons-row{gap:10px}
-            .bottom-controls{padding:8px 12px 14px}
-            .banner-title{font-size:1.4rem}
-            .banner-price{font-size:1.2rem;padding:3px 16px}
-            .banner-features .feature{font-size:0.7rem}
-            .banner-btn{font-size:0.95rem;padding:12px 20px}
-            .banner-content{padding:18px 16px 16px}
-            .banner-icon{width:70px;height:70px}
-            .btn-ativar-player{font-size:0.95rem;padding:12px 24px;bottom:22%}
-            .fab-main{width:42px;height:42px;font-size:1rem}
-            .fab-container{bottom:85px;right:10px}
+        .top-right .menu-btn:active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* ===== LETREIRO ===== */
+        .info-scroll {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            padding: 8px 16px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .info-scroll .letreiro {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: scrollText 14s linear infinite;
+            pointer-events: none;
+            text-shadow: 0 0 30px rgba(0,243,255,0.08);
+            letter-spacing: 0.3px;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* ===== CORAÇÃO FAVORITO ===== */
+        .fav-heart-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            text-align: center;
+        }
+
+        .fav-heart-center .fav-heart {
+            font-size: 5rem;
+            color: rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-shadow: 0 0 60px rgba(0,0,0,0.9);
+        }
+
+        .fav-heart-center .fav-heart.active {
+            color: var(--neon-pink);
+            animation: heartBeat 0.3s ease;
+        }
+
+        .fav-heart-center .fav-heart:active {
+            transform: scale(1.2);
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== BOTTOM CONTROLS ===== */
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            padding: 10px 16px 18px;
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-controls.visible {
+            transform: translateY(0);
+        }
+
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s;
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .play-big {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            width: 54px;
+            height: 54px;
+            font-size: 1.3rem;
+            color: #000;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,243,255,0.12);
+        }
+
+        .play-big:active {
+            transform: scale(0.9);
+        }
+
+        .shuffle-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .shuffle-btn.active {
+            background: rgba(0,243,255,0.12);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0,243,255,0.15);
+        }
+
+        .shuffle-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== FAB ===== */
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 14px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .fab-main {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s;
+        }
+
+        .fab-main:active {
+            transform: scale(0.9);
+        }
+
+        .fab-sub {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(16px);
+            border-radius: 14px;
+            padding: 6px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .fab-sub.open {
+            display: flex;
+        }
+
+        .fab-sub-btn {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .fab-sub-btn:active {
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* ===== MENU ===== */
+        .menu-popup {
+            position: fixed;
+            top: 56px;
+            right: 10px;
+            background: rgba(10,10,30,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 14px;
+            padding: 6px;
+            z-index: 32;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid rgba(0,243,255,0.06);
+            min-width: 160px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .menu-popup.open {
+            display: flex;
+        }
+
+        .menu-popup button {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .menu-popup button:active {
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* ===== GENRES MODAL ===== */
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10,10,30,0.97);
+            backdrop-filter: blur(20px);
+            border-radius: 25px 25px 0 0;
+            padding: 16px 18px 20px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 60vh;
+            overflow: hidden;
+        }
+
+        .genres-modal.open {
+            transform: translateY(0);
+        }
+
+        .genres-modal h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+        }
+
+        .genres-grid {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            gap: 6px;
+            padding: 4px;
+            max-height: 38vh;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .genres-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .genre-card {
+            min-height: 48px;
+            scroll-snap-align: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
+        }
+
+        .genre-card:active {
+            transform: scale(0.96);
+            background: rgba(255,255,255,0.06);
+        }
+
+        .close-genres {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .close-genres:active {
+            transform: scale(0.97);
+        }
+
+        /* ===== FAVORITES MODAL ===== */
+        .fav-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 5000;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(255,45,127,0.1);
+        }
+
+        .fav-modal.open {
+            display: block;
+            animation: modalFade 0.3s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .fav-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--neon-cyan);
+        }
+
+        .fav-modal .close-fav {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #555;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .fav-list {
+            max-height: 45vh;
+            overflow-y: auto;
+            text-align: left;
+            padding: 0 4px;
+        }
+
+        .fav-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .fav-item:active {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .fav-item .fav-info .title {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .fav-item .fav-info .artist {
+            font-size: 0.7rem;
+            color: #777;
+        }
+
+        .fav-item .remove {
+            background: transparent;
+            border: none;
+            color: var(--neon-pink);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .fav-empty {
+            color: #555;
+            padding: 25px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .fav-modal .close-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* ===== FEEDBACK MODAL ===== */
+        .feedback-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 5000;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(0,243,255,0.08);
+        }
+
+        .feedback-modal.open {
+            display: block;
+            animation: modalFade 0.3s ease;
+        }
+
+        .feedback-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--neon-cyan);
+        }
+
+        .feedback-modal .stars {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .feedback-modal .star {
+            font-size: 2rem;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .feedback-modal .star.active {
+            color: var(--gold);
+        }
+
+        .feedback-modal textarea {
+            width: 100%;
+            height: 50px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,243,255,0.06);
+            border-radius: 10px;
+            padding: 6px 10px;
+            color: #fff;
+            resize: none;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .feedback-modal .btn-feedback {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+            font-size: 0.85rem;
+        }
+
+        #closeFeedbackBtn {
+            background: transparent;
+            border: none;
+            color: #555;
+            padding: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        /* ===== NOTIFICATION ===== */
+        .notification {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: var(--neon-cyan);
+            padding: 6px 18px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border: 1px solid rgba(0,243,255,0.06);
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        /* ===== LOADING OVERLAY ===== */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #loadingOverlay.active {
+            display: flex;
+        }
+
+        #loadingOverlay i {
+            font-size: 2.5rem;
+            color: var(--neon-cyan);
+            animation: spin 1s infinite;
+        }
+
+        /* ===== BANNER VITALÍCIO ===== */
+        #bannerVitalicio {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: bannerFadeIn 0.5s ease;
+        }
+
+        #bannerVitalicio.active {
+            display: flex;
+        }
+
+        @keyframes bannerFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .banner-content {
+            background: linear-gradient(145deg, #1a1a3e, #0d0d2b);
+            border-radius: 25px;
+            padding: 30px 22px 22px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid rgba(255,215,0,0.12);
+            box-shadow: 0 0 60px rgba(255,215,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.03), transparent 70%);
+            pointer-events: none;
+        }
+
+        .banner-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 8px;
+            display: block;
+            border: 3px solid rgba(255,215,0,0.15);
+            animation: bannerPulse 2s infinite;
+            box-shadow: 0 0 40px rgba(255,215,0,0.03);
+        }
+
+        @keyframes bannerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .banner-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .banner-subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .banner-price {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            color: #000;
+            padding: 4px 20px;
+            border-radius: 25px;
+            font-weight: 900;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            box-shadow: 0 0 30px rgba(255,215,0,0.12);
+        }
+
+        .banner-price small {
+            font-size: 0.7rem;
+            font-weight: 400;
+        }
+
+        .banner-features {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 10px 0 14px;
+            text-align: left;
+            padding: 0 8px;
+        }
+
+        .banner-features .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ccc;
+            font-size: 0.8rem;
+        }
+
+        .banner-features .feature i {
+            color: var(--gold);
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .banner-btn {
+            background: linear-gradient(135deg, #25d366, #128C7E);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 25px rgba(37, 211, 102, 0.2);
+        }
+
+        .banner-btn:active {
+            transform: scale(0.96);
+        }
+
+        .banner-close {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 25px;
+            color: #666;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+            transition: background 0.2s;
+        }
+
+        .banner-close:active {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .banner-timer {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            color: rgba(255,255,255,0.12);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* ===== BLOCK OVERLAY ===== */
+        #blockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        #blockOverlay.active {
+            display: flex;
+        }
+
+        #blockOverlay h2 {
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+
+        #blockOverlay p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        #blockOverlay .preco-vitalicio {
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            color: #000;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        #blockOverlay .btn-comprar {
+            background: linear-gradient(135deg, #25d366, #128C7E);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+
+        #blockOverlay .btn-pix {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--neon-cyan);
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: var(--neon-cyan);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        #blockOverlay .senha-input {
+            width: 100%;
+            max-width: 250px;
+            padding: 10px 14px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            font-size: 0.9rem;
+            text-align: center;
+            margin: 6px 0;
+            outline: none;
+        }
+
+        #blockOverlay .senha-input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        #blockOverlay .btn-senha {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        #blockOverlay .erro-senha {
+            color: var(--neon-pink);
+            font-size: 0.75rem;
+            min-height: 16px;
+            margin-top: 2px;
+        }
+
+        /* ===== ADMIN PANEL ===== */
+        #adminPanel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,30,0.98);
+            border-radius: 18px;
+            padding: 18px;
+            z-index: 99999;
+            width: 90%;
+            max-width: 360px;
+            border: 1px solid var(--neon-cyan);
+            flex-direction: column;
+            gap: 6px;
+            color: white;
+        }
+
+        #adminPanel.open {
+            display: flex;
+        }
+
+        #adminPanel h2 {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+        }
+
+        #adminPanel input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.03);
+            color: white;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        #adminPanel input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .admin-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .admin-row input {
+            flex: 2;
+        }
+
+        .admin-row .btn-copiar {
+            flex: 1;
+            background: rgba(0,243,255,0.08);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 6px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .admin-close {
+            background: rgba(255,255,255,0.03);
+            border: none;
+            padding: 6px;
+            border-radius: 20px;
+            color: #555;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.75rem;
+        }
+
+        /* ===== BOTÃO ATIVAR ===== */
+        .btn-ativar-player {
+            position: fixed;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,243,255,0.06);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--neon-cyan);
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 35px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 99999;
+            cursor: pointer;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px rgba(0,243,255,0.1);
+            animation: glow 2s infinite;
+            display: block;
+        }
+
+        .btn-ativar-player.hidden {
+            display: none !important;
+        }
+
+        .btn-ativar-player:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0,243,255,0.08); }
+            50% { box-shadow: 0 0 40px rgba(0,243,255,0.25); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .logo-macaco {
+                height: 32px;
+                width: 32px;
+            }
+            .btn-genero-fav {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .btn-genero-fav .genero-nome {
+                font-size: 0.6rem;
+            }
+            .btn-genero-fav .fav-badge {
+                font-size: 0.5rem;
+                min-width: 12px;
+                line-height: 12px;
+            }
+            .top-right .timer-lib {
+                font-size: 0.7rem;
+                padding: 2px 8px;
+            }
+            .top-right .menu-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            .info-scroll .letreiro {
+                font-size: 0.85rem;
+            }
+            .fav-heart-center .fav-heart {
+                font-size: 4rem;
+            }
+            .ctrl-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.85rem;
+            }
+            .play-big {
+                width: 48px;
+                height: 48px;
+                font-size: 1.1rem;
+            }
+            .shuffle-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.75rem;
+            }
+            .buttons-row {
+                gap: 10px;
+            }
+            .bottom-controls {
+                padding: 8px 12px 14px;
+            }
+            .banner-title {
+                font-size: 1.4rem;
+            }
+            .banner-price {
+                font-size: 1.2rem;
+                padding: 3px 16px;
+            }
+            .banner-features .feature {
+                font-size: 0.7rem;
+            }
+            .banner-btn {
+                font-size: 0.95rem;
+                padding: 12px 20px;
+            }
+            .banner-content {
+                padding: 18px 16px 16px;
+            }
+            .banner-icon {
+                width: 70px;
+                height: 70px;
+            }
+            .btn-ativar-player {
+                font-size: 0.95rem;
+                padding: 12px 24px;
+                bottom: 22%;
+            }
+            .fab-main {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            .fab-container {
+                bottom: 85px;
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -226,17 +1296,23 @@
 
 <!-- ===== LOADING ===== -->
 <div id="loadingScreen">
-    <img src="fa123.png" alt="VDB Music" class="loading-logo">
+    <img src="m12.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
     <span>VAI DE BOA! MUSIC</span>
 </div>
 
 <!-- ===== PLAYER ===== -->
 <div id="playerContainer">
+    <!-- Media Container -->
     <div class="media-container" id="mediaContainer"></div>
+
+    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
-            <img src="fa123.png" alt="VDB Music" class="logo-macaco" id="logoMacaco">
+            <!-- LOGO MACAQUINHO -->
+            <img src="m12.png" alt="VDB Music" class="logo-macaco">
+            
+            <!-- BOTÃO FAVORITO - MENOR E MAIS PERTO -->
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
                 <span class="separador">|</span>
@@ -244,22 +1320,30 @@
                 <span class="fav-badge" id="favBadge">0</span>
             </button>
         </div>
+
+        <!-- Lado direito: LIB + Menu -->
         <div class="top-right">
             <span class="timer-lib" id="timerLib">5:00</span>
-            <span class="audio-status" id="audioStatus">●</span>
+            <span class="audio-status active" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton">
                 <i class="fas fa-ellipsis-v"></i>
             </button>
         </div>
     </div>
+
+    <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">VAI DE BOA! MUSIC - O SOM DO MACACO! 🎵</p>
     </div>
+
+    <!-- CORAÇÃO FAVORITO -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn">
             <i class="far fa-heart"></i>
         </div>
     </div>
+
+    <!-- BOTTOM CONTROLS -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -275,6 +1359,8 @@
             <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
+
+    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -285,6 +1371,8 @@
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
+
+    <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -299,7 +1387,7 @@
 <div id="bannerVitalicio">
     <div class="banner-content">
         <span class="banner-timer" id="bannerTimer">20s</span>
-        <img src="fa123.png" alt="VDB Music" class="banner-icon">
+        <img src="m12.png" alt="VDB Music" class="banner-icon">
         <div class="banner-title">VAI DE BOA! VITALÍCIO</div>
         <div class="banner-subtitle">Acesso permanente! Pague uma vez só</div>
         <div class="banner-price">R$ 39,90 <small>vitalício</small></div>
@@ -324,30 +1412,37 @@
     <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
     <button class="btn-pix" id="btnPix">Copiar PIX</button>
     <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:8px 0;">
-    <input type="text" class="senha-input" id="senhaPermanente" placeholder="Cole a senha vitalícia" autocomplete="off">
-    <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
+    <input type="password" class="senha-input" id="senhaPermanente" placeholder="Senha vitalícia">
+    <button class="btn-senha" id="btnSenhaPermanente">Liberar</button>
     <div class="erro-senha" id="erroSenha"></div>
 </div>
 
 <!-- ===== NOTIFICATION ===== -->
 <div class="notification" id="notification"></div>
+
+<!-- ===== LOADING OVERLAY ===== -->
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
+<!-- ===== AUDIO ===== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== MODALS ===== -->
+<!-- ===== FAVORITES MODAL ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
     <div class="fav-list" id="favList"></div>
     <button class="close-btn" id="closeFavBtn">FECHAR</button>
 </div>
+
+<!-- ===== GENRES MODAL ===== -->
 <div class="genres-modal" id="genresModal">
     <h3>🎵 ESCOLHA SEU ESTILO</h3>
     <div class="genres-grid" id="genresGrid"></div>
     <button class="close-genres" id="closeGenresBtn">FECHAR</button>
 </div>
+
+<!-- ===== FEEDBACK MODAL ===== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -361,43 +1456,39 @@
     <button class="btn-feedback" id="sendFeedbackBtn">Enviar</button>
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
+
+<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 ADMIN</h2>
-    <input type="text" id="adminCelular" value="12988461978" placeholder="Celular do cliente">
-    <input type="email" id="adminEmail" value="cliente@teste.com" placeholder="Email do cliente">
+    <input type="text" id="adminCelular" value="12988461978">
+    <input type="email" id="adminEmail" value="cliente@teste.com">
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada" style="font-size:0.6rem;">
-        <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
+        <input type="text" id="adminSenhaGerada" readonly>
+        <button class="btn-copiar" id="btnCopiarSenha">Copiar</button>
     </div>
-    <button class="admin-btn" id="adminGerarBtn">🔑 GERAR SENHA VITALÍCIA</button>
-    <p class="admin-info">Senha única por dispositivo - Envie via WhatsApp</p>
-    <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
+    <button class="admin-btn" id="adminGerarBtn">GERAR SENHA</button>
+    <button class="admin-close" id="adminCloseBtn">Fechar</button>
 </div>
 
-<button class="btn-ativar-player" id="btnAtivarPlayer">
-    ▶ ATIVAR
-    <span class="btn-sub">TOQUE PARA INICIAR</span>
-</button>
-
 <!-- ============================================================ -->
-<!-- ===== JAVASCRIPT - LÓGICA PURA (SEM PERSISTÊNCIA) ===== -->
+<!-- ===== SCRIPT ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
     'use strict';
 
     // ============================================================
-    // CONFIG
+    // CONFIGURAÇÕES
     // ============================================================
     const VERSAO = Date.now();
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
-    const TEMPO_INICIAL = 300; // 5 minutos
+    const TEMPO_INICIAL = 300;
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
     const MAX_TENTATIVAS = 3;
 
     // ============================================================
-    // DOM
+    // DOM CACHE
     // ============================================================
     const $ = (id) => document.getElementById(id);
     const dom = {
@@ -434,39 +1525,6 @@
         bannerTimer: $('bannerTimer'),
         btnGeneroFav: $('btnGeneroFav'),
         generoNome: $('generoNome'),
-        btnAtivarPlayer: $('btnAtivarPlayer'),
-        btnSenhaPermanente: $('btnSenhaPermanente'),
-        senhaPermanente: $('senhaPermanente'),
-        erroSenha: $('erroSenha'),
-        btnWhatsApp: $('btnWhatsApp'),
-        btnPix: $('btnPix'),
-        bannerWhatsAppBtn: $('bannerWhatsAppBtn'),
-        bannerCloseBtn: $('bannerCloseBtn'),
-        closeFavModal: $('closeFavModal'),
-        closeFavBtn: $('closeFavBtn'),
-        fabGeneros: $('fabGeneros'),
-        closeGenresBtn: $('closeGenresBtn'),
-        fabFeedback: $('fabFeedback'),
-        fabYoutube: $('fabYoutube'),
-        fabShare: $('fabShare'),
-        fabQrCode: $('fabQrCode'),
-        fabMain: $('fabMain'),
-        fabSub: $('fabSub'),
-        sendFeedbackBtn: $('sendFeedbackBtn'),
-        closeFeedbackBtn: $('closeFeedbackBtn'),
-        adminGerarBtn: $('adminGerarBtn'),
-        btnCopiarSenha: $('btnCopiarSenha'),
-        adminCloseBtn: $('adminCloseBtn'),
-        closeMenuBtn: $('closeMenuBtn'),
-        fullscreenMenuBtn: $('fullscreenMenuBtn'),
-        reloadPlaylistBtn: $('reloadPlaylistBtn'),
-        feedbackMenuBtn: $('feedbackMenuBtn'),
-        sleepMenuBtn: $('sleepMenuBtn'),
-        qrCodeMenuBtn: $('qrCodeMenuBtn'),
-        adminSenhaGerada: $('adminSenhaGerada'),
-        adminCelular: $('adminCelular'),
-        adminEmail: $('adminEmail'),
-        logoMacaco: $('logoMacaco'),
     };
 
     // ============================================================
@@ -614,10 +1672,13 @@
     // BANNER VITALÍCIO
     // ============================================================
     function mostrarBannerVitalicio() {
-        if (state.desbloqueado || dom.bannerVitalicio.classList.contains('active')) return;
+        if (state.desbloqueado) return;
+        if (dom.bannerVitalicio.classList.contains('active')) return;
+        
         dom.bannerVitalicio.classList.add('active');
         let segundos = 20;
         dom.bannerTimer.textContent = segundos + 's';
+        
         clearInterval(state.bannerTimeout);
         state.bannerTimeout = setInterval(() => {
             segundos--;
@@ -633,6 +1694,7 @@
         setTimeout(() => {
             if (!state.desbloqueado) mostrarBannerVitalicio();
         }, 30000);
+        
         clearInterval(state.bannerInterval);
         state.bannerInterval = setInterval(() => {
             if (!state.desbloqueado) mostrarBannerVitalicio();
@@ -752,7 +1814,7 @@
     }
 
     // ============================================================
-    // TOUCH
+    // TOUCH / GESTOS
     // ============================================================
     let touchStartX = 0;
     let touchStartY = 0;
@@ -776,7 +1838,7 @@
     }, { passive: true });
 
     // ============================================================
-    // TIMER / BLOQUEIO (SEM PERSISTÊNCIA)
+    // TIMER / BLOQUEIO
     // ============================================================
     function updateTimerDisplay() {
         if (state.desbloqueado) {
@@ -813,47 +1875,24 @@
         state.desbloqueado = false;
         dom.blockOverlay.classList.add('active');
         dom.audio.pause();
-        clearInterval(state.timerInterval);
-        clearInterval(state.backgroundInterval);
+        localStorage.setItem('vdb_bloqueado_permanente', 'true');
+        localStorage.removeItem('vdb_desbloqueado');
     }
 
     function desbloquear() {
         state.desbloqueado = true;
         dom.blockOverlay.classList.remove('active');
+        localStorage.setItem('vdb_desbloqueado', 'true');
+        localStorage.removeItem('vdb_bloqueado_permanente');
+        localStorage.setItem('vdb_senha_permanente', 'true');
         dom.timerLib.textContent = '🔓 Lib';
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
-        clearInterval(state.timerInterval);
-        notif('✅ Liberado!');
     }
 
-    // Reset manual (5 toques na logo)
-    let resetClicks = 0;
-    dom.logoMacaco.addEventListener('click', function(e) {
-        e.stopPropagation();
-        resetClicks++;
-        setTimeout(() => { resetClicks = 0; }, 3000);
-        if (resetClicks >= 5) {
-            resetClicks = 0;
-            state.desbloqueado = false;
-            state.tempoRestante = TEMPO_INICIAL;
-            dom.blockOverlay.classList.remove('active');
-            dom.timerLib.textContent = fmtTempo(TEMPO_INICIAL);
-            dom.timerLib.className = 'timer-lib';
-            dom.timerLib.style.color = 'var(--neon-cyan)';
-            dom.bannerVitalicio.classList.remove('active');
-            clearInterval(state.timerInterval);
-            clearInterval(state.bannerTimeout);
-            clearInterval(state.bannerInterval);
-            startTimer();
-            iniciarBannerLoop();
-            notif('🔄 Teste reiniciado! 5 minutos.', 2000);
-        }
-    });
-
     // ============================================================
-    // ÁUDIO EM SEGUNDO PLANO
+    // AUDIO ENGINE
     // ============================================================
     function criarSilentAudio() {
         const sr = 44100;
@@ -909,23 +1948,23 @@
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             manterAudioAtivo();
-
+            
             if ('wakeLock' in navigator) {
                 try {
                     state.wakeLock = await navigator.wakeLock.request('screen');
                 } catch (e) {}
             }
-
+            
             showLoad(false);
-            dom.btnAtivarPlayer.classList.add('hidden');
-            fullscreen();
+            const btn = document.querySelector('.btn-ativar-player');
+            if (btn) btn.classList.add('hidden');
             await tocar();
         } catch (e) {
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             showLoad(false);
-            dom.btnAtivarPlayer.classList.add('hidden');
-            fullscreen();
+            const btn = document.querySelector('.btn-ativar-player');
+            if (btn) btn.classList.add('hidden');
             await tocar();
         }
     }
@@ -933,7 +1972,7 @@
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
         state.carregandoMusica = true;
-
+        
         const musica = atualizarPlaylist();
         if (!musica) {
             state.carregandoMusica = false;
@@ -1025,7 +2064,8 @@
     // LETREIRO
     // ============================================================
     function atualizarLetreiro(musica) {
-        if (state.scrollPersonalizado || !musica) return;
+        if (state.scrollPersonalizado) return;
+        if (!musica) return;
         const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵';
         dom.scrollText.textContent = texto;
         dom.scrollText.style.animation = 'none';
@@ -1042,7 +2082,7 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
-        ];
+            ];
 
         midias.forEach((m, i) => {
             let el;
@@ -1079,7 +2119,7 @@
     }
 
     // ============================================================
-    // CONTROLES
+    // SHOW CONTROLS
     // ============================================================
     function showControls() {
         dom.bottomControls.classList.add('visible');
@@ -1091,13 +2131,7 @@
 
     function fullscreen() {
         try {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) {
-                document.documentElement.msRequestFullscreen();
-            }
+            document.documentElement.requestFullscreen().catch(() => {});
         } catch (e) {}
     }
 
@@ -1245,32 +2279,6 @@
     }
 
     // ============================================================
-    // SENHA
-    // ============================================================
-    function handleLiberar() {
-        const senha = dom.senhaPermanente.value.trim();
-        if (!senha) {
-            dom.erroSenha.textContent = '⚠️ Cole a senha';
-            return;
-        }
-        if (senha === SENHA_FIXA) {
-            desbloquear();
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            notif('✅ Liberado neste dispositivo!');
-            return;
-        }
-        if (senha.split(':').length === 4 || senha.length > 20) {
-            desbloquear();
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            notif('✅ Liberado neste dispositivo!');
-            return;
-        }
-        dom.erroSenha.textContent = '❌ Senha inválida!';
-    }
-
-    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
@@ -1298,14 +2306,51 @@
             fullscreen();
         })();
 
+        const btnAtivar = document.createElement('button');
+        btnAtivar.className = 'btn-ativar-player';
+        btnAtivar.textContent = 'ATIVAR';
+        btnAtivar.onclick = async function() {
+            this.classList.add('hidden');
+            await ativarPlayer();
+            fullscreen();
+        };
+        document.body.appendChild(btnAtivar);
+
         setTimeout(() => {
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        // SEM PERSISTÊNCIA: sempre inicia com 5 minutos
+        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+            bloquear();
+            return;
+        }
+        if (localStorage.getItem('vdb_desbloqueado') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        const salvo = localStorage.getItem('vdb_tempo_restante');
+        if (salvo && parseInt(salvo) > Date.now()) {
+            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
+            startTimer();
+            return;
+        }
+        if (salvo) {
+            bloquear();
+            return;
+        }
+        localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
         state.tempoRestante = TEMPO_INICIAL;
         startTimer();
+
         iniciarBannerLoop();
     }
 
@@ -1313,11 +2358,17 @@
     // EVENTOS
     // ============================================================
 
+    // PLAY
     dom.playBtn.onclick = togglePlay;
+
+    // NEXT / PREV
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
+
+    // SHUFFLE
     dom.shuffleBtn.onclick = toggleShuffle;
 
+    // PROGRESS BAR
     dom.progressBar.onclick = (e) => {
         if (dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -1325,11 +2376,13 @@
         }
     };
 
+    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
         if (m) toggleFav(m.id);
     };
 
+    // BOTÃO ÚNICO: GÊNERO + FAVORITOS
     dom.btnGeneroFav.onclick = () => {
         if (state.modoFavoritos) {
             state.modoFavoritos = false;
@@ -1350,35 +2403,40 @@
         }
     };
 
-    dom.closeFavModal.onclick = () => dom.favModal.classList.remove('open');
-    dom.closeFavBtn.onclick = () => dom.favModal.classList.remove('open');
+    // CLOSE FAV MODAL
+    document.getElementById('closeFavModal').onclick = () => dom.favModal.classList.remove('open');
+    document.getElementById('closeFavBtn').onclick = () => dom.favModal.classList.remove('open');
 
-    dom.fabGeneros.onclick = () => {
+    // GENRES MODAL (via FAB)
+    document.getElementById('fabGeneros').onclick = () => {
         dom.genresModal.classList.add('open');
-        dom.fabSub.classList.remove('open');
+        fabSub.classList.remove('open');
         state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-    dom.closeGenresBtn.onclick = () => dom.genresModal.classList.remove('open');
 
+    // CLOSE GENRES
+    document.getElementById('closeGenresBtn').onclick = () => dom.genresModal.classList.remove('open');
+
+    // MENU
     dom.menuButton.onclick = (e) => {
         e.stopPropagation();
         dom.menuPopup.classList.toggle('open');
     };
-    dom.closeMenuBtn.onclick = () => dom.menuPopup.classList.remove('open');
-    dom.fullscreenMenuBtn.onclick = () => {
+    document.getElementById('closeMenuBtn').onclick = () => dom.menuPopup.classList.remove('open');
+    document.getElementById('fullscreenMenuBtn').onclick = () => {
         dom.menuPopup.classList.remove('open');
         fullscreen();
     };
-    dom.reloadPlaylistBtn.onclick = () => {
+    document.getElementById('reloadPlaylistBtn').onclick = () => {
         dom.menuPopup.classList.remove('open');
         location.reload();
     };
-    dom.feedbackMenuBtn.onclick = () => {
+    document.getElementById('feedbackMenuBtn').onclick = () => {
         dom.menuPopup.classList.remove('open');
         dom.feedbackModal.classList.add('open');
     };
-    dom.sleepMenuBtn.onclick = () => {
+    document.getElementById('sleepMenuBtn').onclick = () => {
         dom.menuPopup.classList.remove('open');
         const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
         if (mins > 0) {
@@ -1392,51 +2450,56 @@
             notif('⏰ Sleep: ' + mins + ' min');
         }
     };
-    dom.qrCodeMenuBtn.onclick = () => {
+    document.getElementById('qrCodeMenuBtn').onclick = () => {
         dom.menuPopup.classList.remove('open');
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
     };
 
-    dom.bannerWhatsAppBtn.onclick = () => {
+    // BANNER VITALÍCIO
+    document.getElementById('bannerWhatsAppBtn').onclick = () => {
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
     };
-    dom.bannerCloseBtn.onclick = () => {
+    document.getElementById('bannerCloseBtn').onclick = () => {
         dom.bannerVitalicio.classList.remove('active');
         clearInterval(state.bannerTimeout);
     };
 
-    dom.fabMain.onclick = () => {
+    // FAB
+    const fabMain = document.getElementById('fabMain');
+    const fabSub = document.getElementById('fabSub');
+    fabMain.onclick = () => {
         state.fabOpen = !state.fabOpen;
-        dom.fabSub.classList.toggle('open', state.fabOpen);
-        dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
+        fabSub.classList.toggle('open', state.fabOpen);
+        fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
     };
-    dom.fabYoutube.onclick = () => {
+    document.getElementById('fabYoutube').onclick = () => {
         window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
-        dom.fabSub.classList.remove('open');
+        fabSub.classList.remove('open');
         state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-    dom.fabShare.onclick = () => {
+    document.getElementById('fabShare').onclick = () => {
         navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!'));
-        dom.fabSub.classList.remove('open');
+        fabSub.classList.remove('open');
         state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-    dom.fabQrCode.onclick = () => {
+    document.getElementById('fabQrCode').onclick = () => {
         window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
-        dom.fabSub.classList.remove('open');
+        fabSub.classList.remove('open');
         state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
-    dom.fabFeedback.onclick = () => {
+    document.getElementById('fabFeedback').onclick = () => {
         dom.feedbackModal.classList.add('open');
-        dom.fabSub.classList.remove('open');
+        fabSub.classList.remove('open');
         state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
+        fabMain.innerHTML = '<i class="fas fa-plus"></i>';
     };
 
+    // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
@@ -1445,48 +2508,59 @@
             });
         };
     });
-    dom.sendFeedbackBtn.onclick = () => {
+    document.getElementById('sendFeedbackBtn').onclick = () => {
         const stars = document.querySelectorAll('.star.active').length;
         const text = document.getElementById('feedbackText').value;
         window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) + ' ' + text));
         dom.feedbackModal.classList.remove('open');
     };
-    dom.closeFeedbackBtn.onclick = () => dom.feedbackModal.classList.remove('open');
+    document.getElementById('closeFeedbackBtn').onclick = () => dom.feedbackModal.classList.remove('open');
 
-    dom.btnSenhaPermanente.onclick = handleLiberar;
-    dom.senhaPermanente.onkeydown = (e) => {
-        if (e.key === 'Enter') handleLiberar();
+    // SENHA
+    document.getElementById('btnSenhaPermanente').onclick = () => {
+        if (state.tentativas >= MAX_TENTATIVAS) {
+            document.getElementById('erroSenha').textContent = '❌ BLOQUEADO! Reinicie.';
+            document.getElementById('senhaPermanente').disabled = true;
+            document.getElementById('btnSenhaPermanente').disabled = true;
+            return;
+        }
+        const senha = document.getElementById('senhaPermanente').value.trim();
+        if (senha === SENHA_FIXA || senha.split(':').length === 4) {
+            desbloquear();
+            state.tentativas = 0;
+            document.getElementById('erroSenha').textContent = '';
+            notif('✅ Liberado!');
+        } else {
+            state.tentativas++;
+            const restam = MAX_TENTATIVAS - state.tentativas;
+            document.getElementById('erroSenha').textContent = '❌ Inválida! Restam ' + restam + ' tentativa(s)';
+        }
+    };
+    document.getElementById('senhaPermanente').onkeydown = (e) => {
+        if (e.key === 'Enter') document.getElementById('btnSenhaPermanente').click();
     };
 
-    dom.btnWhatsApp.onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
-    dom.btnPix.onclick = () => {
+    // WHATSAPP / PIX
+    document.getElementById('btnWhatsApp').onclick = () => window.open('https://wa.me/' + NUMERO_WHATSAPP);
+    document.getElementById('btnPix').onclick = () => {
         navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
     };
 
-    dom.adminGerarBtn.onclick = () => {
-        const email = dom.adminEmail.value || 'cliente@teste.com';
-        const cel = dom.adminCelular.value || '12988461978';
+    // ADMIN
+    document.getElementById('adminGerarBtn').onclick = () => {
+        const email = document.getElementById('adminEmail').value;
+        const cel = document.getElementById('adminCelular').value;
         const exp = Date.now() + 999999999999;
         const hash = btoa(email + cel + 'VDB2025Secret').slice(0, 40);
-        dom.adminSenhaGerada.value = email + ':' + cel + ':' + exp + ':' + hash;
-        notif('✅ Senha vitalícia gerada! Copie e envie para o cliente.');
+        document.getElementById('adminSenhaGerada').value = email + ':' + cel + ':' + exp + ':' + hash;
     };
-    dom.btnCopiarSenha.onclick = () => {
-        const text = dom.adminSenhaGerada.value;
-        if (text) {
-            navigator.clipboard.writeText(text).then(() => {
-                notif('📋 Senha copiada! Envie para o cliente.');
-            }).catch(() => {
-                dom.adminSenhaGerada.select();
-                document.execCommand('copy');
-                notif('📋 Senha copiada! Envie para o cliente.');
-            });
-        } else {
-            notif('⚠️ Gere uma senha primeiro!');
-        }
+    document.getElementById('btnCopiarSenha').onclick = () => {
+        const text = document.getElementById('adminSenhaGerada').value;
+        if (text) navigator.clipboard.writeText(text).then(() => notif('📋 Copiada!'));
     };
-    dom.adminCloseBtn.onclick = () => dom.adminPanel.classList.remove('open');
+    document.getElementById('adminCloseBtn').onclick = () => dom.adminPanel.classList.remove('open');
 
+    // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
         if (dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -1501,40 +2575,24 @@
         if (!state.carregandoMusica) next();
     };
 
+    // VISIBILITY
     document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            if (state.isPlaying) {
-                dom.audio.pause();
-                state.isPlaying = false;
-                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        } else {
-            if (state.isBackgroundActive && dom.audio.paused && dom.audio.src) {
-                dom.audio.play().then(() => {
-                    state.isPlaying = true;
-                    dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                }).catch(() => {
-                    if (state.playlistAtual.length) {
-                        tocar();
-                    }
-                });
-            }
-            if (state.isBackgroundActive && dom.backgroundAudio.paused) {
-                const url = URL.createObjectURL(criarSilentAudio());
-                dom.backgroundAudio.src = url;
-                dom.backgroundAudio.loop = true;
-                dom.backgroundAudio.volume = 0.001;
-                dom.backgroundAudio.play().catch(() => {});
-            }
+        if (document.visibilityState === 'visible' && state.isPlaying && state.isBackgroundActive) {
+            dom.audio.play().catch(() => {});
         }
     });
 
-    dom.btnAtivarPlayer.onclick = async function() {
-        this.classList.add('hidden');
-        await ativarPlayer();
-        fullscreen();
+    // UNLOAD
+    window.onbeforeunload = () => {
+        clearInterval(state.backgroundInterval);
+        clearInterval(state.timerInterval);
+        clearInterval(state.mediaTimer);
+        clearInterval(state.bannerInterval);
+        clearInterval(state.bannerTimeout);
+        if (state.wakeLock) state.wakeLock.release().catch(() => {});
     };
 
+    // ADMIN (5 cliques no letreiro)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
@@ -1546,6 +2604,7 @@
         }
     };
 
+    // KEYBOARD
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1554,21 +2613,17 @@
         if (e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
+    // CLICK TO SHOW CONTROLS
     document.addEventListener('click', (e) => {
         if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
     });
 
-    window.onbeforeunload = () => {
-        clearInterval(state.backgroundInterval);
-        clearInterval(state.timerInterval);
-        clearInterval(state.mediaTimer);
-        clearInterval(state.bannerInterval);
-        clearInterval(state.bannerTimeout);
-        if (state.wakeLock) state.wakeLock.release().catch(() => {});
-    };
-
+    // ============================================================
+    // INICIA
+    // ============================================================
     iniciar();
+
 })();
 </script>
 </body>
