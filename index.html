@@ -983,7 +983,7 @@
 
     <script>
         // ================================================================
-        // 🚀 VAI DE BOA! MUSIC - CÓDIGO COMPLETO FUNCIONANDO
+        // 🚀 VAI DE BOA! MUSIC - CÓDIGO COMPLETO
         // ================================================================
 
         (function() {
@@ -994,7 +994,7 @@
             // ============================================================
             const VERSAO = Date.now();
             const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
-            const TEMPO_INICIAL = 300;
+            const TEMPO_INICIAL = 300; // 5 MINUTOS
             const NUMERO_WHATSAPP = '5512988461978';
             const CHAVE_PIX = '12.988.461-978';
 
@@ -1442,9 +1442,9 @@
             }
 
             // ============================================================
-            // 🎯 ÁUDIO EM SEGUNDO PLANO - FUNCIONANDO
+            // 🎯 ÁUDIO EM SEGUNDO PLANO - FUNCIONA! (IGUAL AO CAZÉ)
             // ============================================================
-            function criarSilentAudio() {
+            function createSilentAudio() {
                 const sampleRate = 44100;
                 const duration = 5;
                 const numSamples = sampleRate * duration;
@@ -1485,50 +1485,24 @@
                 
                 state.backgroundInterval = setInterval(async () => {
                     try {
-                        // Mantém o áudio de fundo (silencioso) tocando
                         if (dom.backgroundAudio.paused && state.isBackgroundActive) {
                             await dom.backgroundAudio.play().catch(() => {});
                         }
-                        
-                        // Se a música principal parou mas deveria estar tocando, retoma
                         if (state.isPlaying && dom.audio.paused && !dom.audio.ended) {
                             await dom.audio.play().catch(() => {});
                         }
-                        
-                        // Se a música terminou, vai para a próxima
                         if (dom.audio.ended && state.isPlaying) {
                             next();
                         }
-                        
-                        // Recupera o áudio de fundo se foi interrompido
-                        if (dom.backgroundAudio.ended && state.isBackgroundActive) {
-                            const url = URL.createObjectURL(criarSilentAudio());
-                            dom.backgroundAudio.src = url;
-                            dom.backgroundAudio.loop = true;
-                            dom.backgroundAudio.volume = 0.001;
-                            await dom.backgroundAudio.play().catch(() => {});
-                        }
-                    } catch (e) {
-                        // Tenta recuperar em caso de erro
-                        if (state.isBackgroundActive) {
-                            try {
-                                const url = URL.createObjectURL(criarSilentAudio());
-                                dom.backgroundAudio.src = url;
-                                dom.backgroundAudio.loop = true;
-                                dom.backgroundAudio.volume = 0.001;
-                                await dom.backgroundAudio.play().catch(() => {});
-                            } catch (e2) {}
-                        }
-                    }
-                }, 500);
+                    } catch(e) {}
+                }, 1000);
             }
 
             async function ativarPlayer() {
                 try {
                     showLoad(true);
                     
-                    // Cria o áudio silencioso
-                    const url = URL.createObjectURL(criarSilentAudio());
+                    const url = URL.createObjectURL(createSilentAudio());
                     dom.backgroundAudio.src = url;
                     dom.backgroundAudio.loop = true;
                     dom.backgroundAudio.volume = 0.001;
@@ -1536,19 +1510,14 @@
                     
                     state.isBackgroundActive = true;
                     dom.audioStatus.classList.add('active');
-                    
-                    // Inicia a manutenção constante
                     iniciarManutencaoConstante();
-                    
-                    // Wake Lock
+
                     if ('wakeLock' in navigator) {
                         try {
                             state.wakeLock = await navigator.wakeLock.request('screen');
                             document.addEventListener('visibilitychange', async () => {
-                                if (document.visibilityState === 'visible' && !state.wakeLock) {
-                                    try {
-                                        state.wakeLock = await navigator.wakeLock.request('screen');
-                                    } catch(e) {}
+                                if (document.visibilityState === 'visible') {
+                                    try { await navigator.wakeLock.request('screen'); } catch(e) {}
                                 }
                             });
                         } catch(e) {}
@@ -2324,7 +2293,7 @@
                         });
                     }
                     if (state.isBackgroundActive && dom.backgroundAudio.paused) {
-                        const url = URL.createObjectURL(criarSilentAudio());
+                        const url = URL.createObjectURL(createSilentAudio());
                         dom.backgroundAudio.src = url;
                         dom.backgroundAudio.loop = true;
                         dom.backgroundAudio.volume = 0.001;
