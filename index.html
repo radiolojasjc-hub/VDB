@@ -24,7 +24,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== SEU CSS ORIGINAL - NÃO MEXI ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
         body{background:#000;overflow:hidden}
@@ -402,9 +401,6 @@
     <span class="btn-sub" style="display:block;font-size:0.5rem;font-weight:300;">TOQUE PARA INICIAR</span>
 </button>
 
-<!-- ============================================================ -->
-<!-- ===== SCRIPT UNIFICADO E CORRIGIDO ===== -->
-<!-- ============================================================ -->
 <script>
 (function() {
     'use strict';
@@ -414,10 +410,9 @@
     // ============================================================
     const VERSAO = Date.now();
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
-    const TEMPO_INICIAL = 300;
+    const TEMPO_INICIAL = 300; // 5 MINUTOS
     const NUMERO_WHATSAPP = '5512988461978';
     const CHAVE_PIX = '12.988.461-978';
-    const MAX_TENTATIVAS = 3;
 
     // ============================================================
     // DOM CACHE
@@ -494,6 +489,7 @@
     let state = {
         tempoRestante: TEMPO_INICIAL,
         desbloqueado: false,
+        timerIniciado: false, // SÓ INICIA QUANDO O PLAYER FOR ATIVADO
         timerInterval: null,
         backgroundInterval: null,
         wakeLock: null,
@@ -512,10 +508,10 @@
         midiaAtual: 0,
         mediaTimer: null,
         modoFavoritos: false,
-        tentativas: 0,
         scrollPersonalizado: false,
         bannerInterval: null,
         bannerTimeout: null,
+        playerAtivado: false, // FLAG PARA SABER SE O PLAYER FOI ATIVADO
     };
 
     // ============================================================
@@ -799,7 +795,7 @@
     }, { passive: true });
 
     // ============================================================
-    // TIMER / BLOQUEIO
+    // TIMER / BLOQUEIO - CORRIGIDO
     // ============================================================
     function updateTimerDisplay() {
         if (state.desbloqueado) {
@@ -807,18 +803,26 @@
             dom.timerLib.className = 'timer-lib lib';
             return;
         }
-        dom.timerLib.textContent = fmtTempo(state.tempoRestante);
-        dom.timerLib.className = 'timer-lib';
-        dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
-        if (state.tempoRestante <= 0) {
-            clearInterval(state.timerInterval);
-            bloquear();
+        // Só mostra o tempo se o timer já foi iniciado
+        if (state.timerIniciado) {
+            dom.timerLib.textContent = fmtTempo(state.tempoRestante);
+            dom.timerLib.className = 'timer-lib';
+            dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
+        } else {
+            dom.timerLib.textContent = fmtTempo(TEMPO_INICIAL);
+            dom.timerLib.className = 'timer-lib';
+            dom.timerLib.style.color = 'var(--neon-cyan)';
         }
     }
 
     function startTimer() {
+        // Só inicia o timer se o player foi ativado e não está desbloqueado
+        if (!state.playerAtivado || state.desbloqueado) return;
+        if (state.timerIniciado) return;
+
+        state.timerIniciado = true;
         clearInterval(state.timerInterval);
-        if (state.desbloqueado) return;
+        
         state.timerInterval = setInterval(() => {
             if (!state.desbloqueado) {
                 state.tempoRestante--;
@@ -836,21 +840,24 @@
         state.desbloqueado = false;
         dom.blockOverlay.classList.add('active');
         dom.audio.pause();
+        state.isPlaying = false;
+        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
         localStorage.setItem('vdb_bloqueado_permanente', 'true');
         localStorage.removeItem('vdb_desbloqueado');
         localStorage.removeItem('vdb_senha_permanente');
+        notif('⏰ Tempo de teste expirou!', 3000);
     }
 
     // ============================================================
-    // 🛠️ CORREÇÃO 1: DESBLOQUEAR COM FLAG PERMANENTE (FIX DO TIMER)
+    // DESBLOQUEAR
     // ============================================================
     function desbloquear() {
         state.desbloqueado = true;
         dom.blockOverlay.classList.remove('active');
         localStorage.setItem('vdb_desbloqueado', 'true');
         localStorage.removeItem('vdb_bloqueado_permanente');
-        localStorage.setItem('vdb_senha_permanente', 'true'); // <--- ESSENCIAL!
-        localStorage.removeItem('vdb_tempo_restante'); // Limpa o timer antigo
+        localStorage.setItem('vdb_senha_permanente', 'true');
+        localStorage.removeItem('vdb_tempo_restante');
         dom.timerLib.textContent = '🔓 Lib';
         dom.timerLib.className = 'timer-lib lib';
         dom.bannerVitalicio.classList.remove('active');
@@ -904,7 +911,13 @@
         }, 1000);
     }
 
+    // ============================================================
+    // ATIVAR PLAYER - CORRIGIDO
+    // ============================================================
     async function ativarPlayer() {
+        if (state.playerAtivado) return;
+        state.playerAtivado = true;
+
         try {
             showLoad(true);
             const url = URL.createObjectURL(criarSilentAudio());
@@ -925,6 +938,10 @@
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
             fullscreen();
+            
+            // INICIA O TIMER DE 5 MINUTOS AGORA!
+            startTimer();
+            
             await tocar();
         } catch (e) {
             state.isBackgroundActive = true;
@@ -932,6 +949,10 @@
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
             fullscreen();
+            
+            // INICIA O TIMER DE 5 MINUTOS MESMO COM ERRO!
+            startTimer();
+            
             await tocar();
         }
     }
@@ -1286,6 +1307,21 @@
         criarMidia();
         carregarFav();
 
+        // Verifica se já está desbloqueado
+        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+            // Se estava bloqueado, mostra o block overlay
+            bloquear();
+        } else if (localStorage.getItem('vdb_desbloqueado') === 'true') {
+            state.desbloqueado = true;
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+        }
+
+        // Carrega a playlist inicial
         (async () => {
             for (const g of ORDEM) {
                 const musicas = await carregarPlaylist(g);
@@ -1312,36 +1348,8 @@
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            bloquear();
-            return;
-        }
-        if (localStorage.getItem('vdb_desbloqueado') === 'true') {
-            state.desbloqueado = true;
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-        const salvo = localStorage.getItem('vdb_tempo_restante');
-        if (salvo && parseInt(salvo) > Date.now()) {
-            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
-            startTimer();
-            return;
-        }
-        if (salvo) {
-            bloquear();
-            return;
-        }
-        localStorage.setItem('vdb_tempo_restante', String(Date.now() + TEMPO_INICIAL * 1000));
-        state.tempoRestante = TEMPO_INICIAL;
-        startTimer();
-
+        // Atualiza o display do timer
+        updateTimerDisplay();
         iniciarBannerLoop();
     }
 
@@ -1552,14 +1560,10 @@
         if (!state.carregandoMusica) next();
     };
 
-    // ============================================================
-    // 🛠️ CORREÇÃO 2: REPRODUÇÃO EM SEGUNDO PLANO (SEM PAUSAR)
-    // ============================================================
-    // Removida a pausa forçada. Agora só tenta resumir quando volta.
+    // VISIBILITY CHANGE - Tenta retomar a reprodução
     document.addEventListener('visibilitychange', () => {
-        // Se a página ficou visível e a música estava tocando, tenta retomar
         if (document.visibilityState === 'visible') {
-            if (state.isBackgroundActive && dom.audio.paused && dom.audio.src) {
+            if (state.isBackgroundActive && dom.audio.paused && dom.audio.src && state.isPlaying) {
                 dom.audio.play().then(() => {
                     state.isPlaying = true;
                     dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -1569,7 +1573,6 @@
                     }
                 });
             }
-            // Garante que o áudio de fundo silencioso esteja rodando
             if (state.isBackgroundActive && dom.backgroundAudio.paused) {
                 const url = URL.createObjectURL(criarSilentAudio());
                 dom.backgroundAudio.src = url;
