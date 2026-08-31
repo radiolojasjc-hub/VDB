@@ -497,8 +497,6 @@
         LETREIRO: '🎵 VAI DE BOA! MUSIC - O MELHOR SOM DO MACACO! 🐵 | 📱 BAIXE O APP E OUÇA OFFLINE!',
         TEMPO_TESTE_SEGUNDOS: 300, // 300=5min | 21600=6h | 172800=2dias
         NUMERO_ADMIN: '12988461978',
-        BANNER_APP_TITULO: '📱 VAI DE BOA! MUSIC',
-        BANNER_APP_DESC: 'Baixe o app e ouça offline!',
     };
 
     const VERSAO = Date.now();
@@ -583,6 +581,9 @@
         sleepMenuBtn: $('sleepMenuBtn'),
         qrCodeMenuBtn: $('qrCodeMenuBtn'),
         adminEmail: $('adminEmail'),
+        // Botões de navegação
+        prevBtn: $('prevBtn'),
+        nextBtn: $('nextBtn'),
     };
 
     // ============================================================
@@ -615,6 +616,7 @@
         bannerTimeout: null,
         playerAtivado: false,
         fingerprint: '',
+        audioIniciado: false, // NOVO: controla se o áudio já foi iniciado
     };
 
     // ============================================================
@@ -737,6 +739,36 @@
     function showLoad(show) { dom.loadingOverlay.classList.toggle('active', show); }
 
     // ============================================================
+    // TELA CHEIA - CORRIGIDO
+    // ============================================================
+    function fullscreen() {
+        try {
+            const el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(() => {});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            } else if (el.msRequestFullscreen) {
+                el.msRequestFullscreen();
+            }
+            // Para iOS Safari
+            if (window.navigator && window.navigator.standalone === false) {
+                // No iOS, o app já está em tela cheia se for PWA
+            }
+        } catch(e) {}
+    }
+
+    // Força tela cheia constantemente
+    function forcarTelaCheia() {
+        fullscreen();
+        // Tenta novamente após pequenos intervalos
+        setTimeout(fullscreen, 500);
+        setTimeout(fullscreen, 1000);
+        setTimeout(fullscreen, 2000);
+        setTimeout(fullscreen, 3000);
+    }
+
+    // ============================================================
     // TIMER / BLOQUEIO
     // ============================================================
     function updateTimerDisplay() {
@@ -805,7 +837,7 @@
     }
 
     // ============================================================
-    // SENHA (CORRIGIDO)
+    // SENHA
     // ============================================================
     function gerarSenhaVitalicia() {
         const fingerprintCliente = dom.adminFingerprintInput?.value?.trim() || state.fingerprint;
@@ -825,7 +857,6 @@
         const senha = dom.senhaPermanente.value.trim();
         if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; }
 
-        // Senha fixa
         if(senha === SENHA_FIXA) {
             desbloquear();
             dom.erroSenha.textContent = '';
@@ -833,11 +864,9 @@
             return;
         }
 
-        // Senha gerada
         const partes = senha.split(':');
         if(partes.length === 4) {
             const email = partes[0] || '';
-            const admin = partes[1] || '';
             const hash = partes[3] || '';
             const fp = state.fingerprint || obterFingerprint();
             
@@ -871,7 +900,7 @@
     }
 
     // ============================================================
-    // PLAYER (funções principais)
+    // PLAYER - CORRIGIDO PARA CELULAR
     // ============================================================
     function criarSilentAudio() {
         const sr = 44100, ns = sr * 5;
@@ -889,9 +918,15 @@
         clearInterval(state.backgroundInterval);
         state.backgroundInterval = setInterval(async () => {
             try {
-                if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(()=>{});
-                if(state.isPlaying && dom.audio.paused && !dom.audio.ended) dom.audio.play().catch(()=>{});
-                if(dom.audio.ended && state.isPlaying) next();
+                if(dom.backgroundAudio.paused && state.isBackgroundActive) {
+                    dom.backgroundAudio.play().catch(() => {});
+                }
+                if(state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) {
+                    dom.audio.play().catch(() => {});
+                }
+                if(dom.audio.ended && state.isPlaying) {
+                    next();
+                }
             } catch(e) {}
         }, 1000);
     }
@@ -969,64 +1004,119 @@
                 await dom.audio.play();
                 state.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } catch(e) { next(); }
-        } else { next(); }
+            } catch(e) { 
+                // Se não tocar, tenta a próxima
+                setTimeout(next, 100);
+            }
+        } else {
+            setTimeout(next, 100);
+        }
     }
 
+    // ============================================================
+    // ATIVAR PLAYER - CORRIGIDO
+    // ============================================================
     async function ativarPlayer() {
         if(state.playerAtivado) return;
         state.playerAtivado = true;
+        state.audioIniciado = true;
+        
         try {
             showLoad(true);
+            
+            // INICIA ÁUDIO DE FUNDO (SILENCIOSO) PARA MANTER O APP ATIVO
             const url = URL.createObjectURL(criarSilentAudio());
             dom.backgroundAudio.src = url;
             dom.backgroundAudio.loop = true;
             dom.backgroundAudio.volume = 0.001;
+            
+            // TOCA O ÁUDIO DE FUNDO
             await dom.backgroundAudio.play();
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
+            
+            // MANTÉM O ÁUDIO ATIVO
             manterAudioAtivo();
-            if('wakeLock' in navigator) { try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
+            
+            // SOLICITA WAKE LOCK
+            if('wakeLock' in navigator) {
+                try {
+                    state.wakeLock = await navigator.wakeLock.request('screen');
+                } catch(e) {}
+            }
+            
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
-            fullscreen();
+            
+            // FORÇA TELA CHEIA
+            forcarTelaCheia();
+            
+            // INICIA O TIMER
             startTimer();
-            setTimeout(() => { if(!dom.bannerBaixarApp.classList.contains('active')) dom.bannerBaixarApp.classList.add('active'); }, 30000);
-            await tocar();
+            
+            // MOSTRA BANNER DO APP
+            setTimeout(() => { 
+                if(!dom.bannerBaixarApp.classList.contains('active')) {
+                    dom.bannerBaixarApp.classList.add('active'); 
+                }
+            }, 30000);
+            
+            // TOCA A PRIMEIRA MÚSICA
+            setTimeout(() => tocar(), 500);
+            
         } catch(e) {
+            console.log('Erro ao ativar player:', e);
+            // TENTA NOVAMENTE
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
-            fullscreen();
+            forcarTelaCheia();
             startTimer();
-            setTimeout(() => { if(!dom.bannerBaixarApp.classList.contains('active')) dom.bannerBaixarApp.classList.add('active'); }, 30000);
-            await tocar();
+            setTimeout(() => tocar(), 500);
         }
     }
 
     function togglePlay() {
-        if(!state.isBackgroundActive) { notif('🔊 Clique em ATIVAR!'); return; }
-        if(dom.audio.paused) { tocar(); } else { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+        if(!state.isBackgroundActive) { 
+            notif('🔊 Clique em ATIVAR!'); 
+            return; 
+        }
+        if(dom.audio.paused) { 
+            tocar(); 
+        } else { 
+            dom.audio.pause(); 
+            state.isPlaying = false; 
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
+        }
         showControls();
     }
 
-    function next() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
-    function prev() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
-    function toggleShuffle() { state.shuffleMode = !state.shuffleMode; dom.shuffleBtn.classList.toggle('active', state.shuffleMode); state.playlistAtual = shuf(state.musicas); notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq'); }
+    function next() { 
+        if(state.carregandoMusica) return; 
+        state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length; 
+        if(state.isBackgroundActive) setTimeout(tocar, 100); 
+        showControls(); 
+    }
+
+    function prev() { 
+        if(state.carregandoMusica) return; 
+        state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length; 
+        if(state.isBackgroundActive) setTimeout(tocar, 100); 
+        showControls(); 
+    }
+
+    function toggleShuffle() { 
+        state.shuffleMode = !state.shuffleMode; 
+        dom.shuffleBtn.classList.toggle('active', state.shuffleMode); 
+        state.playlistAtual = shuf(state.musicas); 
+        notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq'); 
+    }
 
     function showControls() {
         dom.bottomControls.classList.add('visible');
         clearTimeout(state.hideControlsTimeout);
         state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000);
-    }
-
-    function fullscreen() {
-        try {
-            if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-            else if(document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
-            else if(document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
-        } catch(e) {}
     }
 
     // ============================================================
@@ -1117,7 +1207,7 @@
         renderizarGeneros();
         showLoad(false);
         dom.genresModal.classList.remove('open');
-        fullscreen();
+        forcarTelaCheia();
         if(state.isBackgroundActive) setTimeout(tocar, 300);
     }
 
@@ -1145,7 +1235,7 @@
     }
 
     // ============================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAÇÃO - CORRIGIDO
     // ============================================================
     function iniciar() {
         state.fingerprint = obterFingerprint();
@@ -1156,6 +1246,7 @@
         criarMidia();
         carregarFav();
 
+        // VERIFICA BLOQUEIO
         if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) {
             bloquear();
             dom.btnAtivarPlayer.classList.add('hidden');
@@ -1167,6 +1258,10 @@
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             dom.btnAtivarPlayer.classList.add('hidden');
+            // Se já está desbloqueado, ativa o player automaticamente
+            setTimeout(() => {
+                ativarPlayer();
+            }, 1000);
         } else if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
             bloquear();
             dom.btnAtivarPlayer.classList.add('hidden');
@@ -1175,13 +1270,18 @@
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             dom.btnAtivarPlayer.classList.add('hidden');
+            setTimeout(() => {
+                ativarPlayer();
+            }, 1000);
         }
 
+        // LETREIRO
         dom.scrollText.textContent = CONFIG.LETREIRO;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
         dom.scrollText.style.animation = 'scrollText 16s linear infinite';
 
+        // CARREGA PLAYLIST
         (async () => {
             for(const g of ORDEM) {
                 const musicas = await carregarPlaylist(g);
@@ -1197,9 +1297,9 @@
                 }
             }
             renderizarGeneros();
-            fullscreen();
         })();
 
+        // MOSTRA O PLAYER
         setTimeout(() => {
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
@@ -1208,27 +1308,31 @@
         updateTimerDisplay();
         iniciarBannerLoop();
 
-        // FORÇA TELA CHEIA NO CELULAR
-        document.addEventListener('click', function fullscreenOnClick() {
-            fullscreen();
-            document.removeEventListener('click', fullscreenOnClick);
-        }, { once: true });
+        // FORÇA TELA CHEIA CONSTANTEMENTE
+        forcarTelaCheia();
         
-        // TENTA TELA CHEIA A CADA 5 SEGUNDOS ATÉ CONSEGUIR
-        let attempts = 0;
+        // TENTA TELA CHEIA A CADA 2 SEGUNDOS
         const fullscreenInterval = setInterval(() => {
             fullscreen();
-            attempts++;
-            if(attempts > 10) clearInterval(fullscreenInterval);
-        }, 3000);
+        }, 2000);
+        
+        // PARA APÓS 20 SEGUNDOS
+        setTimeout(() => {
+            clearInterval(fullscreenInterval);
+        }, 20000);
+
+        // CLICK PARA TELA CHEIA
+        document.addEventListener('click', function fsClick() {
+            fullscreen();
+        });
     }
 
     // ============================================================
     // EVENTOS
     // ============================================================
     dom.playBtn.onclick = togglePlay;
-    document.getElementById('nextBtn').onclick = next;
-    document.getElementById('prevBtn').onclick = prev;
+    dom.prevBtn.onclick = prev;
+    dom.nextBtn.onclick = next;
     dom.shuffleBtn.onclick = toggleShuffle;
 
     dom.progressBar.onclick = (e) => {
@@ -1297,7 +1401,7 @@
     // MENU
     dom.menuButton.onclick = (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); };
     dom.closeMenuBtn.onclick = () => dom.menuPopup.classList.remove('open');
-    dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); fullscreen(); };
+    dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); forcarTelaCheia(); };
     dom.reloadPlaylistBtn.onclick = () => { dom.menuPopup.classList.remove('open'); location.reload(); };
     dom.feedbackMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); dom.feedbackModal.classList.add('open'); };
     dom.sleepMenuBtn.onclick = () => {
@@ -1393,7 +1497,7 @@
         }
         this.classList.add('hidden');
         await ativarPlayer();
-        fullscreen();
+        forcarTelaCheia();
     };
 
     // ADMIN (5 cliques)
@@ -1423,17 +1527,30 @@
         showControls();
     });
 
-    // VISIBILITY
+    // VISIBILITY - CORRIGIDO
     document.addEventListener('visibilitychange', () => {
         if(document.visibilityState === 'visible') {
+            // TELA CHEIA AO VOLTAR
+            forcarTelaCheia();
+            
+            // RETOMA O ÁUDIO SE ESTIVER TOCANDO
             if(state.isBackgroundActive && dom.audio.paused && dom.audio.src && state.isPlaying) {
-                dom.audio.play().then(() => { state.isPlaying = true; dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>'; }).catch(() => { if(state.playlistAtual.length) tocar(); });
+                dom.audio.play().then(() => { 
+                    state.isPlaying = true; 
+                    dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
+                }).catch(() => { 
+                    if(state.playlistAtual.length) tocar(); 
+                });
             }
+            
+            // RETOMA O ÁUDIO DE FUNDO
             if(state.isBackgroundActive && dom.backgroundAudio.paused) {
                 const url = URL.createObjectURL(criarSilentAudio());
-                dom.backgroundAudio.src = url; dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001; dom.backgroundAudio.play().catch(()=>{});
+                dom.backgroundAudio.src = url; 
+                dom.backgroundAudio.loop = true; 
+                dom.backgroundAudio.volume = 0.001; 
+                dom.backgroundAudio.play().catch(()=>{});
             }
-            fullscreen();
         }
     });
 
