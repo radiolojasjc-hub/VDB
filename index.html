@@ -24,12 +24,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== SEU CSS ORIGINAL + MELHORIAS ===== */
+        /* ===== RESET E TELA CHEIA ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-        html,body{height:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;width:100%;top:0;left:0}
-        body{background:#000;overflow:hidden}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--texto-claro:#fff;--texto-escuro:#888}
+        html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
+        body{background:#000;overflow:hidden;position:fixed;width:100%;height:100%;top:0;left:0}
+        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
 
+        /* ===== LOADING ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
@@ -37,14 +38,17 @@
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
+        /* ===== PLAYER ===== */
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
 
-        .media-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background:#000;overflow:hidden}
+        /* ===== MEDIA ===== */
+        .media-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:#000;overflow:hidden}
         .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
+        /* ===== TOP BAR ===== */
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.8) 0%,transparent 100%);height:56px}
         .top-left{display:flex;align-items:center;gap:4px}
         .logo-macaco{height:38px;width:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
@@ -65,17 +69,20 @@
         .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
         .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
 
+        /* ===== LETREIRO ===== */
         .info-scroll{position:fixed;top:56px;left:0;right:0;z-index:30;padding:10px 16px;height:48px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-bottom:2px solid rgba(0,243,255,0.06)}
-        .info-scroll .letreiro{color:#fff;font-size:1.1rem;font-weight:900;white-space:nowrap;animation:scrollText 16s linear infinite;pointer-events:none;text-shadow:0 0 40px rgba(0,243,255,0.15), 0 2px 10px rgba(0,0,0,0.8);letter-spacing:0.5px}
+        .info-scroll .letreiro{color:#fff;font-size:1.1rem;font-weight:900;white-space:nowrap;animation:scrollText 16s linear infinite;pointer-events:none;text-shadow:0 0 40px rgba(0,243,255,0.15),0 2px 10px rgba(0,0,0,0.8);letter-spacing:0.5px}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
+        /* ===== CORAÇÃO ===== */
         .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
         .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
         .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
         .fav-heart-center .fav-heart:active{transform:scale(1.2)}
         @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
-        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+        /* ===== CONTROLES ===== */
+        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:10px 16px 18px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:0.75rem;color:#999;margin-bottom:3px;font-weight:500}
         .progress-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
@@ -89,6 +96,7 @@
         .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
         .shuffle-btn:active{transform:scale(0.9)}
 
+        /* ===== FAB ===== */
         .fab-container{position:fixed;bottom:100px;right:14px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
         .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1.2rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
         .fab-main:active{transform:scale(0.9)}
@@ -98,11 +106,13 @@
         .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 14px;border-radius:10px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
 
+        /* ===== MENU ===== */
         .menu-popup{position:fixed;top:56px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:160px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
         .menu-popup.open{display:flex}
         .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.2s}
         .menu-popup button:active{background:rgba(255,255,255,0.06)}
 
+        /* ===== MODAIS ===== */
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:16px 18px 20px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:60vh;overflow:hidden}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal h3{text-align:center;margin-bottom:10px;font-size:1.1rem;color:var(--neon-cyan);letter-spacing:1px}
@@ -139,6 +149,7 @@
         .feedback-modal .btn-feedback:active{transform:scale(0.97)}
         #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:6px;cursor:pointer;font-size:0.75rem;margin-top:2px}
 
+        /* ===== NOTIFICAÇÃO ===== */
         .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:6px 18px;border-radius:25px;font-size:0.8rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
         .notification.show{opacity:1}
 
@@ -146,7 +157,7 @@
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1s infinite}
 
-        /* ===== BANNER INCENTIVAR BAIXAR APP ===== */
+        /* ===== BANNER APP ===== */
         #bannerBaixarApp{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);border-radius:16px;padding:12px 20px;display:none;align-items:center;gap:14px;border:1px solid rgba(0,243,255,0.12);box-shadow:0 8px 40px rgba(0,0,0,0.6);max-width:90%;animation:slideUp 0.5s ease}
         #bannerBaixarApp.active{display:flex}
         #bannerBaixarApp .app-icon{width:48px;height:48px;border-radius:12px;object-fit:cover;border:2px solid rgba(0,243,255,0.1);flex-shrink:0}
@@ -156,8 +167,7 @@
         #bannerBaixarApp .btn-instalar:active{transform:scale(0.95)}
         #bannerBaixarApp .btn-fechar-banner{background:transparent;border:none;color:#555;font-size:1rem;cursor:pointer;padding:0 4px}
 
-        @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-
+        /* ===== BANNER VITALÍCIO ===== */
         #bannerVitalicio{position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;animation:bannerFadeIn 0.5s ease}
         #bannerVitalicio.active{display:flex}
         @keyframes bannerFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
@@ -178,6 +188,7 @@
         .banner-close:active{background:rgba(255,255,255,0.08)}
         .banner-timer{position:absolute;top:10px;right:14px;color:rgba(255,255,255,0.12);font-size:0.7rem;font-weight:700}
 
+        /* ===== BLOCK OVERLAY ===== */
         #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -193,33 +204,39 @@
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px 24px;border-radius:30px;color:#000;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.3s}
         #blockOverlay .btn-senha:active{transform:scale(0.96)}
         #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.75rem;min-height:16px;margin-top:2px;font-weight:600}
-        #blockOverlay .info-dispositivo{color:#555;font-size:0.65rem;margin-top:4px;word-break:break-all;max-width:250px}
+        #blockOverlay .info-dispositivo{color:#555;font-size:0.6rem;margin-top:6px;word-break:break-all;max-width:280px;background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:8px;font-family:monospace;border:1px solid rgba(255,255,255,0.03)}
 
-        /* ===== ADMIN PANEL MELHORADO ===== */
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:400px;border:2px solid var(--gold);flex-direction:column;gap:6px;color:white;box-shadow:0 0 60px rgba(255,215,0,0.05)}
+        /* ===== ADMIN PANEL ===== */
+        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:18px;z-index:99999;width:90%;max-width:400px;border:2px solid var(--gold);flex-direction:column;gap:6px;color:white;box-shadow:0 0 60px rgba(255,215,0,0.05);max-height:90vh;overflow-y:auto}
         #adminPanel.open{display:flex;animation:modalFade 0.3s ease}
-        #adminPanel h2{text-align:center;font-size:1.2rem;color:var(--gold);margin-bottom:4px}
-        #adminPanel .sub-titulo{text-align:center;font-size:0.7rem;color:#666;margin-bottom:8px}
-        #adminPanel .destaque{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:8px 10px;margin-bottom:6px}
-        #adminPanel .destaque label{font-size:0.7rem;color:#888}
-        #adminPanel .destaque .valor{color:#fff;font-weight:700;font-size:0.75rem;word-break:break-all}
+        #adminPanel h2{text-align:center;font-size:1.2rem;color:var(--gold);margin-bottom:2px}
+        #adminPanel .sub-titulo{text-align:center;font-size:0.65rem;color:#666;margin-bottom:6px}
+        #adminPanel .destaque{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:6px 10px;margin-bottom:4px}
+        #adminPanel .destaque label{font-size:0.65rem;color:#888;display:block}
+        #adminPanel .destaque .valor{color:#fff;font-weight:700;font-size:0.7rem;word-break:break-all}
+        #adminPanel .destaque input{width:100%;padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.6rem;outline:none;font-family:monospace;margin-top:2px}
+        #adminPanel .destaque input:focus{border-color:var(--gold)}
         #adminPanel input{width:100%;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.8rem;outline:none}
         #adminPanel input:focus{border-color:var(--gold)}
         .admin-row{display:flex;gap:4px}
-        .admin-row input{flex:2}
-        .admin-row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:6px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.3s}
+        .admin-row input{flex:2;font-size:0.55rem!important}
+        .admin-row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:6px;border-radius:20px;cursor:pointer;font-size:0.65rem;font-weight:600;transition:all 0.3s}
         .admin-row .btn-copiar:active{transform:scale(0.95)}
         .admin-btn{background:linear-gradient(135deg,var(--gold),#ffaa00);border:none;padding:10px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.85rem;transition:all 0.3s}
         .admin-btn:active{transform:scale(0.97)}
         .admin-btn i{color:#000}
-        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem}
-        .admin-info{font-size:0.6rem;color:#555;text-align:center;padding:2px 0}
+        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.75rem;margin-top:4px}
+        .admin-info{font-size:0.55rem;color:#555;text-align:center;padding:2px 0}
+        .admin-row-btns{display:flex;gap:4px;margin-top:4px}
+        .admin-row-btns .admin-btn{flex:1;font-size:0.7rem;padding:8px}
 
+        /* ===== BOTÃO ATIVAR ===== */
         .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.06);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:14px 32px;border-radius:35px;font-weight:700;font-size:1.1rem;z-index:99999;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 30px rgba(0,243,255,0.1);animation:glow 2s infinite;display:block;transition:all 0.3s}
         .btn-ativar-player.hidden{display:none !important}
         .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
         @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(0,243,255,0.08)}50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}}
 
+        /* ===== RESPONSIVO ===== */
         @media(max-width:480px){
             .logo-macaco{height:32px;width:32px}
             .btn-genero-fav{font-size:0.65rem;padding:3px 8px}
@@ -277,14 +294,14 @@
         </div>
         <div class="top-right">
             <span class="timer-lib" id="timerLib">5:00</span>
-            <span class="audio-status active" id="audioStatus">●</span>
+            <span class="audio-status" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton">
                 <i class="fas fa-ellipsis-v"></i>
             </button>
         </div>
     </div>
 
-    <!-- ===== LETREIRO ===== -->
+    <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! MUSIC - O MELHOR SOM DO MACACO! 🐵</p>
     </div>
@@ -296,7 +313,7 @@
         </div>
     </div>
 
-    <!-- BOTTOM CONTROLS -->
+    <!-- CONTROLES -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -336,7 +353,7 @@
     </div>
 </div>
 
-<!-- ===== BANNER INCENTIVAR BAIXAR APP ===== -->
+<!-- ===== BANNER APP ===== -->
 <div id="bannerBaixarApp">
     <img src="fa123.png" alt="VDB Music" class="app-icon">
     <div class="app-info">
@@ -392,7 +409,7 @@
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== MODALS ===== -->
+<!-- ===== MODAIS ===== -->
 <div class="fav-modal" id="favModal">
     <button class="close-fav" id="closeFavModal"><i class="fas fa-times"></i></button>
     <h3>❤️ Suas Favoritas</h3>
@@ -420,7 +437,7 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ===== ADMIN PANEL (CENTRAL DE SENHAS) ===== -->
+<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 CENTRAL DE SENHAS</h2>
     <div class="sub-titulo">📱 Gerador de senhas vitalícias</div>
@@ -430,26 +447,32 @@
         <div class="valor" id="adminCelularDisplay">📞 12988461978</div>
     </div>
     
+    <div class="destaque" style="border-color:rgba(0,243,255,0.15);">
+        <label>🆔 Fingerprint do cliente (cole aqui):</label>
+        <input type="text" id="adminFingerprintInput" placeholder="Cole o fingerprint que apareceu no celular do cliente" style="font-size:0.55rem;color:#888;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(0,243,255,0.1);border-radius:10px;padding:6px 10px;width:100%;color:#fff;font-family:monospace;">
+        <div style="font-size:0.5rem;color:#555;margin-top:2px;">📋 O fingerprint aparece na tela de bloqueio do cliente</div>
+    </div>
+    
     <div class="destaque">
-        <label>🆔 Fingerprint do cliente (copie e cole):</label>
-        <div class="valor" id="adminFingerprintDisplay" style="font-size:0.6rem;color:#888;">Aguardando...</div>
+        <label>🆔 Seu fingerprint (referência):</label>
+        <div class="valor" id="adminFingerprintDisplay" style="font-size:0.5rem;color:#888;word-break:break-all;font-family:monospace;">Aguardando...</div>
     </div>
     
     <input type="text" id="adminEmail" placeholder="Email do cliente (opcional)" value="cliente@teste.com">
     
     <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada" style="font-size:0.6rem;">
+        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada" style="font-size:0.5rem;">
         <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
     </div>
     
     <button class="admin-btn" id="adminGerarBtn">🔑 GERAR SENHA VITALÍCIA</button>
     
-    <div style="display:flex;gap:4px;margin-top:4px;">
-        <button class="admin-btn" id="adminEnviarWhatsBtn" style="flex:1;background:linear-gradient(135deg,#25d366,#128C7E);font-size:0.75rem;padding:8px;">
-            <i class="fab fa-whatsapp"></i> Enviar via WhatsApp
+    <div class="admin-row-btns">
+        <button class="admin-btn" id="adminEnviarWhatsBtn" style="background:linear-gradient(135deg,#25d366,#128C7E);">
+            <i class="fab fa-whatsapp"></i> Enviar WhatsApp
         </button>
-        <button class="admin-btn" id="adminCopiarFingerprint" style="flex:1;background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);font-size:0.75rem;padding:8px;color:var(--neon-cyan);">
-            📋 Copiar Fingerprint
+        <button class="admin-btn" id="adminCopiarFingerprint" style="background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);">
+            📋 Copiar FP
         </button>
     </div>
     
@@ -468,33 +491,22 @@
     'use strict';
 
     // ============================================================
-    // 🔧 CONFIGURAÇÕES FÁCEIS DE EDITAR
+    // 🔧 CONFIGURAÇÕES FÁCEIS
     // ============================================================
     const CONFIG = {
-        // 👇 ALTERE O TEXTO DO LETREIRO AQUI
         LETREIRO: '🎵 VAI DE BOA! MUSIC - O MELHOR SOM DO MACACO! 🐵 | 📱 BAIXE O APP E OUÇA OFFLINE!',
-        
-        // 👇 ALTERE O TEMPO DE TESTE AQUI
-        // Valores: 300 = 5 minutos | 21600 = 6 horas | 172800 = 2 dias
-        TEMPO_TESTE_SEGUNDOS: 300, // 5 MINUTOS
-        
-        // 👇 SEU NÚMERO DE WHATSAPP (CENTRAL)
-        NUMERO_ADMIN: '12988461978', // SEU CELULAR COM DDD
-        
-        // 👇 TEXTO DO BANNER DE INCENTIVO
+        TEMPO_TESTE_SEGUNDOS: 300, // 300=5min | 21600=6h | 172800=2dias
+        NUMERO_ADMIN: '12988461978',
         BANNER_APP_TITULO: '📱 VAI DE BOA! MUSIC',
         BANNER_APP_DESC: 'Baixe o app e ouça offline!',
     };
 
-    // ============================================================
-    // CONSTANTES FIXAS
-    // ============================================================
     const VERSAO = Date.now();
     const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
     const CHAVE_PIX = '12.988.461-978';
 
     // ============================================================
-    // DOM CACHE
+    // DOM
     // ============================================================
     const $ = (id) => document.getElementById(id);
     const dom = {
@@ -526,6 +538,7 @@
         feedbackModal: $('feedbackModal'),
         adminPanel: $('adminPanel'),
         adminFingerprintDisplay: $('adminFingerprintDisplay'),
+        adminFingerprintInput: $('adminFingerprintInput'),
         adminCelularDisplay: $('adminCelularDisplay'),
         adminSenhaGerada: $('adminSenhaGerada'),
         adminGerarBtn: $('adminGerarBtn'),
@@ -569,6 +582,7 @@
         feedbackMenuBtn: $('feedbackMenuBtn'),
         sleepMenuBtn: $('sleepMenuBtn'),
         qrCodeMenuBtn: $('qrCodeMenuBtn'),
+        adminEmail: $('adminEmail'),
     };
 
     // ============================================================
@@ -604,7 +618,7 @@
     };
 
     // ============================================================
-    // FINGERPRINT - IDENTIFICA DISPOSITIVO ÚNICO
+    // FINGERPRINT
     // ============================================================
     function obterFingerprint() {
         try {
@@ -615,35 +629,20 @@
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
             const memoria = navigator.deviceMemory || '';
             const nucleos = navigator.hardwareConcurrency || '';
-            
-            const fingerprint = btoa(
-                navegador + '|' + 
-                plataforma + '|' + 
-                idioma + '|' + 
-                tela + '|' + 
-                timezone + '|' + 
-                memoria + '|' + 
-                nucleos
-            ).slice(0, 64);
-            
-            return fingerprint;
+            const fp = btoa(navegador + '|' + plataforma + '|' + idioma + '|' + tela + '|' + timezone + '|' + memoria + '|' + nucleos).slice(0, 64);
+            return fp;
         } catch (e) {
             return 'fallback_' + Date.now();
         }
     }
 
-    // ============================================================
-    // VERIFICA DISPOSITIVO JÁ TESTOU
-    // ============================================================
     function dispositivoJaTestou() {
         const fp = state.fingerprint;
         if (!fp) return false;
         try {
             const testados = JSON.parse(localStorage.getItem('vdb_dispositivos_testados') || '[]');
             return testados.includes(fp);
-        } catch (e) {
-            return false;
-        }
+        } catch (e) { return false; }
     }
 
     function marcarDispositivoTestado() {
@@ -659,7 +658,7 @@
     }
 
     // ============================================================
-    // GENRES (MESMO DE ANTES)
+    // GENRES
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -722,243 +721,31 @@
     // ============================================================
     // UTILIDADES
     // ============================================================
-    function fmt(segundos) {
-        if (!segundos || isNaN(segundos)) return '0:00';
-        const m = Math.floor(segundos / 60);
-        const s = Math.floor(segundos % 60);
-        return m + ':' + (s < 10 ? '0' : '') + s;
-    }
+    function fmt(s) { if (!s || isNaN(s)) return '0:00'; const m = Math.floor(s/60); const seg = Math.floor(s%60); return m+':'+(seg<10?'0':'')+seg; }
+    function fmtTempo(s) { if (s<0) s=0; const m=Math.floor(s/60); const seg=Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(seg).padStart(2,'0'); }
+    function shuf(arr) { const x=[...arr]; for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
+    function sanitize(t) { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.textContent; }
 
-    function fmtTempo(segundos) {
-        if (segundos < 0) segundos = 0;
-        const m = Math.floor(segundos / 60);
-        const s = Math.floor(segundos % 60);
-        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-    }
-
-    function shuf(arr) {
-        const x = [...arr];
-        for (let i = x.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [x[i], x[j]] = [x[j], x[i]];
-        }
-        return x;
-    }
-
-    function sanitize(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.textContent;
-    }
-
-    // ============================================================
-    // NOTIFICAÇÕES
-    // ============================================================
-    function notif(msg, dur = 1500) {
-        if (!dom.notification) return;
+    function notif(msg, dur=1500) {
+        if(!dom.notification) return;
         dom.notification.textContent = msg;
         dom.notification.classList.add('show');
         clearTimeout(dom.notification._timeout);
-        dom.notification._timeout = setTimeout(() => {
-            dom.notification.classList.remove('show');
-        }, dur);
+        dom.notification._timeout = setTimeout(() => dom.notification.classList.remove('show'), dur);
     }
 
-    function showLoad(show) {
-        dom.loadingOverlay.classList.toggle('active', show);
-    }
-
-    // ============================================================
-    // BANNER APP
-    // ============================================================
-    function mostrarBannerApp() {
-        setTimeout(() => {
-            if (!dom.bannerBaixarApp.classList.contains('active')) {
-                dom.bannerBaixarApp.classList.add('active');
-            }
-        }, 30000);
-    }
-
-    // ============================================================
-    // BANNER VITALÍCIO
-    // ============================================================
-    function mostrarBannerVitalicio() {
-        if (state.desbloqueado) return;
-        if (dom.bannerVitalicio.classList.contains('active')) return;
-        
-        dom.bannerVitalicio.classList.add('active');
-        let segundos = 20;
-        dom.bannerTimer.textContent = segundos + 's';
-        
-        clearInterval(state.bannerTimeout);
-        state.bannerTimeout = setInterval(() => {
-            segundos--;
-            dom.bannerTimer.textContent = segundos + 's';
-            if (segundos <= 0) {
-                clearInterval(state.bannerTimeout);
-                dom.bannerVitalicio.classList.remove('active');
-            }
-        }, 1000);
-    }
-
-    function iniciarBannerLoop() {
-        setTimeout(() => {
-            if (!state.desbloqueado) mostrarBannerVitalicio();
-        }, 30000);
-        
-        clearInterval(state.bannerInterval);
-        state.bannerInterval = setInterval(() => {
-            if (!state.desbloqueado) mostrarBannerVitalicio();
-        }, 300000);
-    }
-
-    // ============================================================
-    // FAVORITOS
-    // ============================================================
-    function carregarFav() {
-        try {
-            const data = localStorage.getItem('vfav');
-            state.favorites = data ? JSON.parse(data) : [];
-            if (!Array.isArray(state.favorites)) state.favorites = [];
-        } catch (e) {
-            state.favorites = [];
-        }
-        updateFavBadge();
-    }
-
-    function salvarFav() {
-        try {
-            localStorage.setItem('vfav', JSON.stringify(state.favorites));
-            updateFavBadge();
-        } catch (e) {}
-    }
-
-    function updateFavBadge() {
-        dom.favBadge.textContent = state.favorites.length;
-    }
-
-    function updateHeart(id) {
-        if (state.favorites.includes(id)) {
-            dom.heartBtn.className = 'fav-heart active';
-            dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
-        } else {
-            dom.heartBtn.className = 'fav-heart';
-            dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>';
-        }
-    }
-
-    function toggleFav(id) {
-        if (!id) return;
-        const idx = state.favorites.indexOf(id);
-        if (idx > -1) {
-            state.favorites.splice(idx, 1);
-            notif('💔 Removido');
-        } else {
-            state.favorites.push(id);
-            notif('❤️ Adicionado');
-        }
-        salvarFav();
-        updateHeart(id);
-    }
-
-    // ============================================================
-    // PLAYLIST
-    // ============================================================
-    function getUrls(musica) {
-        const src = musica.src || '';
-        if (!src) return [];
-        if (src.startsWith('http')) return [src];
-        const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
-        const repo = REPOS[musica.genero] || 'play12';
-        const urls = [
-            'https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome + '?_=' + VERSAO
-        ];
-        TODOS_REPOS.forEach(r => {
-            if (r !== repo) {
-                urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' + nome + '?_=' + VERSAO);
-            }
-        });
-        urls.push(src + '?_=' + VERSAO);
-        return urls;
-    }
-
-    async function carregarPlaylist(genero) {
-        const url = GENRE_URLS[genero];
-        if (!url) return null;
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 15000);
-            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-            clearTimeout(timeout);
-            let data = await response.json();
-            if (!Array.isArray(data)) {
-                data = data.musicas || data.data || Object.values(data)[0];
-            }
-            const musicas = data.filter(m => m.src && m.title).map(m => ({
-                ...m,
-                id: 'g_' + Math.random().toString(36).slice(2),
-                genero: genero,
-                artist: m.artist || 'Artista'
-            }));
-            return musicas;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function atualizarPlaylist() {
-        if (!state.playlistAtual.length) return null;
-        if (state.indiceAtual >= state.playlistAtual.length) {
-            if (state.modoFavoritos) {
-                state.modoFavoritos = false;
-                state.playlistAtual = shuf(state.musicas);
-                state.indiceAtual = 0;
-                dom.generoNome.textContent = state.modoAtual;
-                dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
-                notif('🎵 Voltei para ' + state.modoAtual);
-            } else {
-                state.playlistAtual = shuf(state.musicas);
-                state.indiceAtual = 0;
-            }
-        }
-        return state.playlistAtual[state.indiceAtual];
-    }
-
-    // ============================================================
-    // TOUCH / GESTOS
-    // ============================================================
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        showControls();
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        if (dom.genresModal.classList.contains('open')) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX < 0) next();
-            else prev();
-        }
-    }, { passive: true });
+    function showLoad(show) { dom.loadingOverlay.classList.toggle('active', show); }
 
     // ============================================================
     // TIMER / BLOQUEIO
     // ============================================================
     function updateTimerDisplay() {
-        if (state.desbloqueado) {
+        if(state.desbloqueado) {
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             return;
         }
-        if (state.timerIniciado) {
+        if(state.timerIniciado) {
             dom.timerLib.textContent = fmtTempo(state.tempoRestante);
             dom.timerLib.className = 'timer-lib';
             dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
@@ -970,16 +757,14 @@
     }
 
     function startTimer() {
-        if (!state.playerAtivado || state.desbloqueado) return;
-        if (state.timerIniciado) return;
-
+        if(!state.playerAtivado || state.desbloqueado) return;
+        if(state.timerIniciado) return;
         state.timerIniciado = true;
         clearInterval(state.timerInterval);
-        
         state.timerInterval = setInterval(() => {
-            if (!state.desbloqueado) {
+            if(!state.desbloqueado) {
                 state.tempoRestante--;
-                if (state.tempoRestante <= 0) {
+                if(state.tempoRestante <= 0) {
                     clearInterval(state.timerInterval);
                     bloquear();
                 }
@@ -999,18 +784,12 @@
         localStorage.removeItem('vdb_desbloqueado');
         localStorage.removeItem('vdb_senha_permanente');
         marcarDispositivoTestado();
-        
-        // Mostra fingerprint do dispositivo na tela de bloqueio
-        if (dom.infoDispositivo) {
-            dom.infoDispositivo.textContent = '🆔 Dispositivo: ' + state.fingerprint.slice(0, 30) + '...';
+        if(dom.infoDispositivo) {
+            dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
         }
-        
         notif('⏰ Tempo de teste expirou!', 3000);
     }
 
-    // ============================================================
-    // DESBLOQUEAR
-    // ============================================================
     function desbloquear() {
         state.desbloqueado = true;
         dom.blockOverlay.classList.remove('active');
@@ -1026,31 +805,83 @@
     }
 
     // ============================================================
-    // ÁUDIO EM SEGUNDO PLANO
+    // SENHA (CORRIGIDO)
+    // ============================================================
+    function gerarSenhaVitalicia() {
+        const fingerprintCliente = dom.adminFingerprintInput?.value?.trim() || state.fingerprint;
+        if(!fingerprintCliente || fingerprintCliente.length < 10) {
+            notif('⚠️ Cole o fingerprint do cliente primeiro!');
+            return null;
+        }
+        const email = dom.adminEmail?.value || 'cliente@teste.com';
+        const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40);
+        const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash;
+        dom.adminSenhaGerada.value = senha;
+        notif('✅ Senha gerada com sucesso!');
+        return senha;
+    }
+
+    function handleLiberar() {
+        const senha = dom.senhaPermanente.value.trim();
+        if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; }
+
+        // Senha fixa
+        if(senha === SENHA_FIXA) {
+            desbloquear();
+            dom.erroSenha.textContent = '';
+            dom.senhaPermanente.value = '';
+            return;
+        }
+
+        // Senha gerada
+        const partes = senha.split(':');
+        if(partes.length === 4) {
+            const email = partes[0] || '';
+            const admin = partes[1] || '';
+            const hash = partes[3] || '';
+            const fp = state.fingerprint || obterFingerprint();
+            
+            const hashEsperado = btoa(email + fp + 'VDB2025Secret').slice(0, 40);
+            const hashEsperado2 = btoa(email + fp + 'VDB2025Secret' + CONFIG.NUMERO_ADMIN).slice(0, 40);
+            
+            if(hash === hashEsperado || hash === hashEsperado2) {
+                desbloquear();
+                dom.erroSenha.textContent = '';
+                dom.senhaPermanente.value = '';
+                return;
+            }
+        }
+
+        dom.erroSenha.textContent = '❌ Senha inválida para este dispositivo!';
+    }
+
+    // ============================================================
+    // LETREIRO
+    // ============================================================
+    function atualizarLetreiro(musica) {
+        if(state.scrollPersonalizado) return;
+        if(musica) {
+            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO;
+        } else {
+            dom.scrollText.textContent = CONFIG.LETREIRO;
+        }
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 16s linear infinite';
+    }
+
+    // ============================================================
+    // PLAYER (funções principais)
     // ============================================================
     function criarSilentAudio() {
-        const sr = 44100;
-        const ns = sr * 5;
+        const sr = 44100, ns = sr * 5;
         const buffer = new ArrayBuffer(44 + ns * 2);
         const view = new DataView(buffer);
-        const write = (offset, str) => {
-            for (let i = 0; i < str.length; i++) {
-                view.setUint8(offset + i, str.charCodeAt(i));
-            }
-        };
-        write(0, 'RIFF');
-        view.setUint32(4, 36 + ns * 2, true);
-        write(8, 'WAVE');
-        write(12, 'fmt ');
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, 1, true);
-        view.setUint32(24, sr, true);
-        view.setUint32(28, sr * 2, true);
-        view.setUint16(32, 2, true);
-        view.setUint16(34, 16, true);
-        write(36, 'data');
-        view.setUint32(40, ns * 2, true);
+        const write = (o, str) => { for(let i=0;i<str.length;i++) view.setUint8(o+i, str.charCodeAt(i)); };
+        write(0, 'RIFF'); view.setUint32(4, 36+ns*2, true); write(8, 'WAVE'); write(12, 'fmt ');
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+        view.setUint32(24, sr, true); view.setUint32(28, sr*2, true); view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true); write(36, 'data'); view.setUint32(40, ns*2, true);
         return new Blob([buffer], { type: 'audio/wav' });
     }
 
@@ -1058,26 +889,93 @@
         clearInterval(state.backgroundInterval);
         state.backgroundInterval = setInterval(async () => {
             try {
-                if (dom.backgroundAudio.paused && state.isBackgroundActive) {
-                    dom.backgroundAudio.play().catch(() => {});
-                }
-                if (state.isPlaying && dom.audio.paused && !dom.audio.ended) {
-                    dom.audio.play().catch(() => {});
-                }
-                if (dom.audio.ended && state.isPlaying) {
-                    next();
-                }
-            } catch (e) {}
+                if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(()=>{});
+                if(state.isPlaying && dom.audio.paused && !dom.audio.ended) dom.audio.play().catch(()=>{});
+                if(dom.audio.ended && state.isPlaying) next();
+            } catch(e) {}
         }, 1000);
     }
 
-    // ============================================================
-    // ATIVAR PLAYER
-    // ============================================================
-    async function ativarPlayer() {
-        if (state.playerAtivado) return;
-        state.playerAtivado = true;
+    function getUrls(musica) {
+        const src = musica.src || '';
+        if(!src) return [];
+        if(src.startsWith('http')) return [src];
+        const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
+        const repo = REPOS[musica.genero] || 'play12';
+        const urls = ['https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome + '?_=' + VERSAO];
+        TODOS_REPOS.forEach(r => { if(r !== repo) urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' + nome + '?_=' + VERSAO); });
+        urls.push(src + '?_=' + VERSAO);
+        return urls;
+    }
 
+    async function carregarPlaylist(genero) {
+        const url = GENRE_URLS[genero];
+        if(!url) return null;
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timeout);
+            let data = await response.json();
+            if(!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0];
+            return data.filter(m => m.src && m.title).map(m => ({ ...m, id: 'g_' + Math.random().toString(36).slice(2), genero: genero, artist: m.artist || 'Artista' }));
+        } catch(e) { return null; }
+    }
+
+    function atualizarPlaylist() {
+        if(!state.playlistAtual.length) return null;
+        if(state.indiceAtual >= state.playlistAtual.length) {
+            if(state.modoFavoritos) {
+                state.modoFavoritos = false;
+                state.playlistAtual = shuf(state.musicas);
+                state.indiceAtual = 0;
+                dom.generoNome.textContent = state.modoAtual;
+                dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
+                notif('🎵 Voltei para ' + state.modoAtual);
+            } else {
+                state.playlistAtual = shuf(state.musicas);
+                state.indiceAtual = 0;
+            }
+        }
+        return state.playlistAtual[state.indiceAtual];
+    }
+
+    async function tocar() {
+        if(!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
+        state.carregandoMusica = true;
+        const musica = atualizarPlaylist();
+        if(!musica) { state.carregandoMusica = false; return; }
+        atualizarLetreiro(musica);
+        updateHeart(musica.id);
+        dom.audio.pause();
+        dom.audio.src = '';
+        const urls = getUrls(musica).slice(0, 8);
+        let ok = false;
+        for(const url of urls) {
+            try {
+                const loaded = await new Promise(res => {
+                    const timeout = setTimeout(() => { dom.audio.oncanplay = null; dom.audio.onerror = null; res(false); }, 8000);
+                    dom.audio.oncanplay = () => { clearTimeout(timeout); res(true); };
+                    dom.audio.onerror = () => { clearTimeout(timeout); res(false); };
+                    dom.audio.src = url;
+                    dom.audio.load();
+                });
+                if(loaded) { ok = true; break; }
+            } catch(e) {}
+        }
+        state.carregandoMusica = false;
+        if(ok) {
+            try {
+                await dom.audio.play();
+                state.isPlaying = true;
+                dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } catch(e) { next(); }
+        } else { next(); }
+    }
+
+    async function ativarPlayer() {
+        if(state.playerAtivado) return;
+        state.playerAtivado = true;
         try {
             showLoad(true);
             const url = URL.createObjectURL(criarSilentAudio());
@@ -1088,142 +986,72 @@
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             manterAudioAtivo();
-
-            if ('wakeLock' in navigator) {
-                try {
-                    state.wakeLock = await navigator.wakeLock.request('screen');
-                } catch (e) {}
-            }
-
+            if('wakeLock' in navigator) { try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
             fullscreen();
-            
             startTimer();
-            mostrarBannerApp();
-            
+            setTimeout(() => { if(!dom.bannerBaixarApp.classList.contains('active')) dom.bannerBaixarApp.classList.add('active'); }, 30000);
             await tocar();
-        } catch (e) {
+        } catch(e) {
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             showLoad(false);
             dom.btnAtivarPlayer.classList.add('hidden');
             fullscreen();
             startTimer();
-            mostrarBannerApp();
+            setTimeout(() => { if(!dom.bannerBaixarApp.classList.contains('active')) dom.bannerBaixarApp.classList.add('active'); }, 30000);
             await tocar();
         }
     }
 
-    async function tocar() {
-        if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
-        state.carregandoMusica = true;
-
-        const musica = atualizarPlaylist();
-        if (!musica) {
-            state.carregandoMusica = false;
-            return;
-        }
-
-        atualizarLetreiro(musica);
-        updateHeart(musica.id);
-
-        dom.audio.pause();
-        dom.audio.src = '';
-        const urls = getUrls(musica).slice(0, 8);
-        let ok = false;
-
-        for (const url of urls) {
-            try {
-                const loaded = await new Promise(res => {
-                    const timeout = setTimeout(() => {
-                        dom.audio.oncanplay = null;
-                        dom.audio.onerror = null;
-                        res(false);
-                    }, 8000);
-                    dom.audio.oncanplay = () => {
-                        clearTimeout(timeout);
-                        res(true);
-                    };
-                    dom.audio.onerror = () => {
-                        clearTimeout(timeout);
-                        res(false);
-                    };
-                    dom.audio.src = url;
-                    dom.audio.load();
-                });
-                if (loaded) { ok = true; break; }
-            } catch (e) {}
-        }
-
-        state.carregandoMusica = false;
-        if (ok) {
-            try {
-                await dom.audio.play();
-                state.isPlaying = true;
-                dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } catch (e) {
-                next();
-            }
-        } else {
-            next();
-        }
-    }
-
     function togglePlay() {
-        if (!state.isBackgroundActive) {
-            notif('🔊 Clique em ATIVAR!');
-            return;
-        }
-        if (dom.audio.paused) {
-            tocar();
-        } else {
-            dom.audio.pause();
-            state.isPlaying = false;
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
+        if(!state.isBackgroundActive) { notif('🔊 Clique em ATIVAR!'); return; }
+        if(dom.audio.paused) { tocar(); } else { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; }
         showControls();
     }
 
-    function next() {
-        if (state.carregandoMusica) return;
-        state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length;
-        if (state.isBackgroundActive) setTimeout(tocar, 100);
-        showControls();
+    function next() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
+    function prev() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
+    function toggleShuffle() { state.shuffleMode = !state.shuffleMode; dom.shuffleBtn.classList.toggle('active', state.shuffleMode); state.playlistAtual = shuf(state.musicas); notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq'); }
+
+    function showControls() {
+        dom.bottomControls.classList.add('visible');
+        clearTimeout(state.hideControlsTimeout);
+        state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000);
     }
 
-    function prev() {
-        if (state.carregandoMusica) return;
-        state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length;
-        if (state.isBackgroundActive) setTimeout(tocar, 100);
-        showControls();
-    }
-
-    function toggleShuffle() {
-        state.shuffleMode = !state.shuffleMode;
-        dom.shuffleBtn.classList.toggle('active', state.shuffleMode);
-        state.playlistAtual = shuf(state.musicas);
-        notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq');
+    function fullscreen() {
+        try {
+            if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+            else if(document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+            else if(document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
+        } catch(e) {}
     }
 
     // ============================================================
-    // LETREIRO
+    // FAVORITOS
     // ============================================================
-    function atualizarLetreiro(musica) {
-        if (state.scrollPersonalizado) return;
-        if (musica) {
-            const texto = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO;
-            dom.scrollText.textContent = texto;
-        } else {
-            dom.scrollText.textContent = CONFIG.LETREIRO;
-        }
-        dom.scrollText.style.animation = 'none';
-        dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 16s linear infinite';
+    function carregarFav() {
+        try { const data = localStorage.getItem('vfav'); state.favorites = data ? JSON.parse(data) : []; if(!Array.isArray(state.favorites)) state.favorites = []; } catch(e) { state.favorites = []; }
+        updateFavBadge();
+    }
+    function salvarFav() { try { localStorage.setItem('vfav', JSON.stringify(state.favorites)); updateFavBadge(); } catch(e) {} }
+    function updateFavBadge() { dom.favBadge.textContent = state.favorites.length; }
+    function updateHeart(id) {
+        if(state.favorites.includes(id)) { dom.heartBtn.className = 'fav-heart active'; dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; }
+        else { dom.heartBtn.className = 'fav-heart'; dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>'; }
+    }
+    function toggleFav(id) {
+        if(!id) return;
+        const idx = state.favorites.indexOf(id);
+        if(idx > -1) { state.favorites.splice(idx, 1); notif('💔 Removido'); }
+        else { state.favorites.push(id); notif('❤️ Adicionado'); }
+        salvarFav(); updateHeart(id);
     }
 
     // ============================================================
-    // MEDIA CONTAINER
+    // MEDIA
     // ============================================================
     function criarMidia() {
         const midias = [
@@ -1232,66 +1060,31 @@
             { t: 'img', s: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=800&fit=crop' },
             { t: 'img', s: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&h=800&fit=crop' },
         ];
-
         midias.forEach((m, i) => {
             let el;
-            if (m.t === 'vid') {
-                el = document.createElement('video');
-                el.src = m.s;
-                el.muted = true;
-                el.playsInline = true;
-                el.loop = true;
-                el.load();
-            } else {
-                el = document.createElement('img');
-                el.src = m.s;
-                el.loading = 'lazy';
-            }
+            if(m.t === 'vid') { el = document.createElement('video'); el.src = m.s; el.muted = true; el.playsInline = true; el.loop = true; el.load(); }
+            else { el = document.createElement('img'); el.src = m.s; el.loading = 'lazy'; }
             el.className = i === 0 ? 'active' : 'inactive';
             dom.mediaContainer.appendChild(el);
-            if (i === 0 && m.t === 'vid') el.play().catch(() => {});
+            if(i === 0 && m.t === 'vid') el.play().catch(()=>{});
         });
-
         const children = dom.mediaContainer.children;
-        if (children.length > 1) {
+        if(children.length > 1) {
             state.mediaTimer = setInterval(() => {
                 const atual = children[state.midiaAtual];
                 const prox = children[(state.midiaAtual + 1) % children.length];
-                if (!atual || !prox) return;
+                if(!atual || !prox) return;
                 atual.className = 'inactive';
-                if (atual.tagName === 'VIDEO') atual.pause();
+                if(atual.tagName === 'VIDEO') atual.pause();
                 prox.className = 'active';
-                if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                if(prox.tagName === 'VIDEO') prox.play().catch(()=>{});
                 state.midiaAtual = (state.midiaAtual + 1) % children.length;
             }, 5000);
         }
     }
 
     // ============================================================
-    // SHOW CONTROLS
-    // ============================================================
-    function showControls() {
-        dom.bottomControls.classList.add('visible');
-        clearTimeout(state.hideControlsTimeout);
-        state.hideControlsTimeout = setTimeout(() => {
-            dom.bottomControls.classList.remove('visible');
-        }, 4000);
-    }
-
-    function fullscreen() {
-        try {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) {
-                document.documentElement.msRequestFullscreen();
-            }
-        } catch (e) {}
-    }
-
-    // ============================================================
-    // GENRES
+    // GENRES MODAL
     // ============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
@@ -1310,12 +1103,7 @@
         state.modoFavoritos = false;
         showLoad(true);
         const musicas = await carregarPlaylist(genero);
-        if (!musicas || !musicas.length) {
-            showLoad(false);
-            notif('❌ Erro ao carregar ' + genero);
-            dom.genresModal.classList.remove('open');
-            return;
-        }
+        if(!musicas || !musicas.length) { showLoad(false); notif('❌ Erro ao carregar ' + genero); dom.genresModal.classList.remove('open'); return; }
         dom.audio.pause();
         state.musicas = musicas;
         state.modoAtual = genero;
@@ -1324,235 +1112,87 @@
         dom.generoNome.textContent = genero;
         dom.generoNome.style.color = CORES[genero] || '#fff';
         state.scrollPersonalizado = false;
-
         const m = state.playlistAtual[0];
-        if (m) {
-            atualizarLetreiro(m);
-            updateHeart(m.id);
-        }
-
+        if(m) { atualizarLetreiro(m); updateHeart(m.id); }
         renderizarGeneros();
         showLoad(false);
         dom.genresModal.classList.remove('open');
         fullscreen();
-        if (state.isBackgroundActive) setTimeout(tocar, 300);
+        if(state.isBackgroundActive) setTimeout(tocar, 300);
     }
 
     // ============================================================
-    // FAVORITOS MODAL
+    // BANNERS
     // ============================================================
-    function renderizarFavoritos() {
-        dom.favList.innerHTML = '';
-        if (state.favorites.length === 0) {
-            dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>';
-            return;
-        }
-
-        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
-        if (favMusicas.length === 0) {
-            dom.favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>';
-            return;
-        }
-
-        favMusicas.forEach(m => {
-            const item = document.createElement('div');
-            item.className = 'fav-item';
-            item.innerHTML = `
-                <div class="fav-info">
-                    <div class="title">${sanitize(m.title)}</div>
-                    <div class="artist">${sanitize(m.artist)} • ${m.genero || 'Gênero'}</div>
-                </div>
-                <button class="remove"><i class="fas fa-times-circle"></i></button>
-            `;
-
-            item.querySelector('.fav-info').addEventListener('click', () => {
-                dom.favModal.classList.remove('open');
-                tocarFavoritaEspecifica(m.id);
-            });
-
-            item.querySelector('.remove').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFav(m.id);
-                renderizarFavoritos();
-                if (state.modoFavoritos && state.favorites.length === 0) {
-                    state.modoFavoritos = false;
-                    state.playlistAtual = shuf(state.musicas);
-                    state.indiceAtual = 0;
-                    dom.generoNome.textContent = state.modoAtual;
-                    dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
-                    if (state.isBackgroundActive) tocar();
-                    notif('🎵 Voltei para ' + state.modoAtual);
-                }
-            });
-
-            dom.favList.appendChild(item);
-        });
+    function mostrarBannerVitalicio() {
+        if(state.desbloqueado) return;
+        if(dom.bannerVitalicio.classList.contains('active')) return;
+        dom.bannerVitalicio.classList.add('active');
+        let segundos = 20;
+        dom.bannerTimer.textContent = segundos + 's';
+        clearInterval(state.bannerTimeout);
+        state.bannerTimeout = setInterval(() => {
+            segundos--;
+            dom.bannerTimer.textContent = segundos + 's';
+            if(segundos <= 0) { clearInterval(state.bannerTimeout); dom.bannerVitalicio.classList.remove('active'); }
+        }, 1000);
     }
 
-    function tocarFavoritaEspecifica(id) {
-        const musica = state.musicas.find(m => m.id === id);
-        if (!musica) return;
-        state.modoFavoritos = true;
-        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
-        if (favMusicas.length > 0) {
-            state.playlistAtual = shuf(favMusicas);
-            const idx = state.playlistAtual.findIndex(m => m.id === id);
-            if (idx > -1) {
-                state.indiceAtual = idx;
-                dom.generoNome.textContent = '❤️ FAV';
-                dom.generoNome.style.color = '#ff2d7f';
-                if (state.isBackgroundActive) tocar();
-            }
-        }
-    }
-
-    function tocarFavoritos() {
-        if (state.favorites.length === 0) {
-            notif('💔 Nenhuma favorita');
-            return;
-        }
-        state.modoFavoritos = true;
-        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
-        if (favMusicas.length === 0) {
-            notif('💔 Nenhuma favorita encontrada');
-            return;
-        }
-        state.playlistAtual = shuf(favMusicas);
-        state.indiceAtual = 0;
-        dom.generoNome.textContent = '❤️ FAV';
-        dom.generoNome.style.color = '#ff2d7f';
-        state.scrollPersonalizado = false;
-
-        const m = state.playlistAtual[0];
-        if (m) {
-            atualizarLetreiro(m);
-            updateHeart(m.id);
-        }
-        if (state.isBackgroundActive) setTimeout(tocar, 300);
-        notif('❤️ Suas favoritas!');
-        dom.favModal.classList.remove('open');
-    }
-
-    // ============================================================
-    // SENHA - CENTRAL DE SENHAS
-    // ============================================================
-    function handleLiberar() {
-        const senha = dom.senhaPermanente.value.trim();
-
-        if (!senha) {
-            dom.erroSenha.textContent = '⚠️ Cole a senha';
-            return;
-        }
-
-        // Verifica senha fixa
-        if (senha === SENHA_FIXA) {
-            desbloquear();
-            dom.erroSenha.textContent = '';
-            dom.senhaPermanente.value = '';
-            return;
-        }
-
-        // Verifica senha gerada com fingerprint
-        const partes = senha.split(':');
-        if (partes.length === 4) {
-            const hash = partes[3] || '';
-            const fp = state.fingerprint || '';
-            
-            if (hash.includes(fp.slice(0, 20))) {
-                desbloquear();
-                dom.erroSenha.textContent = '';
-                dom.senhaPermanente.value = '';
-                return;
-            }
-        }
-
-        dom.erroSenha.textContent = '❌ Senha inválida para este dispositivo!';
-    }
-
-    // ============================================================
-    // GERAR SENHA VITALÍCIA (CENTRAL)
-    // ============================================================
-    function gerarSenhaVitalicia() {
-        const email = document.getElementById('adminEmail').value || 'cliente@teste.com';
-        const fp = state.fingerprint || obterFingerprint();
-        const exp = Date.now() + 999999999999;
-        const hash = btoa(email + fp + 'VDB2025Secret' + CONFIG.NUMERO_ADMIN).slice(0, 40);
-        const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + exp + ':' + hash;
-        
-        dom.adminSenhaGerada.value = senha;
-        notif('✅ Senha gerada com sucesso!');
-        return senha;
+    function iniciarBannerLoop() {
+        setTimeout(() => { if(!state.desbloqueado) mostrarBannerVitalicio(); }, 30000);
+        clearInterval(state.bannerInterval);
+        state.bannerInterval = setInterval(() => { if(!state.desbloqueado) mostrarBannerVitalicio(); }, 300000);
     }
 
     // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
-        // Obtém fingerprint do dispositivo
         state.fingerprint = obterFingerprint();
-        
-        // Mostra fingerprint no admin
-        if (dom.adminFingerprintDisplay) {
-            dom.adminFingerprintDisplay.textContent = state.fingerprint;
-        }
-        
-        // Mostra número do admin
-        if (dom.adminCelularDisplay) {
-            dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
-        }
-        
-        // Mostra fingerprint na tela de bloqueio
-        if (dom.infoDispositivo) {
-            dom.infoDispositivo.textContent = '🆔 Dispositivo: ' + state.fingerprint.slice(0, 30) + '...';
-        }
+        if(dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
+        if(dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
+        if(dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
         
         criarMidia();
         carregarFav();
 
-        // VERIFICA SE O DISPOSITIVO JÁ TESTOU
-        if (dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) {
+        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) {
             bloquear();
             dom.btnAtivarPlayer.classList.add('hidden');
             notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000);
         }
 
-        // Verifica se já está desbloqueado
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') {
+        if(localStorage.getItem('vdb_senha_permanente') === 'true') {
             state.desbloqueado = true;
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             dom.btnAtivarPlayer.classList.add('hidden');
-        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+        } else if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
             bloquear();
             dom.btnAtivarPlayer.classList.add('hidden');
-        } else if (localStorage.getItem('vdb_desbloqueado') === 'true') {
+        } else if(localStorage.getItem('vdb_desbloqueado') === 'true') {
             state.desbloqueado = true;
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
             dom.btnAtivarPlayer.classList.add('hidden');
         }
 
-        // Aplica o letreiro da configuração
         dom.scrollText.textContent = CONFIG.LETREIRO;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
         dom.scrollText.style.animation = 'scrollText 16s linear infinite';
 
-        // Carrega a playlist inicial
         (async () => {
-            for (const g of ORDEM) {
+            for(const g of ORDEM) {
                 const musicas = await carregarPlaylist(g);
-                if (musicas && musicas.length) {
+                if(musicas && musicas.length) {
                     state.musicas = musicas;
                     state.modoAtual = g;
                     state.playlistAtual = shuf(musicas);
                     dom.generoNome.textContent = g;
                     dom.generoNome.style.color = CORES[g] || '#fff';
                     const m = state.playlistAtual[0];
-                    if (m) {
-                        atualizarLetreiro(m);
-                        updateHeart(m.id);
-                    }
+                    if(m) { atualizarLetreiro(m); updateHeart(m.id); }
                     break;
                 }
             }
@@ -1565,165 +1205,132 @@
             dom.playerContainer.classList.add('visible');
         }, 1500);
 
-        // Atualiza o display do timer
         updateTimerDisplay();
         iniciarBannerLoop();
+
+        // FORÇA TELA CHEIA NO CELULAR
+        document.addEventListener('click', function fullscreenOnClick() {
+            fullscreen();
+            document.removeEventListener('click', fullscreenOnClick);
+        }, { once: true });
+        
+        // TENTA TELA CHEIA A CADA 5 SEGUNDOS ATÉ CONSEGUIR
+        let attempts = 0;
+        const fullscreenInterval = setInterval(() => {
+            fullscreen();
+            attempts++;
+            if(attempts > 10) clearInterval(fullscreenInterval);
+        }, 3000);
     }
 
     // ============================================================
     // EVENTOS
     // ============================================================
-
-    // PLAYER
     dom.playBtn.onclick = togglePlay;
     document.getElementById('nextBtn').onclick = next;
     document.getElementById('prevBtn').onclick = prev;
     dom.shuffleBtn.onclick = toggleShuffle;
 
     dom.progressBar.onclick = (e) => {
-        if (dom.audio.duration) {
+        if(dom.audio.duration) {
             const rect = e.currentTarget.getBoundingClientRect();
             dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
         }
     };
 
-    // HEART
     dom.heartBtn.onclick = () => {
         const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
-        if (m) toggleFav(m.id);
+        if(m) toggleFav(m.id);
     };
 
-    // BOTÃO GÊNERO/FAV
     dom.btnGeneroFav.onclick = () => {
-        if (state.modoFavoritos) {
+        if(state.modoFavoritos) {
             state.modoFavoritos = false;
             state.playlistAtual = shuf(state.musicas);
             state.indiceAtual = 0;
             dom.generoNome.textContent = state.modoAtual;
             dom.generoNome.style.color = CORES[state.modoAtual] || '#fff';
             state.scrollPersonalizado = false;
-            if (state.isBackgroundActive) tocar();
+            if(state.isBackgroundActive) tocar();
             notif('🎵 Voltei para ' + state.modoAtual);
         } else {
-            if (state.favorites.length > 0) {
-                dom.favModal.classList.add('open');
-                renderizarFavoritos();
-            } else {
-                dom.genresModal.classList.add('open');
-            }
+            if(state.favorites.length > 0) { dom.favModal.classList.add('open'); renderizarFavoritos(); }
+            else { dom.genresModal.classList.add('open'); }
         }
     };
 
-    // FAV MODAL
+    // FAVORITOS
+    function renderizarFavoritos() {
+        dom.favList.innerHTML = '';
+        if(state.favorites.length === 0) { dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>'; return; }
+        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
+        if(favMusicas.length === 0) { dom.favList.innerHTML = '<div class="fav-empty">💔 Músicas não encontradas</div>'; return; }
+        favMusicas.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'fav-item';
+            item.innerHTML = `<div class="fav-info"><div class="title">${sanitize(m.title)}</div><div class="artist">${sanitize(m.artist)} • ${m.genero||'Gênero'}</div></div><button class="remove"><i class="fas fa-times-circle"></i></button>`;
+            item.querySelector('.fav-info').onclick = () => { dom.favModal.classList.remove('open'); tocarFavoritaEspecifica(m.id); };
+            item.querySelector('.remove').onclick = (e) => { e.stopPropagation(); toggleFav(m.id); renderizarFavoritos(); if(state.modoFavoritos && state.favorites.length===0){ state.modoFavoritos=false; state.playlistAtual=shuf(state.musicas); state.indiceAtual=0; dom.generoNome.textContent=state.modoAtual; dom.generoNome.style.color=CORES[state.modoAtual]||'#fff'; if(state.isBackgroundActive) tocar(); notif('🎵 Voltei para '+state.modoAtual); } };
+            dom.favList.appendChild(item);
+        });
+    }
+
+    function tocarFavoritaEspecifica(id) {
+        const musica = state.musicas.find(m => m.id === id);
+        if(!musica) return;
+        state.modoFavoritos = true;
+        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
+        if(favMusicas.length > 0) {
+            state.playlistAtual = shuf(favMusicas);
+            const idx = state.playlistAtual.findIndex(m => m.id === id);
+            if(idx > -1) { state.indiceAtual = idx; dom.generoNome.textContent = '❤️ FAV'; dom.generoNome.style.color = '#ff2d7f'; if(state.isBackgroundActive) tocar(); }
+        }
+    }
+
     dom.closeFavModal.onclick = () => dom.favModal.classList.remove('open');
     dom.closeFavBtn.onclick = () => dom.favModal.classList.remove('open');
 
     // GENRES
-    dom.fabGeneros.onclick = () => {
-        dom.genresModal.classList.add('open');
-        dom.fabSub.classList.remove('open');
-        state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-    };
+    dom.fabGeneros.onclick = () => { dom.genresModal.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
     dom.closeGenresBtn.onclick = () => dom.genresModal.classList.remove('open');
 
     // MENU
-    dom.menuButton.onclick = (e) => {
-        e.stopPropagation();
-        dom.menuPopup.classList.toggle('open');
-    };
+    dom.menuButton.onclick = (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); };
     dom.closeMenuBtn.onclick = () => dom.menuPopup.classList.remove('open');
-    dom.fullscreenMenuBtn.onclick = () => {
-        dom.menuPopup.classList.remove('open');
-        fullscreen();
-    };
-    dom.reloadPlaylistBtn.onclick = () => {
-        dom.menuPopup.classList.remove('open');
-        location.reload();
-    };
-    dom.feedbackMenuBtn.onclick = () => {
-        dom.menuPopup.classList.remove('open');
-        dom.feedbackModal.classList.add('open');
-    };
+    dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); fullscreen(); };
+    dom.reloadPlaylistBtn.onclick = () => { dom.menuPopup.classList.remove('open'); location.reload(); };
+    dom.feedbackMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); dom.feedbackModal.classList.add('open'); };
     dom.sleepMenuBtn.onclick = () => {
         dom.menuPopup.classList.remove('open');
         const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
-        if (mins > 0) {
+        if(mins > 0) {
             clearTimeout(state.sleepTimer);
-            state.sleepTimer = setTimeout(() => {
-                dom.audio.pause();
-                state.isPlaying = false;
-                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                notif('💤 Rádio desligada!');
-            }, mins * 60000);
+            state.sleepTimer = setTimeout(() => { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; notif('💤 Rádio desligada!'); }, mins * 60000);
             notif('⏰ Sleep: ' + mins + ' min');
         }
     };
-    dom.qrCodeMenuBtn.onclick = () => {
-        dom.menuPopup.classList.remove('open');
-        window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
-    };
+    dom.qrCodeMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href)); };
 
     // BANNER APP
-    dom.btnInstalarApp.onclick = () => {
-        if (window.navigator && window.navigator.standalone === false) {
-            notif('📱 Adicione à tela inicial!', 3000);
-        }
-        window.open('https://support.google.com/chrome/answer/9658361', '_blank');
-    };
-    dom.btnFecharBannerApp.onclick = () => {
-        dom.bannerBaixarApp.classList.remove('active');
-    };
+    dom.btnInstalarApp.onclick = () => { if(window.navigator && window.navigator.standalone === false) notif('📱 Adicione à tela inicial!', 3000); window.open('https://support.google.com/chrome/answer/9658361', '_blank'); };
+    dom.btnFecharBannerApp.onclick = () => dom.bannerBaixarApp.classList.remove('active');
 
     // BANNER VITALÍCIO
-    dom.bannerWhatsAppBtn.onclick = () => {
-        window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90');
-        dom.bannerVitalicio.classList.remove('active');
-        clearInterval(state.bannerTimeout);
-    };
-    dom.bannerCloseBtn.onclick = () => {
-        dom.bannerVitalicio.classList.remove('active');
-        clearInterval(state.bannerTimeout);
-    };
+    dom.bannerWhatsAppBtn.onclick = () => { window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=Quero%20ser%20VITAL%C3%8DCIO%20do%20VAI%20DE%20BOA%20MUSIC%20-%20R$%2039,90'); dom.bannerVitalicio.classList.remove('active'); clearInterval(state.bannerTimeout); };
+    dom.bannerCloseBtn.onclick = () => { dom.bannerVitalicio.classList.remove('active'); clearInterval(state.bannerTimeout); };
 
     // FAB
-    dom.fabMain.onclick = () => {
-        state.fabOpen = !state.fabOpen;
-        dom.fabSub.classList.toggle('open', state.fabOpen);
-        dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
-    };
-    dom.fabYoutube.onclick = () => {
-        window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
-        dom.fabSub.classList.remove('open');
-        state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-    };
-    dom.fabShare.onclick = () => {
-        navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!'));
-        dom.fabSub.classList.remove('open');
-        state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-    };
-    dom.fabQrCode.onclick = () => {
-        window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href));
-        dom.fabSub.classList.remove('open');
-        state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-    };
-    dom.fabFeedback.onclick = () => {
-        dom.feedbackModal.classList.add('open');
-        dom.fabSub.classList.remove('open');
-        state.fabOpen = false;
-        dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-    };
+    dom.fabMain.onclick = () => { state.fabOpen = !state.fabOpen; dom.fabSub.classList.toggle('open', state.fabOpen); dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; };
+    dom.fabYoutube.onclick = () => { window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio'); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
+    dom.fabShare.onclick = () => { navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!')); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
+    dom.fabQrCode.onclick = () => { window.open('https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href)); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
+    dom.fabFeedback.onclick = () => { dom.feedbackModal.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
 
     // FEEDBACK
     document.querySelectorAll('.star').forEach(star => {
         star.onclick = () => {
             const rating = parseInt(star.dataset.rating);
-            document.querySelectorAll('.star').forEach((s, i) => {
-                s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
-            });
+            document.querySelectorAll('.star').forEach((s, i) => { s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star'; });
         };
     });
     dom.sendFeedbackBtn.onclick = () => {
@@ -1736,111 +1343,50 @@
 
     // SENHA
     dom.btnSenhaPermanente.onclick = handleLiberar;
-    dom.senhaPermanente.onkeydown = (e) => {
-        if (e.key === 'Enter') handleLiberar();
-    };
+    dom.senhaPermanente.onkeydown = (e) => { if(e.key === 'Enter') handleLiberar(); };
 
     // WHATSAPP / PIX
     dom.btnWhatsApp.onclick = () => window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN);
-    dom.btnPix.onclick = () => {
-        navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!'));
-    };
+    dom.btnPix.onclick = () => { navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!')); };
 
-    // ===== ADMIN PANEL (CENTRAL) =====
-    dom.adminGerarBtn.onclick = () => {
-        gerarSenhaVitalicia();
-    };
-    
+    // ADMIN
+    dom.adminGerarBtn.onclick = () => gerarSenhaVitalicia();
     dom.adminEnviarWhatsBtn.onclick = () => {
         const senha = dom.adminSenhaGerada.value;
-        if (!senha) {
-            notif('⚠️ Gere uma senha primeiro!');
-            return;
-        }
-        const mensagem = '🔑 *SENHA VITALÍCIA VAI DE BOA! MUSIC*%0A%0A' +
-                         '📱 Copie e cole a senha abaixo no app:%0A%0A' +
-                         '```' + senha + '```%0A%0A' +
-                         '✅ Acesso permanente liberado!%0A' +
-                         '🎵 Aproveite todas as músicas!';
-        window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + mensagem);
+        if(!senha) { notif('⚠️ Gere uma senha primeiro!'); return; }
+        const mensagem = '🔑 *SENHA VITALÍCIA VAI DE BOA! MUSIC*%0A%0A📱 Copie e cole a senha abaixo no app:%0A%0A`' + senha + '`%0A%0A✅ Acesso permanente liberado!%0A🎵 Aproveite todas as músicas!';
+        window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + mensagem, '_blank');
     };
-    
     dom.adminCopiarFingerprint.onclick = () => {
         const fp = state.fingerprint;
-        if (fp) {
-            navigator.clipboard.writeText(fp).then(() => {
-                notif('📋 Fingerprint copiado!');
-            }).catch(() => {
-                const input = document.createElement('input');
-                input.value = fp;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                input.remove();
-                notif('📋 Fingerprint copiado!');
-            });
+        if(fp) {
+            navigator.clipboard.writeText(fp).then(() => notif('📋 Fingerprint copiado!'))
+            .catch(() => { const input = document.createElement('input'); input.value = fp; document.body.appendChild(input); input.select(); document.execCommand('copy'); input.remove(); notif('📋 Fingerprint copiado!'); });
         }
     };
-    
     dom.btnCopiarSenha.onclick = () => {
         const text = dom.adminSenhaGerada.value;
-        if (text) {
-            navigator.clipboard.writeText(text).then(() => {
-                notif('📋 Senha copiada! Envie para o cliente.');
-            }).catch(() => {
-                const input = dom.adminSenhaGerada;
-                input.select();
-                document.execCommand('copy');
-                notif('📋 Senha copiada! Envie para o cliente.');
-            });
-        } else {
-            notif('⚠️ Gere uma senha primeiro!');
-        }
+        if(text) {
+            navigator.clipboard.writeText(text).then(() => notif('📋 Senha copiada!'))
+            .catch(() => { dom.adminSenhaGerada.select(); document.execCommand('copy'); notif('📋 Senha copiada!'); });
+        } else { notif('⚠️ Gere uma senha primeiro!'); }
     };
-    
     dom.adminCloseBtn.onclick = () => dom.adminPanel.classList.remove('open');
 
     // AUDIO EVENTS
     dom.audio.ontimeupdate = () => {
-        if (dom.audio.duration) {
+        if(dom.audio.duration) {
             dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
             dom.currentTime.textContent = fmt(dom.audio.currentTime);
             dom.totalTime.textContent = fmt(dom.audio.duration);
         }
     };
-    dom.audio.onended = () => {
-        if (!state.carregandoMusica) next();
-    };
-    dom.audio.onerror = () => {
-        if (!state.carregandoMusica) next();
-    };
-
-    // VISIBILITY CHANGE
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            if (state.isBackgroundActive && dom.audio.paused && dom.audio.src && state.isPlaying) {
-                dom.audio.play().then(() => {
-                    state.isPlaying = true;
-                    dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                }).catch(() => {
-                    if (state.playlistAtual.length) {
-                        tocar();
-                    }
-                });
-            }
-            if (state.isBackgroundActive && dom.backgroundAudio.paused) {
-                const url = URL.createObjectURL(criarSilentAudio());
-                dom.backgroundAudio.src = url;
-                dom.backgroundAudio.loop = true;
-                dom.backgroundAudio.volume = 0.001;
-                dom.backgroundAudio.play().catch(() => {});
-            }
-        }
-    });
+    dom.audio.onended = () => { if(!state.carregandoMusica) next(); };
+    dom.audio.onerror = () => { if(!state.carregandoMusica) next(); };
 
     // BOTÃO ATIVAR
     dom.btnAtivarPlayer.onclick = async function() {
-        if (dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) {
+        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) {
             bloquear();
             notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000);
             return;
@@ -1850,31 +1396,45 @@
         fullscreen();
     };
 
-    // ADMIN (5 cliques no letreiro)
+    // ADMIN (5 cliques)
     let adminClicks = 0;
     dom.infoScroll.onclick = () => {
         adminClicks++;
         setTimeout(() => adminClicks = 0, 2000);
-        if (adminClicks >= 5) {
+        if(adminClicks >= 5) {
             adminClicks = 0;
             dom.adminPanel.classList.toggle('open');
             notif('🔐 CENTRAL DE SENHAS!');
         }
     };
 
-    // KEYBOARD
+    // TECLAS
     document.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT') return;
-        if (e.key === ' ') { e.preventDefault(); togglePlay(); }
-        if (e.key === 'ArrowRight') next();
-        if (e.key === 'ArrowLeft') prev();
-        if (e.key === 's' || e.key === 'S') toggleShuffle();
+        if(e.target.tagName === 'INPUT') return;
+        if(e.key === ' ') { e.preventDefault(); togglePlay(); }
+        if(e.key === 'ArrowRight') next();
+        if(e.key === 'ArrowLeft') prev();
+        if(e.key === 's' || e.key === 'S') toggleShuffle();
     });
 
-    // CLICK TO SHOW CONTROLS
+    // CLICK PARA MOSTRAR CONTROLES
     document.addEventListener('click', (e) => {
-        if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
+        if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('#infoScroll')) return;
         showControls();
+    });
+
+    // VISIBILITY
+    document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible') {
+            if(state.isBackgroundActive && dom.audio.paused && dom.audio.src && state.isPlaying) {
+                dom.audio.play().then(() => { state.isPlaying = true; dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>'; }).catch(() => { if(state.playlistAtual.length) tocar(); });
+            }
+            if(state.isBackgroundActive && dom.backgroundAudio.paused) {
+                const url = URL.createObjectURL(criarSilentAudio());
+                dom.backgroundAudio.src = url; dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001; dom.backgroundAudio.play().catch(()=>{});
+            }
+            fullscreen();
+        }
     });
 
     // CLEANUP
@@ -1884,7 +1444,7 @@
         clearInterval(state.mediaTimer);
         clearInterval(state.bannerInterval);
         clearInterval(state.bannerTimeout);
-        if (state.wakeLock) state.wakeLock.release().catch(() => {});
+        if(state.wakeLock) state.wakeLock.release().catch(()=>{});
     };
 
     // ============================================================
