@@ -455,7 +455,7 @@
 <button class="btn-ativar-player" id="btnAtivarPlayer">▶ ATIVAR <span class="btn-sub" style="display:block;font-size:0.4rem;font-weight:300;">TOQUE PARA INICIAR</span></button>
 
 <!-- ============================================================ -->
-<!-- ===== SCRIPT COMPLETO (CORRIGIDO) ===== -->
+<!-- ===== SCRIPT COMPLETO ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -799,26 +799,26 @@
     }
 
     // ============================================================
-    // SENHA - SEM SENHA FIXA
+    // SENHA - SEM SENHA FIXA (APENAS UNIVERSAL E POR DISPOSITIVO)
     // ============================================================
     function gerarSenhaVitalicia(universal = false) {
         const email = dom.adminEmail?.value || 'cliente@teste.com';
         if (universal) {
             const timestamp = Date.now();
             const senha = 'UNIV:' + email + ':' + timestamp;
-            dom.adminSenhaGerada.value = senha;
+            dom.adminSenhaGerada.value = senha; // <-- APENAS A SENHA, SEM FRASE
             notif('✅ Senha universal gerada! Funciona em qualquer dispositivo.');
             return senha;
         } else {
-            // ===== CORREÇÃO: SÓ GERA SE TIVER FINGERPRINT DO CLIENTE =====
             const fingerprintCliente = dom.adminFingerprintInput?.value?.trim();
             if(!fingerprintCliente || fingerprintCliente.length < 10) { 
                 notif('⚠️ Cole o fingerprint do cliente primeiro!'); 
+                dom.adminSenhaGerada.value = ''; // limpa o campo
                 return null; 
             }
             const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40);
             const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash;
-            dom.adminSenhaGerada.value = senha;
+            dom.adminSenhaGerada.value = senha; // <-- APENAS A SENHA, SEM FRASE
             notif('✅ Senha por dispositivo gerada! Funciona apenas neste dispositivo.');
             return senha;
         }
@@ -828,9 +828,9 @@
         const senha = dom.senhaPermanente.value.trim(); 
         if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; } 
         
-        // ===== SENHA FIXA REMOVIDA =====
+        // SENHA FIXA REMOVIDA – NÃO EXISTE MAIS
         
-        // ===== SENHA UNIVERSAL =====
+        // SENHA UNIVERSAL
         if(senha.startsWith('UNIV:')) {
             const partes = senha.split(':');
             if(partes.length === 3) {
@@ -841,7 +841,7 @@
             }
         }
         
-        // ===== SENHA POR DISPOSITIVO =====
+        // SENHA POR DISPOSITIVO
         const partes = senha.split(':'); 
         if(partes.length === 4) { 
             const email = partes[0] || ''; 
@@ -1133,6 +1133,13 @@
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
+        // ===== FORÇA TELA DE BLOQUEIO SE JÁ EXPIRADO =====
+        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+            bloquear();
+            dom.btnAtivarPlayer.classList.add('hidden');
+            return;
+        }
+
         state.fingerprint = obterFingerprint();
         if(dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
         if(dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
