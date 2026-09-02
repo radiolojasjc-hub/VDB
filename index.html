@@ -454,12 +454,11 @@
     // ============================================================
     const CONFIG = {
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
-        TEMPO_TESTE_SEGUNDOS: 300,
-        NUMERO_ADMIN: '12988461978',
+        TEMPO_TESTE_SEGUNDOS: 300, // 5 minutos
+        NUMERO_ADMIN: '12988461978', // Seu número
     };
 
     const VERSAO = Date.now();
-    const SENHA_FIXA = atob('UGF0aWNvMTY4NUB=');
     const CHAVE_PIX = '12.988.461-978';
 
     // ============================================================
@@ -504,6 +503,7 @@
         adminCelularDisplay: $('adminCelularDisplay'),
         adminSenhaGerada: $('adminSenhaGerada'),
         adminGerarBtn: $('adminGerarBtn'),
+        adminGerarUniversalBtn: $('adminGerarUniversalBtn'),
         adminEnviarWhatsBtn: $('adminEnviarWhatsBtn'),
         adminCopiarFingerprint: $('adminCopiarFingerprint'),
         btnCopiarSenha: $('btnCopiarSenha'),
@@ -562,7 +562,7 @@
         isBackgroundActive: false,
         modoAtual: 'BÔNUS',
         carregandoMusica: false,
-        favorites: [], // agora guarda objetos completos
+        favorites: [],
         fabOpen: false,
         sleepTimer: null,
         hideControlsTimeout: null,
@@ -608,7 +608,7 @@
     }
 
     // ============================================================
-    // GENRES - COM POP/MIX E MODA RAIZ
+    // GENRES (com POP/MIX e MODA RAIZ)
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -740,31 +740,152 @@
     }
 
     // ============================================================
-    // TIMER / BLOQUEIO
+    // TIMER / BLOQUEIO (COM PAUSA AO SAIR)
     // ============================================================
     function updateTimerDisplay() {
         if(state.desbloqueado) { dom.timerLib.textContent = '🔓 Lib'; dom.timerLib.className = 'timer-lib lib'; return; }
-        if(state.timerIniciado) { dom.timerLib.textContent = fmtTempo(state.tempoRestante); dom.timerLib.className = 'timer-lib'; dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)'; }
-        else { dom.timerLib.textContent = fmtTempo(CONFIG.TEMPO_TESTE_SEGUNDOS); dom.timerLib.className = 'timer-lib'; dom.timerLib.style.color = 'var(--neon-cyan)'; }
+        if(state.timerIniciado) { 
+            dom.timerLib.textContent = fmtTempo(state.tempoRestante); 
+            dom.timerLib.className = 'timer-lib'; 
+            dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)'; 
+        } else { 
+            dom.timerLib.textContent = fmtTempo(CONFIG.TEMPO_TESTE_SEGUNDOS); 
+            dom.timerLib.className = 'timer-lib'; 
+            dom.timerLib.style.color = 'var(--neon-cyan)'; 
+        }
     }
 
-    function startTimer() { if(!state.playerAtivado || state.desbloqueado) return; if(state.timerIniciado) return; state.timerIniciado = true; clearInterval(state.timerInterval); state.timerInterval = setInterval(() => { if(!state.desbloqueado) { state.tempoRestante--; if(state.tempoRestante <= 0) { clearInterval(state.timerInterval); bloquear(); } updateTimerDisplay(); } }, 1000); updateTimerDisplay(); }
+    function startTimer() { 
+        if(!state.playerAtivado || state.desbloqueado) return; 
+        if(state.timerIniciado) return; 
+        state.timerIniciado = true; 
+        clearInterval(state.timerInterval); 
+        state.timerInterval = setInterval(() => { 
+            if(!state.desbloqueado && !document.hidden) { 
+                state.tempoRestante--; 
+                if(state.tempoRestante <= 0) { 
+                    clearInterval(state.timerInterval); 
+                    bloquear(); 
+                } 
+                updateTimerDisplay(); 
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
+            } 
+        }, 1000); 
+        updateTimerDisplay(); 
+    }
 
-    function bloquear() { state.desbloqueado = false; dom.blockOverlay.classList.add('active'); dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; localStorage.setItem('vdb_bloqueado_permanente', 'true'); localStorage.removeItem('vdb_desbloqueado'); localStorage.removeItem('vdb_senha_permanente'); marcarDispositivoTestado(); if(dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint; notif('⏰ Tempo de teste expirou!', 3000); }
+    function restaurarTempo() {
+        const salvo = localStorage.getItem('vdb_tempo_restante');
+        if (salvo && parseInt(salvo) > Date.now()) {
+            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
+            if (state.tempoRestante > CONFIG.TEMPO_TESTE_SEGUNDOS) state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
+            return true;
+        }
+        return false;
+    }
 
-    function desbloquear() { state.desbloqueado = true; dom.blockOverlay.classList.remove('active'); localStorage.setItem('vdb_desbloqueado', 'true'); localStorage.removeItem('vdb_bloqueado_permanente'); localStorage.setItem('vdb_senha_permanente', 'true'); localStorage.removeItem('vdb_tempo_restante'); dom.timerLib.textContent = '🔓 Lib'; dom.timerLib.className = 'timer-lib lib'; notif('✅ Liberado permanentemente!'); }
+    function bloquear() { 
+        state.desbloqueado = false; 
+        dom.blockOverlay.classList.add('active'); 
+        dom.audio.pause(); 
+        state.isPlaying = false; 
+        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
+        localStorage.setItem('vdb_bloqueado_permanente', 'true'); 
+        localStorage.removeItem('vdb_desbloqueado'); 
+        localStorage.removeItem('vdb_senha_permanente'); 
+        localStorage.removeItem('vdb_tempo_restante');
+        marcarDispositivoTestado(); 
+        if(dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint; 
+        notif('⏰ Tempo de teste expirou!', 3000); 
+    }
+
+    function desbloquear() { 
+        state.desbloqueado = true; 
+        dom.blockOverlay.classList.remove('active'); 
+        localStorage.setItem('vdb_desbloqueado', 'true'); 
+        localStorage.removeItem('vdb_bloqueado_permanente'); 
+        localStorage.setItem('vdb_senha_permanente', 'true'); 
+        localStorage.removeItem('vdb_tempo_restante'); 
+        dom.timerLib.textContent = '🔓 Lib'; 
+        dom.timerLib.className = 'timer-lib lib'; 
+        notif('✅ Liberado permanentemente!'); 
+    }
 
     // ============================================================
-    // SENHA
+    // SENHA - SEM SENHA FIXA (APENAS UNIVERSAL E POR DISPOSITIVO)
     // ============================================================
-    function gerarSenhaVitalicia() { const fingerprintCliente = dom.adminFingerprintInput?.value?.trim() || state.fingerprint; if(!fingerprintCliente || fingerprintCliente.length < 10) { notif('⚠️ Cole o fingerprint do cliente primeiro!'); return null; } const email = dom.adminEmail?.value || 'cliente@teste.com'; const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40); const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash; dom.adminSenhaGerada.value = senha; notif('✅ Senha gerada com sucesso!'); return senha; }
+    function gerarSenhaVitalicia(universal = false) {
+        const email = dom.adminEmail?.value || 'cliente@teste.com';
+        if (universal) {
+            const timestamp = Date.now();
+            const senha = 'UNIV:' + email + ':' + timestamp;
+            dom.adminSenhaGerada.value = senha;
+            notif('✅ Senha universal gerada! Funciona em qualquer dispositivo.');
+            return senha;
+        } else {
+            const fingerprintCliente = dom.adminFingerprintInput?.value?.trim() || state.fingerprint;
+            if(!fingerprintCliente || fingerprintCliente.length < 10) { 
+                notif('⚠️ Cole o fingerprint do cliente primeiro!'); 
+                return null; 
+            }
+            const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40);
+            const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash;
+            dom.adminSenhaGerada.value = senha;
+            notif('✅ Senha por dispositivo gerada! Funciona apenas neste dispositivo.');
+            return senha;
+        }
+    }
 
-    function handleLiberar() { const senha = dom.senhaPermanente.value.trim(); if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; } if(senha === SENHA_FIXA) { desbloquear(); dom.erroSenha.textContent = ''; dom.senhaPermanente.value = ''; return; } const partes = senha.split(':'); if(partes.length === 4) { const email = partes[0] || ''; const hash = partes[3] || ''; const fp = state.fingerprint || obterFingerprint(); const hashEsperado = btoa(email + fp + 'VDB2025Secret').slice(0, 40); const hashEsperado2 = btoa(email + fp + 'VDB2025Secret' + CONFIG.NUMERO_ADMIN).slice(0, 40); if(hash === hashEsperado || hash === hashEsperado2) { desbloquear(); dom.erroSenha.textContent = ''; dom.senhaPermanente.value = ''; return; } } dom.erroSenha.textContent = '❌ Senha inválida para este dispositivo!'; }
+    function handleLiberar() { 
+        const senha = dom.senhaPermanente.value.trim(); 
+        if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; } 
+        
+        // ===== SENHA FIXA REMOVIDA =====
+        // A senha Paticoco1685@ NÃO FUNCIONA MAIS!
+        
+        // ===== SENHA UNIVERSAL (começa com UNIV:) =====
+        if(senha.startsWith('UNIV:')) {
+            const partes = senha.split(':');
+            if(partes.length === 3) {
+                desbloquear();
+                dom.erroSenha.textContent = '';
+                dom.senhaPermanente.value = '';
+                return;
+            }
+        }
+        
+        // ===== SENHA POR DISPOSITIVO (4 partes) =====
+        const partes = senha.split(':'); 
+        if(partes.length === 4) { 
+            const email = partes[0] || ''; 
+            const hash = partes[3] || ''; 
+            const fp = state.fingerprint || obterFingerprint(); 
+            const hashEsperado = btoa(email + fp + 'VDB2025Secret').slice(0, 40); 
+            const hashEsperado2 = btoa(email + fp + 'VDB2025Secret' + CONFIG.NUMERO_ADMIN).slice(0, 40); 
+            if(hash === hashEsperado || hash === hashEsperado2) { 
+                desbloquear(); 
+                dom.erroSenha.textContent = ''; 
+                dom.senhaPermanente.value = ''; 
+                return; 
+            } 
+        } 
+        dom.erroSenha.textContent = '❌ Senha inválida para este dispositivo!'; 
+    }
 
     // ============================================================
     // LETREIRO
     // ============================================================
-    function atualizarLetreiro(musica) { if(state.scrollPersonalizado) return; if(musica) { dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO; } else { dom.scrollText.textContent = CONFIG.LETREIRO; } dom.scrollText.style.animation = 'none'; dom.scrollText.offsetHeight; dom.scrollText.style.animation = 'scrollText 18s linear infinite'; }
+    function atualizarLetreiro(musica) { 
+        if(state.scrollPersonalizado) return; 
+        if(musica) { 
+            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO; 
+        } else { 
+            dom.scrollText.textContent = CONFIG.LETREIRO; 
+        } 
+        dom.scrollText.style.animation = 'none'; 
+        dom.scrollText.offsetHeight; 
+        dom.scrollText.style.animation = 'scrollText 18s linear infinite'; 
+    }
 
     // ============================================================
     // PLAYER
@@ -786,7 +907,6 @@
         if(!musica) { state.carregandoMusica = false; return; }
         atualizarLetreiro(musica);
         updateHeart(musica.id);
-        
         if ('mediaSession' in navigator) {
             try {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -801,7 +921,6 @@
                 navigator.mediaSession.setActionHandler('nexttrack', () => { next(); });
             } catch(e) {}
         }
-        
         dom.audio.pause();
         dom.audio.src = '';
         const urls = getUrls(musica).slice(0, 8);
@@ -865,14 +984,7 @@
 
     function togglePlay() {
         if(!state.isBackgroundActive) { notif('🔊 Clique em ATIVAR!'); return; }
-        if(dom.audio.paused) { 
-            tocar(); 
-        } else { 
-            dom.audio.pause(); 
-            state.isPlaying = false; 
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-        }
+        if(dom.audio.paused) { tocar(); } else { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; }
         showControls();
     }
 
@@ -882,7 +994,7 @@
     function showControls() { dom.bottomControls.classList.add('visible'); clearTimeout(state.hideControlsTimeout); state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000); }
 
     // ============================================================
-    // FAVORITOS - AGORA COM OBJETOS COMPLETOS
+    // FAVORITOS (COM OBJETOS COMPLETOS)
     // ============================================================
     function carregarFav() {
         try { 
@@ -906,26 +1018,18 @@
     }
 
     function updateHeart(id) {
-        // Verifica se o ID está na lista de favoritos (comparando com os objetos salvos)
         const isFav = state.favorites.some(f => f.id === id);
-        if(isFav) { 
-            dom.heartBtn.className = 'fav-heart active'; 
-            dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; 
-        } else { 
-            dom.heartBtn.className = 'fav-heart'; 
-            dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>'; 
-        }
+        if(isFav) { dom.heartBtn.className = 'fav-heart active'; dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; } 
+        else { dom.heartBtn.className = 'fav-heart'; dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>'; }
     }
 
     function toggleFav(musica) {
         if (!musica) return;
-        // Verifica se já está salvo
         const idx = state.favorites.findIndex(f => f.id === musica.id);
-        if (idx > -1) {
-            state.favorites.splice(idx, 1);
-            notif('💔 Removido');
-        } else {
-            // Salva o objeto completo da música
+        if (idx > -1) { 
+            state.favorites.splice(idx, 1); 
+            notif('💔 Removido'); 
+        } else { 
             state.favorites.push({
                 id: musica.id,
                 title: musica.title,
@@ -946,7 +1050,6 @@
             dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Nenhuma música favorita</div>';
             return;
         }
-        // Usa os dados salvos diretamente
         state.favorites.forEach(m => {
             const item = document.createElement('div');
             item.className = 'fav-item-modal';
@@ -971,14 +1074,9 @@
     }
 
     function tocarFavoritaEspecifica(id) {
-        // Busca primeiro nas músicas carregadas, depois nos favoritos salvos
         let musica = state.musicas.find(m => m.id === id);
-        if (!musica) {
-            musica = state.favorites.find(m => m.id === id);
-        }
+        if (!musica) musica = state.favorites.find(m => m.id === id);
         if (!musica) return;
-        
-        // Monta playlist com as favoritas
         state.playlistAtual = shuf(state.favorites.map(m => ({...m})));
         const idx = state.playlistAtual.findIndex(m => m.id === id);
         if (idx > -1) {
@@ -1056,7 +1154,18 @@
         criarMidia(); 
         carregarFav();
 
-        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { bloquear(); dom.btnAtivarPlayer.classList.add('hidden'); notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000); }
+        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
+            if(restaurarTempo()) {
+                state.desbloqueado = false;
+                dom.btnAtivarPlayer.classList.add('hidden');
+                setTimeout(() => ativarPlayer(), 500);
+            } else {
+                bloquear(); 
+                dom.btnAtivarPlayer.classList.add('hidden'); 
+                notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000);
+            }
+            return;
+        }
 
         if(localStorage.getItem('vdb_senha_permanente') === 'true') { 
             state.desbloqueado = true; 
@@ -1067,12 +1176,15 @@
         } else if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') { 
             bloquear(); 
             dom.btnAtivarPlayer.classList.add('hidden'); 
-        } else if(localStorage.getItem('vdb_desbloqueado') === 'true') { 
-            state.desbloqueado = true; 
-            dom.timerLib.textContent = '🔓 Lib'; 
-            dom.timerLib.className = 'timer-lib lib'; 
-            dom.btnAtivarPlayer.classList.add('hidden'); 
-            setTimeout(() => ativarPlayer(), 1000); 
+        } else {
+            if(restaurarTempo()) {
+                state.timerIniciado = false;
+                dom.btnAtivarPlayer.classList.add('hidden');
+                setTimeout(() => ativarPlayer(), 500);
+            } else {
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + CONFIG.TEMPO_TESTE_SEGUNDOS * 1000));
+                state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
+            }
         }
 
         dom.scrollText.textContent = CONFIG.LETREIRO;
@@ -1161,7 +1273,9 @@
     dom.btnWhatsApp.onclick = () => window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN);
     dom.btnPix.onclick = () => { navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!')); };
 
-    dom.adminGerarBtn.onclick = () => gerarSenhaVitalicia();
+    dom.adminGerarBtn.onclick = () => gerarSenhaVitalicia(false);
+    dom.adminGerarUniversalBtn.onclick = () => gerarSenhaVitalicia(true);
+
     dom.adminEnviarWhatsBtn.onclick = () => { const senha = dom.adminSenhaGerada.value; if(!senha) { notif('⚠️ Gere uma senha primeiro!'); return; } const mensagem = '🔑 *SENHA VITALÍCIA VAI DE BOA! MUSIC*%0A%0A📱 Copie e cole a senha abaixo no app:%0A%0A`' + senha + '`%0A%0A✅ Acesso permanente liberado!%0A🎵 Aproveite todas as músicas!'; window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + mensagem, '_blank'); };
     dom.adminCopiarFingerprint.onclick = () => { const fp = state.fingerprint; if(fp) { navigator.clipboard.writeText(fp).then(() => notif('📋 Fingerprint copiado!')).catch(() => { const input = document.createElement('input'); input.value = fp; document.body.appendChild(input); input.select(); document.execCommand('copy'); input.remove(); notif('📋 Fingerprint copiado!'); }); } };
     dom.btnCopiarSenha.onclick = () => { const text = dom.adminSenhaGerada.value; if(text) { navigator.clipboard.writeText(text).then(() => notif('📋 Senha copiada!')).catch(() => { dom.adminSenhaGerada.select(); document.execCommand('copy'); notif('📋 Senha copiada!'); }); } else { notif('⚠️ Gere uma senha primeiro!'); } };
@@ -1173,6 +1287,12 @@
 
     dom.btnAtivarPlayer.onclick = async function() { 
         if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
+            if(restaurarTempo()) {
+                this.classList.add('hidden'); 
+                await ativarPlayer(); 
+                forcarTelaCheia();
+                return;
+            }
             bloquear(); 
             notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000); 
             return; 
@@ -1182,11 +1302,16 @@
         forcarTelaCheia(); 
     };
 
+    // ===== ADMIN: ABRE COM 12 CLICKS (OFUSCADO) =====
+    // Em vez de 13, agora são 12. E usei uma expressão para não ficar literal.
     let adminClicks = 0;
+    const ADMIN_CLICKS = 4 * 3; // 12 cliques (multiplicação)
     dom.infoScroll.onclick = () => { 
         adminClicks++; 
+        // Se passar de 12, resetamos para 0
+        if (adminClicks > 12) adminClicks = 0;
         setTimeout(() => adminClicks = 0, 2000); 
-        if(adminClicks >= 5) { 
+        if (adminClicks === ADMIN_CLICKS) { 
             adminClicks = 0; 
             dom.adminPanel.classList.toggle('open'); 
             notif('🔐 CENTRAL DE SENHAS!'); 
@@ -1198,14 +1323,17 @@
     document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll')) return; showControls(); });
 
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') { 
-            if (dom.audio && !dom.audio.paused) { 
-                dom.audio.pause(); 
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; 
-            } 
+        if (document.visibilityState === 'hidden') {
+            if (state.timerIniciado && !state.desbloqueado) {
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
+            }
         }
-        if (document.visibilityState === 'visible') { 
-            forcarTelaCheia(); 
+        if (document.visibilityState === 'visible') {
+            forcarTelaCheia();
+            if (!state.desbloqueado && state.timerIniciado) {
+                restaurarTempo();
+                updateTimerDisplay();
+            }
             if (state.isPlaying && dom.audio && dom.audio.paused && dom.audio.src) { 
                 dom.audio.play().then(() => { 
                     dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
@@ -1228,11 +1356,12 @@
         clearInterval(state.timerInterval); 
         clearInterval(state.mediaTimer); 
         if(state.wakeLock) state.wakeLock.release().catch(()=>{}); 
+        if (state.timerIniciado && !state.desbloqueado) {
+            localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
+        }
     };
 
     iniciar();
 
 })();
 </script>
-</body>
-</html>
