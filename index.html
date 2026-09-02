@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC!</title>
+    <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -172,7 +172,7 @@
         .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
         .qr-content .qr-btn-close:active{transform:scale(0.97)}
 
-        /* ===== BOTÃO COPIAR FINGERPRINT NA TELA DE BLOQUEIO ===== */
+        /* ===== BLOQUEIO COM BOTÃO COPIAR ===== */
         .info-dispositivo-wrapper {
             display: flex;
             align-items: center;
@@ -298,8 +298,6 @@
 <!-- ===== PLAYER ===== -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
-
-    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
             <img src="fa123r.png" alt="VDB Music" class="logo-macaco">
@@ -316,18 +314,12 @@
             <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
         </div>
     </div>
-
-    <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵</p>
     </div>
-
-    <!-- CORAÇÃO FAVORITO -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
     </div>
-
-    <!-- CONTROLES INFERIORES -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -343,8 +335,6 @@
             <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
-
-    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -355,8 +345,6 @@
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
-
-    <!-- MENU -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -398,7 +386,6 @@
     <input type="text" class="senha-input" id="senhaPermanente" placeholder="Cole a senha vitalícia" autocomplete="off">
     <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
-    <!-- FINGERPRINT COM BOTÃO COPIAR -->
     <div class="info-dispositivo-wrapper">
         <span class="info-dispositivo" id="infoDispositivo">🆔 Aguardando...</span>
         <button class="btn-copiar-fingerprint" id="btnCopiarFingerprintBlock">📋 Copiar</button>
@@ -498,7 +485,7 @@
 <button class="btn-ativar-player" id="btnAtivarPlayer">▶ ATIVAR <span class="btn-sub" style="display:block;font-size:0.4rem;font-weight:300;">TOQUE PARA INICIAR</span></button>
 
 <!-- ============================================================ -->
-<!-- ===== SCRIPT COMPLETO ===== -->
+<!-- ===== SCRIPT COMPLETO CORRIGIDO ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -904,6 +891,25 @@
     }
 
     // ============================================================
+    // COPIAR FINGERPRINT
+    // ============================================================
+    function copiarFingerprint() {
+        const fp = state.fingerprint || obterFingerprint();
+        if (!fp) { notif('⚠️ Fingerprint não disponível'); return; }
+        navigator.clipboard.writeText(fp).then(() => {
+            notif('📋 Fingerprint copiado!');
+        }).catch(() => {
+            const input = document.createElement('input');
+            input.value = fp;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            input.remove();
+            notif('📋 Fingerprint copiado!');
+        });
+    }
+
+    // ============================================================
     // LETREIRO
     // ============================================================
     function atualizarLetreiro(musica) { 
@@ -1174,51 +1180,41 @@
     function fecharChoiceMenu() { dom.choiceMenu.classList.remove('open'); }
 
     // ============================================================
-    // COPIAR FINGERPRINT
-    // ============================================================
-    function copiarFingerprint() {
-        const fp = state.fingerprint || obterFingerprint();
-        if (!fp) { notif('⚠️ Fingerprint não disponível'); return; }
-        navigator.clipboard.writeText(fp).then(() => {
-            notif('📋 Fingerprint copiado!');
-        }).catch(() => {
-            // Fallback
-            const input = document.createElement('input');
-            input.value = fp;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            input.remove();
-            notif('📋 Fingerprint copiado!');
-        });
-    }
-
-    // ============================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAÇÃO (CORRIGIDA)
     // ============================================================
     function iniciar() {
-        // ===== FORÇA TELA DE BLOQUEIO SE JÁ EXPIRADO =====
+        // ===== 1. FORÇA TELA DE BLOQUEIO SE JÁ EXPIRADO =====
         if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            bloquear();
+            state.desbloqueado = false;
+            dom.blockOverlay.classList.add('active');
+            dom.audio.pause();
+            state.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
             dom.btnAtivarPlayer.classList.add('hidden');
+            state.fingerprint = obterFingerprint();
+            if (dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
+            if (dom.btnCopiarFingerprintBlock) {
+                dom.btnCopiarFingerprintBlock.onclick = copiarFingerprint;
+            }
+            notif('⏰ Teste expirado! Cole sua senha vitalícia.', 4000);
             return;
         }
 
+        // ===== 2. RESTANTE DA INICIALIZAÇÃO =====
         state.fingerprint = obterFingerprint();
-        if(dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
-        if(dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
-        if(dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
+        if (dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
+        if (dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
+        if (dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
         
-        // Botão copiar fingerprint na tela de bloqueio
-        if(dom.btnCopiarFingerprintBlock) {
+        if (dom.btnCopiarFingerprintBlock) {
             dom.btnCopiarFingerprintBlock.onclick = copiarFingerprint;
         }
 
         criarMidia(); 
         carregarFav();
 
-        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
-            if(restaurarTempo()) {
+        if (dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
+            if (restaurarTempo()) {
                 state.desbloqueado = false;
                 dom.btnAtivarPlayer.classList.add('hidden');
                 setTimeout(() => ativarPlayer(), 500);
@@ -1230,17 +1226,19 @@
             return;
         }
 
-        if(localStorage.getItem('vdb_senha_permanente') === 'true') { 
+        if (localStorage.getItem('vdb_senha_permanente') === 'true') { 
             state.desbloqueado = true; 
             dom.timerLib.textContent = '🔓 Lib'; 
             dom.timerLib.className = 'timer-lib lib'; 
             dom.btnAtivarPlayer.classList.add('hidden'); 
             setTimeout(() => ativarPlayer(), 1000); 
-        } else if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') { 
+        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') { 
+            // Fallback (já foi tratado no primeiro if, mas mantido por segurança)
             bloquear(); 
             dom.btnAtivarPlayer.classList.add('hidden'); 
+            return;
         } else {
-            if(restaurarTempo()) {
+            if (restaurarTempo()) {
                 state.timerIniciado = false;
                 dom.btnAtivarPlayer.classList.add('hidden');
                 setTimeout(() => ativarPlayer(), 500);
@@ -1367,9 +1365,9 @@
 
     // ===== ADMIN: 5 CLICKS SEM NOTIFICAÇÃO (OFUSCADO) =====
     (function(){
-        var c = 0;                 // contador
-        var m = 2 + 3;             // 5 cliques
-        var t = 3000;              // reset em 3 segundos
+        var c = 0;
+        var m = 2 + 3;
+        var t = 3000;
         var action = function(){
             c++;
             setTimeout(function(){ c = 0; }, t);
