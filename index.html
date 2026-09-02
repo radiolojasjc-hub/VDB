@@ -42,14 +42,13 @@
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
         
-        /* ===== TOP BAR - agora com logo e botão alinhados à esquerda ===== */
+        /* ===== TOP BAR ===== */
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);height:50px}
         
         .top-left{display:flex;align-items:center;gap:8px}
         .logo-macaco{height:34px;width:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
         .logo-macaco:active{transform:scale(0.92)}
         
-        /* Botão gêneros/favoritos agora fica ao lado do logo */
         .btn-genero-fav{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:30px;padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:34px;text-shadow:0 2px 10px rgba(0,0,0,0.4)}
         .btn-genero-fav:active{transform:scale(0.95);background:rgba(255,255,255,0.08)}
         .btn-genero-fav .genero-nome{font-size:0.8rem;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;background:linear-gradient(135deg,#fff 30%,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:none;font-family:'Segoe UI',Roboto,sans-serif}
@@ -265,7 +264,6 @@
     <div class="top-bar">
         <div class="top-left">
             <img src="fa123r.png" alt="VDB Music" class="logo-macaco">
-            <!-- Botão gêneros/favoritos agora ao lado do logo -->
             <button class="btn-genero-fav" id="btnGeneroFav">
                 <span class="genero-nome" id="generoNome">BÔNUS</span>
                 <span class="separador">|</span>
@@ -338,8 +336,7 @@
     </div>
 </div>
 
-<!-- BANNER VITALÍCIO REMOVIDO -->
-<!-- BANNER DE INSTALAÇÃO REMOVIDO -->
+<!-- BANNERS REMOVIDOS -->
 
 <!-- BLOCK OVERLAY -->
 <div id="blockOverlay">
@@ -386,7 +383,7 @@
     <h3>🎯 O QUE VOCÊ QUER?</h3>
     <button class="choice-btn" id="choiceGenres">
         <span><i class="fas fa-guitar"></i> GÊNEROS</span>
-        <span class="info-text">17 estilos</span>
+        <span class="info-text">18 estilos</span>
     </button>
     <button class="choice-btn" id="choiceFavorites">
         <span><i class="fas fa-heart" style="color:var(--neon-pink);"></i> FAVORITAS</span>
@@ -565,7 +562,7 @@
         isBackgroundActive: false,
         modoAtual: 'BÔNUS',
         carregandoMusica: false,
-        favorites: [],
+        favorites: [], // agora guarda objetos completos
         fabOpen: false,
         sleepTimer: null,
         hideControlsTimeout: null,
@@ -611,7 +608,7 @@
     }
 
     // ============================================================
-    // GENRES (com ROCK adicionado)
+    // GENRES - COM POP/MIX E MODA RAIZ
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
@@ -619,13 +616,13 @@
         'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
         'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
         'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
-        'POP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
+        'POP/MIX': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
         'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
         'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
         'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
         'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
         'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
-        'MODA TOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
+        'MODA RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
         'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
         'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
         'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
@@ -635,25 +632,59 @@
     };
 
     const CORES = {
-        'BÔNUS': '#ffd700', 'FLASHBACK': '#ffaa00', 'RELIGIOSA': '#aa55ff',
-        'ROMÂNTICA': '#ff2d7f', 'MPB': '#00ff88', 'POP': '#ff3366',
-        'SERTANEJO': '#ff8800', 'FORRÓ': '#ff8800', 'SAMBA': '#ffdd00',
-        'BREGA': '#ff66aa', 'REGGAE': '#00ffaa', 'MODA TOP': '#ff4400',
-        'FANK': '#ff3366', 'TESTE MIDIA': '#ffd700', 'MODÃO SERTANEJO': '#ff8c00',
-        'CHORINHO': '#1e90ff', 'FORRÓ RAIZ': '#ff6a00', 'ROCK': '#ff3366',
+        'BÔNUS': '#ffd700',
+        'FLASHBACK': '#ffaa00',
+        'RELIGIOSA': '#aa55ff',
+        'ROMÂNTICA': '#ff2d7f',
+        'MPB': '#00ff88',
+        'POP/MIX': '#ff3366',
+        'SERTANEJO': '#ff8800',
+        'FORRÓ': '#ff8800',
+        'SAMBA': '#ffdd00',
+        'BREGA': '#ff66aa',
+        'REGGAE': '#00ffaa',
+        'MODA RAIZ': '#ff4400',
+        'FANK': '#ff3366',
+        'TESTE MIDIA': '#ffd700',
+        'MODÃO SERTANEJO': '#ff8c00',
+        'CHORINHO': '#1e90ff',
+        'FORRÓ RAIZ': '#ff6a00',
+        'ROCK': '#ff3366',
     };
 
-    const ORDEM = ['BÔNUS','MPB','POP','SERTANEJO','FORRÓ','FORRÓ RAIZ','SAMBA','BREGA','REGGAE','MODA TOP','RELIGIOSA','ROMÂNTICA','FLASHBACK','FANK','TESTE MIDIA','MODÃO SERTANEJO','CHORINHO','ROCK'];
+    const ORDEM = [
+        'BÔNUS', 'MPB', 'POP/MIX', 'SERTANEJO', 'FORRÓ', 'FORRÓ RAIZ',
+        'SAMBA', 'BREGA', 'REGGAE', 'MODA RAIZ', 'RELIGIOSA', 'ROMÂNTICA',
+        'FLASHBACK', 'FANK', 'TESTE MIDIA', 'MODÃO SERTANEJO', 'CHORINHO', 'ROCK'
+    ];
 
     const REPOS = {
-        'BÔNUS':'play12','MPB':'mpbtop','POP':'poptop','SERTANEJO':'sertanejo',
-        'FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop',
-        'MODA TOP':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop',
-        'FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias',
-        'MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock',
+        'BÔNUS': 'play12',
+        'MPB': 'mpbtop',
+        'POP/MIX': 'poptop',
+        'SERTANEJO': 'sertanejo',
+        'FORRÓ': 'forrodez',
+        'SAMBA': 'sambatop',
+        'BREGA': 'bregatop',
+        'REGGAE': 'reggaetop',
+        'MODA RAIZ': 'modatop',
+        'RELIGIOSA': 'religiosa',
+        'ROMÂNTICA': 'romanticatop',
+        'FLASHBACK': 'flashbacktop',
+        'FANK': 'fank',
+        'TESTE MIDIA': 'testemidias',
+        'MODÃO SERTANEJO': 'modasertaneja',
+        'CHORINHO': 'chorinho',
+        'FORRÓ RAIZ': 'forroraiz',
+        'ROCK': 'rock',
     };
 
-    const TODOS_REPOS = ['play12','mpbtop','poptop','sertanejo','forrodez','forroraiz','sambatop','bregatop','reggaetop','modatop','religiosa','romanticatop','flashbacktop','fank','testemidias','modasertaneja','chorinho','rock'];
+    const TODOS_REPOS = [
+        'play12', 'mpbtop', 'poptop', 'sertanejo', 'forrodez', 'sambatop',
+        'bregatop', 'reggaetop', 'modatop', 'religiosa', 'romanticatop',
+        'flashbacktop', 'fank', 'testemidias', 'modasertaneja', 'chorinho',
+        'forroraiz', 'rock'
+    ];
 
     // ============================================================
     // UTILIDADES
@@ -851,7 +882,7 @@
     function showControls() { dom.bottomControls.classList.add('visible'); clearTimeout(state.hideControlsTimeout); state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000); }
 
     // ============================================================
-    // FAVORITOS
+    // FAVORITOS - AGORA COM OBJETOS COMPLETOS
     // ============================================================
     function carregarFav() {
         try { 
@@ -875,7 +906,9 @@
     }
 
     function updateHeart(id) {
-        if(state.favorites.includes(id)) { 
+        // Verifica se o ID está na lista de favoritos (comparando com os objetos salvos)
+        const isFav = state.favorites.some(f => f.id === id);
+        if(isFav) { 
             dom.heartBtn.className = 'fav-heart active'; 
             dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; 
         } else { 
@@ -884,18 +917,26 @@
         }
     }
 
-    function toggleFav(id) {
-        if(!id) return;
-        const idx = state.favorites.indexOf(id);
-        if(idx > -1) { 
-            state.favorites.splice(idx, 1); 
-            notif('💔 Removido'); 
-        } else { 
-            state.favorites.push(id); 
-            notif('❤️ Adicionado'); 
+    function toggleFav(musica) {
+        if (!musica) return;
+        // Verifica se já está salvo
+        const idx = state.favorites.findIndex(f => f.id === musica.id);
+        if (idx > -1) {
+            state.favorites.splice(idx, 1);
+            notif('💔 Removido');
+        } else {
+            // Salva o objeto completo da música
+            state.favorites.push({
+                id: musica.id,
+                title: musica.title,
+                artist: musica.artist,
+                src: musica.src,
+                genero: musica.genero
+            });
+            notif('❤️ Adicionado');
         }
-        salvarFav(); 
-        updateHeart(id);
+        salvarFav();
+        updateHeart(musica.id);
     }
 
     function renderizarFavoritosModal() {
@@ -905,12 +946,8 @@
             dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Nenhuma música favorita</div>';
             return;
         }
-        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
-        if(favMusicas.length === 0) {
-            dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Músicas favoritas não encontradas</div>';
-            return;
-        }
-        favMusicas.forEach(m => {
+        // Usa os dados salvos diretamente
+        state.favorites.forEach(m => {
             const item = document.createElement('div');
             item.className = 'fav-item-modal';
             item.innerHTML = `
@@ -926,7 +963,7 @@
             };
             item.querySelector('.remove-fav').onclick = (e) => { 
                 e.stopPropagation(); 
-                toggleFav(m.id); 
+                toggleFav(m); 
                 renderizarFavoritosModal(); 
             };
             dom.favListModal.appendChild(item);
@@ -934,22 +971,25 @@
     }
 
     function tocarFavoritaEspecifica(id) {
-        const musica = state.musicas.find(m => m.id === id);
-        if(!musica) return;
-        const favMusicas = state.musicas.filter(m => state.favorites.includes(m.id));
-        if(favMusicas.length > 0) {
-            state.playlistAtual = shuf(favMusicas);
-            const idx = state.playlistAtual.findIndex(m => m.id === id);
-            if(idx > -1) {
-                state.indiceAtual = idx;
-                dom.generoNome.textContent = '❤️ FAV';
-                dom.generoNome.style.background = 'linear-gradient(135deg, #ff2d7f, #ff0066)';
-                dom.generoNome.style.webkitBackgroundClip = 'text';
-                dom.generoNome.style.webkitTextFillColor = 'transparent';
-                dom.generoNome.style.backgroundClip = 'text';
-                if(state.isBackgroundActive) tocar();
-                notif('🎵 Tocando favorita!');
-            }
+        // Busca primeiro nas músicas carregadas, depois nos favoritos salvos
+        let musica = state.musicas.find(m => m.id === id);
+        if (!musica) {
+            musica = state.favorites.find(m => m.id === id);
+        }
+        if (!musica) return;
+        
+        // Monta playlist com as favoritas
+        state.playlistAtual = shuf(state.favorites.map(m => ({...m})));
+        const idx = state.playlistAtual.findIndex(m => m.id === id);
+        if (idx > -1) {
+            state.indiceAtual = idx;
+            dom.generoNome.textContent = '❤️ FAV';
+            dom.generoNome.style.background = 'linear-gradient(135deg, #ff2d7f, #ff0066)';
+            dom.generoNome.style.webkitBackgroundClip = 'text';
+            dom.generoNome.style.webkitTextFillColor = 'transparent';
+            dom.generoNome.style.backgroundClip = 'text';
+            if (state.isBackgroundActive) tocar();
+            notif('🎵 Tocando favorita!');
         }
     }
 
@@ -1083,7 +1123,7 @@
 
     dom.progressBar.onclick = (e) => { if(dom.audio.duration) { const rect = e.currentTarget.getBoundingClientRect(); dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration; } };
 
-    dom.heartBtn.onclick = () => { const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0]; if(m) toggleFav(m.id); };
+    dom.heartBtn.onclick = () => { const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0]; if(m) toggleFav(m); };
 
     dom.btnGeneroFav.onclick = () => { abrirChoiceMenu(); };
     dom.choiceGenres.onclick = () => { fecharChoiceMenu(); dom.genresModal.classList.add('open'); };
