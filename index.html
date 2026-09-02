@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC!</title>
+    <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -172,6 +172,43 @@
         .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
         .qr-content .qr-btn-close:active{transform:scale(0.97)}
 
+        /* ===== BOTÃO COPIAR FINGERPRINT NA TELA DE BLOQUEIO ===== */
+        .info-dispositivo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 260px;
+            background: rgba(255,255,255,0.03);
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.03);
+            margin-top: 4px;
+        }
+        .info-dispositivo-wrapper .info-dispositivo {
+            color: #555;
+            font-size: 0.5rem;
+            word-break: break-all;
+            font-family: monospace;
+            flex: 1;
+            min-width: 0;
+        }
+        .info-dispositivo-wrapper .btn-copiar-fingerprint {
+            background: rgba(0,243,255,0.08);
+            border: 1px solid rgba(0,243,255,0.1);
+            color: var(--neon-cyan);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.55rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .info-dispositivo-wrapper .btn-copiar-fingerprint:active {
+            transform: scale(0.9);
+            background: rgba(0,243,255,0.15);
+        }
+
         #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -189,7 +226,7 @@
         #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:8px 20px;border-radius:30px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer}
         #blockOverlay .btn-senha:active{transform:scale(0.96)}
         #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.7rem;min-height:14px;margin-top:2px;font-weight:600}
-        #blockOverlay .info-dispositivo{color:#555;font-size:0.5rem;margin-top:4px;word-break:break-all;max-width:260px;background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:8px;font-family:monospace;border:1px solid rgba(255,255,255,0.03)}
+        .info-dispositivo-wrapper .info-dispositivo{color:#555;font-size:0.5rem;word-break:break-all;max-width:260px;background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:8px;font-family:monospace;border:1px solid rgba(255,255,255,0.03)}
 
         #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:14px;z-index:99999;width:90%;max-width:380px;border:2px solid var(--gold);flex-direction:column;gap:4px;color:white;box-shadow:0 0 60px rgba(255,215,0,0.05);max-height:90vh;overflow-y:auto}
         #adminPanel.open{display:flex;animation:modalFade 0.3s ease}
@@ -244,6 +281,8 @@
             .qr-content .qr-logo-overlay img{width:28px;height:28px}
             .genre-card{min-height:34px;font-size:0.75rem}
             .fav-item-modal{min-height:34px;font-size:0.75rem}
+            .info-dispositivo-wrapper .info-dispositivo{font-size:0.45rem}
+            .info-dispositivo-wrapper .btn-copiar-fingerprint{font-size:0.5rem;padding:2px 6px}
         }
     </style>
 </head>
@@ -359,7 +398,11 @@
     <input type="text" class="senha-input" id="senhaPermanente" placeholder="Cole a senha vitalícia" autocomplete="off">
     <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
     <div class="erro-senha" id="erroSenha"></div>
-    <div class="info-dispositivo" id="infoDispositivo"></div>
+    <!-- FINGERPRINT COM BOTÃO COPIAR -->
+    <div class="info-dispositivo-wrapper">
+        <span class="info-dispositivo" id="infoDispositivo">🆔 Aguardando...</span>
+        <button class="btn-copiar-fingerprint" id="btnCopiarFingerprintBlock">📋 Copiar</button>
+    </div>
 </div>
 
 <!-- ===== NOTIFICATION ===== -->
@@ -529,6 +572,7 @@
         senhaPermanente: $('senhaPermanente'),
         erroSenha: $('erroSenha'),
         infoDispositivo: $('infoDispositivo'),
+        btnCopiarFingerprintBlock: $('btnCopiarFingerprintBlock'),
         btnWhatsApp: $('btnWhatsApp'),
         btnPix: $('btnPix'),
         closeFavBtn: $('closeFavBtn'),
@@ -782,7 +826,7 @@
         localStorage.removeItem('vdb_senha_permanente'); 
         localStorage.removeItem('vdb_tempo_restante');
         marcarDispositivoTestado(); 
-        if(dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint; 
+        if(dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint; 
         notif('⏰ Tempo de teste expirou!', 3000); 
     }
 
@@ -799,26 +843,26 @@
     }
 
     // ============================================================
-    // SENHA - SEM SENHA FIXA (APENAS UNIVERSAL E POR DISPOSITIVO)
+    // SENHA - SEM SENHA FIXA
     // ============================================================
     function gerarSenhaVitalicia(universal = false) {
         const email = dom.adminEmail?.value || 'cliente@teste.com';
         if (universal) {
             const timestamp = Date.now();
             const senha = 'UNIV:' + email + ':' + timestamp;
-            dom.adminSenhaGerada.value = senha; // <-- APENAS A SENHA, SEM FRASE
+            dom.adminSenhaGerada.value = senha;
             notif('✅ Senha universal gerada! Funciona em qualquer dispositivo.');
             return senha;
         } else {
             const fingerprintCliente = dom.adminFingerprintInput?.value?.trim();
             if(!fingerprintCliente || fingerprintCliente.length < 10) { 
                 notif('⚠️ Cole o fingerprint do cliente primeiro!'); 
-                dom.adminSenhaGerada.value = ''; // limpa o campo
+                dom.adminSenhaGerada.value = ''; 
                 return null; 
             }
             const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40);
             const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash;
-            dom.adminSenhaGerada.value = senha; // <-- APENAS A SENHA, SEM FRASE
+            dom.adminSenhaGerada.value = senha;
             notif('✅ Senha por dispositivo gerada! Funciona apenas neste dispositivo.');
             return senha;
         }
@@ -1130,6 +1174,26 @@
     function fecharChoiceMenu() { dom.choiceMenu.classList.remove('open'); }
 
     // ============================================================
+    // COPIAR FINGERPRINT
+    // ============================================================
+    function copiarFingerprint() {
+        const fp = state.fingerprint || obterFingerprint();
+        if (!fp) { notif('⚠️ Fingerprint não disponível'); return; }
+        navigator.clipboard.writeText(fp).then(() => {
+            notif('📋 Fingerprint copiado!');
+        }).catch(() => {
+            // Fallback
+            const input = document.createElement('input');
+            input.value = fp;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            input.remove();
+            notif('📋 Fingerprint copiado!');
+        });
+    }
+
+    // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
     function iniciar() {
@@ -1143,8 +1207,13 @@
         state.fingerprint = obterFingerprint();
         if(dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
         if(dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
-        if(dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
+        if(dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
         
+        // Botão copiar fingerprint na tela de bloqueio
+        if(dom.btnCopiarFingerprintBlock) {
+            dom.btnCopiarFingerprintBlock.onclick = copiarFingerprint;
+        }
+
         criarMidia(); 
         carregarFav();
 
