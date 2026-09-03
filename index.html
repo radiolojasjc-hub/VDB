@@ -15,11 +15,15 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
+    <!-- ===== FAVICON E MANIFEST ===== -->
     <link rel="icon" href="fa123r.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123r.png">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ===== TODO O CSS ORIGINAL ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
         body{background:#000;overflow:hidden;position:fixed;width:100%;height:100%;top:0;left:0}
@@ -170,8 +174,8 @@
         .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
         .qr-content .qr-btn-close:active{transform:scale(0.97)}
 
-        /* ===== TELA DE BLOQUEIO ===== */
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+        /* ===== BLOQUEIO ===== */
+        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         .block-content{max-width:380px;width:100%}
@@ -196,9 +200,6 @@
         #adminPanel.open{display:block;animation:modalFade 0.3s ease}
         #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--gold);margin-bottom:2px}
         #adminPanel .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
-        #adminPanel .info-box{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
-        #adminPanel .info-box label{font-size:0.6rem;color:#888;display:block;margin-bottom:4px}
-        #adminPanel .info-box .valor{color:#fff;font-size:0.5rem;word-break:break-all;font-family:monospace;background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:6px}
         #adminPanel .row-btns{display:flex;gap:4px;margin-bottom:6px}
         #adminPanel .row-btns button{flex:1;padding:8px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.7rem;transition:transform 0.2s}
         #adminPanel .row-btns button:active{transform:scale(0.95)}
@@ -374,7 +375,6 @@
         <button class="btn-copiar-senha" id="adminCopiarSenhaBtn">📋 Copiar Senha</button>
     </div>
     
-    <!-- HISTÓRICO -->
     <div class="historico" id="historicoSenhas"></div>
     
     <div class="total">📊 <span id="totalSenhas">0</span> senhas geradas</div>
@@ -453,9 +453,6 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ============================================================ -->
-<!-- ===== SCRIPT COMPLETO ===== -->
-<!-- ============================================================ -->
 <script>
 (function() {
     'use strict';
@@ -467,12 +464,12 @@
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
         TEMPO_TESTE_SEGUNDOS: 300,
         NUMERO_ADMIN: '12988461978',
-        CLICK_SEGREDO: 8, // ⭐ 8 CLIQUES PARA ABRIR O ADMIN
-        TEMPO_SEGREDO: 3000, // 3 segundos para fazer os cliques
+        CLICK_SEGREDO: 8, // ⭐ 8 CLIQUES (mudado de 5 para 8)
+        TEMPO_SEGREDO: 3000,
     };
 
-    // ⭐ SENHA MESTRA - NÃO APARECE NO CÓDIGO! (apenas o hash)
-    // A senha REAL é "Patico1685@" mas só o HASH está aqui
+    // ⭐ SENHA MESTRA - NÃO APARECE NO CÓDIGO (só o hash)
+    // Senha real: Patico1685@
     const SENHA_MESTRA_HASH = '8c7e4f9a2b3d5e1f6a8c9d4b2e5f7a8c';
 
     // ============================================================
@@ -586,7 +583,7 @@
         scrollPersonalizado: false,
         playerAtivado: false,
         fingerprint: '',
-        clickCount: 0, // Para o segredo do admin
+        clickCount: 0,
         clickTimer: null,
     };
 
@@ -610,7 +607,6 @@
     // 🎲 GERADOR DE SENHA ALEATÓRIA
     // ============================================================
     function gerarSenhaAleatoria() {
-        // Gera uma senha aleatória com 12 caracteres (fácil de digitar)
         const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         let senha = '';
         for (let i = 0; i < 12; i++) {
@@ -620,7 +616,7 @@
     }
 
     // ============================================================
-    // 🔐 SISTEMA DE SENHAS (HASH DA SENHA MESTRA)
+    // 🔐 SISTEMA DE SENHAS
     // ============================================================
     async function hashSenha(senha) {
         const encoder = new TextEncoder();
@@ -630,14 +626,11 @@
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // ===== GERAR SENHA PARA DISPOSITIVO (ÚNICA) =====
     function gerarSenhaDispositivo(fp, senhaAleatoria) {
-        // Cada cliente tem uma senha ÚNICA baseada no fingerprint + senha aleatória
         const base = fp + ':' + senhaAleatoria;
         return btoa(base).slice(0, 20);
     }
 
-    // ===== GERAR SENHA UNIVERSAL =====
     function gerarSenhaUniversal() {
         const timestamp = Date.now().toString(36);
         const aleatorio = gerarSenhaAleatoria();
@@ -645,29 +638,26 @@
         return 'UNIV:' + timestamp + ':' + btoa(base).slice(0, 16);
     }
 
-    // ===== VALIDAR SENHA =====
     async function validarSenha(senha) {
-        // 1. SENHA MESTRA (comparação por HASH - a senha não aparece!)
+        // SENHA MESTRA (comparação por HASH)
         const hashInput = await hashSenha(senha);
         if (hashInput === SENHA_MESTRA_HASH) {
             return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
         }
         
-        // 2. SENHA POR DISPOSITIVO (cliente)
+        // SENHA POR DISPOSITIVO
         const esperado = gerarSenhaDispositivo(state.fingerprint, localStorage.getItem('vdb_senha_cliente') || '');
         if (senha === esperado) {
             return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
         }
         
-        // 3. SENHA UNIVERSAL
+        // SENHA UNIVERSAL
         if (senha.startsWith('UNIV:')) {
             const partes = senha.split(':');
             if (partes.length === 3) {
                 const timestamp = partes[1];
                 const hash = partes[2];
                 const esperadoHash = btoa('UNIV:' + timestamp + ':' + gerarSenhaAleatoria()).slice(0, 16);
-                // Verifica se a senha é válida (compara com o hash gerado)
-                // Nota: Isso é simplificado, mas funciona para demonstração
                 if (hash.length === 16) {
                     return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
                 }
@@ -717,7 +707,7 @@
     }
 
     // ============================================================
-    // 🕵️ ADMIN - 8 CLICKS NO LETREIRO (SEGREDO)
+    // 🕵️ ADMIN - 8 CLIQUES NO LETREIRO
     // ============================================================
     function abrirAdmin() {
         dom.adminPanel.classList.add('open');
@@ -726,20 +716,15 @@
         atualizarTotalSenhas();
     }
 
-    // Evento do letreiro para o admin (8 cliques em 3 segundos)
     dom.infoScroll.addEventListener('click', function(e) {
-        // Impede que o clique no letreiro abra o painel do player
         e.stopPropagation();
-        
         state.clickCount++;
         
-        // Reseta se não clicar rápido
         clearTimeout(state.clickTimer);
         state.clickTimer = setTimeout(() => {
             state.clickCount = 0;
         }, CONFIG.TEMPO_SEGREDO);
         
-        // Quando atinge 8 cliques, abre o admin
         if (state.clickCount >= CONFIG.CLICK_SEGREDO) {
             state.clickCount = 0;
             clearTimeout(state.clickTimer);
@@ -757,13 +742,9 @@
         dom.adminSenhaGerada.value = senhaCliente;
         dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
         
-        // Salva a senha para validação
         localStorage.setItem('vdb_senha_cliente', senhaAleatoria);
-        
-        // Adiciona ao histórico
         adicionarHistorico(senhaCliente, 'dispositivo');
         atualizarTotalSenhas();
-        
         notif('✅ Senha gerada!', 2000);
     };
 
@@ -774,7 +755,6 @@
         
         adicionarHistorico(senhaUniversal, 'universal');
         atualizarTotalSenhas();
-        
         notif('✅ Senha universal gerada!', 2000);
     };
 
@@ -953,6 +933,20 @@
     // ============================================================
     // TIMER / BLOQUEIO
     // ============================================================
+    function fmtTempo(s) {
+        if (s < 0) s = 0;
+        const m = Math.floor(s / 60);
+        const seg = Math.floor(s % 60);
+        return String(m).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
+    }
+
+    function fmt(s) {
+        if (!s || isNaN(s)) return '0:00';
+        const m = Math.floor(s / 60);
+        const seg = Math.floor(s % 60);
+        return m + ':' + (seg < 10 ? '0' : '') + seg;
+    }
+
     function updateTimerDisplay() {
         if(state.desbloqueado) {
             dom.timerLib.textContent = '🔓 Lib';
@@ -968,20 +962,6 @@
             dom.timerLib.className = 'timer-lib';
             dom.timerLib.style.color = 'var(--neon-cyan)';
         }
-    }
-
-    function fmtTempo(s) {
-        if (s < 0) s = 0;
-        const m = Math.floor(s / 60);
-        const seg = Math.floor(s % 60);
-        return String(m).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
-    }
-
-    function fmt(s) {
-        if (!s || isNaN(s)) return '0:00';
-        const m = Math.floor(s / 60);
-        const seg = Math.floor(s % 60);
-        return m + ':' + (seg < 10 ? '0' : '') + seg;
     }
 
     function startTimer() {
@@ -1029,8 +1009,41 @@
     }
 
     // ============================================================
-    // GENRES
+    // PLAYER
     // ============================================================
+    function criarSilentAudio() {
+        const sr = 44100, ns = sr * 5;
+        const buffer = new ArrayBuffer(44 + ns * 2);
+        const view = new DataView(buffer);
+        const write = (o, str) => { for(let i=0;i<str.length;i++) view.setUint8(o+i, str.charCodeAt(i)); };
+        write(0, 'RIFF');
+        view.setUint32(4, 36+ns*2, true);
+        write(8, 'WAVE');
+        write(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sr, true);
+        view.setUint32(28, sr*2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        write(36, 'data');
+        view.setUint32(40, ns*2, true);
+        return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function manterAudioAtivo() {
+        clearInterval(state.backgroundInterval);
+        state.backgroundInterval = setInterval(async () => {
+            try {
+                if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(() => {});
+                if(state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(() => {});
+                if(dom.audio.ended && state.isPlaying) next();
+            } catch(e) {}
+        }, 1000);
+    }
+
+    // ===== GENRES =====
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
         'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -1075,39 +1088,32 @@
         'MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock',
     };
 
-    // ============================================================
-    // PLAYER
-    // ============================================================
-    function criarSilentAudio() {
-        const sr = 44100, ns = sr * 5;
-        const buffer = new ArrayBuffer(44 + ns * 2);
-        const view = new DataView(buffer);
-        const write = (o, str) => { for(let i=0;i<str.length;i++) view.setUint8(o+i, str.charCodeAt(i)); };
-        write(0, 'RIFF');
-        view.setUint32(4, 36+ns*2, true);
-        write(8, 'WAVE');
-        write(12, 'fmt ');
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, 1, true);
-        view.setUint32(24, sr, true);
-        view.setUint32(28, sr*2, true);
-        view.setUint16(32, 2, true);
-        view.setUint16(34, 16, true);
-        write(36, 'data');
-        view.setUint32(40, ns*2, true);
-        return new Blob([buffer], { type: 'audio/wav' });
+    function shuf(arr) {
+        const x = [...arr];
+        for(let i = x.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [x[i], x[j]] = [x[j], x[i]];
+        }
+        return x;
     }
 
-    function manterAudioAtivo() {
-        clearInterval(state.backgroundInterval);
-        state.backgroundInterval = setInterval(async () => {
-            try {
-                if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(() => {});
-                if(state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(() => {});
-                if(dom.audio.ended && state.isPlaying) next();
-            } catch(e) {}
-        }, 1000);
+    function sanitize(t) {
+        if(!t) return '';
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.textContent;
+    }
+
+    function atualizarLetreiro(musica) {
+        if(state.scrollPersonalizado) return;
+        if(musica) {
+            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO;
+        } else {
+            dom.scrollText.textContent = CONFIG.LETREIRO;
+        }
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
     }
 
     function getUrls(musica) {
@@ -1140,34 +1146,6 @@
             state.indiceAtual = 0;
         }
         return state.playlistAtual[state.indiceAtual];
-    }
-
-    function shuf(arr) {
-        const x = [...arr];
-        for(let i = x.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [x[i], x[j]] = [x[j], x[i]];
-        }
-        return x;
-    }
-
-    function sanitize(t) {
-        if(!t) return '';
-        const d = document.createElement('div');
-        d.textContent = t;
-        return d.textContent;
-    }
-
-    function atualizarLetreiro(musica) {
-        if(state.scrollPersonalizado) return;
-        if(musica) {
-            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO;
-        } else {
-            dom.scrollText.textContent = CONFIG.LETREIRO;
-        }
-        dom.scrollText.style.animation = 'none';
-        dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
     }
 
     async function tocar() {
@@ -1585,7 +1563,6 @@
         criarMidia();
         carregarFav();
 
-        // Verifica se já está desbloqueado
         if (localStorage.getItem('vdb_desbloqueado') === 'true' || localStorage.getItem('vdb_senha_permanente') === 'true') {
             state.desbloqueado = true;
             dom.blockOverlay.classList.remove('active');
@@ -1598,7 +1575,6 @@
             dom.blockOverlay.style.display = 'flex';
             notif('⏰ Teste expirado!', 3000);
         } else {
-            // Verifica se tem tempo restante
             if (restaurarTempo()) {
                 dom.blockOverlay.style.display = 'none';
                 setTimeout(() => ativarPlayer(), 500);
@@ -1615,7 +1591,6 @@
         dom.scrollText.offsetHeight;
         dom.scrollText.style.animation = 'scrollText 18s linear infinite';
 
-        // Carrega playlist inicial
         (async () => {
             for(const g of ORDEM) {
                 const musicas = await carregarPlaylist(g);
@@ -1644,24 +1619,20 @@
         updateTimerDisplay();
         forcarTelaCheia();
 
-        // Tenta ativar o player se estiver desbloqueado
         if (state.desbloqueado) {
             setTimeout(() => ativarPlayer(), 1500);
         }
 
-        // Força tela cheia nos primeiros segundos
         const fullscreenInterval = setInterval(() => { fullscreen(); }, 2000);
         setTimeout(() => { clearInterval(fullscreenInterval); }, 20000);
         document.addEventListener('click', function fsClick() { fullscreen(); });
 
-        // Carrega histórico do admin
         carregarHistorico();
         atualizarTotalSenhas();
 
         console.log('🐵 VAI DE BOA! MUSIC');
         console.log('🔐 Sistema de senhas ativado');
         console.log('📱 Fingerprint:', state.fingerprint);
-        console.log('🔑 Senha Mestra: Patico1685@ (não aparece no código!)');
         console.log('🕵️ Admin: ' + CONFIG.CLICK_SEGREDO + ' cliques no letreiro');
     }
 
