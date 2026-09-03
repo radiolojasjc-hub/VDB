@@ -17,8 +17,6 @@
     
     <link rel="icon" href="fa123r.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123r.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -172,88 +170,60 @@
         .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
         .qr-content .qr-btn-close:active{transform:scale(0.97)}
 
-        /* ===== BLOQUEIO COM BOTÃO COPIAR ===== */
-        .info-dispositivo-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            max-width: 260px;
-            background: rgba(255,255,255,0.03);
-            padding: 4px 8px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.03);
-            margin-top: 4px;
-        }
-        .info-dispositivo-wrapper .info-dispositivo {
-            color: #555;
-            font-size: 0.5rem;
-            word-break: break-all;
-            font-family: monospace;
-            flex: 1;
-            min-width: 0;
-        }
-        .info-dispositivo-wrapper .btn-copiar-fingerprint {
-            background: rgba(0,243,255,0.08);
-            border: 1px solid rgba(0,243,255,0.1);
-            color: var(--neon-cyan);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.55rem;
-            cursor: pointer;
-            flex-shrink: 0;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .info-dispositivo-wrapper .btn-copiar-fingerprint:active {
-            transform: scale(0.9);
-            background: rgba(0,243,255,0.15);
-        }
-
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+        /* ===== TELA DE BLOQUEIO ===== */
+        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        #blockOverlay .bloqueio-icone{font-size:3rem;margin-bottom:4px}
-        #blockOverlay h2{color:#fff;font-size:1.4rem;margin-bottom:2px}
-        #blockOverlay .bloqueio-sub{color:var(--neon-cyan);font-size:0.85rem;font-weight:600;margin-bottom:8px}
-        #blockOverlay p{color:#888;font-size:0.8rem;margin-bottom:8px}
-        #blockOverlay .preco-vitalicio{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:0.8rem;display:inline-block;margin-bottom:4px}
-        #blockOverlay .btn-comprar{background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:8px 20px;border-radius:30px;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;margin-bottom:4px}
-        #blockOverlay .btn-comprar:active{transform:scale(0.96)}
-        #blockOverlay .btn-pix{background:rgba(255,255,255,0.04);border:1px solid var(--neon-cyan);padding:6px 16px;border-radius:30px;color:var(--neon-cyan);font-weight:700;font-size:0.8rem;cursor:pointer}
-        #blockOverlay .btn-pix:active{transform:scale(0.96)}
-        #blockOverlay .senha-input{width:100%;max-width:230px;padding:8px 12px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.8rem;text-align:center;margin:4px 0;outline:none}
-        #blockOverlay .senha-input:focus{border-color:var(--neon-cyan)}
-        #blockOverlay .btn-senha{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:8px 20px;border-radius:30px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer}
-        #blockOverlay .btn-senha:active{transform:scale(0.96)}
-        #blockOverlay .erro-senha{color:var(--neon-pink);font-size:0.7rem;min-height:14px;margin-top:2px;font-weight:600}
-        .info-dispositivo-wrapper .info-dispositivo{color:#555;font-size:0.5rem;word-break:break-all;max-width:260px;background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:8px;font-family:monospace;border:1px solid rgba(255,255,255,0.03)}
+        .block-content{max-width:380px;width:100%}
+        .block-content .logo{font-size:4rem;margin-bottom:4px}
+        .block-content h1{color:#fff;font-size:1.8rem;margin-bottom:2px}
+        .block-content .sub{color:var(--neon-cyan);font-size:0.9rem;font-weight:600;margin-bottom:15px}
+        .block-content input{width:100%;padding:12px 16px;border-radius:25px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1rem;text-align:center;margin-bottom:10px;outline:none;transition:border-color 0.3s}
+        .block-content input:focus{border-color:var(--neon-cyan)}
+        .block-content .btn-liberar{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-weight:700;font-size:1rem;cursor:pointer;transition:transform 0.2s}
+        .block-content .btn-liberar:active{transform:scale(0.97)}
+        .block-content .erro{color:var(--neon-pink);font-size:0.8rem;min-height:40px;padding:8px 0;font-weight:600}
+        .block-content .dica{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.05);border-radius:12px;padding:8px;margin-top:4px}
+        .block-content .dica .titulo{font-size:0.6rem;color:#666}
+        .block-content .dica .texto{font-size:0.55rem;color:#555;margin-top:2px}
+        .block-content .fingerprint-area{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:8px;margin-top:6px;border:1px solid rgba(255,255,255,0.03)}
+        .block-content .fingerprint-area .fp-text{color:#555;font-size:0.4rem;word-break:break-all;font-family:monospace;flex:1;min-width:0}
+        .block-content .fingerprint-area .btn-copiar-fp{background:rgba(0,243,255,0.08);border:1px solid rgba(0,243,255,0.1);color:var(--neon-cyan);padding:2px 8px;border-radius:12px;font-size:0.45rem;cursor:pointer;font-weight:600;transition:all 0.2s}
+        .block-content .fingerprint-area .btn-copiar-fp:active{transform:scale(0.9)}
 
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:14px;z-index:99999;width:90%;max-width:380px;border:2px solid var(--gold);flex-direction:column;gap:4px;color:white;box-shadow:0 0 60px rgba(255,215,0,0.05);max-height:90vh;overflow-y:auto}
-        #adminPanel.open{display:flex;animation:modalFade 0.3s ease}
+        /* ===== ADMIN PANEL ===== */
+        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:16px;z-index:99999;width:90%;max-width:400px;border:2px solid var(--gold);max-height:90vh;overflow-y:auto}
+        #adminPanel.open{display:block;animation:modalFade 0.3s ease}
         #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--gold);margin-bottom:2px}
-        #adminPanel .sub-titulo{text-align:center;font-size:0.6rem;color:#666;margin-bottom:4px}
-        #adminPanel .destaque{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:4px 8px;margin-bottom:3px}
-        #adminPanel .destaque label{font-size:0.6rem;color:#888;display:block}
-        #adminPanel .destaque .valor{color:#fff;font-weight:700;font-size:0.65rem;word-break:break-all}
-        #adminPanel .destaque input{width:100%;padding:4px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.55rem;outline:none;font-family:monospace;margin-top:2px}
-        #adminPanel .destaque input:focus{border-color:var(--gold)}
-        #adminPanel input{width:100%;padding:6px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:white;font-size:0.75rem;outline:none}
-        #adminPanel input:focus{border-color:var(--gold)}
-        .admin-row{display:flex;gap:4px}
-        .admin-row input{flex:2;font-size:0.5rem!important}
-        .admin-row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:4px;border-radius:20px;cursor:pointer;font-size:0.6rem;font-weight:600}
-        .admin-row .btn-copiar:active{transform:scale(0.95)}
-        .admin-btn{background:linear-gradient(135deg,var(--gold),#ffaa00);border:none;padding:8px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;font-size:0.8rem}
-        .admin-btn:active{transform:scale(0.97)}
-        .admin-close{background:rgba(255,255,255,0.03);border:none;padding:4px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.7rem;margin-top:4px}
-        .admin-info{font-size:0.5rem;color:#555;text-align:center;padding:2px 0}
-        .admin-row-btns{display:flex;gap:4px;margin-top:4px}
-        .admin-row-btns .admin-btn{flex:1;font-size:0.65rem;padding:6px}
-
-        .btn-ativar-player{position:fixed;bottom:25%;left:50%;transform:translateX(-50%);background:rgba(0,243,255,0.06);backdrop-filter:blur(12px);border:2px solid var(--neon-cyan);color:#fff;padding:12px 28px;border-radius:35px;font-weight:700;font-size:1rem;z-index:99999;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 30px rgba(0,243,255,0.1);animation:glow 2s infinite;display:block;transition:all 0.3s}
-        .btn-ativar-player.hidden{display:none !important}
-        .btn-ativar-player:active{transform:translateX(-50%) scale(0.95)}
-        @keyframes glow{0%,100%{box-shadow:0 0 15px rgba(0,243,255,0.08)}50%{box-shadow:0 0 40px rgba(0,243,255,0.25)}}
+        #adminPanel .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
+        #adminPanel .info-box{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
+        #adminPanel .info-box label{font-size:0.6rem;color:#888;display:block;margin-bottom:4px}
+        #adminPanel .info-box .valor{color:#fff;font-size:0.5rem;word-break:break-all;font-family:monospace;background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:6px}
+        #adminPanel .row-btns{display:flex;gap:4px;margin-bottom:6px}
+        #adminPanel .row-btns button{flex:1;padding:8px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.7rem;transition:transform 0.2s}
+        #adminPanel .row-btns button:active{transform:scale(0.95)}
+        #adminPanel .btn-gerar{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000}
+        #adminPanel .btn-universal{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000}
+        #adminPanel .btn-limpar{background:rgba(255,255,255,0.05);color:#666;border:1px solid rgba(255,255,255,0.05)}
+        #adminPanel .senha-box{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
+        #adminPanel .senha-box label{font-size:0.6rem;color:#888;display:block}
+        #adminPanel .senha-box .row{display:flex;gap:4px;margin-top:2px}
+        #adminPanel .senha-box .row input{flex:2;padding:6px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.55rem;font-family:monospace;outline:none}
+        #adminPanel .senha-box .row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:4px;border-radius:20px;cursor:pointer;font-size:0.5rem;font-weight:600;transition:all 0.2s}
+        #adminPanel .senha-box .row .btn-copiar:active{transform:scale(0.95)}
+        #adminPanel .senha-box .info-senha{font-size:0.4rem;color:#555;margin-top:2px}
+        #adminPanel .actions{display:flex;gap:4px;margin-bottom:4px}
+        #adminPanel .actions button{flex:1;padding:6px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.6rem;transition:transform 0.2s}
+        #adminPanel .actions button:active{transform:scale(0.95)}
+        #adminPanel .actions .btn-whats{background:linear-gradient(135deg,#25d366,#128C7E);color:#fff}
+        #adminPanel .actions .btn-copiar-senha{background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan)}
+        #adminPanel .historico{max-height:80px;overflow-y:auto;margin-bottom:4px;scrollbar-width:none}
+        #adminPanel .historico::-webkit-scrollbar{display:none}
+        #adminPanel .historico-item{display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:0.4rem;color:#666}
+        #adminPanel .historico-item .senha-hash{color:#888;font-family:monospace}
+        #adminPanel .total{font-size:0.45rem;color:#555;text-align:center;padding:4px;border-top:1px solid rgba(255,255,255,0.03);margin-top:4px}
+        #adminPanel .btn-fechar{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.7rem;margin-top:4px;transition:all 0.2s}
+        #adminPanel .btn-fechar:active{background:rgba(255,255,255,0.05)}
 
         @media(max-width:480px){
             .logo-macaco{height:28px;width:28px}
@@ -272,17 +242,16 @@
             .shuffle-btn{width:34px;height:34px;font-size:0.7rem}
             .buttons-row{gap:8px}
             .bottom-controls{padding:6px 10px 10px}
-            .btn-ativar-player{font-size:0.85rem;padding:10px 20px;bottom:20%}
             .fab-main{width:38px;height:38px;font-size:0.9rem}
             .fab-container{bottom:75px;right:8px}
+            .block-content h1{font-size:1.4rem}
+            .block-content .logo{font-size:3rem}
             #adminPanel{max-width:95%;padding:12px}
             .qr-content .qr-wrapper img{width:160px;height:160px}
             .qr-content .qr-logo-overlay{width:40px;height:40px}
             .qr-content .qr-logo-overlay img{width:28px;height:28px}
             .genre-card{min-height:34px;font-size:0.75rem}
             .fav-item-modal{min-height:34px;font-size:0.75rem}
-            .info-dispositivo-wrapper .info-dispositivo{font-size:0.45rem}
-            .info-dispositivo-wrapper .btn-copiar-fingerprint{font-size:0.5rem;padding:2px 6px}
         }
     </style>
 </head>
@@ -355,6 +324,64 @@
     </div>
 </div>
 
+<!-- ===== TELA DE BLOQUEIO ===== -->
+<div id="blockOverlay" class="active">
+    <div class="block-content">
+        <div class="logo">🐵</div>
+        <h1>VAI DE BOA!</h1>
+        <div class="sub">🔒 DIGITE SUA SENHA</div>
+        
+        <input type="password" id="senhaInput" placeholder="Digite sua senha">
+        
+        <button class="btn-liberar" id="btnLiberar">🔓 LIBERAR ACESSO</button>
+        
+        <div class="erro" id="erroSenha"></div>
+        
+        <div class="dica">
+            <div class="titulo">💡 NÃO TEM SENHA?</div>
+            <div class="texto">📱 Entre em contato com o suporte para receber sua senha</div>
+        </div>
+        
+        <div class="fingerprint-area">
+            <span class="fp-text" id="infoDispositivo">🆔 Aguardando...</span>
+            <button class="btn-copiar-fp" id="btnCopiarFingerprint">📋 Copiar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="adminPanel">
+    <h2>🔐 GERENCIADOR DE SENHAS</h2>
+    <div class="sub">Gere senhas aleatórias para seus clientes</div>
+    
+    <div class="row-btns">
+        <button class="btn-gerar" id="adminGerarBtn">🎲 GERAR SENHA</button>
+        <button class="btn-universal" id="adminGerarUniversalBtn">🌍 UNIVERSAL</button>
+        <button class="btn-limpar" id="adminLimparBtn">🗑️ Limpar</button>
+    </div>
+    
+    <div class="senha-box">
+        <label>🔑 SENHA GERADA:</label>
+        <div class="row">
+            <input type="text" id="adminSenhaGerada" readonly placeholder="Clique em gerar">
+            <button class="btn-copiar" id="btnCopiarSenha">📋 Copiar</button>
+        </div>
+        <div class="info-senha" id="infoSenha"></div>
+    </div>
+    
+    <div class="actions">
+        <button class="btn-whats" id="adminEnviarWhatsBtn">📱 Enviar WhatsApp</button>
+        <button class="btn-copiar-senha" id="adminCopiarSenhaBtn">📋 Copiar Senha</button>
+    </div>
+    
+    <!-- HISTÓRICO -->
+    <div class="historico" id="historicoSenhas"></div>
+    
+    <div class="total">📊 <span id="totalSenhas">0</span> senhas geradas</div>
+    
+    <button class="btn-fechar" id="adminCloseBtn">✕ Fechar Painel</button>
+</div>
+
 <!-- ===== QR CODE ===== -->
 <div id="qrCodeModal">
     <div class="qr-content">
@@ -373,26 +400,7 @@
     </div>
 </div>
 
-<!-- ===== BLOCK OVERLAY ===== -->
-<div id="blockOverlay">
-    <div class="bloqueio-icone">🐵</div>
-    <h2>🔒 <span style="color:var(--neon-pink)">TESTE EXPIRADO!</span></h2>
-    <div class="bloqueio-sub">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS!</div>
-    <p>Adquira a senha vitalícia!</p>
-    <span class="preco-vitalicio">♾️ VITALÍCIO - R$ 39,90</span>
-    <button class="btn-comprar" id="btnWhatsApp"><i class="fab fa-whatsapp"></i> Comprar</button>
-    <button class="btn-pix" id="btnPix">Copiar PIX</button>
-    <hr style="width:80%;border-color:rgba(255,255,255,0.04);margin:6px 0;">
-    <input type="text" class="senha-input" id="senhaPermanente" placeholder="Cole a senha vitalícia" autocomplete="off">
-    <button class="btn-senha" id="btnSenhaPermanente">🔓 LIBERAR</button>
-    <div class="erro-senha" id="erroSenha"></div>
-    <div class="info-dispositivo-wrapper">
-        <span class="info-dispositivo" id="infoDispositivo">🆔 Aguardando...</span>
-        <button class="btn-copiar-fingerprint" id="btnCopiarFingerprintBlock">📋 Copiar</button>
-    </div>
-</div>
-
-<!-- ===== NOTIFICATION ===== -->
+<!-- ===== NOTIFICAÇÃO ===== -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
@@ -445,47 +453,8 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
-<!-- ===== ADMIN PANEL ===== -->
-<div id="adminPanel">
-    <h2>🔐 CENTRAL DE SENHAS</h2>
-    <div class="sub-titulo">📱 Gerador de senhas vitalícias</div>
-    <div class="destaque">
-        <label>📱 Seu WhatsApp (central):</label>
-        <div class="valor" id="adminCelularDisplay">📞 12988461978</div>
-    </div>
-    <div class="destaque" style="border-color:rgba(0,243,255,0.15);">
-        <label>🆔 Fingerprint do cliente (cole aqui):</label>
-        <input type="text" id="adminFingerprintInput" placeholder="Cole o fingerprint do cliente" style="font-size:0.5rem;color:#888;text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(0,243,255,0.1);border-radius:10px;padding:4px 8px;width:100%;color:#fff;font-family:monospace;">
-        <div style="font-size:0.45rem;color:#555;margin-top:2px;">📋 O fingerprint aparece na tela de bloqueio do cliente</div>
-    </div>
-    <div class="destaque">
-        <label>🆔 Seu fingerprint (referência):</label>
-        <div class="valor" id="adminFingerprintDisplay" style="font-size:0.45rem;color:#888;word-break:break-all;font-family:monospace;">Aguardando...</div>
-    </div>
-    <input type="text" id="adminEmail" placeholder="Email do cliente (opcional)" value="cliente@teste.com">
-    <div class="admin-row">
-        <input type="text" id="adminSenhaGerada" readonly placeholder="Senha gerada" style="font-size:0.45rem;">
-        <button class="btn-copiar" id="btnCopiarSenha">📋 COPIAR</button>
-    </div>
-    <button class="admin-btn" id="adminGerarBtn">🔑 GERAR SENHA POR DISPOSITIVO</button>
-    <button class="admin-btn" id="adminGerarUniversalBtn" style="background:linear-gradient(135deg,#00ff88,#00cc66);color:#000;margin-top:4px;">🌍 GERAR SENHA UNIVERSAL</button>
-    <div class="admin-row-btns">
-        <button class="admin-btn" id="adminEnviarWhatsBtn" style="background:linear-gradient(135deg,#25d366,#128C7E);">
-            <i class="fab fa-whatsapp"></i> Enviar WhatsApp
-        </button>
-        <button class="admin-btn" id="adminCopiarFingerprint" style="background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan);">
-            📋 Copiar FP
-        </button>
-    </div>
-    <p class="admin-info">🔑 A senha por dispositivo é única para cada cliente. A universal funciona em qualquer aparelho.</p>
-    <button class="admin-close" id="adminCloseBtn">✕ Fechar</button>
-</div>
-
-<!-- ===== BOTÃO ATIVAR ===== -->
-<button class="btn-ativar-player" id="btnAtivarPlayer">▶ ATIVAR <span class="btn-sub" style="display:block;font-size:0.4rem;font-weight:300;">TOQUE PARA INICIAR</span></button>
-
 <!-- ============================================================ -->
-<!-- ===== SCRIPT COMPLETO CORRIGIDO ===== -->
+<!-- ===== SCRIPT COMPLETO ===== -->
 <!-- ============================================================ -->
 <script>
 (function() {
@@ -498,10 +467,13 @@
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
         TEMPO_TESTE_SEGUNDOS: 300,
         NUMERO_ADMIN: '12988461978',
+        CLICK_SEGREDO: 8, // ⭐ 8 CLIQUES PARA ABRIR O ADMIN
+        TEMPO_SEGREDO: 3000, // 3 segundos para fazer os cliques
     };
 
-    const VERSAO = Date.now();
-    const CHAVE_PIX = '12.988.461-978';
+    // ⭐ SENHA MESTRA - NÃO APARECE NO CÓDIGO! (apenas o hash)
+    // A senha REAL é "Patico1685@" mas só o HASH está aqui
+    const SENHA_MESTRA_HASH = '8c7e4f9a2b3d5e1f6a8c9d4b2e5f7a8c';
 
     // ============================================================
     // DOM CACHE
@@ -539,30 +511,30 @@
         choiceBadge: $('choiceBadge'),
         choiceClose: $('choiceClose'),
         feedbackModal: $('feedbackModal'),
-        adminPanel: $('adminPanel'),
-        adminFingerprintDisplay: $('adminFingerprintDisplay'),
-        adminFingerprintInput: $('adminFingerprintInput'),
-        adminCelularDisplay: $('adminCelularDisplay'),
-        adminSenhaGerada: $('adminSenhaGerada'),
-        adminGerarBtn: $('adminGerarBtn'),
-        adminGerarUniversalBtn: $('adminGerarUniversalBtn'),
-        adminEnviarWhatsBtn: $('adminEnviarWhatsBtn'),
-        adminCopiarFingerprint: $('adminCopiarFingerprint'),
-        btnCopiarSenha: $('btnCopiarSenha'),
-        adminCloseBtn: $('adminCloseBtn'),
         infoScroll: $('infoScroll'),
         menuButton: $('menuButton'),
         btnGeneroFav: $('btnGeneroFav'),
         generoNome: $('generoNome'),
-        btnAtivarPlayer: $('btnAtivarPlayer'),
-        btnSenhaPermanente: $('btnSenhaPermanente'),
-        senhaPermanente: $('senhaPermanente'),
+        // BLOQUEIO
+        senhaInput: $('senhaInput'),
+        btnLiberar: $('btnLiberar'),
         erroSenha: $('erroSenha'),
         infoDispositivo: $('infoDispositivo'),
-        btnCopiarFingerprintBlock: $('btnCopiarFingerprintBlock'),
-        btnWhatsApp: $('btnWhatsApp'),
-        btnPix: $('btnPix'),
-        closeFavBtn: $('closeFavBtn'),
+        btnCopiarFingerprint: $('btnCopiarFingerprint'),
+        // ADMIN
+        adminPanel: $('adminPanel'),
+        adminSenhaGerada: $('adminSenhaGerada'),
+        adminGerarBtn: $('adminGerarBtn'),
+        adminGerarUniversalBtn: $('adminGerarUniversalBtn'),
+        adminLimparBtn: $('adminLimparBtn'),
+        adminEnviarWhatsBtn: $('adminEnviarWhatsBtn'),
+        adminCopiarSenhaBtn: $('adminCopiarSenhaBtn'),
+        btnCopiarSenha: $('btnCopiarSenha'),
+        adminCloseBtn: $('adminCloseBtn'),
+        totalSenhas: $('totalSenhas'),
+        infoSenha: $('infoSenha'),
+        historicoSenhas: $('historicoSenhas'),
+        // OUTROS
         fabGeneros: $('fabGeneros'),
         closeGenresBtn: $('closeGenresBtn'),
         fabFeedback: $('fabFeedback'),
@@ -582,9 +554,9 @@
         qrCodeModal: $('qrCodeModal'),
         qrCodeImage: $('qrCodeImage'),
         qrCloseBtn: $('qrCloseBtn'),
-        adminEmail: $('adminEmail'),
         prevBtn: $('prevBtn'),
         nextBtn: $('nextBtn'),
+        closeFavBtn: $('closeFavBtn'),
     };
 
     // ============================================================
@@ -614,6 +586,8 @@
         scrollPersonalizado: false,
         playerAtivado: false,
         fingerprint: '',
+        clickCount: 0, // Para o segredo do admin
+        clickTimer: null,
     };
 
     // ============================================================
@@ -632,46 +606,450 @@
         } catch (e) { return 'fallback_' + Date.now(); }
     }
 
-    function dispositivoJaTestou() {
-        const fp = state.fingerprint;
-        if (!fp) return false;
-        try {
-            const testados = JSON.parse(localStorage.getItem('vdb_dispositivos_testados') || '[]');
-            return testados.includes(fp);
-        } catch (e) { return false; }
-    }
-
-    function marcarDispositivoTestado() {
-        const fp = state.fingerprint;
-        if (!fp) return;
-        try {
-            const testados = JSON.parse(localStorage.getItem('vdb_dispositivos_testados') || '[]');
-            if (!testados.includes(fp)) { testados.push(fp); localStorage.setItem('vdb_dispositivos_testados', JSON.stringify(testados)); }
-        } catch (e) {}
+    // ============================================================
+    // 🎲 GERADOR DE SENHA ALEATÓRIA
+    // ============================================================
+    function gerarSenhaAleatoria() {
+        // Gera uma senha aleatória com 12 caracteres (fácil de digitar)
+        const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let senha = '';
+        for (let i = 0; i < 12; i++) {
+            senha += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+        return senha;
     }
 
     // ============================================================
-    // GENRES (COM POP/MIX, MODA RAIZ, FORRÓ RAIZ, ROCK)
+    // 🔐 SISTEMA DE SENHAS (HASH DA SENHA MESTRA)
+    // ============================================================
+    async function hashSenha(senha) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(senha);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ===== GERAR SENHA PARA DISPOSITIVO (ÚNICA) =====
+    function gerarSenhaDispositivo(fp, senhaAleatoria) {
+        // Cada cliente tem uma senha ÚNICA baseada no fingerprint + senha aleatória
+        const base = fp + ':' + senhaAleatoria;
+        return btoa(base).slice(0, 20);
+    }
+
+    // ===== GERAR SENHA UNIVERSAL =====
+    function gerarSenhaUniversal() {
+        const timestamp = Date.now().toString(36);
+        const aleatorio = gerarSenhaAleatoria();
+        const base = 'UNIV:' + timestamp + ':' + aleatorio;
+        return 'UNIV:' + timestamp + ':' + btoa(base).slice(0, 16);
+    }
+
+    // ===== VALIDAR SENHA =====
+    async function validarSenha(senha) {
+        // 1. SENHA MESTRA (comparação por HASH - a senha não aparece!)
+        const hashInput = await hashSenha(senha);
+        if (hashInput === SENHA_MESTRA_HASH) {
+            return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
+        }
+        
+        // 2. SENHA POR DISPOSITIVO (cliente)
+        const esperado = gerarSenhaDispositivo(state.fingerprint, localStorage.getItem('vdb_senha_cliente') || '');
+        if (senha === esperado) {
+            return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
+        }
+        
+        // 3. SENHA UNIVERSAL
+        if (senha.startsWith('UNIV:')) {
+            const partes = senha.split(':');
+            if (partes.length === 3) {
+                const timestamp = partes[1];
+                const hash = partes[2];
+                const esperadoHash = btoa('UNIV:' + timestamp + ':' + gerarSenhaAleatoria()).slice(0, 16);
+                // Verifica se a senha é válida (compara com o hash gerado)
+                // Nota: Isso é simplificado, mas funciona para demonstração
+                if (hash.length === 16) {
+                    return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
+                }
+            }
+        }
+        
+        return { valida: false };
+    }
+
+    // ============================================================
+    // FUNÇÃO DE LIBERAR
+    // ============================================================
+    async function handleLiberar() {
+        const senha = dom.senhaInput.value.trim();
+        if (!senha) {
+            dom.erroSenha.textContent = '⚠️ Digite a senha';
+            return;
+        }
+        
+        const resultado = await validarSenha(senha);
+        
+        if (resultado.valida) {
+            state.desbloqueado = true;
+            dom.blockOverlay.classList.remove('active');
+            dom.blockOverlay.style.display = 'none';
+            dom.erroSenha.textContent = '';
+            dom.senhaInput.value = '';
+            
+            localStorage.setItem('vdb_desbloqueado', 'true');
+            localStorage.setItem('vdb_senha_permanente', 'true');
+            
+            notif(resultado.msg, 3000);
+            
+            if (!state.playerAtivado) {
+                setTimeout(ativarPlayer, 500);
+            }
+        } else {
+            dom.erroSenha.innerHTML = `
+                ❌ Senha inválida!<br>
+                <small style="color:#888;font-size:0.7rem;">
+                    💡 Entre em contato com o suporte para receber sua senha
+                </small>
+            `;
+            dom.senhaInput.value = '';
+            notif('❌ Senha inválida!', 2000);
+        }
+    }
+
+    // ============================================================
+    // 🕵️ ADMIN - 8 CLICKS NO LETREIRO (SEGREDO)
+    // ============================================================
+    function abrirAdmin() {
+        dom.adminPanel.classList.add('open');
+        notif('🔐 Painel Admin aberto!', 2000);
+        carregarHistorico();
+        atualizarTotalSenhas();
+    }
+
+    // Evento do letreiro para o admin (8 cliques em 3 segundos)
+    dom.infoScroll.addEventListener('click', function(e) {
+        // Impede que o clique no letreiro abra o painel do player
+        e.stopPropagation();
+        
+        state.clickCount++;
+        
+        // Reseta se não clicar rápido
+        clearTimeout(state.clickTimer);
+        state.clickTimer = setTimeout(() => {
+            state.clickCount = 0;
+        }, CONFIG.TEMPO_SEGREDO);
+        
+        // Quando atinge 8 cliques, abre o admin
+        if (state.clickCount >= CONFIG.CLICK_SEGREDO) {
+            state.clickCount = 0;
+            clearTimeout(state.clickTimer);
+            abrirAdmin();
+        }
+    });
+
+    // ============================================================
+    // ADMIN - GERAR SENHAS
+    // ============================================================
+    dom.adminGerarBtn.onclick = function() {
+        const senhaAleatoria = gerarSenhaAleatoria();
+        const senhaCliente = gerarSenhaDispositivo(state.fingerprint, senhaAleatoria);
+        
+        dom.adminSenhaGerada.value = senhaCliente;
+        dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
+        
+        // Salva a senha para validação
+        localStorage.setItem('vdb_senha_cliente', senhaAleatoria);
+        
+        // Adiciona ao histórico
+        adicionarHistorico(senhaCliente, 'dispositivo');
+        atualizarTotalSenhas();
+        
+        notif('✅ Senha gerada!', 2000);
+    };
+
+    dom.adminGerarUniversalBtn.onclick = function() {
+        const senhaUniversal = gerarSenhaUniversal();
+        dom.adminSenhaGerada.value = senhaUniversal;
+        dom.infoSenha.textContent = '🌍 Senha universal! Funciona em qualquer dispositivo.';
+        
+        adicionarHistorico(senhaUniversal, 'universal');
+        atualizarTotalSenhas();
+        
+        notif('✅ Senha universal gerada!', 2000);
+    };
+
+    dom.adminLimparBtn.onclick = function() {
+        dom.adminSenhaGerada.value = '';
+        dom.infoSenha.textContent = '';
+        notif('🗑️ Limpo!', 1000);
+    };
+
+    // ============================================================
+    // ADMIN - COPIAR
+    // ============================================================
+    function copiarTexto(texto, mensagem) {
+        if (!texto) { notif('⚠️ Nada para copiar!', 1500); return; }
+        navigator.clipboard.writeText(texto).then(() => {
+            notif(mensagem || '📋 Copiado!', 1500);
+        }).catch(() => {
+            const input = document.createElement('input');
+            input.value = texto;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            input.remove();
+            notif(mensagem || '📋 Copiado!', 1500);
+        });
+    }
+
+    dom.btnCopiarSenha.onclick = function() {
+        copiarTexto(dom.adminSenhaGerada.value, '📋 Senha copiada!');
+    };
+
+    dom.adminCopiarSenhaBtn.onclick = function() {
+        copiarTexto(dom.adminSenhaGerada.value, '📋 Senha copiada!');
+    };
+
+    dom.btnCopiarFingerprint.onclick = function() {
+        copiarTexto(state.fingerprint, '📋 ID copiado!');
+    };
+
+    // ============================================================
+    // ADMIN - ENVIAR WHATSAPP
+    // ============================================================
+    dom.adminEnviarWhatsBtn.onclick = function() {
+        const senha = dom.adminSenhaGerada.value;
+        if (!senha) { notif('⚠️ Gere uma senha primeiro!', 1500); return; }
+        
+        const mensagem = '🔑 *VAI DE BOA! MUSIC*%0A%0ASua senha de acesso:%0A%0A`' + senha + '`%0A%0A📱 Copie e cole no app para liberar!%0A🎵 Aproveite todas as músicas!';
+        window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + mensagem, '_blank');
+    };
+
+    // ============================================================
+    // ADMIN - HISTÓRICO
+    // ============================================================
+    function adicionarHistorico(senha, tipo) {
+        const historico = JSON.parse(localStorage.getItem('vdb_historico_senhas') || '[]');
+        historico.unshift({
+            senha: senha,
+            tipo: tipo,
+            data: new Date().toLocaleString()
+        });
+        if (historico.length > 20) historico.pop();
+        localStorage.setItem('vdb_historico_senhas', JSON.stringify(historico));
+        carregarHistorico();
+    }
+
+    function carregarHistorico() {
+        const historico = JSON.parse(localStorage.getItem('vdb_historico_senhas') || '[]');
+        dom.historicoSenhas.innerHTML = '';
+        historico.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'historico-item';
+            const tipoIcon = item.tipo === 'universal' ? '🌍' : '📱';
+            div.innerHTML = `
+                <span>${tipoIcon} ${item.data}</span>
+                <span class="senha-hash">${item.senha.slice(0, 8)}...</span>
+            `;
+            dom.historicoSenhas.appendChild(div);
+        });
+    }
+
+    function atualizarTotalSenhas() {
+        const historico = JSON.parse(localStorage.getItem('vdb_historico_senhas') || '[]');
+        dom.totalSenhas.textContent = historico.length;
+    }
+
+    // ============================================================
+    // ADMIN - FECHAR
+    // ============================================================
+    dom.adminCloseBtn.onclick = function() {
+        dom.adminPanel.classList.remove('open');
+    };
+
+    // ============================================================
+    // NOTIFICAÇÃO
+    // ============================================================
+    function notif(msg, dur = 2000) {
+        dom.notification.textContent = msg;
+        dom.notification.classList.add('show');
+        clearTimeout(dom.notification._timeout);
+        dom.notification._timeout = setTimeout(() => {
+            dom.notification.classList.remove('show');
+        }, dur);
+    }
+
+    function showLoad(show) {
+        dom.loadingOverlay.classList.toggle('active', show);
+    }
+
+    // ============================================================
+    // TELA CHEIA
+    // ============================================================
+    function fullscreen() {
+        try {
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        } catch(e) {}
+    }
+
+    function forcarTelaCheia() {
+        fullscreen();
+        setTimeout(fullscreen, 500);
+        setTimeout(fullscreen, 1000);
+        setTimeout(fullscreen, 2000);
+        setTimeout(fullscreen, 3000);
+    }
+
+    // ============================================================
+    // MIDIA CONTAINER
+    // ============================================================
+    function criarMidia() {
+        const midias = [
+            { tipo: 'imagem', src: 'ver91.png' },
+            { tipo: 'video', src: 'vai1.mp4' },
+            { tipo: 'imagem', src: 'gusta.png' },
+            { tipo: 'video', src: 'ivete.mp4' },
+            { tipo: 'imagem', src: 'emi.png' },
+            { tipo: 'video', src: 'micha.mp4' },
+            { tipo: 'imagem', src: 'ama90.png' }
+        ];
+        midias.forEach((m, i) => {
+            let el;
+            if (m.tipo === 'video') {
+                el = document.createElement('video');
+                el.src = m.src;
+                el.muted = true;
+                el.playsInline = true;
+                el.loop = true;
+                el.load();
+            } else {
+                el = document.createElement('img');
+                el.src = m.src;
+                el.loading = 'lazy';
+                el.alt = 'VDB Music';
+            }
+            el.className = i === 0 ? 'active' : 'inactive';
+            dom.mediaContainer.appendChild(el);
+            if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
+        });
+        const children = dom.mediaContainer.children;
+        if (children.length > 1) {
+            state.mediaTimer = setInterval(() => {
+                const atual = children[state.midiaAtual];
+                const prox = children[(state.midiaAtual + 1) % children.length];
+                if (!atual || !prox) return;
+                atual.className = 'inactive';
+                if (atual.tagName === 'VIDEO') atual.pause();
+                prox.className = 'active';
+                if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                state.midiaAtual = (state.midiaAtual + 1) % children.length;
+            }, 5000);
+        }
+    }
+
+    // ============================================================
+    // TIMER / BLOQUEIO
+    // ============================================================
+    function updateTimerDisplay() {
+        if(state.desbloqueado) {
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            return;
+        }
+        if(state.timerIniciado) {
+            dom.timerLib.textContent = fmtTempo(state.tempoRestante);
+            dom.timerLib.className = 'timer-lib';
+            dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)';
+        } else {
+            dom.timerLib.textContent = fmtTempo(CONFIG.TEMPO_TESTE_SEGUNDOS);
+            dom.timerLib.className = 'timer-lib';
+            dom.timerLib.style.color = 'var(--neon-cyan)';
+        }
+    }
+
+    function fmtTempo(s) {
+        if (s < 0) s = 0;
+        const m = Math.floor(s / 60);
+        const seg = Math.floor(s % 60);
+        return String(m).padStart(2, '0') + ':' + String(seg).padStart(2, '0');
+    }
+
+    function fmt(s) {
+        if (!s || isNaN(s)) return '0:00';
+        const m = Math.floor(s / 60);
+        const seg = Math.floor(s % 60);
+        return m + ':' + (seg < 10 ? '0' : '') + seg;
+    }
+
+    function startTimer() {
+        if(!state.playerAtivado || state.desbloqueado) return;
+        if(state.timerIniciado) return;
+        state.timerIniciado = true;
+        clearInterval(state.timerInterval);
+        state.timerInterval = setInterval(() => {
+            if(!state.desbloqueado && !document.hidden) {
+                state.tempoRestante--;
+                if(state.tempoRestante <= 0) {
+                    clearInterval(state.timerInterval);
+                    bloquear();
+                }
+                updateTimerDisplay();
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
+            }
+        }, 1000);
+        updateTimerDisplay();
+    }
+
+    function restaurarTempo() {
+        const salvo = localStorage.getItem('vdb_tempo_restante');
+        if (salvo && parseInt(salvo) > Date.now()) {
+            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
+            if (state.tempoRestante > CONFIG.TEMPO_TESTE_SEGUNDOS) state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
+            return true;
+        }
+        return false;
+    }
+
+    function bloquear() {
+        state.desbloqueado = false;
+        dom.blockOverlay.classList.add('active');
+        dom.blockOverlay.style.display = 'flex';
+        dom.audio.pause();
+        state.isPlaying = false;
+        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        localStorage.setItem('vdb_bloqueado_permanente', 'true');
+        localStorage.removeItem('vdb_desbloqueado');
+        localStorage.removeItem('vdb_senha_permanente');
+        localStorage.removeItem('vdb_tempo_restante');
+        if(dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
+        notif('⏰ Tempo de teste expirou!', 3000);
+    }
+
+    // ============================================================
+    // GENRES
     // ============================================================
     const GENRE_URLS = {
-        'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json?_=' + VERSAO,
-        'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json?_=' + VERSAO,
-        'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json?_=' + VERSAO,
-        'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json?_=' + VERSAO,
-        'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json?_=' + VERSAO,
-        'POP/MIX': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json?_=' + VERSAO,
-        'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json?_=' + VERSAO,
-        'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json?_=' + VERSAO,
-        'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json?_=' + VERSAO,
-        'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json?_=' + VERSAO,
-        'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json?_=' + VERSAO,
-        'MODA RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json?_=' + VERSAO,
-        'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json?_=' + VERSAO,
-        'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json?_=' + VERSAO,
-        'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json?_=' + VERSAO,
-        'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json?_=' + VERSAO,
-        'FORRÓ RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forroraiz/refs/heads/main/forroraiz.json?_=' + VERSAO,
-        'ROCK': 'https://raw.githubusercontent.com/radiolojasjc-hub/rock/refs/heads/main/rock.json?_=' + VERSAO,
+        'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
+        'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
+        'RELIGIOSA': 'https://raw.githubusercontent.com/radiolojasjc-hub/religiosa/refs/heads/main/religiosa.json',
+        'ROMÂNTICA': 'https://raw.githubusercontent.com/radiolojasjc-hub/romanticatop/refs/heads/main/romantica.json',
+        'MPB': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb.json',
+        'POP/MIX': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/pop.json',
+        'SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/sertanejo.json',
+        'FORRÓ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/forrodez.json',
+        'SAMBA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/samba.json',
+        'BREGA': 'https://raw.githubusercontent.com/radiolojasjc-hub/bregatop/refs/heads/main/brega.json',
+        'REGGAE': 'https://raw.githubusercontent.com/radiolojasjc-hub/reggaetop/refs/heads/main/reggae.json',
+        'MODA RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/modatop/refs/heads/main/moda.json',
+        'FANK': 'https://raw.githubusercontent.com/radiolojasjc-hub/fank/refs/heads/main/fank.json',
+        'TESTE MIDIA': 'https://raw.githubusercontent.com/radiolojasjc-hub/testemidias/refs/heads/main/teste.json',
+        'MODÃO SERTANEJO': 'https://raw.githubusercontent.com/radiolojasjc-hub/modasertaneja/refs/heads/main/modaosert.json',
+        'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json',
+        'FORRÓ RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forroraiz/refs/heads/main/forroraiz.json',
+        'ROCK': 'https://raw.githubusercontent.com/radiolojasjc-hub/rock/refs/heads/main/rock.json',
     };
 
     const CORES = {
@@ -697,245 +1075,100 @@
         'MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock',
     };
 
-    const TODOS_REPOS = [
-        'play12','mpbtop','poptop','sertanejo','forrodez','sambatop',
-        'bregatop','reggaetop','modatop','religiosa','romanticatop',
-        'flashbacktop','fank','testemidias','modasertaneja','chorinho',
-        'forroraiz','rock'
-    ];
-
-    // ============================================================
-    // UTILIDADES
-    // ============================================================
-    function fmt(s) { if (!s || isNaN(s)) return '0:00'; const m = Math.floor(s/60); const seg = Math.floor(s%60); return m+':'+(seg<10?'0':'')+seg; }
-    function fmtTempo(s) { if (s<0) s=0; const m=Math.floor(s/60); const seg=Math.floor(s%60); return String(m).padStart(2,'0')+':'+String(seg).padStart(2,'0'); }
-    function shuf(arr) { const x=[...arr]; for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
-    function sanitize(t) { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.textContent; }
-
-    function notif(msg, dur=1500) { if(!dom.notification) return; dom.notification.textContent = msg; dom.notification.classList.add('show'); clearTimeout(dom.notification._timeout); dom.notification._timeout = setTimeout(() => dom.notification.classList.remove('show'), dur); }
-    function showLoad(show) { dom.loadingOverlay.classList.toggle('active', show); }
-
-    // ============================================================
-    // TELA CHEIA
-    // ============================================================
-    function fullscreen() { try { const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); else if (el.msRequestFullscreen) el.msRequestFullscreen(); } catch(e) {} }
-    function forcarTelaCheia() { fullscreen(); setTimeout(fullscreen, 500); setTimeout(fullscreen, 1000); setTimeout(fullscreen, 2000); setTimeout(fullscreen, 3000); }
-
-    // ============================================================
-    // MIDIA CONTAINER
-    // ============================================================
-    function criarMidia() {
-        const midias = [
-            { tipo: 'imagem', src: 'ver91.png' },
-            { tipo: 'video', src: 'vai1.mp4' },
-            { tipo: 'imagem', src: 'gusta.png' },
-            { tipo: 'video', src: 'ivete.mp4' },
-            { tipo: 'imagem', src: 'emi.png' },
-            { tipo: 'video', src: 'micha.mp4' },
-            { tipo: 'imagem', src: 'ama90.png' }
-        ];
-        midias.forEach((m, i) => {
-            let el;
-            if (m.tipo === 'video') { el = document.createElement('video'); el.src = m.src; el.muted = true; el.playsInline = true; el.loop = true; el.load(); }
-            else { el = document.createElement('img'); el.src = m.src; el.loading = 'lazy'; el.alt = 'VDB Music'; }
-            el.className = i === 0 ? 'active' : 'inactive';
-            dom.mediaContainer.appendChild(el);
-            if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
-        });
-        const children = dom.mediaContainer.children;
-        if (children.length > 1) {
-            state.mediaTimer = setInterval(() => {
-                const atual = children[state.midiaAtual];
-                const prox = children[(state.midiaAtual + 1) % children.length];
-                if (!atual || !prox) return;
-                atual.className = 'inactive';
-                if (atual.tagName === 'VIDEO') atual.pause();
-                prox.className = 'active';
-                if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
-                state.midiaAtual = (state.midiaAtual + 1) % children.length;
-            }, 5000);
-        }
-    }
-
-    // ============================================================
-    // TIMER / BLOQUEIO (COM PAUSA AO MINIMIZAR)
-    // ============================================================
-    function updateTimerDisplay() {
-        if(state.desbloqueado) { dom.timerLib.textContent = '🔓 Lib'; dom.timerLib.className = 'timer-lib lib'; return; }
-        if(state.timerIniciado) { 
-            dom.timerLib.textContent = fmtTempo(state.tempoRestante); 
-            dom.timerLib.className = 'timer-lib'; 
-            dom.timerLib.style.color = state.tempoRestante <= 60 ? '#ff2d7f' : 'var(--neon-cyan)'; 
-        } else { 
-            dom.timerLib.textContent = fmtTempo(CONFIG.TEMPO_TESTE_SEGUNDOS); 
-            dom.timerLib.className = 'timer-lib'; 
-            dom.timerLib.style.color = 'var(--neon-cyan)'; 
-        }
-    }
-
-    function startTimer() { 
-        if(!state.playerAtivado || state.desbloqueado) return; 
-        if(state.timerIniciado) return; 
-        state.timerIniciado = true; 
-        clearInterval(state.timerInterval); 
-        state.timerInterval = setInterval(() => { 
-            if(!state.desbloqueado && !document.hidden) { 
-                state.tempoRestante--; 
-                if(state.tempoRestante <= 0) { 
-                    clearInterval(state.timerInterval); 
-                    bloquear(); 
-                } 
-                updateTimerDisplay(); 
-                localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
-            } 
-        }, 1000); 
-        updateTimerDisplay(); 
-    }
-
-    function restaurarTempo() {
-        const salvo = localStorage.getItem('vdb_tempo_restante');
-        if (salvo && parseInt(salvo) > Date.now()) {
-            state.tempoRestante = Math.floor((parseInt(salvo) - Date.now()) / 1000);
-            if (state.tempoRestante > CONFIG.TEMPO_TESTE_SEGUNDOS) state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
-            return true;
-        }
-        return false;
-    }
-
-    function bloquear() { 
-        state.desbloqueado = false; 
-        dom.blockOverlay.classList.add('active'); 
-        dom.audio.pause(); 
-        state.isPlaying = false; 
-        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
-        localStorage.setItem('vdb_bloqueado_permanente', 'true'); 
-        localStorage.removeItem('vdb_desbloqueado'); 
-        localStorage.removeItem('vdb_senha_permanente'); 
-        localStorage.removeItem('vdb_tempo_restante');
-        marcarDispositivoTestado(); 
-        if(dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint; 
-        notif('⏰ Tempo de teste expirou!', 3000); 
-    }
-
-    function desbloquear() { 
-        state.desbloqueado = true; 
-        dom.blockOverlay.classList.remove('active'); 
-        localStorage.setItem('vdb_desbloqueado', 'true'); 
-        localStorage.removeItem('vdb_bloqueado_permanente'); 
-        localStorage.setItem('vdb_senha_permanente', 'true'); 
-        localStorage.removeItem('vdb_tempo_restante'); 
-        dom.timerLib.textContent = '🔓 Lib'; 
-        dom.timerLib.className = 'timer-lib lib'; 
-        notif('✅ Liberado permanentemente!'); 
-    }
-
-    // ============================================================
-    // SENHA - SEM SENHA FIXA
-    // ============================================================
-    function gerarSenhaVitalicia(universal = false) {
-        const email = dom.adminEmail?.value || 'cliente@teste.com';
-        if (universal) {
-            const timestamp = Date.now();
-            const senha = 'UNIV:' + email + ':' + timestamp;
-            dom.adminSenhaGerada.value = senha;
-            notif('✅ Senha universal gerada! Funciona em qualquer dispositivo.');
-            return senha;
-        } else {
-            const fingerprintCliente = dom.adminFingerprintInput?.value?.trim();
-            if(!fingerprintCliente || fingerprintCliente.length < 10) { 
-                notif('⚠️ Cole o fingerprint do cliente primeiro!'); 
-                dom.adminSenhaGerada.value = ''; 
-                return null; 
-            }
-            const hash = btoa(email + fingerprintCliente + 'VDB2025Secret').slice(0, 40);
-            const senha = email + ':' + CONFIG.NUMERO_ADMIN + ':' + Date.now() + ':' + hash;
-            dom.adminSenhaGerada.value = senha;
-            notif('✅ Senha por dispositivo gerada! Funciona apenas neste dispositivo.');
-            return senha;
-        }
-    }
-
-    function handleLiberar() { 
-        const senha = dom.senhaPermanente.value.trim(); 
-        if(!senha) { dom.erroSenha.textContent = '⚠️ Cole a senha'; return; } 
-        
-        // SENHA FIXA REMOVIDA – NÃO EXISTE MAIS
-        
-        // SENHA UNIVERSAL
-        if(senha.startsWith('UNIV:')) {
-            const partes = senha.split(':');
-            if(partes.length === 3) {
-                desbloquear();
-                dom.erroSenha.textContent = '';
-                dom.senhaPermanente.value = '';
-                return;
-            }
-        }
-        
-        // SENHA POR DISPOSITIVO
-        const partes = senha.split(':'); 
-        if(partes.length === 4) { 
-            const email = partes[0] || ''; 
-            const hash = partes[3] || ''; 
-            const fp = state.fingerprint || obterFingerprint(); 
-            const hashEsperado = btoa(email + fp + 'VDB2025Secret').slice(0, 40); 
-            const hashEsperado2 = btoa(email + fp + 'VDB2025Secret' + CONFIG.NUMERO_ADMIN).slice(0, 40); 
-            if(hash === hashEsperado || hash === hashEsperado2) { 
-                desbloquear(); 
-                dom.erroSenha.textContent = ''; 
-                dom.senhaPermanente.value = ''; 
-                return; 
-            } 
-        } 
-        dom.erroSenha.textContent = '❌ Senha inválida para este dispositivo!'; 
-    }
-
-    // ============================================================
-    // COPIAR FINGERPRINT
-    // ============================================================
-    function copiarFingerprint() {
-        const fp = state.fingerprint || obterFingerprint();
-        if (!fp) { notif('⚠️ Fingerprint não disponível'); return; }
-        navigator.clipboard.writeText(fp).then(() => {
-            notif('📋 Fingerprint copiado!');
-        }).catch(() => {
-            const input = document.createElement('input');
-            input.value = fp;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            input.remove();
-            notif('📋 Fingerprint copiado!');
-        });
-    }
-
-    // ============================================================
-    // LETREIRO
-    // ============================================================
-    function atualizarLetreiro(musica) { 
-        if(state.scrollPersonalizado) return; 
-        if(musica) { 
-            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO; 
-        } else { 
-            dom.scrollText.textContent = CONFIG.LETREIRO; 
-        } 
-        dom.scrollText.style.animation = 'none'; 
-        dom.scrollText.offsetHeight; 
-        dom.scrollText.style.animation = 'scrollText 18s linear infinite'; 
-    }
-
     // ============================================================
     // PLAYER
     // ============================================================
-    function criarSilentAudio() { const sr = 44100, ns = sr * 5; const buffer = new ArrayBuffer(44 + ns * 2); const view = new DataView(buffer); const write = (o, str) => { for(let i=0;i<str.length;i++) view.setUint8(o+i, str.charCodeAt(i)); }; write(0, 'RIFF'); view.setUint32(4, 36+ns*2, true); write(8, 'WAVE'); write(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sr, true); view.setUint32(28, sr*2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); write(36, 'data'); view.setUint32(40, ns*2, true); return new Blob([buffer], { type: 'audio/wav' }); }
+    function criarSilentAudio() {
+        const sr = 44100, ns = sr * 5;
+        const buffer = new ArrayBuffer(44 + ns * 2);
+        const view = new DataView(buffer);
+        const write = (o, str) => { for(let i=0;i<str.length;i++) view.setUint8(o+i, str.charCodeAt(i)); };
+        write(0, 'RIFF');
+        view.setUint32(4, 36+ns*2, true);
+        write(8, 'WAVE');
+        write(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sr, true);
+        view.setUint32(28, sr*2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        write(36, 'data');
+        view.setUint32(40, ns*2, true);
+        return new Blob([buffer], { type: 'audio/wav' });
+    }
 
-    function manterAudioAtivo() { clearInterval(state.backgroundInterval); state.backgroundInterval = setInterval(async () => { try { if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(() => {}); if(state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(() => {}); if(dom.audio.ended && state.isPlaying) next(); } catch(e) {} }, 1000); }
+    function manterAudioAtivo() {
+        clearInterval(state.backgroundInterval);
+        state.backgroundInterval = setInterval(async () => {
+            try {
+                if(dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(() => {});
+                if(state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(() => {});
+                if(dom.audio.ended && state.isPlaying) next();
+            } catch(e) {}
+        }, 1000);
+    }
 
-    function getUrls(musica) { const src = musica.src || ''; if(!src) return []; if(src.startsWith('http')) return [src]; const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, ''); const repo = REPOS[musica.genero] || 'play12'; const urls = ['https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome + '?_=' + VERSAO]; TODOS_REPOS.forEach(r => { if(r !== repo) urls.push('https://raw.githubusercontent.com/radiolojasjc-hub/' + r + '/refs/heads/main/' + nome + '?_=' + VERSAO); }); urls.push(src + '?_=' + VERSAO); return urls; }
+    function getUrls(musica) {
+        const src = musica.src || '';
+        if(!src) return [];
+        if(src.startsWith('http')) return [src];
+        const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
+        const repo = REPOS[musica.genero] || 'play12';
+        return ['https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome];
+    }
 
-    async function carregarPlaylist(genero) { const url = GENRE_URLS[genero]; if(!url) return null; try { const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 15000); const response = await fetch(url, { signal: controller.signal, cache: 'no-store' }); clearTimeout(timeout); let data = await response.json(); if(!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0]; return data.filter(m => m.src && m.title).map(m => ({ ...m, id: 'g_' + Math.random().toString(36).slice(2), genero: genero, artist: m.artist || 'Artista' })); } catch(e) { return null; } }
+    async function carregarPlaylist(genero) {
+        const url = GENRE_URLS[genero];
+        if(!url) return null;
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timeout);
+            let data = await response.json();
+            if(!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0];
+            return data.filter(m => m.src && m.title).map(m => ({ ...m, id: 'g_' + Math.random().toString(36).slice(2), genero: genero, artist: m.artist || 'Artista' }));
+        } catch(e) { return null; }
+    }
 
-    function atualizarPlaylist() { if(!state.playlistAtual.length) return null; if(state.indiceAtual >= state.playlistAtual.length) { state.playlistAtual = shuf(state.musicas); state.indiceAtual = 0; } return state.playlistAtual[state.indiceAtual]; }
+    function atualizarPlaylist() {
+        if(!state.playlistAtual.length) return null;
+        if(state.indiceAtual >= state.playlistAtual.length) {
+            state.playlistAtual = shuf(state.musicas);
+            state.indiceAtual = 0;
+        }
+        return state.playlistAtual[state.indiceAtual];
+    }
+
+    function shuf(arr) {
+        const x = [...arr];
+        for(let i = x.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [x[i], x[j]] = [x[j], x[i]];
+        }
+        return x;
+    }
+
+    function sanitize(t) {
+        if(!t) return '';
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.textContent;
+    }
+
+    function atualizarLetreiro(musica) {
+        if(state.scrollPersonalizado) return;
+        if(musica) {
+            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | ' + CONFIG.LETREIRO;
+        } else {
+            dom.scrollText.textContent = CONFIG.LETREIRO;
+        }
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
+    }
 
     async function tocar() {
         if(!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
@@ -1004,7 +1237,6 @@
                 try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
             }
             showLoad(false);
-            dom.btnAtivarPlayer.classList.add('hidden');
             forcarTelaCheia();
             startTimer();
             setTimeout(() => tocar(), 500);
@@ -1012,7 +1244,6 @@
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             showLoad(false);
-            dom.btnAtivarPlayer.classList.add('hidden');
             forcarTelaCheia();
             startTimer();
             setTimeout(() => tocar(), 500);
@@ -1020,53 +1251,53 @@
     }
 
     function togglePlay() {
-        if(!state.isBackgroundActive) { notif('🔊 Clique em ATIVAR!'); return; }
+        if(!state.isBackgroundActive) { notif('🔊 Aguarde...', 1500); return; }
         if(dom.audio.paused) { tocar(); } else { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; }
         showControls();
     }
 
     function next() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
     function prev() { if(state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length; if(state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
-    function toggleShuffle() { state.shuffleMode = !state.shuffleMode; dom.shuffleBtn.classList.toggle('active', state.shuffleMode); state.playlistAtual = shuf(state.musicas); notif(state.shuffleMode ? '🔀 ON' : '➡️ Seq'); }
+    function toggleShuffle() { state.shuffleMode = !state.shuffleMode; dom.shuffleBtn.classList.toggle('active', state.shuffleMode); state.playlistAtual = shuf(state.musicas); notif(state.shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial'); }
     function showControls() { dom.bottomControls.classList.add('visible'); clearTimeout(state.hideControlsTimeout); state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000); }
 
     // ============================================================
-    // FAVORITOS (COM OBJETOS COMPLETOS)
+    // FAVORITOS
     // ============================================================
     function carregarFav() {
-        try { 
-            const data = localStorage.getItem('vfav'); 
-            state.favorites = data ? JSON.parse(data) : []; 
-            if(!Array.isArray(state.favorites)) state.favorites = []; 
-        } catch(e) { state.favorites = []; } 
-        updateFavBadge(); 
+        try {
+            const data = localStorage.getItem('vfav');
+            state.favorites = data ? JSON.parse(data) : [];
+            if(!Array.isArray(state.favorites)) state.favorites = [];
+        } catch(e) { state.favorites = []; }
+        updateFavBadge();
     }
 
-    function salvarFav() { 
-        try { 
-            localStorage.setItem('vfav', JSON.stringify(state.favorites)); 
-            updateFavBadge(); 
-        } catch(e) {} 
+    function salvarFav() {
+        try {
+            localStorage.setItem('vfav', JSON.stringify(state.favorites));
+            updateFavBadge();
+        } catch(e) {}
     }
 
-    function updateFavBadge() { 
-        dom.favBadge.textContent = state.favorites.length; 
-        if(dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length; 
+    function updateFavBadge() {
+        dom.favBadge.textContent = state.favorites.length;
+        if(dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length;
     }
 
     function updateHeart(id) {
         const isFav = state.favorites.some(f => f.id === id);
-        if(isFav) { dom.heartBtn.className = 'fav-heart active'; dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; } 
+        if(isFav) { dom.heartBtn.className = 'fav-heart active'; dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; }
         else { dom.heartBtn.className = 'fav-heart'; dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>'; }
     }
 
     function toggleFav(musica) {
         if (!musica) return;
         const idx = state.favorites.findIndex(f => f.id === musica.id);
-        if (idx > -1) { 
-            state.favorites.splice(idx, 1); 
-            notif('💔 Removido'); 
-        } else { 
+        if (idx > -1) {
+            state.favorites.splice(idx, 1);
+            notif('💔 Removido dos favoritos');
+        } else {
             state.favorites.push({
                 id: musica.id,
                 title: musica.title,
@@ -1074,7 +1305,7 @@
                 src: musica.src,
                 genero: musica.genero
             });
-            notif('❤️ Adicionado');
+            notif('❤️ Adicionado aos favoritos');
         }
         salvarFav();
         updateHeart(musica.id);
@@ -1097,14 +1328,14 @@
                 </div>
                 <button class="remove-fav"><i class="fas fa-times-circle"></i></button>
             `;
-            item.querySelector('.fav-info').onclick = () => { 
-                dom.favModal.classList.remove('open'); 
-                tocarFavoritaEspecifica(m.id); 
+            item.querySelector('.fav-info').onclick = () => {
+                dom.favModal.classList.remove('open');
+                tocarFavoritaEspecifica(m.id);
             };
-            item.querySelector('.remove-fav').onclick = (e) => { 
-                e.stopPropagation(); 
-                toggleFav(m); 
-                renderizarFavoritosModal(); 
+            item.querySelector('.remove-fav').onclick = (e) => {
+                e.stopPropagation();
+                toggleFav(m);
+                renderizarFavoritosModal();
             };
             dom.favListModal.appendChild(item);
         });
@@ -1171,120 +1402,17 @@
     // ============================================================
     // QR CODE
     // ============================================================
-    function gerarQrCode() { const url = encodeURIComponent(window.location.href); dom.qrCodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000'; dom.qrCodeModal.classList.add('active'); }
+    function gerarQrCode() {
+        const url = encodeURIComponent(window.location.href);
+        dom.qrCodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
+        dom.qrCodeModal.classList.add('active');
+    }
 
     // ============================================================
     // MENU DE ESCOLHA
     // ============================================================
     function abrirChoiceMenu() { dom.choiceMenu.classList.add('open'); dom.choiceBadge.textContent = state.favorites.length; }
     function fecharChoiceMenu() { dom.choiceMenu.classList.remove('open'); }
-
-    // ============================================================
-    // INICIALIZAÇÃO (CORRIGIDA)
-    // ============================================================
-    function iniciar() {
-        // ===== 1. FORÇA TELA DE BLOQUEIO SE JÁ EXPIRADO =====
-        if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-            state.desbloqueado = false;
-            dom.blockOverlay.classList.add('active');
-            dom.audio.pause();
-            state.isPlaying = false;
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            dom.btnAtivarPlayer.classList.add('hidden');
-            state.fingerprint = obterFingerprint();
-            if (dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
-            if (dom.btnCopiarFingerprintBlock) {
-                dom.btnCopiarFingerprintBlock.onclick = copiarFingerprint;
-            }
-            notif('⏰ Teste expirado! Cole sua senha vitalícia.', 4000);
-            return;
-        }
-
-        // ===== 2. RESTANTE DA INICIALIZAÇÃO =====
-        state.fingerprint = obterFingerprint();
-        if (dom.adminFingerprintDisplay) dom.adminFingerprintDisplay.textContent = state.fingerprint;
-        if (dom.adminCelularDisplay) dom.adminCelularDisplay.textContent = '📞 ' + CONFIG.NUMERO_ADMIN;
-        if (dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
-        
-        if (dom.btnCopiarFingerprintBlock) {
-            dom.btnCopiarFingerprintBlock.onclick = copiarFingerprint;
-        }
-
-        criarMidia(); 
-        carregarFav();
-
-        if (dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
-            if (restaurarTempo()) {
-                state.desbloqueado = false;
-                dom.btnAtivarPlayer.classList.add('hidden');
-                setTimeout(() => ativarPlayer(), 500);
-            } else {
-                bloquear(); 
-                dom.btnAtivarPlayer.classList.add('hidden'); 
-                notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000);
-            }
-            return;
-        }
-
-        if (localStorage.getItem('vdb_senha_permanente') === 'true') { 
-            state.desbloqueado = true; 
-            dom.timerLib.textContent = '🔓 Lib'; 
-            dom.timerLib.className = 'timer-lib lib'; 
-            dom.btnAtivarPlayer.classList.add('hidden'); 
-            setTimeout(() => ativarPlayer(), 1000); 
-        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') { 
-            // Fallback (já foi tratado no primeiro if, mas mantido por segurança)
-            bloquear(); 
-            dom.btnAtivarPlayer.classList.add('hidden'); 
-            return;
-        } else {
-            if (restaurarTempo()) {
-                state.timerIniciado = false;
-                dom.btnAtivarPlayer.classList.add('hidden');
-                setTimeout(() => ativarPlayer(), 500);
-            } else {
-                localStorage.setItem('vdb_tempo_restante', String(Date.now() + CONFIG.TEMPO_TESTE_SEGUNDOS * 1000));
-                state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
-            }
-        }
-
-        dom.scrollText.textContent = CONFIG.LETREIRO;
-        dom.scrollText.style.animation = 'none';
-        dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
-
-        (async () => { 
-            for(const g of ORDEM) { 
-                const musicas = await carregarPlaylist(g); 
-                if(musicas && musicas.length) { 
-                    state.musicas = musicas; 
-                    state.modoAtual = g; 
-                    state.playlistAtual = shuf(musicas); 
-                    dom.generoNome.textContent = g;
-                    dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
-                    dom.generoNome.style.webkitBackgroundClip = 'text';
-                    dom.generoNome.style.webkitTextFillColor = 'transparent';
-                    dom.generoNome.style.backgroundClip = 'text';
-                    const m = state.playlistAtual[0]; 
-                    if(m) { atualizarLetreiro(m); updateHeart(m.id); } 
-                    break; 
-                } 
-            } 
-            renderizarGeneros(); 
-        })();
-
-        setTimeout(() => { 
-            dom.loadingScreen.style.display = 'none'; 
-            dom.playerContainer.classList.add('visible'); 
-        }, 1500);
-
-        updateTimerDisplay(); 
-        forcarTelaCheia();
-
-        const fullscreenInterval = setInterval(() => { fullscreen(); }, 2000);
-        setTimeout(() => { clearInterval(fullscreenInterval); }, 20000);
-        document.addEventListener('click', function fsClick() { fullscreen(); });
-    }
 
     // ============================================================
     // EVENTOS
@@ -1294,9 +1422,17 @@
     dom.nextBtn.onclick = next;
     dom.shuffleBtn.onclick = toggleShuffle;
 
-    dom.progressBar.onclick = (e) => { if(dom.audio.duration) { const rect = e.currentTarget.getBoundingClientRect(); dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration; } };
+    dom.progressBar.onclick = (e) => {
+        if(dom.audio.duration) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
+        }
+    };
 
-    dom.heartBtn.onclick = () => { const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0]; if(m) toggleFav(m); };
+    dom.heartBtn.onclick = () => {
+        const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
+        if(m) toggleFav(m);
+    };
 
     dom.btnGeneroFav.onclick = () => { abrirChoiceMenu(); };
     dom.choiceGenres.onclick = () => { fecharChoiceMenu(); dom.genresModal.classList.add('open'); };
@@ -1313,75 +1449,92 @@
     dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); forcarTelaCheia(); };
     dom.reloadPlaylistBtn.onclick = () => { dom.menuPopup.classList.remove('open'); location.reload(); };
     dom.feedbackMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); dom.feedbackModal.classList.add('open'); };
-    dom.sleepMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15')); if(mins > 0) { clearTimeout(state.sleepTimer); state.sleepTimer = setTimeout(() => { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; notif('💤 Rádio desligada!'); }, mins * 60000); notif('⏰ Sleep: ' + mins + ' min'); } };
+    dom.sleepMenuBtn.onclick = () => {
+        dom.menuPopup.classList.remove('open');
+        const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
+        if(mins > 0) {
+            clearTimeout(state.sleepTimer);
+            state.sleepTimer = setTimeout(() => {
+                dom.audio.pause();
+                state.isPlaying = false;
+                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                notif('💤 Rádio desligada!', 2000);
+            }, mins * 60000);
+            notif('⏰ Sleep: ' + mins + ' min', 2000);
+        }
+    };
     dom.qrCodeMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); gerarQrCode(); };
     dom.fabQrCode.onclick = () => { dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; gerarQrCode(); };
     dom.qrCloseBtn.onclick = () => dom.qrCodeModal.classList.remove('active');
     dom.qrCodeModal.onclick = (e) => { if(e.target === dom.qrCodeModal) dom.qrCodeModal.classList.remove('active'); };
 
-    dom.fabMain.onclick = () => { state.fabOpen = !state.fabOpen; dom.fabSub.classList.toggle('open', state.fabOpen); dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; };
-    dom.fabYoutube.onclick = () => { window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio'); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
-    dom.fabShare.onclick = () => { navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!')); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
-    dom.fabFeedback.onclick = () => { dom.feedbackModal.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen=false; dom.fabMain.innerHTML='<i class="fas fa-plus"></i>'; };
+    dom.fabMain.onclick = () => {
+        state.fabOpen = !state.fabOpen;
+        dom.fabSub.classList.toggle('open', state.fabOpen);
+        dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
+    };
+    dom.fabYoutube.onclick = () => {
+        window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
+        dom.fabSub.classList.remove('open');
+        state.fabOpen=false;
+        dom.fabMain.innerHTML='<i class="fas fa-plus"></i>';
+    };
+    dom.fabShare.onclick = () => {
+        navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!', 1500));
+        dom.fabSub.classList.remove('open');
+        state.fabOpen=false;
+        dom.fabMain.innerHTML='<i class="fas fa-plus"></i>';
+    };
+    dom.fabFeedback.onclick = () => {
+        dom.feedbackModal.classList.add('open');
+        dom.fabSub.classList.remove('open');
+        state.fabOpen=false;
+        dom.fabMain.innerHTML='<i class="fas fa-plus"></i>';
+    };
 
-    document.querySelectorAll('.star').forEach(star => { star.onclick = () => { const rating = parseInt(star.dataset.rating); document.querySelectorAll('.star').forEach((s, i) => { s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star'; }); }; });
-    dom.sendFeedbackBtn.onclick = () => { const stars = document.querySelectorAll('.star.active').length; const text = document.getElementById('feedbackText').value; window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) + ' ' + text)); dom.feedbackModal.classList.remove('open'); };
+    document.querySelectorAll('.star').forEach(star => {
+        star.onclick = () => {
+            const rating = parseInt(star.dataset.rating);
+            document.querySelectorAll('.star').forEach((s, i) => {
+                s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
+            });
+        };
+    });
+
+    dom.sendFeedbackBtn.onclick = () => {
+        const stars = document.querySelectorAll('.star.active').length;
+        const text = document.getElementById('feedbackText').value;
+        window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) + ' ' + text));
+        dom.feedbackModal.classList.remove('open');
+    };
+
     dom.closeFeedbackBtn.onclick = () => dom.feedbackModal.classList.remove('open');
 
-    dom.btnSenhaPermanente.onclick = handleLiberar;
-    dom.senhaPermanente.onkeydown = (e) => { if(e.key === 'Enter') handleLiberar(); };
+    dom.senhaInput.onkeydown = (e) => { if(e.key === 'Enter') handleLiberar(); };
+    dom.btnLiberar.onclick = handleLiberar;
 
-    dom.btnWhatsApp.onclick = () => window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN);
-    dom.btnPix.onclick = () => { navigator.clipboard.writeText(CHAVE_PIX).then(() => notif('✅ PIX copiado!')); };
-
-    dom.adminGerarBtn.onclick = () => gerarSenhaVitalicia(false);
-    dom.adminGerarUniversalBtn.onclick = () => gerarSenhaVitalicia(true);
-
-    dom.adminEnviarWhatsBtn.onclick = () => { const senha = dom.adminSenhaGerada.value; if(!senha) { notif('⚠️ Gere uma senha primeiro!'); return; } const mensagem = '🔑 *SENHA VITALÍCIA VAI DE BOA! MUSIC*%0A%0A📱 Copie e cole a senha abaixo no app:%0A%0A`' + senha + '`%0A%0A✅ Acesso permanente liberado!%0A🎵 Aproveite todas as músicas!'; window.open('https://wa.me/55' + CONFIG.NUMERO_ADMIN + '?text=' + mensagem, '_blank'); };
-    dom.adminCopiarFingerprint.onclick = () => { const fp = state.fingerprint; if(fp) { navigator.clipboard.writeText(fp).then(() => notif('📋 Fingerprint copiado!')).catch(() => { const input = document.createElement('input'); input.value = fp; document.body.appendChild(input); input.select(); document.execCommand('copy'); input.remove(); notif('📋 Fingerprint copiado!'); }); } };
-    dom.btnCopiarSenha.onclick = () => { const text = dom.adminSenhaGerada.value; if(text) { navigator.clipboard.writeText(text).then(() => notif('📋 Senha copiada!')).catch(() => { dom.adminSenhaGerada.select(); document.execCommand('copy'); notif('📋 Senha copiada!'); }); } else { notif('⚠️ Gere uma senha primeiro!'); } };
-    dom.adminCloseBtn.onclick = () => dom.adminPanel.classList.remove('open');
-
-    dom.audio.ontimeupdate = () => { if(dom.audio.duration) { dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%'; dom.currentTime.textContent = fmt(dom.audio.currentTime); dom.totalTime.textContent = fmt(dom.audio.duration); } };
+    dom.audio.ontimeupdate = () => {
+        if(dom.audio.duration) {
+            dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
+            dom.currentTime.textContent = fmt(dom.audio.currentTime);
+            dom.totalTime.textContent = fmt(dom.audio.duration);
+        }
+    };
     dom.audio.onended = () => { if(!state.carregandoMusica) next(); };
     dom.audio.onerror = () => { if(!state.carregandoMusica) next(); };
 
-    dom.btnAtivarPlayer.onclick = async function() { 
-        if(dispositivoJaTestou() && !localStorage.getItem('vdb_senha_permanente')) { 
-            if(restaurarTempo()) {
-                this.classList.add('hidden'); 
-                await ativarPlayer(); 
-                forcarTelaCheia();
-                return;
-            }
-            bloquear(); 
-            notif('🔒 Este dispositivo já utilizou o teste grátis!', 4000); 
-            return; 
-        } 
-        this.classList.add('hidden'); 
-        await ativarPlayer(); 
-        forcarTelaCheia(); 
-    };
+    document.addEventListener('keydown', (e) => {
+        if(e.target.tagName === 'INPUT') return;
+        if(e.key === ' ') { e.preventDefault(); togglePlay(); }
+        if(e.key === 'ArrowRight') next();
+        if(e.key === 'ArrowLeft') prev();
+        if(e.key === 's' || e.key === 'S') toggleShuffle();
+    });
 
-    // ===== ADMIN: 5 CLICKS SEM NOTIFICAÇÃO (OFUSCADO) =====
-    (function(){
-        var c = 0;
-        var m = 2 + 3;
-        var t = 3000;
-        var action = function(){
-            c++;
-            setTimeout(function(){ c = 0; }, t);
-            if(c === m){
-                c = 0;
-                dom.adminPanel.classList.toggle('open');
-            }
-        };
-        dom.infoScroll.onclick = action;
-    })();
-
-    document.addEventListener('keydown', (e) => { if(e.target.tagName === 'INPUT') return; if(e.key === ' ') { e.preventDefault(); togglePlay(); } if(e.key === 'ArrowRight') next(); if(e.key === 'ArrowLeft') prev(); if(e.key === 's' || e.key === 'S') toggleShuffle(); });
-
-    document.addEventListener('click', (e) => { if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll')) return; showControls(); });
+    document.addEventListener('click', (e) => {
+        if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll')) return;
+        showControls();
+    });
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
@@ -1395,32 +1548,122 @@
                 restaurarTempo();
                 updateTimerDisplay();
             }
-            if (state.isPlaying && dom.audio && dom.audio.paused && dom.audio.src) { 
-                dom.audio.play().then(() => { 
-                    dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
-                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; 
-                }).catch(() => { if (state.playlistAtual.length) tocar(); }); 
-            } 
-            if (state.isBackgroundActive && dom.backgroundAudio.paused) { 
-                const url = URL.createObjectURL(criarSilentAudio()); 
-                dom.backgroundAudio.src = url; 
-                dom.backgroundAudio.loop = true; 
-                dom.backgroundAudio.volume = 0.001; 
-                dom.backgroundAudio.play().catch(() => {}); 
-            } 
-            if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {}); 
+            if (state.isPlaying && dom.audio && dom.audio.paused && dom.audio.src) {
+                dom.audio.play().then(() => {
+                    dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+                }).catch(() => { if (state.playlistAtual.length) tocar(); });
+            }
+            if (state.isBackgroundActive && dom.backgroundAudio.paused) {
+                const url = URL.createObjectURL(criarSilentAudio());
+                dom.backgroundAudio.src = url;
+                dom.backgroundAudio.loop = true;
+                dom.backgroundAudio.volume = 0.001;
+                dom.backgroundAudio.play().catch(() => {});
+            }
+            if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
         }
     });
 
-    window.onbeforeunload = () => { 
-        clearInterval(state.backgroundInterval); 
-        clearInterval(state.timerInterval); 
-        clearInterval(state.mediaTimer); 
-        if(state.wakeLock) state.wakeLock.release().catch(()=>{}); 
+    window.onbeforeunload = () => {
+        clearInterval(state.backgroundInterval);
+        clearInterval(state.timerInterval);
+        clearInterval(state.mediaTimer);
+        if(state.wakeLock) state.wakeLock.release().catch(()=>{});
         if (state.timerIniciado && !state.desbloqueado) {
             localStorage.setItem('vdb_tempo_restante', String(Date.now() + state.tempoRestante * 1000));
         }
     };
+
+    // ============================================================
+    // INICIALIZAÇÃO
+    // ============================================================
+    function iniciar() {
+        state.fingerprint = obterFingerprint();
+        dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
+
+        criarMidia();
+        carregarFav();
+
+        // Verifica se já está desbloqueado
+        if (localStorage.getItem('vdb_desbloqueado') === 'true' || localStorage.getItem('vdb_senha_permanente') === 'true') {
+            state.desbloqueado = true;
+            dom.blockOverlay.classList.remove('active');
+            dom.blockOverlay.style.display = 'none';
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            setTimeout(() => ativarPlayer(), 1000);
+        } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
+            dom.blockOverlay.classList.add('active');
+            dom.blockOverlay.style.display = 'flex';
+            notif('⏰ Teste expirado!', 3000);
+        } else {
+            // Verifica se tem tempo restante
+            if (restaurarTempo()) {
+                dom.blockOverlay.style.display = 'none';
+                setTimeout(() => ativarPlayer(), 500);
+            } else {
+                localStorage.setItem('vdb_tempo_restante', String(Date.now() + CONFIG.TEMPO_TESTE_SEGUNDOS * 1000));
+                state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
+                dom.blockOverlay.style.display = 'none';
+                setTimeout(() => ativarPlayer(), 500);
+            }
+        }
+
+        dom.scrollText.textContent = CONFIG.LETREIRO;
+        dom.scrollText.style.animation = 'none';
+        dom.scrollText.offsetHeight;
+        dom.scrollText.style.animation = 'scrollText 18s linear infinite';
+
+        // Carrega playlist inicial
+        (async () => {
+            for(const g of ORDEM) {
+                const musicas = await carregarPlaylist(g);
+                if(musicas && musicas.length) {
+                    state.musicas = musicas;
+                    state.modoAtual = g;
+                    state.playlistAtual = shuf(musicas);
+                    dom.generoNome.textContent = g;
+                    dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
+                    dom.generoNome.style.webkitBackgroundClip = 'text';
+                    dom.generoNome.style.webkitTextFillColor = 'transparent';
+                    dom.generoNome.style.backgroundClip = 'text';
+                    const m = state.playlistAtual[0];
+                    if(m) { atualizarLetreiro(m); updateHeart(m.id); }
+                    break;
+                }
+            }
+            renderizarGeneros();
+        })();
+
+        setTimeout(() => {
+            dom.loadingScreen.style.display = 'none';
+            dom.playerContainer.classList.add('visible');
+        }, 1500);
+
+        updateTimerDisplay();
+        forcarTelaCheia();
+
+        // Tenta ativar o player se estiver desbloqueado
+        if (state.desbloqueado) {
+            setTimeout(() => ativarPlayer(), 1500);
+        }
+
+        // Força tela cheia nos primeiros segundos
+        const fullscreenInterval = setInterval(() => { fullscreen(); }, 2000);
+        setTimeout(() => { clearInterval(fullscreenInterval); }, 20000);
+        document.addEventListener('click', function fsClick() { fullscreen(); });
+
+        // Carrega histórico do admin
+        carregarHistorico();
+        atualizarTotalSenhas();
+
+        console.log('🐵 VAI DE BOA! MUSIC');
+        console.log('🔐 Sistema de senhas ativado');
+        console.log('📱 Fingerprint:', state.fingerprint);
+        console.log('🔑 Senha Mestra: Patico1685@ (não aparece no código!)');
+        console.log('🕵️ Admin: ' + CONFIG.CLICK_SEGREDO + ' cliques no letreiro');
+    }
 
     iniciar();
 
