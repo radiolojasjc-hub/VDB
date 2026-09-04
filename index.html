@@ -23,7 +23,7 @@
     
     <style>
         /* ============================================================
-           CSS COMPLETO
+           CSS COMPLETO (MANTIDO ORIGINAL)
            ============================================================ */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
@@ -627,6 +627,10 @@
         fingerprint: '',
         clickCount: 0,
         clickTimer: null,
+        // 🔒 NOVAS VARIÁVEIS DE SEGURANÇA
+        adminSenha: 'admin123', // Senha para acessar o painel
+        adminTentativas: 0,
+        adminBloqueado: false,
     };
 
     // ============================================================
@@ -748,15 +752,45 @@
     }
 
     // ============================================================
-    // 🕵️ ADMIN - 8 CLIQUES NO LETREIRO
+    // 🕵️ ADMIN - 8 CLIQUES OCULTOS (AGORA COM SENHA)
     // ============================================================
     function abrirAdmin() {
-        dom.adminPanel.classList.add('open');
-        notif('🔐 Painel Admin aberto!', 2000);
-        carregarHistorico();
-        atualizarTotalSenhas();
+        if (state.adminBloqueado) {
+            notif('🔒 Painel bloqueado por segurança!', 2000);
+            return;
+        }
+
+        // Pede a senha do painel
+        const senha = prompt('🔐 Digite a senha do painel admin:');
+        
+        if (senha === null) {
+            notif('❌ Acesso cancelado!', 1500);
+            return;
+        }
+
+        if (senha === state.adminSenha) {
+            state.adminTentativas = 0;
+            dom.adminPanel.classList.add('open');
+            notif('🔐 Painel Admin aberto!', 2000);
+            carregarHistorico();
+            atualizarTotalSenhas();
+        } else {
+            state.adminTentativas++;
+            if (state.adminTentativas >= 3) {
+                state.adminBloqueado = true;
+                notif('🔒 Painel bloqueado por muitas tentativas!', 3000);
+                setTimeout(() => {
+                    state.adminBloqueado = false;
+                    state.adminTentativas = 0;
+                    notif('🔓 Painel desbloqueado, tente novamente!', 2000);
+                }, 60000); // Bloqueia por 1 minuto
+            } else {
+                notif('❌ Senha incorreta! Tentativas: ' + state.adminTentativas + '/3', 2000);
+            }
+        }
     }
 
+    // 👆 NOVO: Clique no letreiro com padrão específico
     dom.infoScroll.addEventListener('click', function(e) {
         e.stopPropagation();
         state.clickCount++;
@@ -766,6 +800,7 @@
             state.clickCount = 0;
         }, CONFIG.TEMPO_SEGREDO);
 
+        // 🌟 AGORA: 8 cliques rápidos (menos de 3 segundos)
         if (state.clickCount >= CONFIG.CLICK_SEGREDO) {
             state.clickCount = 0;
             clearTimeout(state.clickTimer);
@@ -783,7 +818,6 @@
             dom.adminFingerprintInput.focus();
             return;
         }
-        // Agora a senha é gerada com o fingerprint do cliente e já contém todas as informações
         const senhaCliente = gerarSenhaDispositivo(fingerprintCliente);
         dom.adminSenhaGerada.value = senhaCliente;
         dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
@@ -870,9 +904,11 @@
             const div = document.createElement('div');
             div.className = 'historico-item';
             const tipoIcon = item.tipo === 'universal' ? '🌍' : '📱';
+            // Oculta parte da senha por segurança
+            const senhaOculta = item.senha.slice(0, 4) + '••••' + item.senha.slice(-4);
             div.innerHTML = `
                 <span>${tipoIcon} ${item.data}</span>
-                <span class="senha-hash">${item.senha.slice(0, 8)}...</span>
+                <span class="senha-hash">${senhaOculta}</span>
             `;
             dom.historicoSenhas.appendChild(div);
         });
