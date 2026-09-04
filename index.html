@@ -17,10 +17,18 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON E MANIFEST ===== -->
+    <!-- ===== FAVICON EM TODOS OS LUGARES ===== -->
     <link rel="icon" href="fa123r.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123r.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="apple-touch-icon" sizes="57x57" href="fa123r.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="fa123r.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="fa123r.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="fa123r.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="fa123r.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="fa123r.png">
+    
+    <!-- ===== MANIFEST COMPLETO ===== -->
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22144x144%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -607,7 +615,176 @@
             background: rgba(255, 255, 255, 0.06);
         }
 
-        /* ===== GENRES MODAL ===== */
+        /* ============================================================
+           TELA DE BLOQUEIO - COM FAVICON
+           ============================================================ */
+        #blockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #blockOverlay.active {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .block-content {
+            max-width: 380px;
+            width: 100%;
+        }
+        
+        /* ===== ÍCONE NA TELA DE BLOQUEIO ===== */
+        .block-content .block-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(0, 243, 255, 0.2);
+            margin-bottom: 10px;
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+        }
+        
+        .block-content h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 2px;
+        }
+        
+        .block-content .sub {
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .block-content input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .block-content input:focus {
+            border-color: var(--neon-cyan);
+        }
+        
+        .block-content .btn-liberar {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border: none;
+            border-radius: 25px;
+            color: #000;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .block-content .btn-liberar:active {
+            transform: scale(0.97);
+        }
+        
+        .block-content .erro {
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+            min-height: 40px;
+            padding: 8px 0;
+            font-weight: 600;
+        }
+        
+        .block-content .dica {
+            background: rgba(255, 215, 0, 0.03);
+            border: 1px solid rgba(255, 215, 0, 0.05);
+            border-radius: 12px;
+            padding: 8px;
+            margin-top: 4px;
+        }
+        
+        .block-content .dica .titulo {
+            font-size: 0.6rem;
+            color: #666;
+        }
+        
+        .block-content .dica .texto {
+            font-size: 0.55rem;
+            color: #555;
+            margin-top: 2px;
+        }
+        
+        /* ===== FINGERPRINT COM FAVICON ===== */
+        .block-content .fingerprint-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin-top: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .block-content .fingerprint-area .fp-text {
+            color: #555;
+            font-size: 0.4rem;
+            word-break: break-all;
+            font-family: monospace;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .block-content .fingerprint-area .btn-copiar-fp {
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            color: var(--neon-cyan);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.45rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .block-content .fingerprint-area .btn-copiar-fp img {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .block-content .fingerprint-area .btn-copiar-fp:active {
+            transform: scale(0.9);
+        }
+
+        /* ============================================================
+           GENRES MODAL
+           ============================================================ */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -872,7 +1049,9 @@
             color: #888;
         }
 
-        /* ===== FAVORITOS MODAL ===== */
+        /* ============================================================
+           FAVORITOS MODAL
+           ============================================================ */
         .fav-modal {
             position: fixed;
             bottom: 0;
@@ -1002,7 +1181,9 @@
             transform: scale(0.97);
         }
 
-        /* ===== CHOICE MENU ===== */
+        /* ============================================================
+           CHOICE MENU
+           ============================================================ */
         .choice-menu {
             position: fixed;
             bottom: 0;
@@ -1094,7 +1275,9 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        /* ===== FEEDBACK ===== */
+        /* ============================================================
+           FEEDBACK MODAL
+           ============================================================ */
         .feedback-modal {
             position: fixed;
             top: 50%;
@@ -1187,7 +1370,9 @@
             margin-top: 2px;
         }
 
-        /* ===== NOTIFICATION ===== */
+        /* ============================================================
+           NOTIFICATION
+           ============================================================ */
         .notification {
             position: fixed;
             top: 100px;
@@ -1235,7 +1420,9 @@
             animation: spin 1s infinite;
         }
 
-        /* ===== QR CODE ===== */
+        /* ============================================================
+           QR CODE MODAL
+           ============================================================ */
         #qrCodeModal {
             position: fixed;
             top: 0;
@@ -1367,155 +1554,9 @@
             transform: scale(0.97);
         }
 
-        /* ===== BLOQUEIO ===== */
-        #blockOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        #blockOverlay.active {
-            display: flex;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .block-content {
-            max-width: 380px;
-            width: 100%;
-        }
-        
-        .block-content .logo {
-            font-size: 4rem;
-            margin-bottom: 4px;
-        }
-        
-        .block-content h1 {
-            color: #fff;
-            font-size: 1.8rem;
-            margin-bottom: 2px;
-        }
-        
-        .block-content .sub {
-            color: var(--neon-cyan);
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
-        .block-content input {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 25px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            font-size: 1rem;
-            text-align: center;
-            margin-bottom: 10px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        
-        .block-content input:focus {
-            border-color: var(--neon-cyan);
-        }
-        
-        .block-content .btn-liberar {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            border-radius: 25px;
-            color: #000;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .block-content .btn-liberar:active {
-            transform: scale(0.97);
-        }
-        
-        .block-content .erro {
-            color: var(--neon-pink);
-            font-size: 0.8rem;
-            min-height: 40px;
-            padding: 8px 0;
-            font-weight: 600;
-        }
-        
-        .block-content .dica {
-            background: rgba(255, 215, 0, 0.03);
-            border: 1px solid rgba(255, 215, 0, 0.05);
-            border-radius: 12px;
-            padding: 8px;
-            margin-top: 4px;
-        }
-        
-        .block-content .dica .titulo {
-            font-size: 0.6rem;
-            color: #666;
-        }
-        
-        .block-content .dica .texto {
-            font-size: 0.55rem;
-            color: #555;
-            margin-top: 2px;
-        }
-        
-        .block-content .fingerprint-area {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 4px 8px;
-            border-radius: 8px;
-            margin-top: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        
-        .block-content .fingerprint-area .fp-text {
-            color: #555;
-            font-size: 0.4rem;
-            word-break: break-all;
-            font-family: monospace;
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .block-content .fingerprint-area .btn-copiar-fp {
-            background: rgba(0, 243, 255, 0.08);
-            border: 1px solid rgba(0, 243, 255, 0.1);
-            color: var(--neon-cyan);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.45rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        
-        .block-content .fingerprint-area .btn-copiar-fp:active {
-            transform: scale(0.9);
-        }
-
-        /* ===== ADMIN PANEL ===== */
+        /* ============================================================
+           ADMIN PANEL
+           ============================================================ */
         #adminPanel {
             display: none;
             position: fixed;
@@ -1727,6 +1768,9 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
+        /* ============================================================
+           RESPONSIVO
+           ============================================================ */
         @media(max-width: 480px) {
             .logo-macaco { height: 28px; width: 28px; }
             .btn-genero-fav { padding: 4px 10px; gap: 5px; min-height: 30px; }
@@ -1747,7 +1791,7 @@
             .fab-main { width: 38px; height: 38px; font-size: 0.9rem; }
             .fab-container { bottom: 75px; right: 8px; }
             .block-content h1 { font-size: 1.4rem; }
-            .block-content .logo { font-size: 3rem; }
+            .block-content .block-icon { width: 60px; height: 60px; }
             #adminPanel { max-width: 95%; padding: 12px; }
             .qr-content .qr-wrapper img { width: 160px; height: 160px; }
             .qr-content .qr-logo-overlay { width: 40px; height: 40px; }
@@ -1758,6 +1802,7 @@
             .genre-card .genre-count { font-size: 0.35rem; }
             .genres-modal .header h3 { font-size: 0.85rem; }
             .fav-item-modal { min-height: 34px; font-size: 0.75rem; }
+            .block-content .fingerprint-area .btn-copiar-fp img { width: 12px; height: 12px; }
         }
         
         @media(max-width: 380px) {
@@ -1844,10 +1889,14 @@
     </div>
 </div>
 
-<!-- ===== BLOQUEIO ===== -->
+<!-- ============================================================
+   TELA DE BLOQUEIO - COM FAVICON
+   ============================================================ -->
 <div id="blockOverlay" class="active">
     <div class="block-content">
-        <div class="logo">🐵</div>
+        <!-- ===== ÍCONE ===== -->
+        <img src="fa123r.png" alt="VDB Music" class="block-icon">
+        
         <h1>VAI DE BOA!</h1>
         <div class="sub">🔒 DIGITE SUA SENHA</div>
         
@@ -1862,14 +1911,19 @@
             <div class="texto">📱 Entre em contato com o suporte para receber sua senha</div>
         </div>
         
+        <!-- ===== FINGERPRINT COM FAVICON ===== -->
         <div class="fingerprint-area">
             <span class="fp-text" id="infoDispositivo">🆔 Aguardando...</span>
-            <button class="btn-copiar-fp" id="btnCopiarFingerprint">📋 Copiar</button>
+            <button class="btn-copiar-fp" id="btnCopiarFingerprint">
+                <img src="fa123r.png" alt="favicon"> Copiar
+            </button>
         </div>
     </div>
 </div>
 
-<!-- ===== ADMIN PANEL ===== -->
+<!-- ============================================================
+   ADMIN PANEL
+   ============================================================ -->
 <div id="adminPanel">
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas aleatórias para seus clientes</div>
@@ -1901,7 +1955,9 @@
     <button class="btn-fechar" id="adminCloseBtn">✕ Fechar Painel</button>
 </div>
 
-<!-- ===== QR CODE ===== -->
+<!-- ============================================================
+   QR CODE
+   ============================================================ -->
 <div id="qrCodeModal">
     <div class="qr-content">
         <div class="qr-titulo">📱 VAI DE BOA! MUSIC</div>
@@ -1919,15 +1975,21 @@
     </div>
 </div>
 
-<!-- ===== NOTIFICAÇÃO ===== -->
+<!-- ============================================================
+   NOTIFICAÇÃO
+   ============================================================ -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-<!-- ===== AUDIO ===== -->
+<!-- ============================================================
+   AUDIO
+   ============================================================ -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== MODAL GÊNEROS ===== -->
+<!-- ============================================================
+   MODAL GÊNEROS
+   ============================================================ -->
 <div class="genres-modal" id="genresModal">
     <div class="header">
         <span class="emoji-titulo">🎵</span>
@@ -1938,7 +2000,9 @@
     <button class="close-genres" id="closeGenresBtn">✕ FECHAR</button>
 </div>
 
-<!-- ===== MODAL FAVORITOS ===== -->
+<!-- ============================================================
+   MODAL FAVORITOS
+   ============================================================ -->
 <div class="fav-modal" id="favModal">
     <h3>❤️ SUAS FAVORITAS</h3>
     <div class="sub-titulo" id="favSubTitulo">Suas músicas favoritas</div>
@@ -1946,7 +2010,9 @@
     <button class="close-fav" id="closeFavBtn">FECHAR</button>
 </div>
 
-<!-- ===== MENU DE ESCOLHA ===== -->
+<!-- ============================================================
+   MENU DE ESCOLHA
+   ============================================================ -->
 <div class="choice-menu" id="choiceMenu">
     <h3>🎯 O QUE VOCÊ QUER?</h3>
     <button class="choice-btn" id="choiceGenres">
@@ -1960,7 +2026,9 @@
     <button class="choice-close" id="choiceClose">✕ CANCELAR</button>
 </div>
 
-<!-- ===== FEEDBACK ===== -->
+<!-- ============================================================
+   FEEDBACK
+   ============================================================ -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -1984,7 +2052,7 @@
     'use strict';
 
     // ============================================================
-    // CONFIGURAÇÕES - TUDO CORRETO!
+    // CONFIGURAÇÕES
     // ============================================================
     const CONFIG = {
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
@@ -1992,7 +2060,7 @@
         NUMERO_ADMIN: '12988461978',
         CLICK_SEGREDO: 8,
         TEMPO_SEGREDO: 3000,
-        FAVICON: 'fa123r.png' // ⭐ ÍCONE CORRETO!
+        FAVICON: 'fa123r.png'
     };
 
     // SENHA MESTRA: Patico1685@ (NÃO APARECE NO CÓDIGO - SÓ O HASH)
@@ -2127,7 +2195,7 @@
     }
 
     // ============================================================
-    // SISTEMA DE SENHAS - CORRIGIDO (SENHAS SEMPRE DIFERENTES)
+    // SISTEMA DE SENHAS - SENHAS SEMPRE DIFERENTES
     // ============================================================
 
     function gerarSenhaAleatoria() {
@@ -2257,7 +2325,7 @@
     });
 
     // ============================================================
-    // ADMIN - GERAR SENHAS (ATUALIZADO)
+    // ADMIN - GERAR SENHAS
     // ============================================================
     dom.adminGerarBtn.onclick = function() {
         const senhaCliente = gerarSenhaDispositivo(state.fingerprint);
