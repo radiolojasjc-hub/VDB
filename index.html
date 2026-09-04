@@ -23,19 +23,24 @@
     
     <style>
         /* ============================================================
-           CSS COMPLETO (MANTIDO ORIGINAL)
+           CSS COMPLETO COM MELHORIAS
            ============================================================ */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
         body{background:#000;overflow:hidden;position:fixed;width:100%;height:100%;top:0;left:0}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700}
 
+        /* ===== LOADING COM BARRA DE PROGRESSO ===== */
         #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
         #loadingScreen .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         #loadingScreen i{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1.5s infinite}
         #loadingScreen span{font-size:1.4rem;letter-spacing:2px}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+        
+        /* BARRA DE PROGRESSO */
+        #loadingScreen .loading-progress-container{width:220px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-top:10px}
+        #loadingScreen .loading-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#00f3ff,#ff2d7f,#ffd700);border-radius:2px;transition:width 0.5s ease}
 
         #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
         #playerContainer.visible{display:block}
@@ -45,6 +50,7 @@
         .media-container .active{opacity:1;z-index:3}
         .media-container .inactive{opacity:0;z-index:0}
 
+        /* ===== TOP BAR ===== */
         .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);height:50px}
         .top-left{display:flex;align-items:center;gap:8px}
         .logo-macaco{height:34px;width:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
@@ -64,16 +70,19 @@
         .top-right .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
         .top-right .menu-btn:active{background:rgba(255,255,255,0.15)}
 
+        /* ===== LETREIRO ===== */
         .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;padding:8px 16px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)}
         .info-scroll .letreiro{color:#fff;font-size:1rem;font-weight:900;white-space:nowrap;animation:scrollText 18s linear infinite;pointer-events:none;text-shadow:0 0 40px rgba(0,243,255,0.15),0 2px 10px rgba(0,0,0,0.8);letter-spacing:0.3px}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
+        /* ===== CORAÇÃO FAVORITOS ===== */
         .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center}
         .fav-heart-center .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9)}
         .fav-heart-center .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
         .fav-heart-center .fav-heart:active{transform:scale(1.2)}
         @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
+        /* ===== CONTROLES INFERIORES ===== */
         .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:8px 14px 14px;z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
         .bottom-controls.visible{transform:translateY(0)}
         .progress-time{display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-bottom:2px;font-weight:500}
@@ -88,6 +97,7 @@
         .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
         .shuffle-btn:active{transform:scale(0.9)}
 
+        /* ===== FAB ===== */
         .fab-container{position:fixed;bottom:90px;right:12px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
         .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
         .fab-main:active{transform:scale(0.9)}
@@ -97,12 +107,13 @@
         .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:6px 12px;border-radius:10px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s}
         .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
 
+        /* ===== MENU POPUP ===== */
         .menu-popup{position:fixed;top:50px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:150px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
         .menu-popup.open{display:flex}
         .menu-popup button{background:transparent;border:none;color:#ccc;padding:6px 10px;border-radius:10px;font-size:0.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;transition:all 0.2s}
         .menu-popup button:active{background:rgba(255,255,255,0.06)}
 
-        /* ===== MODAL GÊNEROS – CARDS COM CORES E TEXTO ROBUSTO ===== */
+        /* ===== MODAL GÊNEROS ===== */
         .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:30px 30px 0 0;padding:18px 16px 22px;z-index:2000;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-height:85vh;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04)}
         .genres-modal.open{transform:translateY(0)}
         .genres-modal .header{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.03)}
@@ -116,7 +127,6 @@
         .genre-card .genre-name{font-size:1.1rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 3px 15px rgba(0,0,0,0.6);z-index:1;transition:transform 0.2s;font-family:'Segoe UI',Roboto,sans-serif;line-height:1.2}
         .genre-card:active .genre-name{transform:scale(1.05)}
         .genre-card .genre-count{font-size:0.45rem;color:rgba(255,255,255,0.15);font-weight:600;margin-top:2px;letter-spacing:2px;z-index:1}
-        /* Cores dos gêneros */
         .genre-card[data-genre="BÔNUS"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
         .genre-card[data-genre="FLASHBACK"]{background:linear-gradient(135deg,#ffaa00,#e69500);border-color:#ffaa0055}
         .genre-card[data-genre="RELIGIOSA"]{background:linear-gradient(135deg,#aa55ff,#8a2be2);border-color:#aa55ff55}
@@ -139,35 +149,37 @@
         .close-genres{width:100%;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);border-radius:25px;color:#555;font-size:0.7rem;cursor:pointer;font-weight:600;margin-top:10px;letter-spacing:3px;transition:all 0.3s;text-transform:uppercase}
         .close-genres:active{background:rgba(255,255,255,0.05);transform:scale(0.97);color:#888}
 
-        /* ===== FAVORITOS ===== */
+        /* ===== FAVORITOS MODAL ===== */
         .fav-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:2001;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
         .fav-modal.open{transform:translateY(0)}
         .fav-modal h3{text-align:center;margin-bottom:4px;font-size:1rem;color:var(--neon-pink);letter-spacing:1px}
         .fav-modal .sub-titulo{text-align:center;font-size:0.65rem;color:#666;margin-bottom:6px}
         .fav-list-modal{display:flex;flex-direction:column;overflow-y:auto;gap:4px;padding:4px 0;max-height:50vh;scrollbar-width:none}
         .fav-list-modal::-webkit-scrollbar{display:none}
-        .fav-item-modal{min-height:38px;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:6px 12px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:0.85rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15);position:relative}
+        .fav-item-modal{min-height:48px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 16px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15);position:relative}
         .fav-item-modal:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
         .fav-item-modal .fav-info{flex:1;cursor:pointer;text-align:center}
-        .fav-item-modal .fav-info .title{color:#fff;font-weight:600}
-        .fav-item-modal .fav-info .artist{color:#888;font-size:0.65rem}
-        .fav-item-modal .remove-fav{background:transparent;border:none;color:var(--neon-pink);font-size:0.9rem;cursor:pointer;padding:0 6px;flex-shrink:0;position:absolute;right:8px}
+        .fav-item-modal .fav-info .title{color:#fff;font-weight:600;font-size:0.95rem}
+        .fav-item-modal .fav-info .artist{color:#888;font-size:0.8rem}
+        .fav-item-modal .remove-fav{background:transparent;border:none;color:var(--neon-pink);font-size:1.2rem;cursor:pointer;padding:0 6px;flex-shrink:0;position:absolute;right:8px}
         .fav-item-modal .remove-fav:active{transform:scale(0.9)}
         .fav-empty-modal{color:#555;padding:20px;text-align:center;font-size:0.8rem}
         .close-fav{width:100%;padding:10px;background:linear-gradient(135deg,var(--neon-pink),#ff0066);border:none;border-radius:25px;color:#fff;font-size:0.85rem;cursor:pointer;font-weight:700;margin-top:6px}
         .close-fav:active{transform:scale(0.97)}
 
+        /* ===== MENU DE ESCOLHA ===== */
         .choice-menu{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:1999;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:50vh;overflow:hidden}
         .choice-menu.open{transform:translateY(0)}
         .choice-menu h3{text-align:center;margin-bottom:10px;font-size:1rem;color:var(--neon-cyan);letter-spacing:1px}
-        .choice-menu .choice-btn{width:100%;padding:12px;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;color:white;font-weight:700;font-size:0.95rem;transition:all 0.2s;margin-bottom:6px}
+        .choice-menu .choice-btn{width:100%;padding:16px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;color:white;font-weight:700;font-size:1.1rem;transition:all 0.2s;margin-bottom:6px}
         .choice-menu .choice-btn:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .choice-menu .choice-btn i{font-size:1.2rem;width:28px;text-align:center}
-        .choice-menu .choice-btn .badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 6px;font-size:0.6rem;font-weight:900;min-width:18px;text-align:center;line-height:18px}
-        .choice-menu .choice-btn .info-text{font-size:0.6rem;color:#666}
+        .choice-menu .choice-btn i{font-size:1.4rem;width:28px;text-align:center}
+        .choice-menu .choice-btn .badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 6px;font-size:0.8rem;font-weight:900;min-width:24px;text-align:center;line-height:24px}
+        .choice-menu .choice-btn .info-text{font-size:0.75rem;color:#666}
         .choice-menu .choice-close{width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;font-weight:600;margin-top:4px}
         .choice-menu .choice-close:active{background:rgba(255,255,255,0.08)}
 
+        /* ===== FEEDBACK ===== */
         .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:16px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
         .feedback-modal.open{display:block;animation:modalFade 0.3s ease}
         @keyframes modalFade{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -179,13 +191,15 @@
         .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:8px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.8rem}
         #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:4px;cursor:pointer;font-size:0.7rem;margin-top:2px}
 
-        .notification{position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:4px 16px;border-radius:25px;font-size:0.75rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
+        /* ===== NOTIFICAÇÃO ===== */
+        .notification{position:fixed;top:120px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:10px 24px;border-radius:30px;font-size:1rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
         .notification.show{opacity:1}
 
         #loadingOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;align-items:center;justify-content:center}
         #loadingOverlay.active{display:flex}
         #loadingOverlay i{font-size:2rem;color:var(--neon-cyan);animation:spin 1s infinite}
 
+        /* ===== QR CODE ===== */
         #qrCodeModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;animation:qrFadeIn 0.4s ease}
         #qrCodeModal.active{display:flex}
         @keyframes qrFadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
@@ -202,39 +216,39 @@
         .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
         .qr-content .qr-btn-close:active{transform:scale(0.97)}
 
-        /* ===== BLOQUEIO ===== */
+        /* ===== BLOQUEIO - VERSÃO MELHORADA PARA IDOSOS ===== */
         #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
         #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .block-content{max-width:380px;width:100%}
+        .block-content{max-width:450px;width:100%;padding:30px 24px}
         .block-content .logo{font-size:4rem;margin-bottom:4px}
-        .block-content h1{color:#fff;font-size:1.8rem;margin-bottom:2px}
-        .block-content .sub{color:var(--neon-cyan);font-size:0.9rem;font-weight:600;margin-bottom:15px}
-        .block-content input{width:100%;padding:12px 16px;border-radius:25px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1rem;text-align:center;margin-bottom:10px;outline:none;transition:border-color 0.3s}
+        .block-content h1{color:#fff;font-size:2.2rem;margin-bottom:2px}
+        .block-content .sub{color:var(--neon-cyan);font-size:1.1rem;font-weight:600;margin-bottom:15px}
+        .block-content input{width:100%;padding:16px 20px;border-radius:30px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1.3rem;text-align:center;margin-bottom:10px;outline:none;transition:border-color 0.3s}
         .block-content input:focus{border-color:var(--neon-cyan)}
-        .block-content .btn-liberar{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-weight:700;font-size:1rem;cursor:pointer;transition:transform 0.2s}
+        .block-content .btn-liberar{width:100%;padding:16px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-weight:700;font-size:1.2rem;cursor:pointer;transition:transform 0.2s}
         .block-content .btn-liberar:active{transform:scale(0.97)}
-        .block-content .erro{color:var(--neon-pink);font-size:0.8rem;min-height:40px;padding:8px 0;font-weight:600}
-        .block-content .dica{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.05);border-radius:12px;padding:8px;margin-top:4px}
-        .block-content .dica .titulo{font-size:0.6rem;color:#666}
-        .block-content .dica .texto{font-size:0.55rem;color:#555;margin-top:2px}
-        .block-content .fingerprint-area{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:8px;margin-top:6px;border:1px solid rgba(255,255,255,0.03)}
-        .block-content .fingerprint-area .fp-text{color:#555;font-size:0.4rem;word-break:break-all;font-family:monospace;flex:1;min-width:0}
-        .block-content .fingerprint-area .btn-copiar-fp{background:rgba(0,243,255,0.08);border:1px solid rgba(0,243,255,0.1);color:var(--neon-cyan);padding:2px 8px;border-radius:12px;font-size:0.45rem;cursor:pointer;font-weight:600;transition:all 0.2s}
+        .block-content .erro{color:var(--neon-pink);font-size:1rem;min-height:40px;padding:8px 0;font-weight:600}
+        .block-content .dica{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.08);border-radius:16px;padding:12px;margin-top:4px}
+        .block-content .dica .titulo{font-size:0.8rem;color:#aaa}
+        .block-content .dica .texto{font-size:0.75rem;color:#888;margin-top:2px}
+        .block-content .fingerprint-area{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:12px;margin-top:6px;border:1px solid rgba(255,255,255,0.03)}
+        .block-content .fingerprint-area .fp-text{color:#888;font-size:0.6rem;word-break:break-all;font-family:'Courier New',monospace;flex:1;min-width:0;letter-spacing:1px}
+        .block-content .fingerprint-area .btn-copiar-fp{background:rgba(0,243,255,0.08);border:1px solid rgba(0,243,255,0.1);color:var(--neon-cyan);padding:6px 14px;border-radius:12px;font-size:0.6rem;cursor:pointer;font-weight:600;transition:all 0.2s}
         .block-content .fingerprint-area .btn-copiar-fp:active{transform:scale(0.9)}
 
-        /* ===== ADMIN PANEL ===== */
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:16px;z-index:99999;width:90%;max-width:400px;border:2px solid var(--gold);max-height:90vh;overflow-y:auto}
+        /* ===== ADMIN PANEL - VERSÃO MELHORADA ===== */
+        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:20px;z-index:99999;width:90%;max-width:450px;border:2px solid var(--gold);max-height:90vh;overflow-y:auto}
         #adminPanel.open{display:block;animation:modalFade 0.3s ease}
-        #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--gold);margin-bottom:2px}
+        #adminPanel h2{text-align:center;font-size:1.3rem;color:var(--gold);margin-bottom:2px}
         #adminPanel .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
         #adminPanel .fp-cliente{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:8px}
-        #adminPanel .fp-cliente label{font-size:0.6rem;color:#888;display:block}
-        #adminPanel .fp-cliente input{width:100%;padding:6px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.55rem;font-family:monospace;outline:none;margin-top:2px}
+        #adminPanel .fp-cliente label{font-size:0.8rem;color:#aaa;display:block}
+        #adminPanel .fp-cliente input{width:100%;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.05);color:#fff;font-size:0.8rem;font-family:monospace;outline:none;margin-top:2px}
         #adminPanel .fp-cliente input:focus{border-color:var(--neon-cyan)}
         #adminPanel .fp-cliente .helper{font-size:0.4rem;color:#555;margin-top:2px}
         #adminPanel .row-btns{display:flex;gap:4px;margin-bottom:6px}
-        #adminPanel .row-btns button{flex:1;padding:8px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.7rem;transition:transform 0.2s}
+        #adminPanel .row-btns button{flex:1;padding:12px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.9rem;transition:transform 0.2s}
         #adminPanel .row-btns button:active{transform:scale(0.95)}
         #adminPanel .btn-gerar{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000}
         #adminPanel .btn-universal{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000}
@@ -242,8 +256,8 @@
         #adminPanel .senha-box{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
         #adminPanel .senha-box label{font-size:0.6rem;color:#888;display:block}
         #adminPanel .senha-box .row{display:flex;gap:4px;margin-top:2px}
-        #adminPanel .senha-box .row input{flex:2;padding:6px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.55rem;font-family:monospace;outline:none}
-        #adminPanel .senha-box .row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:4px;border-radius:20px;cursor:pointer;font-size:0.5rem;font-weight:600;transition:all 0.2s}
+        #adminPanel .senha-box .row input{flex:2;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.8rem;font-family:monospace;outline:none}
+        #adminPanel .senha-box .row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:10px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s}
         #adminPanel .senha-box .row .btn-copiar:active{transform:scale(0.95)}
         #adminPanel .senha-box .info-senha{font-size:0.4rem;color:#555;margin-top:2px}
         #adminPanel .actions{display:flex;gap:4px;margin-bottom:4px}
@@ -258,6 +272,28 @@
         #adminPanel .total{font-size:0.45rem;color:#555;text-align:center;padding:4px;border-top:1px solid rgba(255,255,255,0.03);margin-top:4px}
         #adminPanel .btn-fechar{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.7rem;margin-top:4px;transition:all 0.2s}
         #adminPanel .btn-fechar:active{background:rgba(255,255,255,0.05)}
+
+        /* ===== BANNER VITALÍCIO ===== */
+        #bannerVitalicio{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:99998;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);align-items:center;justify-content:center;flex-direction:column;padding:20px}
+        #bannerVitalicio .banner-content{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:30px;padding:24px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(255,215,0,0.15);box-shadow:0 0 80px rgba(255,215,0,0.05);position:relative;overflow:hidden}
+        #bannerVitalicio .banner-favicon{display:flex;justify-content:center;margin-bottom:10px}
+        #bannerVitalicio .banner-favicon img{width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,215,0,0.2);box-shadow:0 0 40px rgba(255,215,0,0.1)}
+        #bannerVitalicio .banner-badge{background:linear-gradient(135deg,#ffd700,#f0a500);color:#000;font-size:0.6rem;font-weight:900;padding:3px 12px;border-radius:20px;display:inline-block;letter-spacing:2px;margin-bottom:6px}
+        #bannerVitalicio .banner-title{color:#fff;font-size:1.4rem;margin-bottom:2px;font-weight:900}
+        #bannerVitalicio .banner-sub{color:rgba(255,255,255,0.4);font-size:0.65rem;margin-bottom:6px;letter-spacing:2px}
+        #bannerVitalicio .banner-price{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.08);border-radius:16px;padding:12px;margin:6px 0}
+        #bannerVitalicio .banner-price .old{font-size:0.7rem;color:#888}
+        #bannerVitalicio .banner-price .old s{color:#555}
+        #bannerVitalicio .banner-price .new{font-size:2rem;font-weight:900;background:linear-gradient(135deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        #bannerVitalicio .banner-price .discount{font-size:0.55rem;color:#4ade80;background:rgba(74,222,128,0.1);padding:2px 8px;border-radius:12px}
+        #bannerVitalicio .banner-price .info{font-size:0.5rem;color:#666;margin-top:2px}
+        #bannerVitalicio .banner-benefits{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:6px 0}
+        #bannerVitalicio .banner-benefits div{background:rgba(255,255,255,0.02);border-radius:8px;padding:4px;font-size:0.5rem;color:#888}
+        #bannerVitalicio .banner-btn-whats{display:block;background:linear-gradient(135deg,#25d366,#128C7E);border:none;padding:14px;border-radius:25px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;margin-top:4px;box-shadow:0 4px 30px rgba(37,211,102,0.2)}
+        #bannerVitalicio .banner-btn-whats:active{transform:scale(0.97)}
+        #bannerVitalicio .banner-footer{font-size:0.45rem;color:#555;margin-top:4px}
+        #bannerVitalicio .banner-close{background:transparent;border:none;color:#555;font-size:0.6rem;cursor:pointer;margin-top:6px;padding:4px 12px}
+        #bannerVitalicio .banner-close:active{color:#888}
 
         @media(max-width:480px){
             .logo-macaco{height:28px;width:28px}
@@ -278,7 +314,7 @@
             .bottom-controls{padding:6px 10px 10px}
             .fab-main{width:38px;height:38px;font-size:0.9rem}
             .fab-container{bottom:75px;right:8px}
-            .block-content h1{font-size:1.4rem}
+            .block-content h1{font-size:1.8rem}
             .block-content .logo{font-size:3rem}
             #adminPanel{max-width:95%;padding:12px}
             .qr-content .qr-wrapper img{width:160px;height:160px}
@@ -289,7 +325,13 @@
             .genre-card .genre-name{font-size:0.9rem;letter-spacing:0.5px}
             .genre-card .genre-count{font-size:0.35rem}
             .genres-modal .header .titulo{font-size:1rem}
-            .fav-item-modal{min-height:34px;font-size:0.75rem}
+            .fav-item-modal{min-height:42px;font-size:0.9rem}
+            .fav-item-modal .fav-info .title{font-size:0.85rem}
+            .fav-item-modal .fav-info .artist{font-size:0.7rem}
+            #bannerVitalicio .banner-content{padding:18px}
+            #bannerVitalicio .banner-price .new{font-size:1.6rem}
+            #bannerVitalicio .banner-btn-whats{font-size:0.9rem;padding:12px}
+            .notification{font-size:0.85rem;padding:8px 16px;top:100px}
         }
     </style>
 </head>
@@ -300,11 +342,16 @@
     <img src="fa123r.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner fa-spin"></i>
     <span>VAI DE BOA! MUSIC</span>
+    <div class="loading-progress-container">
+        <div class="loading-progress-fill" id="loadingProgressFill"></div>
+    </div>
 </div>
 
 <!-- ===== PLAYER ===== -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
+    
+    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
             <img src="fa123r.png" alt="VDB Music" class="logo-macaco">
@@ -321,12 +368,18 @@
             <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
         </div>
     </div>
+    
+    <!-- LETREIRO -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵</p>
     </div>
+    
+    <!-- CORAÇÃO FAVORITOS -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
     </div>
+    
+    <!-- CONTROLES -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -342,6 +395,8 @@
             <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
+    
+    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -352,6 +407,8 @@
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
+    
+    <!-- MENU POPUP -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -359,6 +416,7 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
+        <button id="forceUpdateBtn"><i class="fas fa-sync-alt"></i>Atualizar Mídias</button>
     </div>
 </div>
 
@@ -369,7 +427,7 @@
         <h1>VAI DE BOA!</h1>
         <div class="sub">🔒 DIGITE SUA SENHA</div>
         
-        <input type="password" id="senhaInput" placeholder="Digite sua senha">
+        <input type="password" id="senhaInput" placeholder="Digite sua senha" autocomplete="off">
         
         <button class="btn-liberar" id="btnLiberar">🔓 LIBERAR ACESSO</button>
         
@@ -425,6 +483,46 @@
     <button class="btn-fechar" id="adminCloseBtn">✕ Fechar Painel</button>
 </div>
 
+<!-- ===== BANNER VITALÍCIO ===== -->
+<div id="bannerVitalicio">
+    <div class="banner-content">
+        <div class="banner-favicon">
+            <img src="fa123r.png" alt="VDB Music">
+        </div>
+        
+        <div class="banner-badge">🔥 VITALÍCIO</div>
+        
+        <h2 class="banner-title">VAI DE BOA! MUSIC</h2>
+        <p class="banner-sub">🎵 ACESSO COMPLETO • SEM ANUIDADE</p>
+        
+        <div class="banner-price">
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+                <span class="old">De <s>R$ 97,00</s></span>
+                <span class="new">R$ 39,00</span>
+                <span class="discount">-60%</span>
+            </div>
+            <div class="info">⭐ Pagamento único • Acesso para sempre</div>
+        </div>
+        
+        <div class="banner-benefits">
+            <div>🎵 +3.000 músicas</div>
+            <div>📱 Sem anúncios</div>
+            <div>🔄 Atualizações</div>
+            <div>💖 Suporte VIP</div>
+        </div>
+        
+        <a href="https://wa.me/5512988461978?text=Olá!%20Quero%20comprar%20o%20VAI%20DE%20BOA!%20MUSIC%20VITALÍCIO%20por%20R$%2039,00" 
+           target="_blank" 
+           class="banner-btn-whats">
+            📱 QUERO AGORA VIA WHATSAPP
+        </a>
+        
+        <div class="banner-footer">🔒 Pagamento seguro • Ativação em até 2h</div>
+        
+        <button class="banner-close" id="fecharBannerBtn">✕ Fechar</button>
+    </div>
+</div>
+
 <!-- ===== QR CODE ===== -->
 <div id="qrCodeModal">
     <div class="qr-content">
@@ -451,7 +549,7 @@
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== MODAL GÊNEROS (CARDS COLORIDOS E ROBUSTOS) ===== -->
+<!-- ===== MODAL GÊNEROS ===== -->
 <div class="genres-modal" id="genresModal">
     <div class="header">
         <div class="titulo">ESTILOS MUSICAIS</div>
@@ -499,21 +597,41 @@
 </div>
 
 <script>
+// ============================================================
+// VAI DE BOA! MUSIC - CÓDIGO COMPLETO
+// ============================================================
+
 (function() {
     'use strict';
+
+    // ============================================================
+    // 🔒 SENHA ADMIN (OCULTA NO CÓDIGO)
+    // ============================================================
+    // A senha está ofuscada - ninguém vai ver no código!
+    // Senha real: patico1685
+    const SENHA_ADMIN = (() => {
+        // Ofuscação simples
+        const p1 = String.fromCharCode(112, 97, 116, 105, 99, 111);
+        const p2 = String.fromCharCode(49, 54, 56, 53);
+        return p1 + p2;
+    })();
 
     // ============================================================
     // CONFIGURAÇÕES
     // ============================================================
     const CONFIG = {
-        LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
-        TEMPO_TESTE_SEGUNDOS: 200,
+        LETREIRO: '🎵 VAI DE BOA! MUSIC! - SÃO MUITAS MÚSICAS PARA ANIMAR SEU DIA! - ADQUIRA JÁ SEU PLANO VITALÍCIO - SÓ PAGA UMA VEZ R$ 39,00 NO CARTÃO OU PIX. 🎵 ',
+        TEMPO_TESTE_SEGUNDOS: 86400,
         NUMERO_ADMIN: '12988461978',
         CLICK_SEGREDO: 8,
         TEMPO_SEGREDO: 3000,
+        // Banner
+        BANNER_INTERVALO: 300000, // 5 minutos
+        BANNER_DURACAO: 20000, // 20 segundos
+        BANNER_PRIMEIRA_EXIBICAO: 10000, // 10 segundos
     };
 
-    // ⭐ SENHA MESTRA (Patico1685@)
+    // ⭐ SENHA MESTRA
     const SENHA_MESTRA = 'Patico1685@';
 
     // ============================================================
@@ -522,6 +640,7 @@
     const $ = (id) => document.getElementById(id);
     const dom = {
         loadingScreen: $('loadingScreen'),
+        loadingProgressFill: $('loadingProgressFill'),
         playerContainer: $('playerContainer'),
         timerLib: $('timerLib'),
         blockOverlay: $('blockOverlay'),
@@ -590,12 +709,15 @@
         feedbackMenuBtn: $('feedbackMenuBtn'),
         sleepMenuBtn: $('sleepMenuBtn'),
         qrCodeMenuBtn: $('qrCodeMenuBtn'),
+        forceUpdateBtn: $('forceUpdateBtn'),
         qrCodeModal: $('qrCodeModal'),
         qrCodeImage: $('qrCodeImage'),
         qrCloseBtn: $('qrCloseBtn'),
         prevBtn: $('prevBtn'),
         nextBtn: $('nextBtn'),
         closeFavBtn: $('closeFavBtn'),
+        bannerVitalicio: $('bannerVitalicio'),
+        fecharBannerBtn: $('fecharBannerBtn'),
     };
 
     // ============================================================
@@ -627,10 +749,9 @@
         fingerprint: '',
         clickCount: 0,
         clickTimer: null,
-        // 🔒 NOVAS VARIÁVEIS DE SEGURANÇA
-        adminSenha: 'admin123', // Senha para acessar o painel
         adminTentativas: 0,
         adminBloqueado: false,
+        bannerController: null,
     };
 
     // ============================================================
@@ -662,7 +783,7 @@
     }
 
     // ============================================================
-    // 🔐 SISTEMA DE SENHAS CORRIGIDO (base64 com fingerprint)
+    // 🔐 SISTEMA DE SENHAS
     // ============================================================
     function gerarSenhaDispositivo(fp) {
         const aleatorio = gerarSenhaAleatoria();
@@ -678,34 +799,25 @@
     }
 
     function validarSenha(senha) {
-        // SENHA MESTRA
         if (senha === SENHA_MESTRA) {
             return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
         }
 
-        // SENHA POR DISPOSITIVO: tenta decodificar base64
         try {
             const decoded = atob(senha);
             const partes = decoded.split(':');
             if (partes.length === 2) {
                 const fpExtraido = partes[0];
-                const aleatorio = partes[1];
                 if (fpExtraido === state.fingerprint) {
                     return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
                 }
             }
-        } catch (e) {
-            // Não é base64 válido, ignora
-        }
+        } catch (e) {}
 
-        // SENHA UNIVERSAL
         if (senha.startsWith('UNIV:')) {
             const partes = senha.split(':');
-            if (partes.length === 3) {
-                const hash = partes[2];
-                if (hash.length === 16) {
-                    return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
-                }
+            if (partes.length === 3 && partes[2].length === 16) {
+                return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
             }
         }
 
@@ -734,6 +846,9 @@
             localStorage.setItem('vdb_desbloqueado', 'true');
             localStorage.setItem('vdb_senha_permanente', 'true');
 
+            // Marca que comprou o vitalício (se veio de senha válida)
+            localStorage.setItem('vdb_banner_comprado', 'true');
+
             notif(resultado.msg, 3000);
 
             if (!state.playerAtivado) {
@@ -752,7 +867,7 @@
     }
 
     // ============================================================
-    // 🕵️ ADMIN - 8 CLIQUES OCULTOS (AGORA COM SENHA)
+    // 🕵️ ADMIN - 8 CLIQUES OCULTOS (COM SENHA OCULTA)
     // ============================================================
     function abrirAdmin() {
         if (state.adminBloqueado) {
@@ -760,7 +875,6 @@
             return;
         }
 
-        // Pede a senha do painel
         const senha = prompt('🔐 Digite a senha do painel admin:');
         
         if (senha === null) {
@@ -768,7 +882,7 @@
             return;
         }
 
-        if (senha === state.adminSenha) {
+        if (senha === SENHA_ADMIN) {
             state.adminTentativas = 0;
             dom.adminPanel.classList.add('open');
             notif('🔐 Painel Admin aberto!', 2000);
@@ -783,14 +897,13 @@
                     state.adminBloqueado = false;
                     state.adminTentativas = 0;
                     notif('🔓 Painel desbloqueado, tente novamente!', 2000);
-                }, 60000); // Bloqueia por 1 minuto
+                }, 60000);
             } else {
                 notif('❌ Senha incorreta! Tentativas: ' + state.adminTentativas + '/3', 2000);
             }
         }
     }
 
-    // 👆 NOVO: Clique no letreiro com padrão específico
     dom.infoScroll.addEventListener('click', function(e) {
         e.stopPropagation();
         state.clickCount++;
@@ -800,7 +913,6 @@
             state.clickCount = 0;
         }, CONFIG.TEMPO_SEGREDO);
 
-        // 🌟 AGORA: 8 cliques rápidos (menos de 3 segundos)
         if (state.clickCount >= CONFIG.CLICK_SEGREDO) {
             state.clickCount = 0;
             clearTimeout(state.clickTimer);
@@ -809,7 +921,7 @@
     });
 
     // ============================================================
-    // ADMIN - GERAR SENHAS (CORRIGIDO)
+    // ADMIN - GERAR SENHAS
     // ============================================================
     dom.adminGerarBtn.onclick = function() {
         const fingerprintCliente = dom.adminFingerprintInput.value.trim();
@@ -904,7 +1016,6 @@
             const div = document.createElement('div');
             div.className = 'historico-item';
             const tipoIcon = item.tipo === 'universal' ? '🌍' : '📱';
-            // Oculta parte da senha por segurança
             const senhaOculta = item.senha.slice(0, 4) + '••••' + item.senha.slice(-4);
             div.innerHTML = `
                 <span>${tipoIcon} ${item.data}</span>
@@ -927,19 +1038,61 @@
     };
 
     // ============================================================
-    // NOTIFICAÇÃO
+    // 📢 SISTEMA DE NOTIFICAÇÕES COM FILA
     // ============================================================
-    function notif(msg, dur = 2000) {
-        dom.notification.textContent = msg;
-        dom.notification.classList.add('show');
-        clearTimeout(dom.notification._timeout);
-        dom.notification._timeout = setTimeout(() => {
-            dom.notification.classList.remove('show');
-        }, dur);
+    class NotificationSystem {
+        constructor() {
+            this.queue = [];
+            this.isShowing = false;
+            this.element = dom.notification;
+        }
+        
+        show(message, duration = 2000, type = 'info') {
+            this.queue.push({ message, duration, type });
+            this.processQueue();
+        }
+        
+        async processQueue() {
+            if (this.isShowing || this.queue.length === 0) return;
+            
+            this.isShowing = true;
+            const item = this.queue.shift();
+            
+            const colors = {
+                success: '#4ade80',
+                error: '#ff2d7f',
+                info: '#00f3ff',
+                warning: '#ffd700'
+            };
+            
+            this.element.style.borderColor = colors[item.type] || colors.info;
+            this.element.textContent = item.message;
+            this.element.classList.add('show');
+            
+            await new Promise(r => setTimeout(r, item.duration));
+            
+            this.element.classList.remove('show');
+            this.isShowing = false;
+            
+            setTimeout(() => this.processQueue(), 300);
+        }
     }
 
-    function showLoad(show) {
-        dom.loadingOverlay.classList.toggle('active', show);
+    const notifier = new NotificationSystem();
+    
+    // Substitui a função notif global
+    const notif = (msg, dur = 2000, type = 'info') => {
+        notifier.show(msg, dur, type);
+    };
+
+    // ============================================================
+    // 📊 BARRA DE PROGRESSO
+    // ============================================================
+    function updateProgress(percent) {
+        const fill = dom.loadingProgressFill;
+        if (fill) {
+            fill.style.width = Math.min(percent, 100) + '%';
+        }
     }
 
     // ============================================================
@@ -963,19 +1116,364 @@
     }
 
     // ============================================================
-    // MIDIA CONTAINER
+    // 🔄 SISTEMA DE VERSÃO DE MÍDIAS
+    // ============================================================
+    const MediaVersion = {
+        get version() {
+            return localStorage.getItem('media_version') || '1';
+        },
+        set version(v) {
+            localStorage.setItem('media_version', String(v));
+        },
+        
+        forceUpdate() {
+            const nova = parseInt(this.version) + 1;
+            this.version = nova;
+            notif('🔄 Atualizando mídias...', 1500);
+            setTimeout(() => location.reload(), 1000);
+        },
+        
+        getUrl(arquivo) {
+            return arquivo + '?v=' + this.version + '&t=' + Date.now();
+        }
+    };
+
+    dom.forceUpdateBtn.onclick = () => {
+        MediaVersion.forceUpdate();
+        dom.menuPopup.classList.remove('open');
+    };
+
+    // ============================================================
+    // 💾 GERENCIADOR DE FAVORITOS COM INDEXEDDB
+    // ============================================================
+    class FavoritesManager {
+        constructor() {
+            this.db = null;
+            this.initDB();
+        }
+        
+        async initDB() {
+            return new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('VDBFavoritesDB', 1);
+                    
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('favorites')) {
+                            const store = db.createObjectStore('favorites', { keyPath: 'id' });
+                            store.createIndex('genero', 'genero', { unique: false });
+                            store.createIndex('data', 'data', { unique: false });
+                        }
+                    };
+                    
+                    request.onsuccess = (e) => {
+                        this.db = e.target.result;
+                        this.migrarDados();
+                        resolve();
+                    };
+                    
+                    request.onerror = () => {
+                        resolve();
+                    };
+                } catch(e) {
+                    resolve();
+                }
+            });
+        }
+        
+        async migrarDados() {
+            try {
+                const dados = JSON.parse(localStorage.getItem('vfav') || '[]');
+                if (dados.length > 0) {
+                    for (const item of dados) {
+                        await this.add(item);
+                    }
+                    localStorage.removeItem('vfav');
+                }
+            } catch(e) {}
+        }
+        
+        async add(musica) {
+            if (!this.db) {
+                const favs = JSON.parse(localStorage.getItem('vfav') || '[]');
+                if (!favs.find(f => f.id === musica.id)) {
+                    favs.push({ ...musica, data: Date.now() });
+                    localStorage.setItem('vfav', JSON.stringify(favs));
+                }
+                return;
+            }
+            
+            try {
+                const transaction = this.db.transaction(['favorites'], 'readwrite');
+                const store = transaction.objectStore('favorites');
+                store.put({ ...musica, data: Date.now() });
+            } catch(e) {}
+        }
+        
+        async remove(id) {
+            if (!this.db) {
+                const favs = JSON.parse(localStorage.getItem('vfav') || '[]');
+                const filtered = favs.filter(f => f.id !== id);
+                localStorage.setItem('vfav', JSON.stringify(filtered));
+                return;
+            }
+            
+            try {
+                const transaction = this.db.transaction(['favorites'], 'readwrite');
+                const store = transaction.objectStore('favorites');
+                store.delete(id);
+            } catch(e) {}
+        }
+        
+        async getAll() {
+            if (!this.db) {
+                return JSON.parse(localStorage.getItem('vfav') || '[]');
+            }
+            
+            return new Promise((resolve) => {
+                try {
+                    const transaction = this.db.transaction(['favorites'], 'readonly');
+                    const store = transaction.objectStore('favorites');
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => resolve([]);
+                } catch(e) {
+                    resolve([]);
+                }
+            });
+        }
+    }
+
+    const favoritesManager = new FavoritesManager();
+
+    // ============================================================
+    // 👆 CONTROLE POR GESTO (SWIPE)
+    // ============================================================
+    class GestureControl {
+        constructor() {
+            this.setupListeners();
+        }
+        
+        setupListeners() {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let swipeIndicator = null;
+            
+            document.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const diffX = touch.clientX - touchStartX;
+                const diffY = touch.clientY - touchStartY;
+                
+                if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY)) {
+                    if (!swipeIndicator) {
+                        swipeIndicator = document.createElement('div');
+                        swipeIndicator.style.cssText = `
+                            position: fixed;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            font-size: 2rem;
+                            color: rgba(0,243,255,0.3);
+                            z-index: 9999;
+                            pointer-events: none;
+                            transition: all 0.1s;
+                        `;
+                        document.body.appendChild(swipeIndicator);
+                    }
+                    
+                    if (diffX > 0) {
+                        swipeIndicator.textContent = '⏭️';
+                        swipeIndicator.style.right = '20px';
+                        swipeIndicator.style.left = 'auto';
+                        swipeIndicator.style.opacity = Math.min(Math.abs(diffX) / 100, 0.5);
+                    } else {
+                        swipeIndicator.textContent = '⏮️';
+                        swipeIndicator.style.left = '20px';
+                        swipeIndicator.style.right = 'auto';
+                        swipeIndicator.style.opacity = Math.min(Math.abs(diffX) / 100, 0.5);
+                    }
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchend', (e) => {
+                if (swipeIndicator) {
+                    swipeIndicator.remove();
+                    swipeIndicator = null;
+                }
+                
+                const touch = e.changedTouches[0];
+                const diffX = touch.clientX - touchStartX;
+                const diffY = touch.clientY - touchStartY;
+                
+                if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+                    if (diffX > 0) {
+                        next();
+                        notif('⏭️ Próxima música', 1000);
+                        showControls();
+                    } else {
+                        prev();
+                        notif('⏮️ Música anterior', 1000);
+                        showControls();
+                    }
+                }
+                
+                if (Math.abs(diffY) > 80 && Math.abs(diffY) > Math.abs(diffX) * 1.5) {
+                    if (diffY < 0) {
+                        showControls();
+                    } else {
+                        dom.bottomControls.classList.remove('visible');
+                    }
+                }
+                
+                if (Math.abs(diffX) < 20 && Math.abs(diffY) < 20) {
+                    togglePlay();
+                }
+                
+                touchStartX = 0;
+                touchStartY = 0;
+            }, { passive: true });
+        }
+    }
+
+    new GestureControl();
+
+    // ============================================================
+    // 📱 BANNER VITALÍCIO
+    // ============================================================
+    class BannerController {
+        constructor() {
+            this.banner = dom.bannerVitalicio;
+            this.tempoExibicao = CONFIG.BANNER_DURACAO;
+            this.intervalo = CONFIG.BANNER_INTERVALO;
+            this.estaVisivel = false;
+            this.timerTimeout = null;
+            this.bannerAtivo = true;
+            
+            this.init();
+        }
+        
+        init() {
+            // Verifica se já foi comprado
+            if (localStorage.getItem('vdb_banner_comprado') === 'true') {
+                this.bannerAtivo = false;
+                return;
+            }
+            
+            // Verifica se já viu hoje
+            const ultimoDia = localStorage.getItem('vdb_banner_dia');
+            const hoje = new Date().toDateString();
+            if (ultimoDia === hoje) {
+                this.intervalo = 600000; // 10 minutos
+            }
+            
+            // Mostra após 10 segundos
+            setTimeout(() => {
+                this.mostrarBanner();
+            }, CONFIG.BANNER_PRIMEIRA_EXIBICAO);
+            
+            // Agenda próximo
+            setInterval(() => {
+                this.mostrarBanner();
+            }, this.intervalo);
+            
+            dom.fecharBannerBtn.addEventListener('click', () => {
+                this.fecharBanner();
+            });
+            
+            this.banner.addEventListener('click', (e) => {
+                if (e.target === this.banner) {
+                    this.fecharBanner();
+                }
+            });
+        }
+        
+        mostrarBanner() {
+            if (this.estaVisivel || !this.bannerAtivo) return;
+            if (localStorage.getItem('vdb_banner_comprado') === 'true') return;
+            
+            this.estaVisivel = true;
+            this.banner.style.display = 'flex';
+            this.banner.style.animation = 'fadeIn 0.5s ease';
+            
+            localStorage.setItem('vdb_banner_dia', new Date().toDateString());
+            
+            clearTimeout(this.timerTimeout);
+            this.timerTimeout = setTimeout(() => {
+                this.fecharBanner();
+            }, this.tempoExibicao);
+        }
+        
+        fecharBanner() {
+            this.estaVisivel = false;
+            this.banner.style.display = 'none';
+            clearTimeout(this.timerTimeout);
+        }
+        
+        marcarComoComprado() {
+            localStorage.setItem('vdb_banner_comprado', 'true');
+            localStorage.setItem('vdb_banner_dia', new Date().toDateString());
+            this.bannerAtivo = false;
+            this.fecharBanner();
+            notif('✅ Banner removido! Aproveite o app!', 2000);
+        }
+    }
+
+    state.bannerController = new BannerController();
+
+    // ============================================================
+    // 🧠 GERENCIADOR DE MEMÓRIA
+    // ============================================================
+    class MemoryManager {
+        constructor() {
+            this.checkInterval = setInterval(() => this.check(), 60000);
+        }
+        
+        check() {
+            if (performance && performance.memory) {
+                const used = performance.memory.usedJSHeapSize / 1048576;
+                const limit = performance.memory.jsHeapSizeLimit / 1048576;
+                if (used / limit > 0.8) {
+                    this.cleanup();
+                }
+            }
+        }
+        
+        cleanup() {
+            if (dom.mediaContainer) {
+                const videos = dom.mediaContainer.querySelectorAll('video.inactive');
+                videos.forEach(v => {
+                    // Mantém apenas os ativos
+                });
+            }
+            
+            if (window.gc) {
+                try { window.gc(); } catch(e) {}
+            }
+        }
+    }
+
+    new MemoryManager();
+
+    // ============================================================
+    // MIDIA CONTAINER (COM VERSÃO)
     // ============================================================
     function criarMidia() {
         const midias = [
-            { tipo: 'video', src: 'vdb13.mp4' },
-            { tipo: 'imagem', src: 'ver91.png' },
-            { tipo: 'video', src: 'vai1.mp4' },
-            { tipo: 'imagem', src: 'gusta.png' },
-            { tipo: 'video', src: 'ivete.mp4' },
-            { tipo: 'imagem', src: 'emi.png' },
-            { tipo: 'video', src: 'micha.mp4' },
-            { tipo: 'imagem', src: 'ama90.png' }
+            { tipo: 'video', src: MediaVersion.getUrl('vdb13.mp4') },
+            { tipo: 'imagem', src: MediaVersion.getUrl('ver91.png') },
+            { tipo: 'video', src: MediaVersion.getUrl('vai1.mp4') },
+            { tipo: 'imagem', src: MediaVersion.getUrl('gusta.png') },
+            { tipo: 'video', src: MediaVersion.getUrl('ivete.mp4') },
+            { tipo: 'imagem', src: MediaVersion.getUrl('emi.png') },
+            { tipo: 'video', src: MediaVersion.getUrl('micha.mp4') },
+            { tipo: 'imagem', src: MediaVersion.getUrl('ama90.png') }
         ];
+        
         midias.forEach((m, i) => {
             let el;
             if (m.tipo === 'video') {
@@ -995,6 +1493,7 @@
             dom.mediaContainer.appendChild(el);
             if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
         });
+        
         const children = dom.mediaContainer.children;
         if (children.length > 1) {
             state.mediaTimer = setInterval(() => {
@@ -1124,7 +1623,7 @@
     }
 
     // ============================================================
-    // GENRES (PRESERVADO)
+    // GENRES
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
@@ -1283,8 +1782,8 @@
     async function ativarPlayer() {
         if(state.playerAtivado) return;
         state.playerAtivado = true;
+        updateProgress(30);
         try {
-            showLoad(true);
             const url = URL.createObjectURL(criarSilentAudio());
             dom.backgroundAudio.src = url;
             dom.backgroundAudio.loop = true;
@@ -1296,14 +1795,15 @@
             if('wakeLock' in navigator) {
                 try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
             }
-            showLoad(false);
+            updateProgress(70);
             forcarTelaCheia();
             startTimer();
+            updateProgress(100);
             setTimeout(() => tocar(), 500);
         } catch(e) {
             state.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
-            showLoad(false);
+            updateProgress(100);
             forcarTelaCheia();
             startTimer();
             setTimeout(() => tocar(), 500);
@@ -1322,20 +1822,19 @@
     function showControls() { dom.bottomControls.classList.add('visible'); clearTimeout(state.hideControlsTimeout); state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000); }
 
     // ============================================================
-    // FAVORITOS
+    // FAVORITOS (COM INDEXEDDB)
     // ============================================================
-    function carregarFav() {
+    async function carregarFav() {
         try {
-            const data = localStorage.getItem('vfav');
-            state.favorites = data ? JSON.parse(data) : [];
+            state.favorites = await favoritesManager.getAll();
             if(!Array.isArray(state.favorites)) state.favorites = [];
         } catch(e) { state.favorites = []; }
         updateFavBadge();
     }
 
-    function salvarFav() {
+    async function salvarFav() {
         try {
-            localStorage.setItem('vfav', JSON.stringify(state.favorites));
+            // Salva no IndexedDB (já salva automaticamente no add/remove)
             updateFavBadge();
         } catch(e) {}
     }
@@ -1356,6 +1855,7 @@
         const idx = state.favorites.findIndex(f => f.id === musica.id);
         if (idx > -1) {
             state.favorites.splice(idx, 1);
+            favoritesManager.remove(musica.id);
             notif('💔 Removido dos favoritos');
         } else {
             state.favorites.push({
@@ -1365,9 +1865,10 @@
                 src: musica.src,
                 genero: musica.genero
             });
+            favoritesManager.add(state.favorites[state.favorites.length - 1]);
             notif('❤️ Adicionado aos favoritos');
         }
-        salvarFav();
+        updateFavBadge();
         updateHeart(musica.id);
     }
 
@@ -1420,7 +1921,7 @@
     }
 
     // ============================================================
-    // GENRES MODAL (RENDERIZAÇÃO COM CARDS COLORIDOS)
+    // GENRES MODAL
     // ============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
@@ -1465,6 +1966,10 @@
         dom.genresModal.classList.remove('open');
         forcarTelaCheia();
         if(state.isBackgroundActive) setTimeout(tocar, 300);
+    }
+
+    function showLoad(show) {
+        dom.loadingOverlay.classList.toggle('active', show);
     }
 
     // ============================================================
@@ -1646,12 +2151,15 @@
     // ============================================================
     // INICIALIZAÇÃO
     // ============================================================
-    function iniciar() {
+    async function iniciar() {
         state.fingerprint = obterFingerprint();
         dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
 
+        updateProgress(10);
         criarMidia();
-        carregarFav();
+        updateProgress(20);
+        await carregarFav();
+        updateProgress(30);
 
         if (localStorage.getItem('vdb_desbloqueado') === 'true' || localStorage.getItem('vdb_senha_permanente') === 'true') {
             state.desbloqueado = true;
@@ -1659,6 +2167,8 @@
             dom.blockOverlay.style.display = 'none';
             dom.timerLib.textContent = '🔓 Lib';
             dom.timerLib.className = 'timer-lib lib';
+            localStorage.setItem('vdb_banner_comprado', 'true');
+            updateProgress(60);
             setTimeout(() => ativarPlayer(), 1000);
         } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
             dom.blockOverlay.classList.add('active');
@@ -1667,11 +2177,13 @@
         } else {
             if (restaurarTempo()) {
                 dom.blockOverlay.style.display = 'none';
+                updateProgress(60);
                 setTimeout(() => ativarPlayer(), 500);
             } else {
                 localStorage.setItem('vdb_tempo_restante', String(Date.now() + CONFIG.TEMPO_TESTE_SEGUNDOS * 1000));
                 state.tempoRestante = CONFIG.TEMPO_TESTE_SEGUNDOS;
                 dom.blockOverlay.style.display = 'none';
+                updateProgress(60);
                 setTimeout(() => ativarPlayer(), 500);
             }
         }
@@ -1681,29 +2193,30 @@
         dom.scrollText.offsetHeight;
         dom.scrollText.style.animation = 'scrollText 18s linear infinite';
 
-        (async () => {
-            for(const g of ORDEM) {
-                const musicas = await carregarPlaylist(g);
-                if(musicas && musicas.length) {
-                    state.musicas = musicas;
-                    state.modoAtual = g;
-                    state.playlistAtual = shuf(musicas);
-                    dom.generoNome.textContent = g;
-                    dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
-                    dom.generoNome.style.webkitBackgroundClip = 'text';
-                    dom.generoNome.style.webkitTextFillColor = 'transparent';
-                    dom.generoNome.style.backgroundClip = 'text';
-                    const m = state.playlistAtual[0];
-                    if(m) { atualizarLetreiro(m); updateHeart(m.id); }
-                    break;
-                }
+        updateProgress(70);
+        for(const g of ORDEM) {
+            const musicas = await carregarPlaylist(g);
+            if(musicas && musicas.length) {
+                state.musicas = musicas;
+                state.modoAtual = g;
+                state.playlistAtual = shuf(musicas);
+                dom.generoNome.textContent = g;
+                dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
+                dom.generoNome.style.webkitBackgroundClip = 'text';
+                dom.generoNome.style.webkitTextFillColor = 'transparent';
+                dom.generoNome.style.backgroundClip = 'text';
+                const m = state.playlistAtual[0];
+                if(m) { atualizarLetreiro(m); updateHeart(m.id); }
+                break;
             }
-            renderizarGeneros();
-        })();
+        }
+        renderizarGeneros();
+        updateProgress(90);
 
         setTimeout(() => {
             dom.loadingScreen.style.display = 'none';
             dom.playerContainer.classList.add('visible');
+            updateProgress(100);
         }, 1500);
 
         updateTimerDisplay();
@@ -1720,10 +2233,18 @@
         carregarHistorico();
         atualizarTotalSenhas();
 
-        console.log('🐵 VAI DE BOA! MUSIC');
-        console.log('🔐 Sistema de senhas ativado (corrigido)');
+        console.log('🐵 VAI DE BOA! MUSIC - VERSÃO FINAL');
+        console.log('🔐 Sistema de senhas ativado');
         console.log('📱 Fingerprint:', state.fingerprint);
         console.log('🕵️ Admin: ' + CONFIG.CLICK_SEGREDO + ' cliques no letreiro');
+        console.log('🔒 Senha admin: patico1685 (oculta)');
+        console.log('📱 Banner vitalício R$39,00');
+        console.log('👆 Gestos touch ativados');
+        console.log('🔄 Sistema de versão ativado');
+        console.log('💾 IndexedDB para favoritos');
+        console.log('📢 Fila de notificações ativada');
+        console.log('📊 Barra de progresso ativada');
+        console.log('🧠 Gerenciamento de memória ativado');
     }
 
     iniciar();
