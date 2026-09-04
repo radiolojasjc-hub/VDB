@@ -520,7 +520,7 @@
     // ============================================================
     var CONFIG = {
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
-        TEMPO_TESTE_SEGUNDOS: 300, // 48 horas (para testes longos)
+        TEMPO_TESTE_SEGUNDOS: 200, // 48 horas (para testes longos)
         NUMERO_ADMIN: '12988461978',
         FAVICON: 'fa123r.png'
     };
@@ -572,6 +572,7 @@
         btnCopiarFingerprint: $('btnCopiarFingerprint'),
         btnEsqueciSenha: $('btnEsqueciSenha'),
         adminPanel: $('adminPanel'),
+        adminFingerprintInput: $('adminFingerprintInput'),
         adminSenhaGerada: $('adminSenhaGerada'),
         adminGerarBtn: $('adminGerarBtn'),
         adminGerarUniversalBtn: $('adminGerarUniversalBtn'),
@@ -774,11 +775,9 @@
         notif('🔐 Painel Admin aberto!', 2000);
         carregarHistorico();
         atualizarTotalSenhas();
-        // Remove senhas expiradas ao abrir
         removerSenhasExpiradas();
     }
 
-    // ⭐ EVENTO DO LETREIRO - SEGREDO OCULTO
     var SEGREDO_ADMIN = 4 + 3; // 7 cliques
     var TEMPO_RESET = 1500 * 2; // 3 segundos
     dom.infoScroll.addEventListener('click', function(e) {
@@ -796,14 +795,23 @@
     });
 
     // ============================================================
-    // ADMIN - GERAR SENHAS
+    // ADMIN - GERAR SENHAS (COM LIMPEZA AUTOMÁTICA DO CAMPO)
     // ============================================================
     dom.adminGerarBtn.onclick = function() {
-        var senhaCliente = gerarSenhaDispositivo(state.fingerprint);
+        var fingerprintCliente = dom.adminFingerprintInput.value.trim();
+        if (!fingerprintCliente || fingerprintCliente.length < 10) {
+            notif('⚠️ Cole o fingerprint do cliente primeiro!', 2000);
+            dom.adminFingerprintInput.focus();
+            return;
+        }
+        var senhaCliente = gerarSenhaDispositivo(fingerprintCliente);
         dom.adminSenhaGerada.value = senhaCliente;
         dom.infoSenha.textContent = '✅ Válida por 30 dias. Funciona apenas neste dispositivo.';
         adicionarHistorico(senhaCliente, 'dispositivo');
         atualizarTotalSenhas();
+        // ⭐ LIMPA O CAMPO DE FINGERPRINT
+        dom.adminFingerprintInput.value = '';
+        dom.adminFingerprintInput.focus();
         notif('✅ Nova senha gerada!', 2000);
     };
 
@@ -813,6 +821,9 @@
         dom.infoSenha.textContent = '🌍 Válida por 30 dias. Funciona em qualquer dispositivo.';
         adicionarHistorico(senhaUniversal, 'universal');
         atualizarTotalSenhas();
+        // ⭐ LIMPA O CAMPO DE FINGERPRINT (para manter consistência)
+        dom.adminFingerprintInput.value = '';
+        dom.adminFingerprintInput.focus();
         notif('✅ Senha universal gerada!', 2000);
     };
 
