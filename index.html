@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC!</title>
+    <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -15,7 +15,6 @@
     <meta name="msapplication-TileColor" content="#000000">
     <meta name="apple-touch-fullscreen" content="yes">
     
-    <!-- ===== FAVICON E MANIFEST ===== -->
     <link rel="icon" href="fa123r.png" type="image/png">
     <link rel="apple-touch-icon" href="fa123r.png">
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22fa123r.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
@@ -23,7 +22,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ===== TODO O CSS (mantido igual ao que você tinha) ===== */
+        /* ============================================================
+           CSS COMPLETO
+           ============================================================ */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
         html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
         body{background:#000;overflow:hidden;position:fixed;width:100%;height:100%;top:0;left:0}
@@ -101,17 +102,44 @@
         .menu-popup button{background:transparent;border:none;color:#ccc;padding:6px 10px;border-radius:10px;font-size:0.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;transition:all 0.2s}
         .menu-popup button:active{background:rgba(255,255,255,0.06)}
 
-        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:2000;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
+        /* ===== MODAL GÊNEROS – CARDS COM CORES E TEXTO ROBUSTO ===== */
+        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:30px 30px 0 0;padding:18px 16px 22px;z-index:2000;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-height:85vh;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04)}
         .genres-modal.open{transform:translateY(0)}
-        .genres-modal h3{text-align:center;margin-bottom:4px;font-size:1rem;color:var(--neon-cyan);letter-spacing:1px}
-        .genres-modal .sub-titulo{text-align:center;font-size:0.65rem;color:#666;margin-bottom:6px}
-        .genres-grid{display:flex;flex-direction:column;overflow-y:auto;gap:4px;padding:4px 0;max-height:50vh;scrollbar-width:none}
+        .genres-modal .header{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.03)}
+        .genres-modal .header .titulo{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,#00f3ff,#ff2d7f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .genres-modal .header .sub-titulo{font-size:0.55rem;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-top:2px;font-weight:300}
+        .genres-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:4px 0;max-height:55vh;overflow-y:auto;scrollbar-width:none}
         .genres-grid::-webkit-scrollbar{display:none}
-        .genre-card{min-height:38px;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:6px 12px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.85rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15);text-align:center}
-        .genre-card:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .close-genres{width:100%;padding:10px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-size:0.85rem;cursor:pointer;font-weight:700;margin-top:6px}
-        .close-genres:active{transform:scale(0.97)}
+        .genre-card{position:relative;min-height:70px;border-radius:18px;cursor:pointer;padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 6px 30px rgba(0,0,0,0.3);overflow:hidden;border:2px solid transparent}
+        .genre-card::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.03);opacity:0;transition:opacity 0.3s;pointer-events:none}
+        .genre-card:active::before{opacity:1}
+        .genre-card .genre-name{font-size:1.1rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 3px 15px rgba(0,0,0,0.6);z-index:1;transition:transform 0.2s;font-family:'Segoe UI',Roboto,sans-serif;line-height:1.2}
+        .genre-card:active .genre-name{transform:scale(1.05)}
+        .genre-card .genre-count{font-size:0.45rem;color:rgba(255,255,255,0.15);font-weight:600;margin-top:2px;letter-spacing:2px;z-index:1}
+        /* Cores dos gêneros */
+        .genre-card[data-genre="BÔNUS"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
+        .genre-card[data-genre="FLASHBACK"]{background:linear-gradient(135deg,#ffaa00,#e69500);border-color:#ffaa0055}
+        .genre-card[data-genre="RELIGIOSA"]{background:linear-gradient(135deg,#aa55ff,#8a2be2);border-color:#aa55ff55}
+        .genre-card[data-genre="ROMÂNTICA"]{background:linear-gradient(135deg,#ff2d7f,#cc0044);border-color:#ff2d7f55}
+        .genre-card[data-genre="MPB"]{background:linear-gradient(135deg,#00ff88,#00cc66);border-color:#00ff8855}
+        .genre-card[data-genre="POP/MIX"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .genre-card[data-genre="SERTANEJO"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
+        .genre-card[data-genre="FORRÓ"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
+        .genre-card[data-genre="SAMBA"]{background:linear-gradient(135deg,#ffdd00,#ccaa00);border-color:#ffdd0055}
+        .genre-card[data-genre="BREGA"]{background:linear-gradient(135deg,#ff66aa,#cc4488);border-color:#ff66aa55}
+        .genre-card[data-genre="REGGAE"]{background:linear-gradient(135deg,#00ffaa,#00cc88);border-color:#00ffaa55}
+        .genre-card[data-genre="MODA RAIZ"]{background:linear-gradient(135deg,#ff4400,#cc3300);border-color:#ff440055}
+        .genre-card[data-genre="FANK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .genre-card[data-genre="TESTE MIDIA"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
+        .genre-card[data-genre="MODÃO SERTANEJO"]{background:linear-gradient(135deg,#ff8c00,#cc6600);border-color:#ff8c0055}
+        .genre-card[data-genre="CHORINHO"]{background:linear-gradient(135deg,#1e90ff,#0066cc);border-color:#1e90ff55}
+        .genre-card[data-genre="FORRÓ RAIZ"]{background:linear-gradient(135deg,#ff6a00,#cc5500);border-color:#ff6a0055}
+        .genre-card[data-genre="ROCK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .genre-card:active{transform:scale(0.94);box-shadow:0 0 50px rgba(255,255,255,0.08)}
+        .close-genres{width:100%;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);border-radius:25px;color:#555;font-size:0.7rem;cursor:pointer;font-weight:600;margin-top:10px;letter-spacing:3px;transition:all 0.3s;text-transform:uppercase}
+        .close-genres:active{background:rgba(255,255,255,0.05);transform:scale(0.97);color:#888}
 
+        /* ===== FAVORITOS ===== */
         .fav-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:2001;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
         .fav-modal.open{transform:translateY(0)}
         .fav-modal h3{text-align:center;margin-bottom:4px;font-size:1rem;color:var(--neon-pink);letter-spacing:1px}
@@ -200,14 +228,11 @@
         #adminPanel.open{display:block;animation:modalFade 0.3s ease}
         #adminPanel h2{text-align:center;font-size:1.1rem;color:var(--gold);margin-bottom:2px}
         #adminPanel .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
-        
-        /* ===== NOVO: CAMPO DE FINGERPRINT DO CLIENTE ===== */
         #adminPanel .fp-cliente{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:8px}
         #adminPanel .fp-cliente label{font-size:0.6rem;color:#888;display:block}
         #adminPanel .fp-cliente input{width:100%;padding:6px 10px;border-radius:20px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.55rem;font-family:monospace;outline:none;margin-top:2px}
         #adminPanel .fp-cliente input:focus{border-color:var(--neon-cyan)}
         #adminPanel .fp-cliente .helper{font-size:0.4rem;color:#555;margin-top:2px}
-        
         #adminPanel .row-btns{display:flex;gap:4px;margin-bottom:6px}
         #adminPanel .row-btns button{flex:1;padding:8px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.7rem;transition:transform 0.2s}
         #adminPanel .row-btns button:active{transform:scale(0.95)}
@@ -259,7 +284,11 @@
             .qr-content .qr-wrapper img{width:160px;height:160px}
             .qr-content .qr-logo-overlay{width:40px;height:40px}
             .qr-content .qr-logo-overlay img{width:28px;height:28px}
-            .genre-card{min-height:34px;font-size:0.75rem}
+            .genres-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+            .genre-card{min-height:60px;padding:10px 6px;border-radius:14px}
+            .genre-card .genre-name{font-size:0.9rem;letter-spacing:0.5px}
+            .genre-card .genre-count{font-size:0.35rem}
+            .genres-modal .header .titulo{font-size:1rem}
             .fav-item-modal{min-height:34px;font-size:0.75rem}
         }
     </style>
@@ -363,7 +392,6 @@
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas para seus clientes</div>
     
-    <!-- ===== NOVO: CAMPO PARA COLE O FINGERPRINT DO CLIENTE ===== -->
     <div class="fp-cliente">
         <label>🆔 Fingerprint do cliente (cole aqui):</label>
         <input type="text" id="adminFingerprintInput" placeholder="Cole o fingerprint do cliente">
@@ -423,12 +451,14 @@
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- ===== MODAL GÊNEROS ===== -->
+<!-- ===== MODAL GÊNEROS (CARDS COLORIDOS E ROBUSTOS) ===== -->
 <div class="genres-modal" id="genresModal">
-    <h3>🎵 GÊNEROS</h3>
-    <div class="sub-titulo">Escolha seu estilo musical</div>
+    <div class="header">
+        <div class="titulo">ESTILOS MUSICAIS</div>
+        <div class="sub-titulo">✦ ESCOLHA E OUÇA ✦</div>
+    </div>
     <div class="genres-grid" id="genresGrid"></div>
-    <button class="close-genres" id="closeGenresBtn">FECHAR</button>
+    <button class="close-genres" id="closeGenresBtn">✕ FECHAR</button>
 </div>
 
 <!-- ===== MODAL FAVORITOS ===== -->
@@ -477,7 +507,7 @@
     // ============================================================
     const CONFIG = {
         LETREIRO: '🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵',
-        TEMPO_TESTE_SEGUNDOS: 300,
+        TEMPO_TESTE_SEGUNDOS: 200,
         NUMERO_ADMIN: '12988461978',
         CLICK_SEGREDO: 8,
         TEMPO_SEGREDO: 3000,
@@ -628,11 +658,12 @@
     }
 
     // ============================================================
-    // 🔐 SISTEMA DE SENHAS (CORRIGIDO)
+    // 🔐 SISTEMA DE SENHAS CORRIGIDO (base64 com fingerprint)
     // ============================================================
-    function gerarSenhaDispositivo(fp, senhaAleatoria) {
-        const base = fp + ':' + senhaAleatoria;
-        return btoa(base).slice(0, 20);
+    function gerarSenhaDispositivo(fp) {
+        const aleatorio = gerarSenhaAleatoria();
+        const base = fp + ':' + aleatorio;
+        return btoa(base);
     }
 
     function gerarSenhaUniversal() {
@@ -647,17 +678,22 @@
         if (senha === SENHA_MESTRA) {
             return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
         }
-        
-        // SENHA POR DISPOSITIVO: verifica se existe uma senha para o fingerprint atual
-        const fp = state.fingerprint;
-        const senhaAleatoria = localStorage.getItem('vdb_senha_cliente_' + fp);
-        if (senhaAleatoria) {
-            const esperado = gerarSenhaDispositivo(fp, senhaAleatoria);
-            if (senha === esperado) {
-                return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
+
+        // SENHA POR DISPOSITIVO: tenta decodificar base64
+        try {
+            const decoded = atob(senha);
+            const partes = decoded.split(':');
+            if (partes.length === 2) {
+                const fpExtraido = partes[0];
+                const aleatorio = partes[1];
+                if (fpExtraido === state.fingerprint) {
+                    return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
+                }
             }
+        } catch (e) {
+            // Não é base64 válido, ignora
         }
-        
+
         // SENHA UNIVERSAL
         if (senha.startsWith('UNIV:')) {
             const partes = senha.split(':');
@@ -668,7 +704,7 @@
                 }
             }
         }
-        
+
         return { valida: false };
     }
 
@@ -681,21 +717,21 @@
             dom.erroSenha.textContent = '⚠️ Digite a senha';
             return;
         }
-        
+
         const resultado = validarSenha(senha);
-        
+
         if (resultado.valida) {
             state.desbloqueado = true;
             dom.blockOverlay.classList.remove('active');
             dom.blockOverlay.style.display = 'none';
             dom.erroSenha.textContent = '';
             dom.senhaInput.value = '';
-            
+
             localStorage.setItem('vdb_desbloqueado', 'true');
             localStorage.setItem('vdb_senha_permanente', 'true');
-            
+
             notif(resultado.msg, 3000);
-            
+
             if (!state.playerAtivado) {
                 setTimeout(ativarPlayer, 500);
             }
@@ -724,12 +760,12 @@
     dom.infoScroll.addEventListener('click', function(e) {
         e.stopPropagation();
         state.clickCount++;
-        
+
         clearTimeout(state.clickTimer);
         state.clickTimer = setTimeout(() => {
             state.clickCount = 0;
         }, CONFIG.TEMPO_SEGREDO);
-        
+
         if (state.clickCount >= CONFIG.CLICK_SEGREDO) {
             state.clickCount = 0;
             clearTimeout(state.clickTimer);
@@ -747,15 +783,12 @@
             dom.adminFingerprintInput.focus();
             return;
         }
-        const senhaAleatoria = gerarSenhaAleatoria();
-        const senhaCliente = gerarSenhaDispositivo(fingerprintCliente, senhaAleatoria);
+        // Agora a senha é gerada com o fingerprint do cliente e já contém todas as informações
+        const senhaCliente = gerarSenhaDispositivo(fingerprintCliente);
         dom.adminSenhaGerada.value = senhaCliente;
         dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
-        // ⭐ SALVA A SENHA ALEATÓRIA ASSOCIADA AO FINGERPRINT DO CLIENTE
-        localStorage.setItem('vdb_senha_cliente_' + fingerprintCliente, senhaAleatoria);
         adicionarHistorico(senhaCliente, 'dispositivo');
         atualizarTotalSenhas();
-        // ⭐ LIMPA O CAMPO DE FINGERPRINT
         dom.adminFingerprintInput.value = '';
         dom.adminFingerprintInput.focus();
         notif('✅ Senha gerada para o dispositivo!', 2000);
@@ -767,7 +800,6 @@
         dom.infoSenha.textContent = '🌍 Senha universal! Funciona em qualquer dispositivo.';
         adicionarHistorico(senhaUniversal, 'universal');
         atualizarTotalSenhas();
-        // ⭐ LIMPA O CAMPO DE FINGERPRINT
         dom.adminFingerprintInput.value = '';
         notif('✅ Senha universal gerada!', 2000);
     };
@@ -1055,7 +1087,7 @@
     }
 
     // ============================================================
-    // GENRES (mantido)
+    // GENRES (PRESERVADO)
     // ============================================================
     const GENRE_URLS = {
         'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
@@ -1351,17 +1383,25 @@
     }
 
     // ============================================================
-    // GENRES MODAL
+    // GENRES MODAL (RENDERIZAÇÃO COM CARDS COLORIDOS)
     // ============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         ORDEM.forEach(g => {
             const card = document.createElement('div');
             card.className = 'genre-card';
-            card.style.borderColor = CORES[g] || '#fff';
-            card.style.color = CORES[g] || '#fff';
-            card.textContent = g;
-            card.onclick = () => selecionarGenero(g);
+            card.setAttribute('data-genre', g);
+            const name = document.createElement('div');
+            name.className = 'genre-name';
+            name.textContent = g;
+            const count = document.createElement('div');
+            count.className = 'genre-count';
+            count.textContent = '✦';
+            card.appendChild(name);
+            card.appendChild(count);
+            card.onclick = function(genero) {
+                return function() { selecionarGenero(genero); };
+            }(g);
             dom.genresGrid.appendChild(card);
         });
     }
@@ -1644,7 +1684,7 @@
         atualizarTotalSenhas();
 
         console.log('🐵 VAI DE BOA! MUSIC');
-        console.log('🔐 Sistema de senhas ativado');
+        console.log('🔐 Sistema de senhas ativado (corrigido)');
         console.log('📱 Fingerprint:', state.fingerprint);
         console.log('🕵️ Admin: ' + CONFIG.CLICK_SEGREDO + ' cliques no letreiro');
     }
