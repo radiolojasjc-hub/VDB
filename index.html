@@ -4,296 +4,275 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VAI DE BOA! MUSIC</title>
-    
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="VDB Music">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    <meta name="msapplication-TileColor" content="#000000">
-    <meta name="apple-touch-fullscreen" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    
     <link rel="icon" href="favicon30.png" type="image/png">
     <link rel="apple-touch-icon" href="favicon30.png">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
-        html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
-        :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--safe-bottom:env(safe-area-inset-bottom,0px)}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+        html,body{height:100%;width:100%;background:#000;overflow:hidden;position:fixed;top:0;left:0}
+        :root{--cyan:#00f3ff;--pink:#ff2d7f;--gold:#ffd700;--safe:env(safe-area-inset-bottom,0px)}
         
-        #loadingScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--neon-cyan);flex-direction:column;gap:15px}
-        .loading-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite;box-shadow:0 0 50px rgba(0,243,255,0.1)}
+        #loading{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;color:var(--cyan);flex-direction:column;gap:15px}
+        #loading img{width:80px;height:80px;border-radius:50%;border:3px solid rgba(0,243,255,0.2);animation:pulse 1.5s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .loading-spinner{font-size:2.5rem;color:var(--neon-cyan);animation:spin 1.5s infinite}
-        .loading-text{font-size:1.4rem;letter-spacing:2px}
+        #loading i{font-size:2.5rem;animation:spin 1.5s infinite}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-        .loading-progress-container{width:220px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-top:10px}
-        .loading-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#00f3ff,#ff2d7f,#ffd700);border-radius:2px;transition:width 0.5s ease}
+        .load-bar{width:220px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-top:10px}
+        .load-fill{height:100%;width:0%;background:linear-gradient(90deg,#00f3ff,#ff2d7f,#ffd700);border-radius:2px;transition:width 0.5s}
         
-        #playerContainer{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
-        #playerContainer.visible{display:block}
-        .media-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:#000;overflow:hidden}
-        .media-container video,.media-container img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s ease}
-        .media-container .active{opacity:1;z-index:3}
-        .media-container .inactive{opacity:0;z-index:0}
+        #player{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;display:none}
+        #player.show{display:block}
+        .media{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:#000;overflow:hidden}
+        .media video,.media img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;z-index:1;transition:opacity 1s}
+        .media .active{opacity:1;z-index:3}
+        .media .inactive{opacity:0;z-index:0}
         
-        .top-bar{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);height:50px}
+        .top{position:fixed;top:0;left:0;right:0;z-index:35;display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);height:50px}
         .top-left{display:flex;align-items:center;gap:8px}
-        .logo-macaco{height:34px;width:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12);box-shadow:0 0 15px rgba(0,243,255,0.03);background:rgba(0,0,0,0.3);transition:all 0.3s;flex-shrink:0}
-        .logo-macaco:active{transform:scale(0.92)}
-        .btn-genero-fav{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:30px;padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 30px rgba(0,0,0,0.3);min-height:34px}
-        .btn-genero-fav:active{transform:scale(0.95);background:rgba(255,255,255,0.08)}
-        .genero-nome{font-size:0.8rem;font-weight:900;letter-spacing:0.5px;text-transform:uppercase;background:linear-gradient(135deg,#fff 30%,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .separador{color:rgba(255,255,255,0.15);font-weight:300;font-size:0.7rem}
-        .coracao-icon{font-size:0.7rem;color:var(--neon-pink);-webkit-text-fill-color:var(--neon-pink)}
-        .fav-badge{background:linear-gradient(135deg,var(--neon-pink),#ff0066);color:#fff;border-radius:50%;padding:0 6px;font-size:0.5rem;font-weight:900;min-width:16px;text-align:center;line-height:16px;box-shadow:0 0 20px rgba(255,45,127,0.2);-webkit-text-fill-color:#fff}
+        .logo{height:34px;width:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,243,255,0.12)}
+        .btn-gen{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:30px;padding:6px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;min-height:34px}
+        .btn-gen:active{transform:scale(0.95)}
+        .gen-name{font-size:0.8rem;font-weight:900;text-transform:uppercase;background:linear-gradient(135deg,#fff 30%,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .sep{color:rgba(255,255,255,0.15);font-size:0.7rem}
+        .heart-icon{font-size:0.7rem;color:var(--pink)}
+        .fav-badge{background:linear-gradient(135deg,var(--pink),#ff0066);color:#fff;border-radius:50%;padding:0 6px;font-size:0.5rem;font-weight:900;min-width:16px;text-align:center;line-height:16px}
         .top-right{display:flex;align-items:center;gap:4px}
-        .timer-lib{font-size:0.7rem;font-weight:700;color:var(--neon-cyan);background:rgba(0,0,0,0.4);padding:2px 10px;border-radius:20px;backdrop-filter:blur(4px);letter-spacing:0.5px}
-        .timer-lib.lib{color:#4ade80}
-        .audio-status{font-size:0.5rem;color:#4ade80;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:20px;display:none;backdrop-filter:blur(4px)}
-        .audio-status.active{display:inline-block;animation:pulseDot 1.5s ease-in-out infinite}
+        .timer{font-size:0.7rem;font-weight:700;color:var(--cyan);background:rgba(0,0,0,0.4);padding:2px 10px;border-radius:20px;backdrop-filter:blur(4px)}
+        .timer.lib{color:#4ade80}
+        .status{font-size:0.5rem;color:#4ade80;background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:20px;display:none}
+        .status.on{display:inline-block;animation:pulseDot 1.5s infinite}
         @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:0.2}}
-        .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+        .menu-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
         .menu-btn:active{background:rgba(255,255,255,0.15)}
         
-        .info-scroll{position:fixed;top:50px;left:0;right:0;z-index:30;padding:8px 16px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)}
-        .letreiro{color:#fff;font-size:1rem;font-weight:900;white-space:nowrap;animation:scrollText 18s linear infinite;pointer-events:none;text-shadow:0 0 40px rgba(0,243,255,0.15),0 2px 10px rgba(0,0,0,0.8);letter-spacing:0.3px}
+        .scroll{position:fixed;top:50px;left:0;right:0;z-index:30;padding:8px 16px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)}
+        .texto{color:#fff;font-size:1rem;font-weight:900;white-space:nowrap;animation:scrollText 18s linear infinite;pointer-events:none;text-shadow:0 0 40px rgba(0,243,255,0.15)}
         @keyframes scrollText{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
         
-        .fav-heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center;pointer-events:none}
-        .fav-heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9);pointer-events:auto}
-        .fav-heart.active{color:var(--neon-pink);animation:heartBeat 0.3s ease}
-        .fav-heart:active{transform:scale(1.2)}
-        @keyframes heartBeat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+        .heart-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;pointer-events:none}
+        .heart{font-size:5rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all 0.3s;display:inline-block;text-shadow:0 0 60px rgba(0,0,0,0.9);pointer-events:auto}
+        .heart.on{color:var(--pink);animation:beat 0.3s ease}
+        .heart:active{transform:scale(1.2)}
+        @keyframes beat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
         
-        .bottom-controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:8px 14px calc(14px + var(--safe-bottom));z-index:20;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
-        .bottom-controls.visible{transform:translateY(0)}
-        .progress-time{display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-bottom:2px;font-weight:500}
-        .progress-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
-        .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));width:0%;border-radius:2px;transition:width 0.1s}
-        .buttons-row{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:6px}
-        .ctrl-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;min-width:44px;min-height:44px}
-        .ctrl-btn:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
-        .play-big{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));width:48px;height:48px;font-size:1.2rem;color:#000;border:none;border-radius:50%;box-shadow:0 0 30px rgba(0,243,255,0.12)}
+        .controls{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);padding:8px 14px calc(14px + var(--safe));z-index:20;transform:translateY(100%);transition:transform 0.3s}
+        .controls.show{transform:translateY(0)}
+        .prog-time{display:flex;justify-content:space-between;font-size:0.7rem;color:#999;margin-bottom:2px}
+        .prog-bar{height:3px;background:rgba(255,255,255,0.08);cursor:pointer;border-radius:2px;position:relative}
+        .prog-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));width:0%;border-radius:2px}
+        .btns{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:6px}
+        .ctrl{background:rgba(255,255,255,0.05);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+        .ctrl:active{transform:scale(0.9);background:rgba(255,255,255,0.1)}
+        .play-big{background:linear-gradient(135deg,var(--cyan),var(--pink));width:48px;height:48px;font-size:1.2rem;color:#000;border:none;border-radius:50%;box-shadow:0 0 30px rgba(0,243,255,0.12)}
         .play-big:active{transform:scale(0.9)}
-        .shuffle-btn{background:rgba(255,255,255,0.05);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:0.8rem;transition:all 0.2s;min-width:44px;min-height:44px}
-        .shuffle-btn.active{background:rgba(0,243,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,243,255,0.15)}
-        .shuffle-btn:active{transform:scale(0.9)}
+        .shuffle{background:rgba(255,255,255,0.05);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:0.8rem;min-width:44px;min-height:44px}
+        .shuffle.on{background:rgba(0,243,255,0.12);color:var(--cyan);border:1px solid rgba(0,243,255,0.15)}
+        .shuffle:active{transform:scale(0.9)}
         
-        .fab-container{position:fixed;bottom:calc(90px + var(--safe-bottom));right:12px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-        .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;font-size:1rem;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s}
+        .fab{position:fixed;bottom:calc(90px + var(--safe));right:12px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+        .fab-main{background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:1rem;border:1px solid rgba(255,255,255,0.06)}
         .fab-main:active{transform:scale(0.9)}
         .fab-sub{background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);border-radius:14px;padding:4px;display:none;flex-direction:column;gap:2px;border:1px solid rgba(255,255,255,0.05)}
-        .fab-sub.open{display:flex;animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1)}
+        .fab-sub.open{display:flex;animation:slideUp 0.3s}
         @keyframes slideUp{from{opacity:0;transform:translateY(10px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-        .fab-sub-btn{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;min-height:44px}
-        .fab-sub-btn:active{background:rgba(255,255,255,0.06)}
+        .fab-btn{background:transparent;border:none;color:#ccc;padding:8px 12px;border-radius:10px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:6px;min-height:44px}
+        .fab-btn:active{background:rgba(255,255,255,0.06)}
         
-        .menu-popup{position:fixed;top:50px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:150px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
-        .menu-popup.open{display:flex}
-        .menu-popup button{background:transparent;border:none;color:#ccc;padding:8px 10px;border-radius:10px;font-size:0.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;transition:all 0.2s;min-height:44px}
-        .menu-popup button:active{background:rgba(255,255,255,0.06)}
+        .menu-pop{position:fixed;top:50px;right:10px;background:rgba(10,10,30,0.95);backdrop-filter:blur(20px);border-radius:14px;padding:6px;z-index:32;display:none;flex-direction:column;gap:2px;border:1px solid rgba(0,243,255,0.06);min-width:150px;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+        .menu-pop.open{display:flex}
+        .menu-pop button{background:transparent;border:none;color:#ccc;padding:8px 10px;border-radius:10px;font-size:0.75rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px;min-height:44px}
+        .menu-pop button:active{background:rgba(255,255,255,0.06)}
         
-        .genres-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-radius:30px 30px 0 0;padding:18px 16px 22px;z-index:2000;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);max-height:85vh;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04)}
-        .genres-modal.open{transform:translateY(0)}
-        .genres-modal .header{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.03)}
-        .genres-modal .header .titulo{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,#00f3ff,#ff2d7f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .genres-modal .header .sub-titulo{font-size:0.55rem;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-top:2px;font-weight:300}
-        .genres-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:4px 0;max-height:55vh;overflow-y:auto;scrollbar-width:none}
-        .genres-grid::-webkit-scrollbar{display:none}
-        .genre-card{position:relative;min-height:70px;border-radius:18px;cursor:pointer;padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 6px 30px rgba(0,0,0,0.3);overflow:hidden;border:2px solid transparent}
-        .genre-card:active{transform:scale(0.94);box-shadow:0 0 50px rgba(255,255,255,0.08)}
-        .genre-card .genre-name{font-size:1.1rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 3px 15px rgba(0,0,0,0.6);z-index:1;transition:transform 0.2s;line-height:1.2}
-        .genre-card:active .genre-name{transform:scale(1.05)}
-        .genre-card .genre-count{font-size:0.45rem;color:rgba(255,255,255,0.15);font-weight:600;margin-top:2px;letter-spacing:2px;z-index:1}
-        .genre-card[data-genre="BÔNUS"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
-        .genre-card[data-genre="FLASHBACK"]{background:linear-gradient(135deg,#ffaa00,#e69500);border-color:#ffaa0055}
-        .genre-card[data-genre="RELIGIOSA"]{background:linear-gradient(135deg,#aa55ff,#8a2be2);border-color:#aa55ff55}
-        .genre-card[data-genre="ROMÂNTICA"]{background:linear-gradient(135deg,#ff2d7f,#cc0044);border-color:#ff2d7f55}
-        .genre-card[data-genre="MPB"]{background:linear-gradient(135deg,#00ff88,#00cc66);border-color:#00ff8855}
-        .genre-card[data-genre="POP/MIX"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
-        .genre-card[data-genre="SERTANEJO"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
-        .genre-card[data-genre="FORRÓ"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
-        .genre-card[data-genre="SAMBA"]{background:linear-gradient(135deg,#ffdd00,#ccaa00);border-color:#ffdd0055}
-        .genre-card[data-genre="BREGA"]{background:linear-gradient(135deg,#ff66aa,#cc4488);border-color:#ff66aa55}
-        .genre-card[data-genre="REGGAE"]{background:linear-gradient(135deg,#00ffaa,#00cc88);border-color:#00ffaa55}
-        .genre-card[data-genre="MODA RAIZ"]{background:linear-gradient(135deg,#ff4400,#cc3300);border-color:#ff440055}
-        .genre-card[data-genre="FANK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
-        .genre-card[data-genre="TESTE MIDIA"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
-        .genre-card[data-genre="MODÃO SERTANEJO"]{background:linear-gradient(135deg,#ff8c00,#cc6600);border-color:#ff8c0055}
-        .genre-card[data-genre="CHORINHO"]{background:linear-gradient(135deg,#1e90ff,#0066cc);border-color:#1e90ff55}
-        .genre-card[data-genre="FORRÓ RAIZ"]{background:linear-gradient(135deg,#ff6a00,#cc5500);border-color:#ff6a0055}
-        .genre-card[data-genre="ROCK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
-        .close-genres{width:100%;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);border-radius:25px;color:#555;font-size:0.7rem;cursor:pointer;font-weight:600;margin-top:10px;letter-spacing:3px;transition:all 0.3s;text-transform:uppercase}
-        .close-genres:active{background:rgba(255,255,255,0.05);transform:scale(0.97);color:#888}
+        .modal-gen{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(30px);border-radius:30px 30px 0 0;padding:18px 16px 22px;z-index:2000;transform:translateY(100%);transition:transform 0.4s;max-height:85vh;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04)}
+        .modal-gen.open{transform:translateY(0)}
+        .modal-gen .head{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.03)}
+        .modal-gen .head .tit{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:4px;text-transform:uppercase;background:linear-gradient(135deg,#00f3ff,#ff2d7f,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .modal-gen .head .sub{font-size:0.55rem;color:rgba(255,255,255,0.2);letter-spacing:4px;text-transform:uppercase;margin-top:2px}
+        .gen-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:4px 0;max-height:55vh;overflow-y:auto;scrollbar-width:none}
+        .gen-grid::-webkit-scrollbar{display:none}
+        .gen-card{position:relative;min-height:70px;border-radius:18px;cursor:pointer;padding:14px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:all 0.25s;box-shadow:0 6px 30px rgba(0,0,0,0.3);overflow:hidden;border:2px solid transparent}
+        .gen-card:active{transform:scale(0.94)}
+        .gen-card .name{font-size:1.1rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 3px 15px rgba(0,0,0,0.6);z-index:1}
+        .gen-card .count{font-size:0.45rem;color:rgba(255,255,255,0.15);font-weight:600;margin-top:2px;letter-spacing:2px;z-index:1}
+        .gen-card[data-genre="BÔNUS"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
+        .gen-card[data-genre="FLASHBACK"]{background:linear-gradient(135deg,#ffaa00,#e69500);border-color:#ffaa0055}
+        .gen-card[data-genre="RELIGIOSA"]{background:linear-gradient(135deg,#aa55ff,#8a2be2);border-color:#aa55ff55}
+        .gen-card[data-genre="ROMÂNTICA"]{background:linear-gradient(135deg,#ff2d7f,#cc0044);border-color:#ff2d7f55}
+        .gen-card[data-genre="MPB"]{background:linear-gradient(135deg,#00ff88,#00cc66);border-color:#00ff8855}
+        .gen-card[data-genre="POP/MIX"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .gen-card[data-genre="SERTANEJO"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
+        .gen-card[data-genre="FORRÓ"]{background:linear-gradient(135deg,#ff8800,#e67300);border-color:#ff880055}
+        .gen-card[data-genre="SAMBA"]{background:linear-gradient(135deg,#ffdd00,#ccaa00);border-color:#ffdd0055}
+        .gen-card[data-genre="BREGA"]{background:linear-gradient(135deg,#ff66aa,#cc4488);border-color:#ff66aa55}
+        .gen-card[data-genre="REGGAE"]{background:linear-gradient(135deg,#00ffaa,#00cc88);border-color:#00ffaa55}
+        .gen-card[data-genre="MODA RAIZ"]{background:linear-gradient(135deg,#ff4400,#cc3300);border-color:#ff440055}
+        .gen-card[data-genre="FANK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .gen-card[data-genre="TESTE MIDIA"]{background:linear-gradient(135deg,#ffd700,#f0a500);border-color:#ffd70055}
+        .gen-card[data-genre="MODÃO SERTANEJO"]{background:linear-gradient(135deg,#ff8c00,#cc6600);border-color:#ff8c0055}
+        .gen-card[data-genre="CHORINHO"]{background:linear-gradient(135deg,#1e90ff,#0066cc);border-color:#1e90ff55}
+        .gen-card[data-genre="FORRÓ RAIZ"]{background:linear-gradient(135deg,#ff6a00,#cc5500);border-color:#ff6a0055}
+        .gen-card[data-genre="ROCK"]{background:linear-gradient(135deg,#ff3366,#cc0033);border-color:#ff336655}
+        .close-gen{width:100%;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);border-radius:25px;color:#555;font-size:0.7rem;cursor:pointer;font-weight:600;margin-top:10px;letter-spacing:3px;text-transform:uppercase}
+        .close-gen:active{background:rgba(255,255,255,0.05);transform:scale(0.97)}
         
-        .fav-modal{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:2001;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:70vh;overflow:hidden}
-        .fav-modal.open{transform:translateY(0)}
-        .fav-modal h3{text-align:center;margin-bottom:4px;font-size:1rem;color:var(--neon-pink);letter-spacing:1px}
-        .fav-modal .sub-titulo{text-align:center;font-size:0.65rem;color:#666;margin-bottom:6px}
-        .fav-list-modal{display:flex;flex-direction:column;overflow-y:auto;gap:4px;padding:4px 0;max-height:50vh;scrollbar-width:none}
-        .fav-list-modal::-webkit-scrollbar{display:none}
-        .fav-item-modal{min-height:48px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 16px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1rem;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,0,0,0.15);position:relative}
-        .fav-item-modal:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .fav-item-modal .fav-info{flex:1;cursor:pointer;text-align:center}
-        .fav-item-modal .fav-info .title{color:#fff;font-weight:600;font-size:0.95rem}
-        .fav-item-modal .fav-info .artist{color:#888;font-size:0.8rem}
-        .fav-item-modal .remove-fav{background:transparent;border:none;color:var(--neon-pink);font-size:1.2rem;cursor:pointer;padding:0 6px;flex-shrink:0;position:absolute;right:8px}
-        .fav-item-modal .remove-fav:active{transform:scale(0.9)}
-        .fav-empty-modal{color:#555;padding:20px;text-align:center;font-size:0.8rem}
-        .close-fav{width:100%;padding:10px;background:linear-gradient(135deg,var(--neon-pink),#ff0066);border:none;border-radius:25px;color:#fff;font-size:0.85rem;cursor:pointer;font-weight:700;margin-top:6px}
+        .modal-fav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:2001;transform:translateY(100%);transition:transform 0.3s;max-height:70vh;overflow:hidden}
+        .modal-fav.open{transform:translateY(0)}
+        .modal-fav h3{text-align:center;margin-bottom:4px;font-size:1rem;color:var(--pink)}
+        .fav-list{display:flex;flex-direction:column;overflow-y:auto;gap:4px;padding:4px 0;max-height:50vh;scrollbar-width:none}
+        .fav-list::-webkit-scrollbar{display:none}
+        .fav-item{min-height:48px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);padding:10px 16px;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1rem;position:relative}
+        .fav-item:active{transform:scale(0.96)}
+        .fav-item .info{flex:1;text-align:center;cursor:pointer}
+        .fav-item .info .title{color:#fff;font-weight:600;font-size:0.95rem}
+        .fav-item .info .artist{color:#888;font-size:0.8rem}
+        .fav-item .remove{background:transparent;border:none;color:var(--pink);font-size:1.2rem;cursor:pointer;padding:0 6px;position:absolute;right:8px}
+        .fav-item .remove:active{transform:scale(0.9)}
+        .fav-empty{color:#555;padding:20px;text-align:center;font-size:0.8rem}
+        .close-fav{width:100%;padding:10px;background:linear-gradient(135deg,var(--pink),#ff0066);border:none;border-radius:25px;color:#fff;font-size:0.85rem;cursor:pointer;font-weight:700;margin-top:6px}
         .close-fav:active{transform:scale(0.97)}
         
-        .choice-menu{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:1999;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);max-height:50vh;overflow:hidden}
-        .choice-menu.open{transform:translateY(0)}
-        .choice-menu h3{text-align:center;margin-bottom:10px;font-size:1rem;color:var(--neon-cyan);letter-spacing:1px}
-        .choice-menu .choice-btn{width:100%;padding:16px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;color:white;font-weight:700;font-size:1.1rem;transition:all 0.2s;margin-bottom:6px}
-        .choice-menu .choice-btn:active{transform:scale(0.96);background:rgba(255,255,255,0.06)}
-        .choice-menu .choice-btn i{font-size:1.4rem;width:28px;text-align:center}
-        .choice-menu .choice-btn .badge{background:var(--neon-pink);color:#fff;border-radius:50%;padding:0 6px;font-size:0.8rem;font-weight:900;min-width:24px;text-align:center;line-height:24px}
-        .choice-menu .choice-btn .info-text{font-size:0.75rem;color:#666}
-        .choice-menu .choice-close{width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;font-weight:600;margin-top:4px}
-        .choice-menu .choice-close:active{background:rgba(255,255,255,0.08)}
+        .choice{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,30,0.97);backdrop-filter:blur(20px);border-radius:25px 25px 0 0;padding:14px 16px 18px;z-index:1999;transform:translateY(100%);transition:transform 0.3s;max-height:50vh;overflow:hidden}
+        .choice.open{transform:translateY(0)}
+        .choice h3{text-align:center;margin-bottom:10px;font-size:1rem;color:var(--cyan)}
+        .choice .cbtn{width:100%;padding:16px;border-radius:16px;cursor:pointer;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.03);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:700;font-size:1.1rem;margin-bottom:6px}
+        .choice .cbtn:active{transform:scale(0.96)}
+        .choice .cbtn i{font-size:1.4rem;width:28px;text-align:center}
+        .choice .cbtn .badge{background:var(--pink);color:#fff;border-radius:50%;padding:0 6px;font-size:0.8rem;font-weight:900;min-width:24px;text-align:center;line-height:24px}
+        .choice .cbtn .info{font-size:0.75rem;color:#666}
+        .choice .cclose{width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:25px;color:#666;font-size:0.8rem;cursor:pointer;font-weight:600;margin-top:4px}
+        .choice .cclose:active{background:rgba(255,255,255,0.08)}
         
-        .feedback-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:16px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
-        .feedback-modal.open{display:block;animation:modalFade 0.3s ease}
-        @keyframes modalFade{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-        .feedback-modal h3{font-size:1rem;margin-bottom:6px;color:var(--neon-cyan)}
-        .feedback-modal .stars{display:flex;justify-content:center;gap:4px;margin:4px 0}
-        .feedback-modal .star{font-size:1.8rem;color:#444;cursor:pointer;transition:color 0.2s}
-        .feedback-modal .star.active{color:var(--gold)}
-        .feedback-modal textarea{width:100%;height:45px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,243,255,0.06);border-radius:10px;padding:4px 8px;color:#fff;resize:none;font-size:0.75rem;margin-top:4px}
-        .feedback-modal .btn-feedback{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:8px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.8rem}
-        #closeFeedbackBtn{background:transparent;border:none;color:#555;padding:4px;cursor:pointer;font-size:0.7rem;margin-top:2px}
+        .feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:16px;z-index:5000;width:90%;max-width:380px;text-align:center;display:none;border:1px solid rgba(0,243,255,0.08)}
+        .feedback.open{display:block;animation:fadeModal 0.3s}
+        @keyframes fadeModal{from{opacity:0;transform:translate(-50%,-50%) scale(0.95)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+        .feedback h3{font-size:1rem;margin-bottom:6px;color:var(--cyan)}
+        .feedback .stars{display:flex;justify-content:center;gap:4px;margin:4px 0}
+        .feedback .star{font-size:1.8rem;color:#444;cursor:pointer}
+        .feedback .star.on{color:var(--gold)}
+        .feedback textarea{width:100%;height:45px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,243,255,0.06);border-radius:10px;padding:4px 8px;color:#fff;resize:none;font-size:0.75rem;margin-top:4px}
+        .feedback .send{background:linear-gradient(135deg,var(--cyan),var(--pink));border:none;padding:8px;border-radius:20px;color:#000;font-weight:700;cursor:pointer;width:100%;margin-top:4px;font-size:0.8rem}
+        .feedback .cancel{background:transparent;border:none;color:#555;padding:4px;cursor:pointer;font-size:0.7rem;margin-top:2px}
         
-        .notification{position:fixed;top:120px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--neon-cyan);padding:10px 24px;border-radius:30px;font-size:1rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
-        .notification.show{opacity:1}
+        .notif{position:fixed;top:120px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);color:var(--cyan);padding:10px 24px;border-radius:30px;font-size:1rem;z-index:10001;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid rgba(0,243,255,0.06);white-space:nowrap;font-weight:600}
+        .notif.show{opacity:1}
         
-        #qrCodeModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;animation:qrFadeIn 0.4s ease}
-        #qrCodeModal.active{display:flex}
-        @keyframes qrFadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-        .qr-content{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:30px;padding:24px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(0,243,255,0.08);box-shadow:0 0 80px rgba(0,243,255,0.03)}
-        .qr-content .qr-titulo{color:#fff;font-size:1.2rem;font-weight:900;margin-bottom:4px}
-        .qr-content .qr-sub{color:#666;font-size:0.7rem;margin-bottom:12px}
-        .qr-content .qr-wrapper{background:#fff;border-radius:20px;padding:12px;display:inline-block;margin:0 auto;position:relative;box-shadow:0 0 40px rgba(0,243,255,0.05)}
-        .qr-content .qr-wrapper img{width:220px;height:220px;display:block;border-radius:12px}
-        .qr-content .qr-logo-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#000;border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(255,215,0,0.1)}
-        .qr-content .qr-logo-overlay img{width:36px;height:36px;border-radius:50%;object-fit:cover}
-        .qr-content .qr-info{display:flex;justify-content:center;gap:16px;margin:10px 0 6px}
-        .qr-content .qr-info span{font-size:0.65rem;color:#888;display:flex;align-items:center;gap:4px}
-        .qr-content .qr-info span i{color:var(--gold)}
-        .qr-content .qr-btn-close{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
-        .qr-content .qr-btn-close:active{transform:scale(0.97)}
+        .qr{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
+        .qr.active{display:flex}
+        .qr-box{background:linear-gradient(145deg,#1a1a3e,#0d0d2b);border-radius:30px;padding:24px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(0,243,255,0.08)}
+        .qr-box .tit{color:#fff;font-size:1.2rem;font-weight:900;margin-bottom:4px}
+        .qr-box .sub{color:#666;font-size:0.7rem;margin-bottom:12px}
+        .qr-box .wrap{background:#fff;border-radius:20px;padding:12px;display:inline-block;margin:0 auto;position:relative}
+        .qr-box .wrap img{width:220px;height:220px;display:block;border-radius:12px}
+        .qr-box .overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;background:#000;border:3px solid var(--gold);display:flex;align-items:center;justify-content:center}
+        .qr-box .overlay img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+        .qr-box .info{display:flex;justify-content:center;gap:16px;margin:10px 0 6px}
+        .qr-box .info span{font-size:0.65rem;color:#888;display:flex;align-items:center;gap:4px}
+        .qr-box .info span i{color:var(--gold)}
+        .qr-box .close{background:linear-gradient(135deg,var(--cyan),var(--pink));border:none;padding:10px;border-radius:25px;color:#000;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;margin-top:8px}
+        .qr-box .close:active{transform:scale(0.97)}
         
-        #blockOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
-        #blockOverlay.active{display:flex;animation:fadeIn 0.5s ease}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .block-content{max-width:450px;width:100%;padding:30px 24px}
-        .block-content .logo{font-size:4rem;margin-bottom:4px}
-        .block-content h1{color:#fff;font-size:2.2rem;margin-bottom:2px}
-        .block-content .sub{color:var(--neon-cyan);font-size:1.1rem;font-weight:600;margin-bottom:15px}
-        .block-content input{width:100%;padding:16px 20px;border-radius:30px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1.3rem;text-align:center;margin-bottom:10px;outline:none;transition:border-color 0.3s}
-        .block-content input:focus{border-color:var(--neon-cyan)}
-        .block-content .btn-liberar{width:100%;padding:16px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-pink));border:none;border-radius:25px;color:#000;font-weight:700;font-size:1.2rem;cursor:pointer;transition:transform 0.2s}
-        .block-content .btn-liberar:active{transform:scale(0.97)}
-        .block-content .erro{color:var(--neon-pink);font-size:1rem;min-height:40px;padding:8px 0;font-weight:600}
-        .block-content .dica{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.08);border-radius:16px;padding:12px;margin-top:4px}
-        .block-content .dica .titulo{font-size:0.8rem;color:#aaa}
-        .block-content .dica .texto{font-size:0.75rem;color:#888;margin-top:2px}
-        .block-content .fingerprint-area{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:12px;margin-top:6px;border:1px solid rgba(255,255,255,0.03)}
-        .block-content .fingerprint-area .fp-text{color:#888;font-size:0.6rem;word-break:break-all;font-family:'Courier New',monospace;flex:1;min-width:0;letter-spacing:1px}
-        .block-content .fingerprint-area .btn-copiar-fp{background:rgba(0,243,255,0.08);border:1px solid rgba(0,243,255,0.1);color:var(--neon-cyan);padding:6px 14px;border-radius:12px;font-size:0.6rem;cursor:pointer;font-weight:600;transition:all 0.2s}
-        .block-content .fingerprint-area .btn-copiar-fp:active{transform:scale(0.9)}
+        #block{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+        #block.active{display:flex}
+        .block-box{max-width:450px;width:100%;padding:30px 24px}
+        .block-box .logo{font-size:4rem;margin-bottom:4px}
+        .block-box h1{color:#fff;font-size:2.2rem;margin-bottom:2px}
+        .block-box .sub{color:var(--cyan);font-size:1.1rem;font-weight:600;margin-bottom:15px}
+        .block-box input{width:100%;padding:16px 20px;border-radius:30px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1.3rem;text-align:center;margin-bottom:10px;outline:none}
+        .block-box input:focus{border-color:var(--cyan)}
+        .block-box .liberar{width:100%;padding:16px;background:linear-gradient(135deg,var(--cyan),var(--pink));border:none;border-radius:25px;color:#000;font-weight:700;font-size:1.2rem;cursor:pointer}
+        .block-box .liberar:active{transform:scale(0.97)}
+        .block-box .erro{color:var(--pink);font-size:1rem;min-height:40px;padding:8px 0;font-weight:600}
+        .block-box .dica{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.08);border-radius:16px;padding:12px;margin-top:4px}
+        .block-box .dica .tit{font-size:0.8rem;color:#aaa}
+        .block-box .dica .txt{font-size:0.75rem;color:#888;margin-top:2px}
+        .block-box .fp-area{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:12px;margin-top:6px;border:1px solid rgba(255,255,255,0.03)}
+        .block-box .fp-area .fp{color:#888;font-size:0.6rem;word-break:break-all;font-family:monospace;flex:1;letter-spacing:1px}
+        .block-box .fp-area .copy-fp{background:rgba(0,243,255,0.08);border:1px solid rgba(0,243,255,0.1);color:var(--cyan);padding:6px 14px;border-radius:12px;font-size:0.6rem;cursor:pointer;font-weight:600}
+        .block-box .fp-area .copy-fp:active{transform:scale(0.9)}
         
-        #adminPanel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:20px;z-index:99999;width:90%;max-width:450px;border:2px solid var(--gold);max-height:90vh;overflow-y:auto}
-        #adminPanel.open{display:block;animation:modalFade 0.3s ease}
-        #adminPanel h2{text-align:center;font-size:1.3rem;color:var(--gold);margin-bottom:2px}
-        #adminPanel .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
-        #adminPanel .fp-cliente{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:8px}
-        #adminPanel .fp-cliente label{font-size:0.8rem;color:#aaa;display:block}
-        #adminPanel .fp-cliente input{width:100%;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.05);color:#fff;font-size:0.8rem;font-family:monospace;outline:none;margin-top:2px}
-        #adminPanel .fp-cliente input:focus{border-color:var(--neon-cyan)}
-        #adminPanel .fp-cliente .helper{font-size:0.4rem;color:#555;margin-top:2px}
-        #adminPanel .row-btns{display:flex;gap:4px;margin-bottom:6px}
-        #adminPanel .row-btns button{flex:1;padding:12px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.9rem;transition:transform 0.2s}
-        #adminPanel .row-btns button:active{transform:scale(0.95)}
-        #adminPanel .btn-gerar{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000}
-        #adminPanel .btn-universal{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000}
-        #adminPanel .btn-limpar{background:rgba(255,255,255,0.05);color:#666;border:1px solid rgba(255,255,255,0.05)}
-        #adminPanel .senha-box{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
-        #adminPanel .senha-box label{font-size:0.6rem;color:#888;display:block}
-        #adminPanel .senha-box .row{display:flex;gap:4px;margin-top:2px}
-        #adminPanel .senha-box .row input{flex:2;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.8rem;font-family:monospace;outline:none}
-        #adminPanel .senha-box .row .btn-copiar{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:10px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s}
-        #adminPanel .senha-box .row .btn-copiar:active{transform:scale(0.95)}
-        #adminPanel .senha-box .info-senha{font-size:0.4rem;color:#555;margin-top:2px}
-        #adminPanel .actions{display:flex;gap:4px;margin-bottom:4px}
-        #adminPanel .actions button{flex:1;padding:6px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.6rem;transition:transform 0.2s}
-        #adminPanel .actions button:active{transform:scale(0.95)}
-        #adminPanel .actions .btn-whats{background:linear-gradient(135deg,#25d366,#128C7E);color:#fff}
-        #adminPanel .actions .btn-copiar-senha{background:rgba(0,243,255,0.08);border:1px solid var(--neon-cyan);color:var(--neon-cyan)}
-        #adminPanel .historico{max-height:80px;overflow-y:auto;margin-bottom:4px;scrollbar-width:none}
-        #adminPanel .historico::-webkit-scrollbar{display:none}
-        #adminPanel .historico-item{display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:0.4rem;color:#666}
-        #adminPanel .historico-item .senha-hash{color:#888;font-family:monospace}
-        #adminPanel .total{font-size:0.45rem;color:#555;text-align:center;padding:4px;border-top:1px solid rgba(255,255,255,0.03);margin-top:4px}
-        #adminPanel .btn-fechar{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.7rem;margin-top:4px;transition:all 0.2s}
-        #adminPanel .btn-fechar:active{background:rgba(255,255,255,0.05)}
+        #admin{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,10,30,0.98);border-radius:18px;padding:20px;z-index:99999;width:90%;max-width:450px;border:2px solid var(--gold);max-height:90vh;overflow-y:auto}
+        #admin.open{display:block}
+        #admin h2{text-align:center;font-size:1.3rem;color:var(--gold);margin-bottom:2px}
+        #admin .sub{text-align:center;font-size:0.6rem;color:#666;margin-bottom:8px}
+        #admin .fp-cliente{background:rgba(0,243,255,0.03);border:1px solid rgba(0,243,255,0.06);border-radius:12px;padding:8px;margin-bottom:8px}
+        #admin .fp-cliente label{font-size:0.8rem;color:#aaa;display:block}
+        #admin .fp-cliente input{width:100%;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.05);color:#fff;font-size:0.8rem;font-family:monospace;outline:none;margin-top:2px}
+        #admin .fp-cliente input:focus{border-color:var(--cyan)}
+        #admin .fp-cliente .helper{font-size:0.4rem;color:#555;margin-top:2px}
+        #admin .row{display:flex;gap:4px;margin-bottom:6px}
+        #admin .row button{flex:1;padding:12px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.9rem}
+        #admin .row button:active{transform:scale(0.95)}
+        #admin .btn-gerar{background:linear-gradient(135deg,var(--gold),#ffaa00);color:#000}
+        #admin .btn-universal{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000}
+        #admin .btn-limpar{background:rgba(255,255,255,0.05);color:#666;border:1px solid rgba(255,255,255,0.05)}
+        #admin .senha-box{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.06);border-radius:12px;padding:8px;margin-bottom:6px}
+        #admin .senha-box label{font-size:0.6rem;color:#888;display:block}
+        #admin .senha-box .row{display:flex;gap:4px;margin-top:2px}
+        #admin .senha-box .row input{flex:2;padding:10px 14px;border-radius:25px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:#fff;font-size:0.8rem;font-family:monospace;outline:none}
+        #admin .senha-box .row .copy{flex:1;background:rgba(255,215,0,0.08);border:1px solid var(--gold);color:var(--gold);padding:10px;border-radius:20px;cursor:pointer;font-size:0.7rem;font-weight:600}
+        #admin .senha-box .row .copy:active{transform:scale(0.95)}
+        #admin .senha-box .info{font-size:0.4rem;color:#555;margin-top:2px}
+        #admin .actions{display:flex;gap:4px;margin-bottom:4px}
+        #admin .actions button{flex:1;padding:6px;border-radius:20px;border:none;font-weight:700;cursor:pointer;font-size:0.6rem}
+        #admin .actions button:active{transform:scale(0.95)}
+        #admin .actions .whats{background:linear-gradient(135deg,#25d366,#128C7E);color:#fff}
+        #admin .actions .copy-senha{background:rgba(0,243,255,0.08);border:1px solid var(--cyan);color:var(--cyan)}
+        #admin .historico{max-height:80px;overflow-y:auto;margin-bottom:4px;scrollbar-width:none}
+        #admin .historico::-webkit-scrollbar{display:none}
+        #admin .historico-item{display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:0.4rem;color:#666}
+        #admin .historico-item .hash{color:#888;font-family:monospace}
+        #admin .total{font-size:0.45rem;color:#555;text-align:center;padding:4px;border-top:1px solid rgba(255,255,255,0.03);margin-top:4px}
+        #admin .fechar{background:rgba(255,255,255,0.03);border:none;padding:6px;border-radius:20px;color:#555;cursor:pointer;width:100%;font-size:0.7rem;margin-top:4px}
+        #admin .fechar:active{background:rgba(255,255,255,0.05)}
         
-        #whatsappBanner{position:fixed;bottom:calc(100px + var(--safe-bottom));left:50%;transform:translateX(-50%);z-index:45;display:none;animation:slideUpBanner 0.5s ease;width:90%;max-width:400px}
-        #whatsappBanner.show{display:block}
+        #banner{position:fixed;bottom:calc(100px + var(--safe));left:50%;transform:translateX(-50%);z-index:45;display:none;animation:slideUpBanner 0.5s;width:90%;max-width:400px}
+        #banner.show{display:block}
         @keyframes slideUpBanner{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-        #whatsappBanner a{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#25d366,#128C7E);border-radius:20px;padding:12px 16px;text-decoration:none;color:#fff;font-weight:700;font-size:1rem;box-shadow:0 8px 40px rgba(37,211,102,0.3);border:2px solid rgba(255,255,255,0.1);transition:all 0.3s}
-        #whatsappBanner a:active{transform:scale(0.97)}
-        #whatsappBanner a img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);flex-shrink:0}
-        #whatsappBanner a .banner-text{flex:1;text-align:left;line-height:1.2}
-        #whatsappBanner a .banner-text .small{font-size:0.6rem;opacity:0.8;font-weight:400}
-        #whatsappBanner .close-banner{position:absolute;top:-10px;right:-10px;background:rgba(0,0,0,0.8);border:2px solid rgba(255,255,255,0.1);border-radius:50%;color:#fff;width:30px;height:30px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-        #whatsappBanner .close-banner:active{transform:scale(0.9)}
+        #banner a{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#25d366,#128C7E);border-radius:20px;padding:12px 16px;text-decoration:none;color:#fff;font-weight:700;font-size:1rem;box-shadow:0 8px 40px rgba(37,211,102,0.3);border:2px solid rgba(255,255,255,0.1)}
+        #banner a:active{transform:scale(0.97)}
+        #banner a img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2);flex-shrink:0}
+        #banner a .txt{flex:1;text-align:left;line-height:1.2}
+        #banner a .txt .small{font-size:0.6rem;opacity:0.8;font-weight:400}
+        #banner .close{position:absolute;top:-10px;right:-10px;background:rgba(0,0,0,0.8);border:2px solid rgba(255,255,255,0.1);border-radius:50%;color:#fff;width:30px;height:30px;font-size:0.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        #banner .close:active{transform:scale(0.9)}
         
         @media(max-width:480px){
-            .logo-macaco{height:28px;width:28px}
-            .btn-genero-fav{padding:4px 10px;gap:5px;min-height:30px}
-            .btn-genero-fav .genero-nome{font-size:0.65rem}
-            .btn-genero-fav .fav-badge{font-size:0.45rem;min-width:14px;line-height:14px}
-            .btn-genero-fav .coracao-icon{font-size:0.6rem}
-            .top-bar{height:44px;padding:4px 8px}
-            .top-right .timer-lib{font-size:0.6rem;padding:2px 6px}
-            .top-right .menu-btn{width:26px;height:26px;font-size:0.7rem}
-            .info-scroll{top:44px;height:36px}
-            .info-scroll .letreiro{font-size:0.7rem}
-            .fav-heart-center .fav-heart{font-size:3.5rem}
-            .ctrl-btn{width:34px;height:34px;font-size:0.8rem;min-width:44px;min-height:44px}
+            .logo{height:28px;width:28px}
+            .btn-gen{padding:4px 10px;gap:5px;min-height:30px}
+            .gen-name{font-size:0.65rem}
+            .fav-badge{font-size:0.45rem;min-width:14px;line-height:14px}
+            .heart-icon{font-size:0.6rem}
+            .top{height:44px;padding:4px 8px}
+            .timer{font-size:0.6rem;padding:2px 6px}
+            .menu-btn{width:26px;height:26px;font-size:0.7rem}
+            .scroll{top:44px;height:36px}
+            .texto{font-size:0.7rem}
+            .heart{font-size:3.5rem}
+            .ctrl{width:34px;height:34px;font-size:0.8rem;min-width:44px;min-height:44px}
             .play-big{width:42px;height:42px;font-size:1rem}
-            .shuffle-btn{width:34px;height:34px;font-size:0.7rem;min-width:44px;min-height:44px}
-            .buttons-row{gap:8px}
-            .bottom-controls{padding:6px 10px calc(10px + var(--safe-bottom))}
+            .shuffle{width:34px;height:34px;font-size:0.7rem;min-width:44px;min-height:44px}
+            .btns{gap:8px}
+            .controls{padding:6px 10px calc(10px + var(--safe))}
             .fab-main{width:38px;height:38px;font-size:0.9rem}
-            .fab-container{bottom:calc(75px + var(--safe-bottom));right:8px}
-            .block-content h1{font-size:1.8rem}
-            .block-content .logo{font-size:3rem}
-            #adminPanel{max-width:95%;padding:12px}
-            .qr-content .qr-wrapper img{width:160px;height:160px}
-            .qr-content .qr-logo-overlay{width:40px;height:40px}
-            .qr-content .qr-logo-overlay img{width:28px;height:28px}
-            .genres-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-            .genre-card{min-height:60px;padding:10px 6px;border-radius:14px}
-            .genre-card .genre-name{font-size:0.9rem;letter-spacing:0.5px}
-            .genre-card .genre-count{font-size:0.35rem}
-            .genres-modal .header .titulo{font-size:1rem}
-            .fav-item-modal{min-height:42px;font-size:0.9rem}
-            .fav-item-modal .fav-info .title{font-size:0.85rem}
-            .fav-item-modal .fav-info .artist{font-size:0.7rem}
-            .notification{font-size:0.85rem;padding:8px 16px;top:100px}
-            #whatsappBanner{bottom:calc(80px + var(--safe-bottom));width:95%}
-            #whatsappBanner a{padding:8px 12px;font-size:0.8rem}
-            #whatsappBanner a img{width:36px;height:36px}
+            .fab{bottom:calc(75px + var(--safe));right:8px}
+            .block-box h1{font-size:1.8rem}
+            .block-box .logo{font-size:3rem}
+            #admin{max-width:95%;padding:12px}
+            .qr .wrap img{width:160px;height:160px}
+            .qr .overlay{width:40px;height:40px}
+            .qr .overlay img{width:28px;height:28px}
+            .gen-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+            .gen-card{min-height:60px;padding:10px 6px;border-radius:14px}
+            .gen-card .name{font-size:0.9rem}
+            .gen-card .count{font-size:0.35rem}
+            .modal-gen .head .tit{font-size:1rem}
+            .fav-item{min-height:42px;font-size:0.9rem}
+            .fav-item .info .title{font-size:0.85rem}
+            .fav-item .info .artist{font-size:0.7rem}
+            .notif{font-size:0.85rem;padding:8px 16px;top:100px}
+            #banner{bottom:calc(80px + var(--safe));width:95%}
+            #banner a{padding:8px 12px;font-size:0.8rem}
+            #banner a img{width:36px;height:36px}
         }
         
         button,a,.clickable{touch-action:manipulation}
@@ -303,234 +282,229 @@
 <body>
 
 <!-- ===== LOADING ===== -->
-<div id="loadingScreen">
-    <img src="favicon30.png" alt="VDB Music" class="loading-logo">
-    <i class="fas fa-spinner loading-spinner"></i>
-    <span class="loading-text">VAI DE BOA! MUSIC</span>
-    <div class="loading-progress-container">
-        <div class="loading-progress-fill" id="loadingProgressFill"></div>
-    </div>
+<div id="loading">
+    <img src="favicon30.png" alt="VDB Music">
+    <i class="fas fa-spinner"></i>
+    <span>VAI DE BOA! MUSIC</span>
+    <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
 </div>
 
 <!-- ===== PLAYER ===== -->
-<div id="playerContainer">
-    <div class="media-container" id="mediaContainer"></div>
+<div id="player">
+    <div class="media" id="media"></div>
     
-    <div class="top-bar">
+    <div class="top">
         <div class="top-left">
-            <img src="favicon30.png" alt="VDB Music" class="logo-macaco">
-            <button class="btn-genero-fav" id="btnGeneroFav">
-                <span class="genero-nome" id="generoNome">BÔNUS</span>
-                <span class="separador">|</span>
-                <span class="coracao-icon">❤️</span>
+            <img src="favicon30.png" alt="VDB" class="logo">
+            <button class="btn-gen" id="btnGen">
+                <span class="gen-name" id="genName">BÔNUS</span>
+                <span class="sep">|</span>
+                <span class="heart-icon">❤️</span>
                 <span class="fav-badge" id="favBadge">0</span>
             </button>
         </div>
         <div class="top-right">
-            <span class="timer-lib" id="timerLib">5:00</span>
-            <span class="audio-status" id="audioStatus">●</span>
-            <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
+            <span class="timer" id="timer">5:00</span>
+            <span class="status" id="status">●</span>
+            <button class="menu-btn" id="menuBtn"><i class="fas fa-ellipsis-v"></i></button>
         </div>
     </div>
     
-    <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - VITALÍCIO R$39,00 🐵</p>
+    <div class="scroll" id="scroll">
+        <p class="texto" id="scrollText">🎵 VAI DE BOA! - VITALÍCIO R$39,00 🐵</p>
     </div>
     
-    <div class="fav-heart-center">
-        <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
+    <div class="heart-center">
+        <div class="heart" id="heart"><i class="far fa-heart"></i></div>
     </div>
     
-    <div class="bottom-controls" id="bottomControls">
-        <div class="progress-time">
-            <span id="currentTime">0:00</span>
-            <span id="totalTime">0:00</span>
+    <div class="controls" id="controls">
+        <div class="prog-time">
+            <span id="current">0:00</span>
+            <span id="total">0:00</span>
         </div>
-        <div class="progress-bar" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
+        <div class="prog-bar" id="progBar">
+            <div class="prog-fill" id="progFill"></div>
         </div>
-        <div class="buttons-row">
-            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-            <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
-            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-            <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
+        <div class="btns">
+            <button class="ctrl" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button class="ctrl play-big" id="playBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl" id="nextBtn"><i class="fas fa-forward-step"></i></button>
+            <button class="shuffle" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
     
-    <div class="fab-container">
+    <div class="fab">
         <div class="fab-sub" id="fabSub">
-            <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
-            <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i>Feedback</button>
-            <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i>YouTube</button>
-            <button class="fab-sub-btn" id="fabShare"><i class="fas fa-share-alt"></i>Compartilhar</button>
-            <button class="fab-sub-btn" id="fabQrCode"><i class="fas fa-qrcode"></i>QR Code</button>
+            <button class="fab-btn" id="fabGen"><i class="fas fa-guitar"></i>Gêneros</button>
+            <button class="fab-btn" id="fabFb"><i class="fas fa-star"></i>Feedback</button>
+            <button class="fab-btn" id="fabYt"><i class="fab fa-youtube"></i>YouTube</button>
+            <button class="fab-btn" id="fabShare"><i class="fas fa-share-alt"></i>Compartilhar</button>
+            <button class="fab-btn" id="fabQr"><i class="fas fa-qrcode"></i>QR Code</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
     
-    <div class="menu-popup" id="menuPopup">
-        <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
-        <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i>Recarregar</button>
-        <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
-        <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
-        <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
-        <button id="forceUpdateBtn"><i class="fas fa-sync-alt"></i>Atualizar Mídias</button>
+    <div class="menu-pop" id="menuPop">
+        <button id="closeMenu"><i class="fas fa-times"></i>Fechar</button>
+        <button id="fullscreenBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
+        <button id="reloadBtn"><i class="fas fa-sync"></i>Recarregar</button>
+        <button id="fbMenuBtn"><i class="fas fa-star"></i>Feedback</button>
+        <button id="sleepBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
+        <button id="qrMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
+        <button id="updateBtn"><i class="fas fa-sync-alt"></i>Atualizar</button>
     </div>
 </div>
 
-<!-- ===== WHATSAPP BANNER ===== -->
-<div id="whatsappBanner">
+<!-- ===== BANNER WHATSAPP ===== -->
+<div id="banner">
     <a href="https://wa.me/5512988461978?text=Olá!%20Quero%20ser%20VITAL%C3%8DCIO!%20🎵" target="_blank">
-        <img src="banner.png" alt="WhatsApp" id="bannerImg" onerror="this.style.display='none'; this.parentElement.querySelector('.banner-text').style.marginLeft='0';">
-        <span class="banner-text">
-            📱 VITALÍCIO R$39,00<br>
-            <span class="small">🎵 Clique aqui e garanta seu acesso!</span>
-        </span>
+        <img src="banner.png" alt="WhatsApp" id="bannerImg" onerror="this.style.display='none'">
+        <span class="txt">📱 VITALÍCIO R$39,00<br><span class="small">🎵 Clique aqui!</span></span>
     </a>
-    <button class="close-banner" id="closeBannerBtn">✕</button>
+    <button class="close" id="closeBanner">✕</button>
 </div>
 
-<!-- ===== BLOCK OVERLAY ===== -->
-<div id="blockOverlay" class="active">
-    <div class="block-content">
+<!-- ===== BLOCK ===== -->
+<div id="block" class="active">
+    <div class="block-box">
         <div class="logo">🐵</div>
         <h1>VAI DE BOA!</h1>
         <div class="sub">🔒 DIGITE SUA SENHA</div>
         <input type="password" id="senhaInput" placeholder="Digite sua senha" autocomplete="off">
-        <button class="btn-liberar" id="btnLiberar">🔓 LIBERAR ACESSO</button>
+        <button class="liberar" id="liberarBtn">🔓 LIBERAR</button>
         <div class="erro" id="erroSenha"></div>
         <div class="dica">
-            <div class="titulo">💡 NÃO TEM SENHA?</div>
-            <div class="texto">📱 Entre em contato com o suporte para receber sua senha</div>
+            <div class="tit">💡 NÃO TEM SENHA?</div>
+            <div class="txt">📱 Entre em contato com o suporte</div>
         </div>
-        <div class="fingerprint-area">
-            <span class="fp-text" id="infoDispositivo">🆔 Aguardando...</span>
-            <button class="btn-copiar-fp" id="btnCopiarFingerprint">📋 Copiar</button>
+        <div class="fp-area">
+            <span class="fp" id="fpText">🆔 Aguardando...</span>
+            <button class="copy-fp" id="copyFp">📋 Copiar</button>
         </div>
     </div>
 </div>
 
-<!-- ===== ADMIN PANEL ===== -->
-<div id="adminPanel">
+<!-- ===== ADMIN ===== -->
+<div id="admin">
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas para seus clientes</div>
     <div class="fp-cliente">
         <label>🆔 Fingerprint do cliente:</label>
-        <input type="text" id="adminFingerprintInput" placeholder="Cole o fingerprint">
+        <input type="text" id="adminFp" placeholder="Cole o fingerprint">
         <div class="helper">📋 Aparece na tela de bloqueio</div>
     </div>
-    <div class="row-btns">
-        <button class="btn-gerar" id="adminGerarBtn">🎲 GERAR</button>
-        <button class="btn-universal" id="adminGerarUniversalBtn">🌍 UNIVERSAL</button>
-        <button class="btn-limpar" id="adminLimparBtn">🗑️</button>
+    <div class="row">
+        <button class="btn-gerar" id="gerarBtn">🎲 GERAR</button>
+        <button class="btn-universal" id="universalBtn">🌍 UNIVERSAL</button>
+        <button class="btn-limpar" id="limparBtn">🗑️</button>
     </div>
     <div class="senha-box">
         <label>🔑 SENHA:</label>
         <div class="row">
-            <input type="text" id="adminSenhaGerada" readonly placeholder="Clique em gerar">
-            <button class="btn-copiar" id="btnCopiarSenha">📋</button>
+            <input type="text" id="senhaGerada" readonly placeholder="Clique em gerar">
+            <button class="copy" id="copySenha">📋</button>
         </div>
-        <div class="info-senha" id="infoSenha"></div>
+        <div class="info" id="infoSenha"></div>
     </div>
     <div class="actions">
-        <button class="btn-whats" id="adminEnviarWhatsBtn">📱 WhatsApp</button>
-        <button class="btn-copiar-senha" id="adminCopiarSenhaBtn">📋 Copiar</button>
+        <button class="whats" id="whatsBtn">📱 WhatsApp</button>
+        <button class="copy-senha" id="copySenhaBtn">📋 Copiar</button>
     </div>
-    <div class="historico" id="historicoSenhas"></div>
+    <div class="historico" id="historico"></div>
     <div class="total">📊 <span id="totalSenhas">0</span> senhas</div>
-    <button class="btn-fechar" id="adminCloseBtn">✕ Fechar</button>
+    <button class="fechar" id="adminClose">✕ Fechar</button>
 </div>
 
 <!-- ===== QR CODE ===== -->
-<div id="qrCodeModal">
-    <div class="qr-content">
-        <div class="qr-titulo">📱 VAI DE BOA! MUSIC</div>
-        <div class="qr-sub">Escaneie e ouça!</div>
-        <div class="qr-wrapper">
-            <img id="qrCodeImage" src="" alt="QR Code">
-            <div class="qr-logo-overlay"><img src="favicon30.png" alt="VDB"></div>
+<div class="qr" id="qrModal">
+    <div class="qr-box">
+        <div class="tit">📱 VAI DE BOA! MUSIC</div>
+        <div class="sub">Escaneie e ouça!</div>
+        <div class="wrap">
+            <img id="qrImg" src="" alt="QR">
+            <div class="overlay"><img src="favicon30.png" alt="VDB"></div>
         </div>
-        <div class="qr-info">
+        <div class="info">
             <span><i class="fas fa-music"></i> +3 mil</span>
             <span><i class="fas fa-star"></i> Grátis</span>
             <span><i class="fas fa-sync"></i> Atualiza</span>
         </div>
-        <button class="qr-btn-close" id="qrCloseBtn">✕ FECHAR</button>
+        <button class="close" id="qrClose">✕ FECHAR</button>
     </div>
 </div>
 
 <!-- ===== NOTIFICATION ===== -->
-<div class="notification" id="notification"></div>
+<div class="notif" id="notif"></div>
 
 <!-- ===== AUDIO ===== -->
-<audio id="musicPlayer" preload="none"></audio>
-<audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
+<audio id="audio" preload="none"></audio>
+<audio id="bgAudio" preload="auto" style="display:none;"></audio>
 <audio id="adAudio" preload="auto" style="display:none;"></audio>
 
 <!-- ===== MODALS ===== -->
-<div class="genres-modal" id="genresModal">
-    <div class="header">
-        <div class="titulo">ESTILOS</div>
-        <div class="sub-titulo">✦ ESCOLHA ✦</div>
+<div class="modal-gen" id="genModal">
+    <div class="head">
+        <div class="tit">ESTILOS</div>
+        <div class="sub">✦ ESCOLHA ✦</div>
     </div>
-    <div class="genres-grid" id="genresGrid"></div>
-    <button class="close-genres" id="closeGenresBtn">✕ FECHAR</button>
+    <div class="gen-grid" id="genGrid"></div>
+    <button class="close-gen" id="closeGen">✕ FECHAR</button>
 </div>
 
-<div class="fav-modal" id="favModal">
+<div class="modal-fav" id="favModal">
     <h3>❤️ FAVORITAS</h3>
-    <div class="sub-titulo">Suas músicas</div>
-    <div class="fav-list-modal" id="favListModal"></div>
-    <button class="close-fav" id="closeFavBtn">FECHAR</button>
+    <div class="fav-list" id="favList"></div>
+    <button class="close-fav" id="closeFav">FECHAR</button>
 </div>
 
-<div class="choice-menu" id="choiceMenu">
+<div class="choice" id="choice">
     <h3>🎯 O QUE QUER?</h3>
-    <button class="choice-btn" id="choiceGenres">
+    <button class="cbtn" id="choiceGen">
         <span><i class="fas fa-guitar"></i> GÊNEROS</span>
-        <span class="info-text">18 estilos</span>
+        <span class="info">18 estilos</span>
     </button>
-    <button class="choice-btn" id="choiceFavorites">
-        <span><i class="fas fa-heart" style="color:var(--neon-pink);"></i> FAVORITAS</span>
+    <button class="cbtn" id="choiceFav">
+        <span><i class="fas fa-heart" style="color:var(--pink);"></i> FAVORITAS</span>
         <span class="badge" id="choiceBadge">0</span>
     </button>
-    <button class="choice-close" id="choiceClose">✕ CANCELAR</button>
+    <button class="cclose" id="choiceClose">✕ CANCELAR</button>
 </div>
 
-<div class="feedback-modal" id="feedbackModal">
+<div class="feedback" id="fbModal">
     <h3>⭐ Avalie</h3>
-    <div class="stars" id="starRating">
-        <i class="far fa-star star" data-rating="1"></i>
-        <i class="far fa-star star" data-rating="2"></i>
-        <i class="far fa-star star" data-rating="3"></i>
-        <i class="far fa-star star" data-rating="4"></i>
-        <i class="far fa-star star" data-rating="5"></i>
+    <div class="stars" id="stars">
+        <i class="far fa-star star" data-r="1"></i>
+        <i class="far fa-star star" data-r="2"></i>
+        <i class="far fa-star star" data-r="3"></i>
+        <i class="far fa-star star" data-r="4"></i>
+        <i class="far fa-star star" data-r="5"></i>
     </div>
-    <textarea id="feedbackText" placeholder="Sua opinião..."></textarea>
-    <button class="btn-feedback" id="sendFeedbackBtn">Enviar</button>
-    <button id="closeFeedbackBtn">Cancelar</button>
+    <textarea id="fbText" placeholder="Sua opinião..."></textarea>
+    <button class="send" id="fbSend">Enviar</button>
+    <button class="cancel" id="fbCancel">Cancelar</button>
 </div>
 
 <script>
 // ============================================================
-// 🚀 VAI DE BOA! MUSIC - VERSÃO FINAL FUNCIONAL
+// 🚀 VAI DE BOA! MUSIC - VERSÃO FINAL
 // ✅ TODOS OS BOTÕES FUNCIONAM
 // ✅ 5 MÚSICAS → ANÚNCIO → VOLTA
 // ✅ ADMIN: 8 CLIQUES NO LETREIRO
+// ✅ SEM TOUCH MANAGER (SÓ CLICK)
 // ============================================================
 
 (function() {
     'use strict';
 
     // ============================================================
-    // 🔒 SENHAS OCULTAS
+    // 🔒 SENHAS
     // ============================================================
-    const SENHA_ADMIN = String.fromCharCode(112, 97, 116, 105, 99, 111, 49, 54, 56, 53);
-    const SENHA_MESTRA = String.fromCharCode(80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64);
+    const SENHA_ADMIN = String.fromCharCode(112,97,116,105,99,111,49,54,56,53);
+    const SENHA_MESTRA = String.fromCharCode(80,97,116,105,99,111,49,54,56,53,64);
 
     // ============================================================
-    // ⭐ CONFIGURAÇÕES
+    // ⭐ CONFIG
     // ============================================================
     const CONFIG = {
         musicasPorCiclo: 5,
@@ -541,39 +515,39 @@
     };
 
     // ============================================================
-    // 📦 DOM - TODOS OS ELEMENTOS
+    // 📦 DOM
     // ============================================================
     const dom = {
-        audio: document.getElementById('musicPlayer'),
-        backgroundAudio: document.getElementById('backgroundAudio'),
+        audio: document.getElementById('audio'),
+        bgAudio: document.getElementById('bgAudio'),
         adAudio: document.getElementById('adAudio'),
         playBtn: document.getElementById('playBtn'),
-        progressFill: document.getElementById('progressFill'),
-        currentTime: document.getElementById('currentTime'),
-        totalTime: document.getElementById('totalTime'),
-        audioStatus: document.getElementById('audioStatus'),
-        bottomControls: document.getElementById('bottomControls'),
+        progFill: document.getElementById('progFill'),
+        current: document.getElementById('current'),
+        total: document.getElementById('total'),
+        status: document.getElementById('status'),
+        controls: document.getElementById('controls'),
         shuffleBtn: document.getElementById('shuffleBtn'),
-        menuPopup: document.getElementById('menuPopup'),
-        progressBar: document.getElementById('progressBar'),
-        mediaContainer: document.getElementById('mediaContainer'),
-        heartBtn: document.getElementById('heartBtn'),
+        menuPop: document.getElementById('menuPop'),
+        progBar: document.getElementById('progBar'),
+        media: document.getElementById('media'),
+        heart: document.getElementById('heart'),
         favBadge: document.getElementById('favBadge'),
-        genresModal: document.getElementById('genresModal'),
-        genresGrid: document.getElementById('genresGrid'),
+        genModal: document.getElementById('genModal'),
+        genGrid: document.getElementById('genGrid'),
         favModal: document.getElementById('favModal'),
-        favListModal: document.getElementById('favListModal'),
-        choiceMenu: document.getElementById('choiceMenu'),
+        favList: document.getElementById('favList'),
+        choice: document.getElementById('choice'),
         choiceBadge: document.getElementById('choiceBadge'),
-        feedbackModal: document.getElementById('feedbackModal'),
-        infoScroll: document.getElementById('infoScroll'),
+        fbModal: document.getElementById('fbModal'),
+        scroll: document.getElementById('scroll'),
         scrollText: document.getElementById('scrollText'),
-        menuButton: document.getElementById('menuButton'),
-        btnGeneroFav: document.getElementById('btnGeneroFav'),
-        generoNome: document.getElementById('generoNome'),
-        timerLib: document.getElementById('timerLib'),
-        whatsappBanner: document.getElementById('whatsappBanner'),
-        closeBannerBtn: document.getElementById('closeBannerBtn'),
+        menuBtn: document.getElementById('menuBtn'),
+        btnGen: document.getElementById('btnGen'),
+        genName: document.getElementById('genName'),
+        timer: document.getElementById('timer'),
+        banner: document.getElementById('banner'),
+        closeBanner: document.getElementById('closeBanner'),
     };
 
     // ============================================================
@@ -606,10 +580,10 @@
     };
 
     // ============================================================
-    // 📢 NOTIFICAÇÃO
+    // 📢 NOTIF
     // ============================================================
     function notif(msg, dur = 2000) {
-        const el = document.getElementById('notification');
+        const el = document.getElementById('notif');
         if (!el) return;
         el.textContent = msg;
         el.classList.add('show');
@@ -658,7 +632,7 @@
     }
 
     // ============================================================
-    // ⭐ AUXILIARES
+    // ⭐ AUX
     // ============================================================
     function fmt(s) {
         if (!s || isNaN(s)) return '0:00';
@@ -684,10 +658,10 @@
     }
 
     function showControls() {
-        dom.bottomControls.classList.add('visible');
+        dom.controls.classList.add('show');
         clearTimeout(state.hideControlsTimeout);
         state.hideControlsTimeout = setTimeout(() => {
-            dom.bottomControls.classList.remove('visible');
+            dom.controls.classList.remove('show');
         }, 4000);
     }
 
@@ -737,8 +711,8 @@
         clearInterval(state.backgroundInterval);
         state.backgroundInterval = setInterval(async () => {
             try {
-                if (dom.backgroundAudio.paused && state.isBackgroundActive) {
-                    dom.backgroundAudio.play().catch(() => {});
+                if (dom.bgAudio.paused && state.isBackgroundActive) {
+                    dom.bgAudio.play().catch(() => {});
                 }
                 if (state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src && !state.adActive) {
                     dom.audio.play().catch(() => {});
@@ -755,24 +729,24 @@
         state.playerAtivado = true;
         try {
             const url = URL.createObjectURL(criarSilentAudio());
-            dom.backgroundAudio.src = url;
-            dom.backgroundAudio.loop = true;
-            dom.backgroundAudio.volume = 0.001;
-            await dom.backgroundAudio.play();
+            dom.bgAudio.src = url;
+            dom.bgAudio.loop = true;
+            dom.bgAudio.volume = 0.001;
+            await dom.bgAudio.play();
             state.isBackgroundActive = true;
-            dom.audioStatus.classList.add('active');
+            dom.status.classList.add('on');
             manterAudioAtivo();
             if ('wakeLock' in navigator) {
                 try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
             }
             forcarTelaCheia();
-            iniciarBannerWhatsApp();
+            iniciarBanner();
             setTimeout(() => tocar(), 500);
         } catch (e) {
             state.isBackgroundActive = true;
-            dom.audioStatus.classList.add('active');
+            dom.status.classList.add('on');
             forcarTelaCheia();
-            iniciarBannerWhatsApp();
+            iniciarBanner();
             setTimeout(() => tocar(), 500);
         }
     }
@@ -805,7 +779,7 @@
 
     function toggleShuffle() {
         state.shuffleMode = !state.shuffleMode;
-        dom.shuffleBtn.classList.toggle('active', state.shuffleMode);
+        dom.shuffleBtn.classList.toggle('on', state.shuffleMode);
         state.playlistAtual = shuf(state.musicas);
         notif(state.shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial');
     }
@@ -900,7 +874,7 @@
     }
 
     // ============================================================
-    // ⭐ TOCAR MÚSICA COM CONTADOR DE CICLO
+    // ⭐ TOCAR MÚSICA
     // ============================================================
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length || state.adActive) {
@@ -945,17 +919,14 @@
                 state.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 
-                // ⭐ INCREMENTAR CONTADOR
                 state.musicasTocadas++;
-                console.log(`🎵 Música ${state.musicasTocadas} de ${CONFIG.musicasPorCiclo}`);
+                console.log('🎵 Música', state.musicasTocadas, 'de', CONFIG.musicasPorCiclo);
                 
-                // ⭐ VERIFICAR SE CHEGOU NO LIMITE
                 if (state.musicasTocadas >= CONFIG.musicasPorCiclo) {
                     state.musicasTocadas = 0;
                     state.cicloCompleto = true;
                     console.log('🎯 Ciclo completo! Vai tocar anúncio.');
                     
-                    // ⭐ AGENDAR ANÚNCIO APÓS A MÚSICA TERMINAR
                     dom.audio.onended = function() {
                         dom.audio.onended = null;
                         if (!state.adActive && state.cicloCompleto) {
@@ -966,7 +937,6 @@
                         }
                     };
                 } else {
-                    // ⭐ COMPORTAMENTO NORMAL
                     dom.audio.onended = function() {
                         dom.audio.onended = null;
                         if (!state.adActive) next();
@@ -982,7 +952,7 @@
     }
 
     // ============================================================
-    // ⭐ SISTEMA DE ANÚNCIOS
+    // ⭐ ANÚNCIOS
     // ============================================================
     function tocarAnuncio() {
         if (state.adActive) { 
@@ -1002,7 +972,7 @@
         const adSrc = state.adIndex === 0 ? CONFIG.ad1Src : CONFIG.ad2Src;
         state.adIndex = (state.adIndex + 1) % 2;
         
-        console.log(`📢 Tocando anúncio: ${adSrc}`);
+        console.log('📢 Tocando anúncio:', adSrc);
         dom.adAudio.src = adSrc + '?t=' + Date.now();
         dom.adAudio.load();
         dom.adAudio.play().then(() => {
@@ -1031,7 +1001,7 @@
         clearTimeout(state.adTimer);
         
         const delay = CONFIG.musicDelay * 1000;
-        console.log(`⏳ Voltando em ${delay}ms`);
+        console.log('⏳ Voltando em', delay, 'ms');
         
         setTimeout(() => {
             if (state.musicWasPlaying && state.isBackgroundActive) {
@@ -1065,21 +1035,21 @@
     }
 
     // ============================================================
-    // ⭐ BANNER WHATSAPP
+    // ⭐ BANNER
     // ============================================================
-    function iniciarBannerWhatsApp() {
+    function iniciarBanner() {
         setTimeout(() => mostrarBanner(), 30000);
         setInterval(() => mostrarBanner(), 120000);
-        dom.closeBannerBtn.addEventListener('click', function(e) {
+        dom.closeBanner.addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.whatsappBanner.classList.remove('show');
+            dom.banner.classList.remove('show');
         });
     }
 
     function mostrarBanner() {
         if (localStorage.getItem('vdb_banner_comprado') === 'true') return;
-        dom.whatsappBanner.classList.add('show');
-        setTimeout(() => dom.whatsappBanner.classList.remove('show'), 10000);
+        dom.banner.classList.add('show');
+        setTimeout(() => dom.banner.classList.remove('show'), 10000);
     }
 
     // ============================================================
@@ -1160,15 +1130,15 @@
         }
     }
 
-    const favoritesManager = new FavoritesManager();
+    const favManager = new FavoritesManager();
 
     async function carregarFav() {
         try {
-            state.favorites = await favoritesManager.getAll();
+            state.favorites = await favManager.getAll();
             if (!Array.isArray(state.favorites)) state.favorites = [];
         } catch (e) { state.favorites = []; }
         dom.favBadge.textContent = state.favorites.length;
-        if (dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length;
+        dom.choiceBadge.textContent = state.favorites.length;
     }
 
     function toggleFav(musica) {
@@ -1176,7 +1146,7 @@
         const idx = state.favorites.findIndex(f => f.id === musica.id);
         if (idx > -1) {
             state.favorites.splice(idx, 1);
-            favoritesManager.remove(musica.id);
+            favManager.remove(musica.id);
             notif('💔 Removido');
         } else {
             state.favorites.push({
@@ -1186,40 +1156,39 @@
                 src: musica.src,
                 genero: musica.genero
             });
-            favoritesManager.add(state.favorites[state.favorites.length - 1]);
+            favManager.add(state.favorites[state.favorites.length - 1]);
             notif('❤️ Adicionado');
         }
         dom.favBadge.textContent = state.favorites.length;
-        if (dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length;
+        dom.choiceBadge.textContent = state.favorites.length;
     }
 
-    function renderizarFavoritosModal() {
-        if (!dom.favListModal) return;
-        dom.favListModal.innerHTML = '';
+    function renderizarFavoritos() {
+        dom.favList.innerHTML = '';
         if (state.favorites.length === 0) {
-            dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Nenhuma favorita</div>';
+            dom.favList.innerHTML = '<div class="fav-empty">💔 Nenhuma favorita</div>';
             return;
         }
         state.favorites.forEach(m => {
             const item = document.createElement('div');
-            item.className = 'fav-item-modal';
+            item.className = 'fav-item';
             item.innerHTML = `
-                <div class="fav-info">
+                <div class="info">
                     <span class="title">${sanitize(m.title)}</span>
                     <span class="artist"> - ${sanitize(m.artist)}</span>
                 </div>
-                <button class="remove-fav"><i class="fas fa-times-circle"></i></button>
+                <button class="remove"><i class="fas fa-times-circle"></i></button>
             `;
-            item.querySelector('.fav-info').onclick = () => {
+            item.querySelector('.info').onclick = () => {
                 dom.favModal.classList.remove('open');
                 tocarFavoritaEspecifica(m.id);
             };
-            item.querySelector('.remove-fav').onclick = (e) => {
+            item.querySelector('.remove').onclick = (e) => {
                 e.stopPropagation();
                 toggleFav(m);
-                renderizarFavoritosModal();
+                renderizarFavoritos();
             };
-            dom.favListModal.appendChild(item);
+            dom.favList.appendChild(item);
         });
     }
 
@@ -1231,11 +1200,11 @@
         const idx = state.playlistAtual.findIndex(m => m.id === id);
         if (idx > -1) {
             state.indiceAtual = idx;
-            dom.generoNome.textContent = '❤️ FAV';
-            dom.generoNome.style.background = 'linear-gradient(135deg, #ff2d7f, #ff0066)';
-            dom.generoNome.style.webkitBackgroundClip = 'text';
-            dom.generoNome.style.webkitTextFillColor = 'transparent';
-            dom.generoNome.style.backgroundClip = 'text';
+            dom.genName.textContent = '❤️ FAV';
+            dom.genName.style.background = 'linear-gradient(135deg, #ff2d7f, #ff0066)';
+            dom.genName.style.webkitBackgroundClip = 'text';
+            dom.genName.style.webkitTextFillColor = 'transparent';
+            dom.genName.style.backgroundClip = 'text';
             if (state.isBackgroundActive) tocar();
             notif('🎵 Tocando favorita!');
         }
@@ -1245,17 +1214,17 @@
     // 🎨 GÊNEROS
     // ============================================================
     function renderizarGeneros() {
-        dom.genresGrid.innerHTML = '';
+        dom.genGrid.innerHTML = '';
         ORDEM.forEach(g => {
             const card = document.createElement('div');
-            card.className = 'genre-card';
+            card.className = 'gen-card';
             card.setAttribute('data-genre', g);
             card.innerHTML = `
-                <div class="genre-name">${g}</div>
-                <div class="genre-count">✦</div>
+                <div class="name">${g}</div>
+                <div class="count">✦</div>
             `;
             card.onclick = () => selecionarGenero(g);
-            dom.genresGrid.appendChild(card);
+            dom.genGrid.appendChild(card);
         });
     }
 
@@ -1270,14 +1239,14 @@
         state.playlistAtual = shuf(musicas);
         state.indiceAtual = 0;
         state.musicasTocadas = 0;
-        dom.generoNome.textContent = genero;
-        dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[genero] || '#fff') + ', #ffffff)';
-        dom.generoNome.style.webkitBackgroundClip = 'text';
-        dom.generoNome.style.webkitTextFillColor = 'transparent';
-        dom.generoNome.style.backgroundClip = 'text';
+        dom.genName.textContent = genero;
+        dom.genName.style.background = 'linear-gradient(135deg, ' + (CORES[genero] || '#fff') + ', #ffffff)';
+        dom.genName.style.webkitBackgroundClip = 'text';
+        dom.genName.style.webkitTextFillColor = 'transparent';
+        dom.genName.style.backgroundClip = 'text';
         const m = state.playlistAtual[0];
         if (m) atualizarLetreiro(m);
-        dom.genresModal.classList.remove('open');
+        dom.genModal.classList.remove('open');
         if (state.isBackgroundActive) setTimeout(tocar, 300);
     }
 
@@ -1313,10 +1282,10 @@
                 el.alt = 'VDB Music';
             }
             el.className = i === 0 ? 'active' : 'inactive';
-            dom.mediaContainer.appendChild(el);
+            dom.media.appendChild(el);
             if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
         });
-        const children = dom.mediaContainer.children;
+        const children = dom.media.children;
         if (children.length > 1) {
             state.mediaTimer = setInterval(() => {
                 const atual = children[state.midiaAtual];
@@ -1338,7 +1307,7 @@
         const senha = prompt('🔐 Digite a senha do painel admin:');
         if (senha === null) return;
         if (senha === SENHA_ADMIN) {
-            document.getElementById('adminPanel').classList.add('open');
+            document.getElementById('admin').classList.add('open');
             notif('🔐 Painel aberto!', 2000);
             carregarHistorico();
             atualizarTotalSenhas();
@@ -1357,16 +1326,16 @@
 
     function carregarHistorico() {
         const historico = JSON.parse(localStorage.getItem('vdb_historico_senhas') || '[]');
-        document.getElementById('historicoSenhas').innerHTML = '';
+        document.getElementById('historico').innerHTML = '';
         historico.forEach(item => {
             const div = document.createElement('div');
             div.className = 'historico-item';
             const tipoIcon = item.tipo === 'universal' ? '🌍' : '📱';
             div.innerHTML = `
                 <span>${tipoIcon} ${item.data}</span>
-                <span class="senha-hash">${item.senha.slice(0, 4)}••••${item.senha.slice(-4)}</span>
+                <span class="hash">${item.senha.slice(0, 4)}••••${item.senha.slice(-4)}</span>
             `;
-            document.getElementById('historicoSenhas').appendChild(div);
+            document.getElementById('historico').appendChild(div);
         });
     }
 
@@ -1375,10 +1344,10 @@
         document.getElementById('totalSenhas').textContent = historico.length;
     }
 
-    function copiarTexto(texto, mensagem) {
+    function copiarTexto(texto, msg) {
         if (!texto) { notif('⚠️ Nada para copiar!', 1500); return; }
         navigator.clipboard.writeText(texto).then(() => {
-            notif(mensagem || '📋 Copiado!', 1500);
+            notif(msg || '📋 Copiado!', 1500);
         }).catch(() => {
             const input = document.createElement('input');
             input.value = texto;
@@ -1386,7 +1355,7 @@
             input.select();
             document.execCommand('copy');
             input.remove();
-            notif(mensagem || '📋 Copiado!', 1500);
+            notif(msg || '📋 Copiado!', 1500);
         });
     }
 
@@ -1395,7 +1364,7 @@
     // ============================================================
     async function iniciar() {
         state.fingerprint = obterFingerprint();
-        document.getElementById('infoDispositivo').textContent = '🆔 ' + state.fingerprint;
+        document.getElementById('fpText').textContent = '🆔 ' + state.fingerprint;
 
         criarMidia();
         await carregarFav();
@@ -1403,13 +1372,13 @@
         if (localStorage.getItem('vdb_desbloqueado') === 'true' || 
             localStorage.getItem('vdb_senha_permanente') === 'true') {
             state.desbloqueado = true;
-            document.getElementById('blockOverlay').classList.remove('active');
-            document.getElementById('blockOverlay').style.display = 'none';
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
+            document.getElementById('block').classList.remove('active');
+            document.getElementById('block').style.display = 'none';
+            dom.timer.textContent = '🔓 Lib';
+            dom.timer.classList.add('lib');
             setTimeout(() => ativarPlayer(), 1000);
         } else {
-            document.getElementById('blockOverlay').style.display = 'none';
+            document.getElementById('block').style.display = 'none';
             setTimeout(() => ativarPlayer(), 500);
         }
 
@@ -1420,11 +1389,11 @@
             if (musicas && musicas.length) {
                 state.musicas = musicas;
                 state.playlistAtual = shuf(musicas);
-                dom.generoNome.textContent = g;
-                dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
-                dom.generoNome.style.webkitBackgroundClip = 'text';
-                dom.generoNome.style.webkitTextFillColor = 'transparent';
-                dom.generoNome.style.backgroundClip = 'text';
+                dom.genName.textContent = g;
+                dom.genName.style.background = 'linear-gradient(135deg, ' + (CORES[g] || '#fff') + ', #ffffff)';
+                dom.genName.style.webkitBackgroundClip = 'text';
+                dom.genName.style.webkitTextFillColor = 'transparent';
+                dom.genName.style.backgroundClip = 'text';
                 const m = state.playlistAtual[0];
                 if (m) atualizarLetreiro(m);
                 break;
@@ -1433,30 +1402,30 @@
         renderizarGeneros();
 
         setTimeout(() => {
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('playerContainer').classList.add('visible');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('player').classList.add('show');
         }, 1000);
 
         forcarTelaCheia();
 
         // ============================================================
-        // ⭐ TODOS OS EVENTOS DOS BOTÕES
+        // ⭐ EVENTOS DOS BOTÕES - TODOS USAM CLICK
         // ============================================================
         
-        // PLAY/PAUSE
+        // PLAY
         dom.playBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             togglePlay();
         });
 
-        // PRÓXIMO
-        dom.nextBtn.addEventListener('click', function(e) {
+        // NEXT
+        document.getElementById('nextBtn').addEventListener('click', function(e) {
             e.stopPropagation();
             next();
         });
 
-        // ANTERIOR
-        dom.prevBtn.addEventListener('click', function(e) {
+        // PREV
+        document.getElementById('prevBtn').addEventListener('click', function(e) {
             e.stopPropagation();
             prev();
         });
@@ -1467,57 +1436,57 @@
             toggleShuffle();
         });
 
-        // CORAÇÃO
-        dom.heartBtn.addEventListener('click', function(e) {
+        // HEART
+        dom.heart.addEventListener('click', function(e) {
             e.stopPropagation();
             const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
             if (m) toggleFav(m);
         });
 
         // BOTÃO GÊNERO
-        dom.btnGeneroFav.addEventListener('click', function(e) {
+        dom.btnGen.addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.choiceMenu.classList.add('open');
+            dom.choice.classList.add('open');
             dom.choiceBadge.textContent = state.favorites.length;
         });
 
         // MENU (3 PONTINHOS)
-        dom.menuButton.addEventListener('click', function(e) {
+        dom.menuBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.toggle('open');
+            dom.menuPop.classList.toggle('open');
         });
 
         // FECHAR MENU
-        document.getElementById('closeMenuBtn').addEventListener('click', function(e) {
+        document.getElementById('closeMenu').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
         });
 
         // TELA CHEIA
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', function(e) {
+        document.getElementById('fullscreenBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
             forcarTelaCheia();
         });
 
         // RECARREGAR
-        document.getElementById('reloadPlaylistBtn').addEventListener('click', function(e) {
+        document.getElementById('reloadBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
             location.reload();
         });
 
         // FEEDBACK
-        document.getElementById('feedbackMenuBtn').addEventListener('click', function(e) {
+        document.getElementById('fbMenuBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
-            dom.feedbackModal.classList.add('open');
+            dom.menuPop.classList.remove('open');
+            dom.fbModal.classList.add('open');
         });
 
         // SLEEP TIMER
-        document.getElementById('sleepMenuBtn').addEventListener('click', function(e) {
+        document.getElementById('sleepBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
             const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
             if (mins > 0) {
                 clearTimeout(state.sleepTimer);
@@ -1532,61 +1501,61 @@
         });
 
         // QR CODE
-        document.getElementById('qrCodeMenuBtn').addEventListener('click', function(e) {
+        document.getElementById('qrMenuBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
             const url = encodeURIComponent(window.location.href);
-            document.getElementById('qrCodeImage').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
-            document.getElementById('qrCodeModal').classList.add('active');
+            document.getElementById('qrImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
+            document.getElementById('qrModal').classList.add('active');
         });
 
-        // FECHAR QR CODE
-        document.getElementById('qrCloseBtn').addEventListener('click', function(e) {
+        // FECHAR QR
+        document.getElementById('qrClose').addEventListener('click', function(e) {
             e.stopPropagation();
-            document.getElementById('qrCodeModal').classList.remove('active');
+            document.getElementById('qrModal').classList.remove('active');
         });
 
-        document.getElementById('qrCodeModal').addEventListener('click', function(e) {
+        document.getElementById('qrModal').addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('active');
         });
 
-        // FORCE UPDATE
-        document.getElementById('forceUpdateBtn').addEventListener('click', function(e) {
+        // UPDATE
+        document.getElementById('updateBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.menuPopup.classList.remove('open');
+            dom.menuPop.classList.remove('open');
             localStorage.setItem('vdb_cache_version', String(Date.now()));
             location.reload();
         });
 
         // ESCOLHA - GÊNEROS
-        document.getElementById('choiceGenres').addEventListener('click', function(e) {
+        document.getElementById('choiceGen').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.choiceMenu.classList.remove('open');
-            dom.genresModal.classList.add('open');
+            dom.choice.classList.remove('open');
+            dom.genModal.classList.add('open');
         });
 
         // ESCOLHA - FAVORITOS
-        document.getElementById('choiceFavorites').addEventListener('click', function(e) {
+        document.getElementById('choiceFav').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.choiceMenu.classList.remove('open');
-            renderizarFavoritosModal();
+            dom.choice.classList.remove('open');
+            renderizarFavoritos();
             dom.favModal.classList.add('open');
         });
 
         // FECHAR ESCOLHA
         document.getElementById('choiceClose').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.choiceMenu.classList.remove('open');
+            dom.choice.classList.remove('open');
         });
 
         // FECHAR GÊNEROS
-        document.getElementById('closeGenresBtn').addEventListener('click', function(e) {
+        document.getElementById('closeGen').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.genresModal.classList.remove('open');
+            dom.genModal.classList.remove('open');
         });
 
         // FECHAR FAVORITOS
-        document.getElementById('closeFavBtn').addEventListener('click', function(e) {
+        document.getElementById('closeFav').addEventListener('click', function(e) {
             e.stopPropagation();
             dom.favModal.classList.remove('open');
         });
@@ -1600,25 +1569,25 @@
         });
 
         // FAB GÊNEROS
-        dom.fabGeneros.addEventListener('click', function(e) {
+        document.getElementById('fabGen').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.choiceMenu.classList.add('open');
+            dom.choice.classList.add('open');
             document.getElementById('fabSub').classList.remove('open');
             state.fabOpen = false;
             dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
         });
 
         // FAB FEEDBACK
-        dom.fabFeedback.addEventListener('click', function(e) {
+        document.getElementById('fabFb').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.feedbackModal.classList.add('open');
+            dom.fbModal.classList.add('open');
             document.getElementById('fabSub').classList.remove('open');
             state.fabOpen = false;
             dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
         });
 
         // FAB YOUTUBE
-        dom.fabYoutube.addEventListener('click', function(e) {
+        document.getElementById('fabYt').addEventListener('click', function(e) {
             e.stopPropagation();
             window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
             document.getElementById('fabSub').classList.remove('open');
@@ -1627,7 +1596,7 @@
         });
 
         // FAB SHARE
-        dom.fabShare.addEventListener('click', function(e) {
+        document.getElementById('fabShare').addEventListener('click', function(e) {
             e.stopPropagation();
             navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!', 1500));
             document.getElementById('fabSub').classList.remove('open');
@@ -1636,11 +1605,11 @@
         });
 
         // FAB QR CODE
-        dom.fabQrCode.addEventListener('click', function(e) {
+        document.getElementById('fabQr').addEventListener('click', function(e) {
             e.stopPropagation();
             const url = encodeURIComponent(window.location.href);
-            document.getElementById('qrCodeImage').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
-            document.getElementById('qrCodeModal').classList.add('active');
+            document.getElementById('qrImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
+            document.getElementById('qrModal').classList.add('active');
             document.getElementById('fabSub').classList.remove('open');
             state.fabOpen = false;
             dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
@@ -1649,30 +1618,30 @@
         // FEEDBACK - ESTRELAS
         document.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', function() {
-                const rating = parseInt(this.dataset.rating);
+                const rating = parseInt(this.dataset.r);
                 document.querySelectorAll('.star').forEach((s, i) => {
-                    s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
+                    s.className = i < rating ? 'fas fa-star star on' : 'far fa-star star';
                 });
             });
         });
 
         // FEEDBACK - ENVIAR
-        document.getElementById('sendFeedbackBtn').addEventListener('click', function(e) {
+        document.getElementById('fbSend').addEventListener('click', function(e) {
             e.stopPropagation();
-            const stars = document.querySelectorAll('.star.active').length;
-            const text = document.getElementById('feedbackText').value;
+            const stars = document.querySelectorAll('.star.on').length;
+            const text = document.getElementById('fbText').value;
             window.open('https://wa.me/5512988461978?text=' + encodeURIComponent('⭐' + '★'.repeat(stars) + ' ' + text));
-            dom.feedbackModal.classList.remove('open');
+            dom.fbModal.classList.remove('open');
         });
 
         // FEEDBACK - CANCELAR
-        document.getElementById('closeFeedbackBtn').addEventListener('click', function(e) {
+        document.getElementById('fbCancel').addEventListener('click', function(e) {
             e.stopPropagation();
-            dom.feedbackModal.classList.remove('open');
+            dom.fbModal.classList.remove('open');
         });
 
         // SENHA - LIBERAR
-        document.getElementById('btnLiberar').addEventListener('click', function(e) {
+        document.getElementById('liberarBtn').addEventListener('click', function(e) {
             e.stopPropagation();
             const senha = document.getElementById('senhaInput').value.trim();
             if (!senha) {
@@ -1682,15 +1651,15 @@
             const resultado = validarSenha(senha);
             if (resultado.valida) {
                 state.desbloqueado = true;
-                document.getElementById('blockOverlay').classList.remove('active');
-                document.getElementById('blockOverlay').style.display = 'none';
+                document.getElementById('block').classList.remove('active');
+                document.getElementById('block').style.display = 'none';
                 document.getElementById('erroSenha').textContent = '';
                 document.getElementById('senhaInput').value = '';
                 localStorage.setItem('vdb_desbloqueado', 'true');
                 localStorage.setItem('vdb_senha_permanente', 'true');
                 localStorage.setItem('vdb_banner_comprado', 'true');
-                dom.timerLib.textContent = '🔓 Lib';
-                dom.timerLib.className = 'timer-lib lib';
+                dom.timer.textContent = '🔓 Lib';
+                dom.timer.classList.add('lib');
                 notif('✅ Liberado!', 3000);
                 if (!state.playerAtivado) setTimeout(ativarPlayer, 500);
             } else {
@@ -1704,12 +1673,12 @@
         document.getElementById('senhaInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.stopPropagation();
-                document.getElementById('btnLiberar').click();
+                document.getElementById('liberarBtn').click();
             }
         });
 
         // ⭐⭐⭐ ADMIN: 8 CLIQUES NO LETREIRO ⭐⭐⭐
-        dom.infoScroll.addEventListener('click', function(e) {
+        dom.scroll.addEventListener('click', function(e) {
             e.stopPropagation();
             state.clickCount++;
             console.log('👆 Clique no letreiro:', state.clickCount);
@@ -1727,27 +1696,27 @@
         });
 
         // ADMIN - GERAR SENHA
-        document.getElementById('adminGerarBtn').addEventListener('click', function(e) {
+        document.getElementById('gerarBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            const fp = document.getElementById('adminFingerprintInput').value.trim();
+            const fp = document.getElementById('adminFp').value.trim();
             if (!fp || fp.length < 10) {
                 notif('⚠️ Cole o fingerprint!', 2000);
                 return;
             }
             const senha = gerarSenhaDispositivo(fp);
-            document.getElementById('adminSenhaGerada').value = senha;
+            document.getElementById('senhaGerada').value = senha;
             document.getElementById('infoSenha').textContent = '✅ Senha gerada!';
-            document.getElementById('adminFingerprintInput').value = '';
+            document.getElementById('adminFp').value = '';
             adicionarHistorico(senha, 'dispositivo');
             atualizarTotalSenhas();
             notif('✅ Senha gerada!', 2000);
         });
 
         // ADMIN - GERAR UNIVERSAL
-        document.getElementById('adminGerarUniversalBtn').addEventListener('click', function(e) {
+        document.getElementById('universalBtn').addEventListener('click', function(e) {
             e.stopPropagation();
             const senha = gerarSenhaUniversal();
-            document.getElementById('adminSenhaGerada').value = senha;
+            document.getElementById('senhaGerada').value = senha;
             document.getElementById('infoSenha').textContent = '🌍 Senha universal!';
             adicionarHistorico(senha, 'universal');
             atualizarTotalSenhas();
@@ -1755,45 +1724,45 @@
         });
 
         // ADMIN - LIMPAR
-        document.getElementById('adminLimparBtn').addEventListener('click', function(e) {
+        document.getElementById('limparBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            document.getElementById('adminSenhaGerada').value = '';
+            document.getElementById('senhaGerada').value = '';
             document.getElementById('infoSenha').textContent = '';
             notif('🗑️ Limpo!', 1000);
         });
 
-        // ADMIN - COPIAR
-        document.getElementById('btnCopiarSenha').addEventListener('click', function(e) {
+        // ADMIN - COPIAR SENHA
+        document.getElementById('copySenha').addEventListener('click', function(e) {
             e.stopPropagation();
-            copiarTexto(document.getElementById('adminSenhaGerada').value, '📋 Senha copiada!');
+            copiarTexto(document.getElementById('senhaGerada').value, '📋 Senha copiada!');
         });
-        document.getElementById('adminCopiarSenhaBtn').addEventListener('click', function(e) {
+        document.getElementById('copySenhaBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            copiarTexto(document.getElementById('adminSenhaGerada').value, '📋 Senha copiada!');
+            copiarTexto(document.getElementById('senhaGerada').value, '📋 Senha copiada!');
         });
 
         // ADMIN - COPIAR FINGERPRINT
-        document.getElementById('btnCopiarFingerprint').addEventListener('click', function(e) {
+        document.getElementById('copyFp').addEventListener('click', function(e) {
             e.stopPropagation();
             copiarTexto(state.fingerprint, '📋 ID copiado!');
         });
 
         // ADMIN - WHATSAPP
-        document.getElementById('adminEnviarWhatsBtn').addEventListener('click', function(e) {
+        document.getElementById('whatsBtn').addEventListener('click', function(e) {
             e.stopPropagation();
-            const senha = document.getElementById('adminSenhaGerada').value;
+            const senha = document.getElementById('senhaGerada').value;
             if (!senha) { notif('⚠️ Gere uma senha!', 1500); return; }
             window.open('https://wa.me/5512988461978?text=' + encodeURIComponent('🔑 VAI DE BOA! MUSIC%0A%0ASenha: ' + senha), '_blank');
         });
 
         // ADMIN - FECHAR
-        document.getElementById('adminCloseBtn').addEventListener('click', function(e) {
+        document.getElementById('adminClose').addEventListener('click', function(e) {
             e.stopPropagation();
-            document.getElementById('adminPanel').classList.remove('open');
+            document.getElementById('admin').classList.remove('open');
         });
 
         // PROGRESS BAR
-        dom.progressBar.addEventListener('click', function(e) {
+        dom.progBar.addEventListener('click', function(e) {
             e.stopPropagation();
             if (dom.audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -1804,16 +1773,16 @@
         // AUDIO EVENTS
         dom.audio.addEventListener('timeupdate', function() {
             if (dom.audio.duration) {
-                dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
-                dom.currentTime.textContent = fmt(dom.audio.currentTime);
-                dom.totalTime.textContent = fmt(dom.audio.duration);
+                dom.progFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
+                dom.current.textContent = fmt(dom.audio.currentTime);
+                dom.total.textContent = fmt(dom.audio.duration);
             }
         });
 
         // FECHAR MENU AO CLICAR FORA
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('#menuPopup') && !e.target.closest('#menuButton')) {
-                dom.menuPopup.classList.remove('open');
+            if (!e.target.closest('#menuPop') && !e.target.closest('#menuBtn')) {
+                dom.menuPop.classList.remove('open');
             }
         });
 
@@ -1822,7 +1791,7 @@
 
         console.log('🐵 VAI DE BOA! MUSIC - VERSÃO FINAL');
         console.log('✅ TODOS OS BOTÕES FUNCIONAM!');
-        console.log(`📢 Anúncio a cada ${CONFIG.musicasPorCiclo} músicas`);
+        console.log('📢 Anúncio a cada', CONFIG.musicasPorCiclo, 'músicas');
         console.log('✅ Admin: 8 cliques no letreiro');
         console.log('🔒 Senhas ocultas');
     }
