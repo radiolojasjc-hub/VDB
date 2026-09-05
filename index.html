@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC</title>
+    <title>VAI DE BOA! MUSIC!</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* ===== CSS COMPLETO ===== */
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
         html,body{height:100%;width:100%;margin:0;padding:0;background:#000;overflow:hidden;position:fixed;top:0;left:0}
         :root{--neon-cyan:#00f3ff;--neon-pink:#ff2d7f;--gold:#ffd700;--safe-bottom:env(safe-area-inset-bottom,0px)}
@@ -302,7 +303,7 @@
 </head>
 <body>
 
-<!-- LOADING -->
+<!-- ===== LOADING ===== -->
 <div id="loadingScreen">
     <img src="favicon30.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner loading-spinner"></i>
@@ -312,7 +313,7 @@
     </div>
 </div>
 
-<!-- PLAYER -->
+<!-- ===== PLAYER ===== -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
     
@@ -379,7 +380,7 @@
     </div>
 </div>
 
-<!-- WHATSAPP BANNER -->
+<!-- ===== WHATSAPP BANNER ===== -->
 <div id="whatsappBanner">
     <a href="https://wa.me/5512988461978?text=Olá!%20Quero%20ser%20VITAL%C3%8DCIO!%20🎵" target="_blank">
         <img src="banner.png" alt="WhatsApp" id="bannerImg" onerror="this.style.display='none'; this.parentElement.querySelector('.banner-text').style.marginLeft='0';">
@@ -391,7 +392,7 @@
     <button class="close-banner" id="closeBannerBtn">✕</button>
 </div>
 
-<!-- BLOCK OVERLAY -->
+<!-- ===== BLOCK OVERLAY ===== -->
 <div id="blockOverlay" class="active">
     <div class="block-content">
         <div class="logo">🐵</div>
@@ -411,7 +412,7 @@
     </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ===== ADMIN PANEL ===== -->
 <div id="adminPanel">
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas para seus clientes</div>
@@ -442,7 +443,7 @@
     <button class="btn-fechar" id="adminCloseBtn">✕ Fechar</button>
 </div>
 
-<!-- QR CODE -->
+<!-- ===== QR CODE ===== -->
 <div id="qrCodeModal">
     <div class="qr-content">
         <div class="qr-titulo">📱 VAI DE BOA! MUSIC</div>
@@ -460,15 +461,15 @@
     </div>
 </div>
 
-<!-- NOTIFICATION -->
+<!-- ===== NOTIFICATION ===== -->
 <div class="notification" id="notification"></div>
 
-<!-- AUDIO -->
+<!-- ===== AUDIO ===== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 <audio id="adAudio" preload="auto" style="display:none;"></audio>
 
-<!-- MODALS -->
+<!-- ===== MODALS ===== -->
 <div class="genres-modal" id="genresModal">
     <div class="header">
         <div class="titulo">ESTILOS</div>
@@ -514,11 +515,7 @@
 
 <script>
 // ============================================================
-// 🚀 VAI DE BOA! MUSIC - VERSÃO SIMPLES E FUNCIONAL
-// ✅ REMOVIDO TOUCH MANAGER (SÓ USA CLICK)
-// ✅ ADMIN: 8 CLIQUES NO LETREIRO FUNCIONA
-// ✅ ANÚNCIOS TOCAM E VOLTAM
-// ✅ TODOS OS BOTÕES FUNCIONAM
+// 🚀 VAI DE BOA! MUSIC - SISTEMA 5 MÚSICAS → ANÚNCIO
 // ============================================================
 
 (function() {
@@ -534,9 +531,9 @@
     // ⭐ CONFIGURAÇÕES
     // ============================================================
     const CONFIG = {
-        adInterval: 5,
-        adDuration: 15,
-        musicDelay: 2,
+        musicasPorCiclo: 5,     // ⭐ QUANTAS MÚSICAS ANTES DO ANÚNCIO
+        adDuration: 15,          // segundos de duração
+        musicDelay: 2,           // segundos antes de voltar
         ad1Src: 'vdb1.mp3',
         ad2Src: 'vdb2.mp3'
     };
@@ -602,7 +599,9 @@
         adTimer: null,
         adIndex: 0,
         musicWasPlaying: false,
-        config: { ...CONFIG }
+        // ⭐ NOVO: CONTROLE DE CICLO
+        musicasTocadas: 0,
+        cicloCompleto: false,
     };
 
     // ============================================================
@@ -896,6 +895,9 @@
         }
     }
 
+    // ============================================================
+    // ⭐ TOCAR MÚSICA COM CONTADOR DE CICLO
+    // ============================================================
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length || state.adActive) {
             return;
@@ -939,6 +941,35 @@
                 await dom.audio.play();
                 state.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                
+                // ⭐ INCREMENTAR CONTADOR DE MÚSICAS TOCADAS
+                state.musicasTocadas++;
+                console.log(`🎵 Música ${state.musicasTocadas} de ${CONFIG.musicasPorCiclo}`);
+                
+                // ⭐ VERIFICAR SE CHEGOU NO LIMITE
+                if (state.musicasTocadas >= CONFIG.musicasPorCiclo) {
+                    state.musicasTocadas = 0;
+                    state.cicloCompleto = true;
+                    console.log('🎯 Ciclo completo! Vai tocar anúncio.');
+                    
+                    // ⭐ AGENDAR ANÚNCIO APÓS A MÚSICA TERMINAR
+                    dom.audio.onended = function() {
+                        dom.audio.onended = null;
+                        if (!state.adActive && state.cicloCompleto) {
+                            state.cicloCompleto = false;
+                            tocarAnuncio();
+                        } else if (!state.adActive) {
+                            next();
+                        }
+                    };
+                } else {
+                    // ⭐ COMPORTAMENTO NORMAL
+                    dom.audio.onended = function() {
+                        dom.audio.onended = null;
+                        if (!state.adActive) next();
+                    };
+                }
+                
             } catch (e) {
                 setTimeout(next, 100);
             }
@@ -948,69 +979,94 @@
     }
 
     // ============================================================
-    // ⭐ SISTEMA DE ANÚNCIOS
+    // ⭐ SISTEMA DE ANÚNCIOS - 5 MÚSICAS → ANÚNCIO
     // ============================================================
     function iniciarSistemaAnuncios() {
-        console.log('📢 Anúncios iniciados!');
+        console.log('📢 Sistema de anúncios iniciado!');
+        console.log(`📢 Anúncio a cada ${CONFIG.musicasPorCiclo} músicas`);
         dom.adAudio.volume = 1.0;
         dom.adAudio.preload = 'auto';
         dom.adAudio.addEventListener('ended', onAdEnded);
         dom.adAudio.addEventListener('error', onAdError);
-        setTimeout(() => agendarProximoAnuncio(), 30000);
-    }
-
-    function agendarProximoAnuncio() {
-        clearTimeout(state.adTimer);
-        const interval = state.config.adInterval * 60 * 1000;
-        state.adTimer = setTimeout(() => tocarAnuncio(), interval);
     }
 
     function tocarAnuncio() {
-        if (state.adActive) { agendarProximoAnuncio(); return; }
+        if (state.adActive) { 
+            console.log('📢 Anúncio já ativo');
+            return; 
+        }
         
         state.musicWasPlaying = state.isPlaying;
         state.adActive = true;
+        state.cicloCompleto = false;
         
-        if (!dom.audio.paused) dom.audio.pause();
+        if (!dom.audio.paused) {
+            dom.audio.pause();
+            console.log('🎵 Música pausada para anúncio');
+        }
         
-        const adSrc = state.adIndex === 0 ? state.config.ad1Src : state.config.ad2Src;
+        const adSrc = state.adIndex === 0 ? CONFIG.ad1Src : CONFIG.ad2Src;
         state.adIndex = (state.adIndex + 1) % 2;
         
+        console.log(`📢 Tocando anúncio: ${adSrc}`);
         dom.adAudio.src = adSrc + '?t=' + Date.now();
         dom.adAudio.load();
-        dom.adAudio.play().catch(() => onAdError());
+        dom.adAudio.play().then(() => {
+            console.log('📢 Anúncio tocando!');
+            notif('📢 Anúncio 🎵', 2000);
+        }).catch((err) => {
+            console.log('❌ Erro:', err);
+            onAdError();
+        });
         
-        const adDurationMs = state.config.adDuration * 1000;
+        const adDurationMs = CONFIG.adDuration * 1000;
         state.adTimer = setTimeout(() => {
-            if (state.adActive) onAdEnded();
+            if (state.adActive) {
+                console.log('⏰ Tempo do anúncio expirou');
+                onAdEnded();
+            }
         }, adDurationMs + 3000);
     }
 
     function onAdEnded() {
+        console.log('📢 Anúncio terminou!');
         state.adActive = false;
         dom.adAudio.pause();
         dom.adAudio.currentTime = 0;
         dom.adAudio.src = '';
         clearTimeout(state.adTimer);
         
+        const delay = CONFIG.musicDelay * 1000;
+        console.log(`⏳ Voltando em ${delay}ms`);
+        
         setTimeout(() => {
             if (state.musicWasPlaying && state.isBackgroundActive) {
-                setTimeout(() => tocar(), 100);
+                console.log('🎵 VOLTANDO para música!');
+                state.musicasTocadas = 0; // ⭐ RESETAR CONTADOR
+                setTimeout(() => {
+                    tocar();
+                }, 100);
+            } else {
+                console.log('🎵 Não estava tocando');
             }
-            agendarProximoAnuncio();
-        }, state.config.musicDelay * 1000);
+        }, delay);
     }
 
     function onAdError() {
+        console.log('❌ ERRO no anúncio!');
         state.adActive = false;
         dom.adAudio.pause();
         dom.adAudio.src = '';
         clearTimeout(state.adTimer);
+        
         setTimeout(() => {
             if (state.musicWasPlaying && state.isBackgroundActive) {
-                setTimeout(() => tocar(), 100);
+                console.log('🎵 Voltando após erro');
+                state.musicasTocadas = 0;
+                setTimeout(() => {
+                    tocar();
+                }, 100);
             }
-            agendarProximoAnuncio();
         }, 1000);
     }
 
@@ -1230,6 +1286,7 @@
         state.musicas = musicas;
         state.playlistAtual = shuf(musicas);
         state.indiceAtual = 0;
+        state.musicasTocadas = 0; // ⭐ RESETAR CONTADOR
         dom.generoNome.textContent = genero;
         dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CORES[genero] || '#fff') + ', #ffffff)';
         dom.generoNome.style.webkitBackgroundClip = 'text';
@@ -1400,7 +1457,7 @@
         forcarTelaCheia();
 
         // ============================================================
-        // ⭐ TODOS OS EVENTOS DOS BOTÕES - USANDO CLICK
+        // ⭐ EVENTOS DOS BOTÕES
         // ============================================================
         
         // PLAY
@@ -1485,7 +1542,6 @@
                     state.isPlaying = false;
                     dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
                     notif('💤 Rádio desligada!', 2000);
-                    clearTimeout(state.adTimer);
                 }, mins * 60000);
                 notif('⏰ Sleep: ' + mins + ' min', 2000);
             }
@@ -1669,7 +1725,6 @@
         });
 
         // ⭐⭐⭐ ADMIN: 8 CLIQUES NO LETREIRO ⭐⭐⭐
-        // ⭐ ISSO FUNCIONA! É SÓ CLICAR 8 VEZES!
         dom.infoScroll.addEventListener('click', function(e) {
             e.stopPropagation();
             state.clickCount++;
@@ -1771,10 +1826,6 @@
             }
         });
 
-        dom.audio.addEventListener('ended', function() {
-            if (!state.carregandoMusica && !state.adActive) next();
-        });
-
         // FECHAR MENU AO CLICAR FORA
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#menuPopup') && !e.target.closest('#menuButton')) {
@@ -1785,11 +1836,10 @@
         // FORÇAR FULLSCREEN
         document.addEventListener('click', function() { fullscreen(); });
 
-        console.log('🐵 VAI DE BOA! MUSIC - VERSÃO SIMPLES E FUNCIONAL');
+        console.log('🐵 VAI DE BOA! MUSIC - SISTEMA 5 MÚSICAS → ANÚNCIO');
+        console.log(`📢 Anúncio a cada ${CONFIG.musicasPorCiclo} músicas`);
         console.log('✅ Admin: 8 cliques no letreiro');
-        console.log('✅ Anúncios tocam e voltam');
         console.log('✅ Todos os botões funcionam');
-        console.log('✅ SEM Touch Manager (só click)');
         console.log('🔒 Senhas ocultas');
     }
 
