@@ -1483,6 +1483,26 @@
             50% { transform: scale(1.05); }
         }
 
+        /* ========== BOTÃO SAIR MODO TV ========== */
+        #btnSairModoTV {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 60;
+            background: rgba(10, 10, 30, 0.9);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         /* ========== RESPONSIVE ========== */
         @media (max-width: 480px) {
             .logo-macaco { height: 28px; width: 28px; }
@@ -1520,6 +1540,7 @@
             .notification { font-size: 0.85rem; padding: 8px 16px; top: 100px; }
             #videoClickOverlay { bottom: 100px; right: 10px; }
             #videoClickOverlay video { width: clamp(70px, 15vw, 120px) !important; height: clamp(70px, 15vw, 120px) !important; }
+            #btnSairModoTV { top: 80px; right: 10px; padding: 8px 12px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -1764,6 +1785,8 @@
             'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4'
         ],
         VIDEO_CLICK_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/clik.mp4',
+        MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
+        MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
         CORES: {
             'BÔNUS': '#fdcb6e', 'FLASHBACK': '#e17055', 'RELIGIOSA': '#6c5ce7',
             'ROMÂNTICA': '#fd79a8', 'MPB': '#00b894', 'POP/MIX': '#fd79a8',
@@ -2460,7 +2483,7 @@
             if (!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0];
             return data.filter(m => m.src && m.title).map(m => ({
                 ...m,
-                id: 'g_' + Math.random().toString(36).slice(2),
+                id: 'fav_' + (m.title + '_' + (m.artist || 'Artista')).toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                 genero: genero,
                 artist: m.artist || 'Artista'
             }));
@@ -2703,20 +2726,30 @@
         await salvarPlaylistAtual();
     }
 
-    // ========== CRIAÇÃO DE MÍDIA ==========
-    async function criarMidia() {
+    // ========== CRIAÇÃO DE MÍDIA PADRÃO ==========
+    async function carregarMidiasPadrao() {
         try {
             dom.mediaContainer.innerHTML = '';
-
-            const midias = [
-                { tipo: 'video', src: 'logo.mp4' },
-                { tipo: 'imagem', src: 'bob.png' },
-                { tipo: 'imagem', src: 'marina.png' },
-                { tipo: 'imagem', src: 'macaco.png' },
-                { tipo: 'imagem', src: 'mulher.png' },
-                { tipo: 'imagem', src: 'em.png' },
-                { tipo: 'video', src: 'nova12.mp4' }
-            ];
+            let midias = [];
+            try {
+                const response = await fetch(CacheBuster.getUrl(CONFIG.MIDIAS_PADRAO_URL));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    midias = data;
+                } else if (data.midias && Array.isArray(data.midias)) {
+                    midias = data.midias;
+                }
+            } catch (e) {
+                midias = [
+                    { tipo: 'video', src: 'logo.mp4' },
+                    { tipo: 'imagem', src: 'bob.png' },
+                    { tipo: 'imagem', src: 'marina.png' },
+                    { tipo: 'imagem', src: 'macaco.png' },
+                    { tipo: 'imagem', src: 'mulher.png' },
+                    { tipo: 'imagem', src: 'em.png' },
+                    { tipo: 'video', src: 'nova12.mp4' }
+                ];
+            }
 
             const fallbackDiv = document.createElement('div');
             fallbackDiv.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at center,#1a1a3e,#0a0a1e);z-index:1;';
@@ -2749,6 +2782,7 @@
             const children = dom.mediaContainer.querySelectorAll('video, img');
             if (children.length > 1) {
                 if (state.mediaTimer) clearInterval(state.mediaTimer);
+                state.midiaAtual = 0;
                 state.mediaTimer = setInterval(() => {
                     const atual = children[state.midiaAtual];
                     const prox = children[(state.midiaAtual + 1) % children.length];
@@ -2756,15 +2790,17 @@
                     atual.className = 'inactive';
                     if (atual.tagName === 'VIDEO') atual.pause();
                     prox.className = 'active';
-                    if (prox.tagName === 'VIDEO') {
-                        prox.play().catch(() => {});
-                    }
+                    if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
                     state.midiaAtual = (state.midiaAtual + 1) % children.length;
                 }, 5000);
             }
 
+            const overlayExistente = document.getElementById('videoClickOverlay');
+            if (overlayExistente) overlayExistente.remove();
+            criarOverlayVideoClick();
+
         } catch (erro) {
-            console.error('❌ Erro crítico ao criar mídias:', erro);
+            console.error('❌ Erro ao carregar mídias padrão:', erro);
             dom.mediaContainer.innerHTML = '';
             const fallbackDiv = document.createElement('div');
             fallbackDiv.style.cssText = 'position:absolute;inset:0;background:#0a0a1e;z-index:1;';
@@ -2772,68 +2808,112 @@
         }
     }
 
-    // ========== MODO TV ==========
-    async function toggleModoTV() {
-        state.modoTV = !state.modoTV;
-        
-        if (state.modoTV) {
-            notif('📺 Modo TV ATIVADO!', 2000);
-            
+    async function criarMidia() {
+        await carregarMidiasPadrao();
+    }
+
+    // ========== CARREGAR MÍDIAS TV ==========
+    async function carregarMidiasTV() {
+        try {
             dom.mediaContainer.innerHTML = '';
-            
-            CONFIG.VIDEOS_TV.forEach((src, i) => {
-                const video = document.createElement('video');
-                video.src = CacheBuster.getMediaUrl(src);
-                video.className = i === 0 ? 'active' : 'inactive';
-                video.muted = true;
-                video.loop = true;
-                video.playsInline = true;
-                video.load();
-                video.onerror = () => { video.style.display = 'none'; };
-                
-                dom.mediaContainer.appendChild(video);
-                
-                if (i === 0) {
-                    video.play().catch(() => {});
+            let midias = [];
+            try {
+                const response = await fetch(CacheBuster.getUrl(CONFIG.MIDIAS_TV_URL));
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    midias = data;
+                } else if (data.midias && Array.isArray(data.midias)) {
+                    midias = data.midias;
+                }
+            } catch (e) {
+                midias = [
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
+                ];
+            }
+
+            midias.forEach((m, i) => {
+                let el;
+                if (m.tipo === 'video') {
+                    el = document.createElement('video');
+                    el.src = CacheBuster.getMediaUrl(m.src);
+                    el.muted = true;
+                    el.playsInline = true;
+                    el.loop = true;
+                    el.load();
+                    el.onerror = () => { el.style.display = 'none'; };
+                } else {
+                    el = document.createElement('img');
+                    el.src = CacheBuster.getMediaUrl(m.src);
+                    el.loading = 'lazy';
+                    el.alt = 'VDB TV';
+                    el.onerror = () => { el.style.display = 'none'; };
+                }
+                el.className = i === 0 ? 'active' : 'inactive';
+                dom.mediaContainer.appendChild(el);
+                if (i === 0 && m.tipo === 'video') {
+                    el.play().catch(() => {});
                 }
             });
-            
+
             if (state.mediaTVTimer) clearInterval(state.mediaTVTimer);
             state.midiaTVAtual = 0;
-            
-            const videos = dom.mediaContainer.querySelectorAll('video');
-            if (videos.length > 1) {
+            const children = dom.mediaContainer.querySelectorAll('video, img');
+            if (children.length > 1) {
                 state.mediaTVTimer = setInterval(() => {
-                    const atual = videos[state.midiaTVAtual];
-                    const prox = videos[(state.midiaTVAtual + 1) % videos.length];
-                    
+                    const atual = children[state.midiaTVAtual];
+                    const prox = children[(state.midiaTVAtual + 1) % children.length];
                     if (!atual || !prox) return;
-                    
                     atual.className = 'inactive';
-                    atual.pause();
-                    
+                    if (atual.tagName === 'VIDEO') atual.pause();
                     prox.className = 'active';
-                    prox.play().catch(() => {});
-                    
-                    state.midiaTVAtual = (state.midiaTVAtual + 1) % videos.length;
+                    if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    state.midiaTVAtual = (state.midiaTVAtual + 1) % children.length;
                 }, 8000);
             }
-            
-            // Remover overlay de clique no modo TV
-            const overlay = document.getElementById('videoClickOverlay');
-            if (overlay) overlay.remove();
-            
+
+            const overlayExistente = document.getElementById('videoClickOverlay');
+            if (overlayExistente) overlayExistente.remove();
+
+            mostrarBotaoSairModoTV();
+
+        } catch (erro) {
+            console.error('❌ Erro ao carregar mídias TV:', erro);
+            dom.mediaContainer.innerHTML = '';
+        }
+    }
+
+    async function toggleModoTV() {
+        state.modoTV = !state.modoTV;
+        if (state.modoTV) {
+            notif('📺 Modo TV ATIVADO!', 2000);
+            await carregarMidiasTV();
         } else {
             notif('📺 Modo TV DESATIVADO!', 2000);
-            
             if (state.mediaTVTimer) {
                 clearInterval(state.mediaTVTimer);
                 state.mediaTVTimer = null;
             }
-            
-            await criarMidia();
-            criarOverlayVideoClick();
+            await carregarMidiasPadrao();
+            esconderBotaoSairModoTV();
         }
+    }
+
+    // ========== BOTÃO SAIR MODO TV ==========
+    function mostrarBotaoSairModoTV() {
+        esconderBotaoSairModoTV();
+        const btn = document.createElement('button');
+        btn.id = 'btnSairModoTV';
+        btn.innerHTML = '<i class="fas fa-times"></i> Sair Modo TV';
+        btn.onclick = () => {
+            toggleModoTV();
+        };
+        document.body.appendChild(btn);
+    }
+
+    function esconderBotaoSairModoTV() {
+        const btn = document.getElementById('btnSairModoTV');
+        if (btn) btn.remove();
     }
 
     // ========== OVERLAY VÍDEO CLIQUE ==========
@@ -3670,15 +3750,22 @@
                 }
             });
 
-            dom.forceUpdateBtn.onclick = () => {
-                CacheBuster.forceUpdate();
+            dom.forceUpdateBtn.onclick = async () => {
                 dom.menuPopup.classList.remove('open');
+                notif('🔄 Atualizando mídias...', 1500);
+                CacheBuster.version = CacheBuster.version + 1;
+                if (state.modoTV) {
+                    await carregarMidiasTV();
+                } else {
+                    await carregarMidiasPadrao();
+                }
+                notif('✅ Mídias atualizadas!', 2000);
             };
 
             console.log('🐵 VAI DE BOA! MUSIC v3.0 FINAL');
             console.log('⏰ Timer corrido de 24 horas ativo');
-            console.log('✅ Favoritos salvando lista completa');
-            console.log('📺 Modo TV: tvbob.mp4 + amytv.mp4');
+            console.log('✅ Favoritos com IDs estáveis');
+            console.log('📺 Modo TV usa modotv.json');
             console.log('📲 Banner clik.mp4 responsivo (70-120px)');
             console.log('🔒 Banner oculto no Modo TV');
 
@@ -3696,7 +3783,7 @@
 </script>
 
 <script>
-// Service Worker e PWA (mantenha como estava)
+// Service Worker e PWA
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
         .then(() => console.log('✅ Service Worker registrado!'))
