@@ -17,224 +17,1062 @@
     <meta name="theme-color" content="#0a0a1e">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif; -webkit-tap-highlight-color:transparent; user-select:none; }
-        html, body { height:100%; width:100%; background:#0a0a1e; overflow:hidden; position:fixed; top:0; left:0; }
-        :root { --primary:#6c5ce7; --secondary:#00cec9; --accent:#fd79a8; --gold:#fdcb6e; --dark:#0a0a1e; --card-bg:rgba(255,255,255,0.05); --safe-bottom:env(safe-area-inset-bottom,0px); --shadow:0 8px 32px rgba(0,0,0,0.4); }
-        #loadingScreen { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--dark); display:flex; align-items:center; justify-content:center; z-index:99999; flex-direction:column; gap:20px; }
-        .loading-logo { width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); animation:pulse 1.5s infinite; box-shadow:0 0 60px rgba(108,92,231,0.2); }
-        @keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(108,92,231,0.1)} 50%{transform:scale(1.05);box-shadow:0 0 40px rgba(108,92,231,0.3)} }
-        .loading-spinner { font-size:2.5rem; color:var(--secondary); animation:spin 1.5s infinite; }
-        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .loading-text { font-size:1.6rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:2px; }
-        .loading-progress-container { width:220px; height:4px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
-        .loading-progress-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent)); border-radius:4px; transition:width 0.4s ease; }
-        #playerContainer { position:fixed; top:0; left:0; width:100%; height:100%; z-index:10; display:none; }
-        #playerContainer.visible { display:block; }
-        .media-container { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; background:var(--dark); overflow:hidden; }
-        .media-container video, .media-container img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1s ease; }
-        .media-container .active { opacity:1; z-index:3; }
-        .media-container .inactive { opacity:0; z-index:0; }
-        .media-container .clickable { cursor:pointer; }
-        .top-bar { position:fixed; top:0; left:0; right:0; z-index:35; display:flex; align-items:center; justify-content:space-between; padding:6px 14px; background:linear-gradient(180deg,rgba(10,10,30,0.9) 0%,transparent 100%); height:56px; }
-        .top-left { display:flex; align-items:center; gap:10px; }
-        .logo-macaco { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(108,92,231,0.3); box-shadow:0 0 20px rgba(108,92,231,0.1); }
-        .btn-genero-fav { background:rgba(255,255,255,0.06); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:6px 14px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.2s; min-height:34px; }
-        .btn-genero-fav:active { transform:scale(0.95); background:rgba(255,255,255,0.1); }
-        .genero-nome { font-size:0.8rem; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; background:linear-gradient(135deg,#fff 30%,var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .separador { color:rgba(255,255,255,0.15); font-size:0.7rem; }
-        .coracao-icon { font-size:0.7rem; color:var(--accent); }
-        .fav-badge { background:var(--accent); color:#fff; border-radius:50%; padding:0 6px; font-size:0.5rem; font-weight:900; min-width:16px; text-align:center; line-height:16px; box-shadow:0 0 20px rgba(253,121,168,0.3); }
-        .top-right { display:flex; align-items:center; gap:6px; }
-        .timer-lib { font-size:0.7rem; font-weight:700; color:var(--secondary); background:rgba(0,0,0,0.4); padding:2px 10px; border-radius:20px; backdrop-filter:blur(4px); letter-spacing:0.5px; }
-        .timer-lib.lib { color:#00b894; }
-        .audio-status { font-size:0.5rem; color:#00b894; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:20px; display:none; }
-        .audio-status.active { display:inline-block; animation:pulseDot 1.5s ease-in-out infinite; }
-        @keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:0.2} }
-        .menu-btn { background:rgba(255,255,255,0.06); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s; }
-        .menu-btn:active { background:rgba(255,255,255,0.15); }
-        .info-scroll { position:fixed; top:46px; left:0; right:0; z-index:30; padding:6px 16px; height:38px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.3); backdrop-filter:blur(8px); }
-        .letreiro { color:#fff; font-size:0.9rem; font-weight:700; white-space:nowrap; animation:scrollText 20s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.1); letter-spacing:0.5px; }
-        @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
-        .fav-heart-center { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:15; text-align:center; pointer-events:none; }
-        .fav-heart { font-size:4.5rem; color:rgba(255,255,255,0.06); cursor:pointer; transition:all 0.3s; display:inline-block; text-shadow:0 0 60px rgba(0,0,0,0.8); pointer-events:auto; }
-        .fav-heart.active { color:var(--accent); animation:heartBeat 0.3s ease; }
-        @keyframes heartBeat { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
-        .fav-heart:active { transform:scale(1.3); }
-        .bottom-controls { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:8px 16px calc(16px + var(--safe-bottom)); z-index:20; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); }
-        .bottom-controls.visible { transform:translateY(0); }
-        .progress-time { display:flex; justify-content:space-between; font-size:0.7rem; color:#888; font-weight:500; }
-        .progress-bar { height:4px; background:rgba(255,255,255,0.08); cursor:pointer; border-radius:4px; position:relative; }
-        .progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--secondary)); width:0%; border-radius:4px; transition:width 0.1s; }
-        .buttons-row { display:flex; justify-content:center; align-items:center; gap:16px; margin-top:8px; }
-        .ctrl-btn { background:rgba(255,255,255,0.05); border:none; color:#fff; width:42px; height:42px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all 0.2s; min-width:44px; min-height:44px; }
-        .ctrl-btn:active { transform:scale(0.9); background:rgba(255,255,255,0.1); }
-        .play-big { background:linear-gradient(135deg,var(--primary),var(--secondary)); width:52px; height:52px; font-size:1.3rem; color:#fff; border:none; border-radius:50%; box-shadow:0 4px 30px rgba(108,92,231,0.3); }
-        .play-big:active { transform:scale(0.9); }
-        .shuffle-btn { background:rgba(255,255,255,0.05); border:none; color:#fff; width:42px; height:42px; border-radius:50%; cursor:pointer; font-size:0.9rem; transition:all 0.2s; min-width:44px; min-height:44px; }
-        .shuffle-btn.active { background:rgba(108,92,231,0.2); color:var(--secondary); border:1px solid rgba(108,92,231,0.2); }
-        .shuffle-btn:active { transform:scale(0.9); }
-        .fab-container { position:fixed; bottom:calc(100px + var(--safe-bottom)); right:16px; z-index:40; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
-        .fab-main { background:rgba(10,10,30,0.8); backdrop-filter:blur(12px); width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:1.2rem; border:1px solid rgba(255,255,255,0.06); transition:all 0.2s; box-shadow:var(--shadow); }
-        .fab-main:active { transform:scale(0.9); }
-        .fab-sub { background:rgba(10,10,30,0.95); backdrop-filter:blur(16px); border-radius:16px; padding:6px; display:none; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.05); box-shadow:var(--shadow); }
-        .fab-sub.open { display:flex; animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1); }
-        @keyframes slideUp { from{opacity:0;transform:translateY(10px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
-        .fab-sub-btn { background:transparent; border:none; color:#ccc; padding:10px 16px; border-radius:12px; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background 0.2s; min-height:44px; white-space:nowrap; }
-        .fab-sub-btn:active { background:rgba(255,255,255,0.06); }
-        .menu-popup { position:fixed; top:56px; right:10px; background:rgba(10,10,30,0.95); backdrop-filter:blur(20px); border-radius:16px; padding:8px; z-index:32; display:none; flex-direction:column; gap:4px; border:1px solid rgba(255,255,255,0.05); min-width:160px; box-shadow:var(--shadow); }
-        .menu-popup.open { display:flex; }
-        .menu-popup button { background:transparent; border:none; color:#ccc; padding:10px 12px; border-radius:12px; font-size:0.8rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; transition:background 0.2s; min-height:44px; }
-        .menu-popup button:active { background:rgba(255,255,255,0.06); }
-        .genres-modal { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.98); backdrop-filter:blur(30px); border-radius:30px 30px 0 0; padding:20px 16px 24px; z-index:2000; transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); max-height:85vh; overflow:hidden; border-top:1px solid rgba(255,255,255,0.04); }
-        .genres-modal.open { transform:translateY(0); }
-        .genres-modal .header { text-align:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.03); }
-        .genres-modal .header .titulo { font-size:1.4rem; font-weight:900; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:2px; }
-        .genres-modal .header .sub-titulo { font-size:0.6rem; color:rgba(255,255,255,0.2); letter-spacing:4px; text-transform:uppercase; margin-top:4px; }
-        .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:4px 0; max-height:55vh; overflow-y:auto; scrollbar-width:none; }
-        .genres-grid::-webkit-scrollbar { display:none; }
-        .genre-card { position:relative; min-height:72px; border-radius:20px; cursor:pointer; padding:14px 8px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 6px 30px rgba(0,0,0,0.3); overflow:hidden; border:2px solid transparent; }
-        .genre-card:active { transform:scale(0.94); }
-        .genre-card .genre-name { font-size:1.1rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; color:#fff; text-shadow:0 2px 20px rgba(0,0,0,0.5); z-index:1; line-height:1.2; }
-        .genre-card .genre-count { font-size:0.45rem; color:rgba(255,255,255,0.2); font-weight:600; margin-top:2px; letter-spacing:2px; z-index:1; }
-        .genre-card[data-genre="BÔNUS"] { background:linear-gradient(135deg,#fdcb6e,#f0a500); border-color:#fdcb6e55; }
-        .genre-card[data-genre="FLASHBACK"] { background:linear-gradient(135deg,#e17055,#d63031); border-color:#e1705555; }
-        .genre-card[data-genre="RELIGIOSA"] { background:linear-gradient(135deg,#6c5ce7,#341f97); border-color:#6c5ce755; }
-        .genre-card[data-genre="ROMÂNTICA"] { background:linear-gradient(135deg,#fd79a8,#e84393); border-color:#fd79a855; }
-        .genre-card[data-genre="MPB"] { background:linear-gradient(135deg,#00b894,#00a86b); border-color:#00b89455; }
-        .genre-card[data-genre="POP/MIX"] { background:linear-gradient(135deg,#fd79a8,#d63031); border-color:#fd79a855; }
-        .genre-card[data-genre="SERTANEJO"] { background:linear-gradient(135deg,#fdcb6e,#e17055); border-color:#fdcb6e55; }
-        .genre-card[data-genre="FORRÓ"] { background:linear-gradient(135deg,#e17055,#d63031); border-color:#e1705555; }
-        .genre-card[data-genre="SAMBA"] { background:linear-gradient(135deg,#fdcb6e,#f0932b); border-color:#fdcb6e55; }
-        .genre-card[data-genre="BREGA"] { background:linear-gradient(135deg,#fd79a8,#e84393); border-color:#fd79a855; }
-        .genre-card[data-genre="REGGAE"] { background:linear-gradient(135deg,#00b894,#00a86b); border-color:#00b89455; }
-        .genre-card[data-genre="MODA RAIZ"] { background:linear-gradient(135deg,#e17055,#d63031); border-color:#e1705555; }
-        .genre-card[data-genre="FANK"] { background:linear-gradient(135deg,#fd79a8,#d63031); border-color:#fd79a855; }
-        .genre-card[data-genre="TESTE MIDIA"] { background:linear-gradient(135deg,#fdcb6e,#f0932b); border-color:#fdcb6e55; }
-        .genre-card[data-genre="MODÃO SERTANEJO"] { background:linear-gradient(135deg,#e17055,#d63031); border-color:#e1705555; }
-        .genre-card[data-genre="CHORINHO"] { background:linear-gradient(135deg,#6c5ce7,#341f97); border-color:#6c5ce755; }
-        .genre-card[data-genre="FORRÓ RAIZ"] { background:linear-gradient(135deg,#e17055,#d63031); border-color:#e1705555; }
-        .genre-card[data-genre="ROCK"] { background:linear-gradient(135deg,#fd79a8,#d63031); border-color:#fd79a855; }
-        .close-genres { width:100%; padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); border-radius:25px; color:#555; font-size:0.7rem; cursor:pointer; font-weight:600; margin-top:12px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; }
-        .close-genres:active { background:rgba(255,255,255,0.05); transform:scale(0.97); }
-        .fav-modal { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.98); backdrop-filter:blur(20px); border-radius:25px 25px 0 0; padding:16px 16px 20px; z-index:2001; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height:70vh; overflow:hidden; }
-        .fav-modal.open { transform:translateY(0); }
-        .fav-modal h3 { text-align:center; margin-bottom:4px; font-size:1.1rem; color:var(--accent); letter-spacing:1px; }
-        .fav-modal .sub-titulo { text-align:center; font-size:0.65rem; color:#666; margin-bottom:8px; }
-        .fav-list-modal { display:flex; flex-direction:column; overflow-y:auto; gap:6px; padding:4px 0; max-height:50vh; scrollbar-width:none; }
-        .fav-list-modal::-webkit-scrollbar { display:none; }
-        .fav-item-modal { min-height:50px; border-radius:16px; cursor:pointer; border:1px solid rgba(255,255,255,0.05); padding:10px 16px; background:rgba(255,255,255,0.03); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:space-between; color:#fff; font-weight:600; font-size:0.95rem; transition:all 0.2s; box-shadow:0 4px 20px rgba(0,0,0,0.15); }
-        .fav-item-modal:active { transform:scale(0.96); background:rgba(255,255,255,0.06); }
-        .fav-item-modal .fav-info { flex:1; cursor:pointer; display:flex; flex-direction:column; overflow:hidden; }
-        .fav-item-modal .fav-info .title { color:#fff; font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .fav-item-modal .fav-info .artist { color:#888; font-size:0.8rem; }
-        .fav-item-modal .remove-fav { background:transparent; border:none; color:var(--accent); font-size:1.2rem; cursor:pointer; padding:0 6px; flex-shrink:0; }
-        .fav-item-modal .remove-fav:active { transform:scale(0.9); }
-        .fav-empty-modal { color:#555; padding:20px; text-align:center; font-size:0.8rem; }
-        .close-fav { width:100%; padding:12px; background:linear-gradient(135deg,var(--accent),#e84393); border:none; border-radius:25px; color:#fff; font-size:0.85rem; cursor:pointer; font-weight:700; margin-top:8px; }
-        .close-fav:active { transform:scale(0.97); }
-        .choice-menu { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.98); backdrop-filter:blur(20px); border-radius:25px 25px 0 0; padding:16px 16px 20px; z-index:1999; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height:50vh; overflow:hidden; }
-        .choice-menu.open { transform:translateY(0); }
-        .choice-menu h3 { text-align:center; margin-bottom:12px; font-size:1.1rem; color:var(--secondary); letter-spacing:1px; }
-        .choice-menu .choice-btn { width:100%; padding:16px; border-radius:16px; cursor:pointer; border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.03); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:space-between; color:#fff; font-weight:700; font-size:1.1rem; transition:all 0.2s; margin-bottom:8px; }
-        .choice-menu .choice-btn:active { transform:scale(0.96); background:rgba(255,255,255,0.06); }
-        .choice-menu .choice-btn i { font-size:1.4rem; width:28px; text-align:center; }
-        .choice-menu .choice-btn .badge { background:var(--accent); color:#fff; border-radius:50%; padding:0 8px; font-size:0.8rem; font-weight:900; min-width:24px; text-align:center; line-height:24px; }
-        .choice-menu .choice-btn .info-text { font-size:0.75rem; color:#666; }
-        .choice-menu .choice-close { width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.05); border-radius:25px; color:#666; font-size:0.8rem; cursor:pointer; font-weight:600; margin-top:4px; }
-        .choice-menu .choice-close:active { background:rgba(255,255,255,0.08); }
-        .feedback-modal { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(10,10,30,0.98); border-radius:20px; padding:20px; z-index:5000; width:90%; max-width:380px; text-align:center; display:none; border:1px solid rgba(108,92,231,0.1); }
-        .feedback-modal.open { display:block; animation:modalFade 0.3s ease; }
-        @keyframes modalFade { from{opacity:0;transform:translate(-50%,-50%) scale(0.95)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
-        .feedback-modal h3 { font-size:1.1rem; margin-bottom:8px; color:var(--secondary); }
-        .feedback-modal .stars { display:flex; justify-content:center; gap:6px; margin:6px 0; }
-        .feedback-modal .star { font-size:2rem; color:#444; cursor:pointer; transition:color 0.2s; }
-        .feedback-modal .star.active { color:var(--gold); }
-        .feedback-modal textarea { width:100%; height:50px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:6px 10px; color:#fff; resize:none; font-size:0.8rem; margin-top:6px; }
-        .feedback-modal .btn-feedback { background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; padding:10px; border-radius:25px; color:#fff; font-weight:700; cursor:pointer; width:100%; margin-top:6px; font-size:0.9rem; }
-        .feedback-modal .btn-feedback:active { transform:scale(0.97); }
-        #closeFeedbackBtn { background:transparent; border:none; color:#555; padding:6px; cursor:pointer; font-size:0.8rem; margin-top:4px; }
-        .notification { position:fixed; top:110px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); color:var(--secondary); padding:10px 24px; border-radius:30px; font-size:1rem; z-index:10001; opacity:0; transition:opacity 0.3s; pointer-events:none; border:1px solid rgba(108,92,231,0.1); white-space:nowrap; font-weight:600; }
-        .notification.show { opacity:1; }
-        #loadingOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center; }
-        #loadingOverlay.active { display:flex; }
-        #loadingOverlay i { font-size:2.5rem; color:var(--secondary); animation:spin 1s infinite; }
-        #qrCodeModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(20px); z-index:99999; display:none; align-items:center; justify-content:center; padding:20px; animation:qrFadeIn 0.4s ease; }
-        #qrCodeModal.active { display:flex; }
-        @keyframes qrFadeIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
-        .qr-content { background:linear-gradient(145deg,#1a1a3e,#0a0a1e); border-radius:30px; padding:24px; max-width:400px; width:100%; text-align:center; border:1px solid rgba(108,92,231,0.1); box-shadow:0 0 80px rgba(108,92,231,0.05); }
-        .qr-content .qr-titulo { color:#fff; font-size:1.2rem; font-weight:900; margin-bottom:4px; }
-        .qr-content .qr-sub { color:#666; font-size:0.7rem; margin-bottom:12px; }
-        .qr-content .qr-wrapper { background:#fff; border-radius:20px; padding:12px; display:inline-block; margin:0 auto; position:relative; box-shadow:0 0 40px rgba(108,92,231,0.05); }
-        .qr-content .qr-wrapper img { width:220px; height:220px; display:block; border-radius:12px; }
-        .qr-content .qr-logo-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:50px; height:50px; border-radius:50%; background:#000; border:3px solid var(--gold); display:flex; align-items:center; justify-content:center; }
-        .qr-content .qr-logo-overlay img { width:36px; height:36px; border-radius:50%; object-fit:cover; }
-        .qr-content .qr-info { display:flex; justify-content:center; gap:16px; margin:10px 0 6px; }
-        .qr-content .qr-info span { font-size:0.65rem; color:#888; display:flex; align-items:center; gap:4px; }
-        .qr-content .qr-info span i { color:var(--gold); }
-        .qr-content .qr-btn-close { background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; padding:12px; border-radius:25px; color:#fff; font-weight:700; font-size:0.9rem; cursor:pointer; width:100%; margin-top:8px; }
-        .qr-content .qr-btn-close:active { transform:scale(0.97); }
-        #blockOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-        #blockOverlay.active { display:flex; animation:fadeIn 0.5s ease; }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-        .block-content { max-width:450px; width:100%; padding:30px 24px; }
-        .block-content .logo { font-size:4rem; margin-bottom:4px; }
-        .block-content h1 { color:#fff; font-size:2.2rem; margin-bottom:2px; font-weight:900; }
-        .block-content .sub { color:var(--secondary); font-size:1.1rem; font-weight:600; margin-bottom:16px; }
-        .block-content input { width:100%; padding:16px 20px; border-radius:30px; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:1.3rem; text-align:center; margin-bottom:12px; outline:none; transition:border-color 0.3s; }
-        .block-content input:focus { border-color:var(--primary); }
-        .block-content .btn-liberar { width:100%; padding:16px; background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; border-radius:25px; color:#fff; font-weight:700; font-size:1.2rem; cursor:pointer; transition:transform 0.2s; }
-        .block-content .btn-liberar:active { transform:scale(0.97); }
-        .block-content .erro { color:var(--accent); font-size:1rem; min-height:40px; padding:8px 0; font-weight:600; }
-        .block-content .dica { background:rgba(108,92,231,0.05); border:1px solid rgba(108,92,231,0.08); border-radius:16px; padding:12px; margin-top:4px; }
-        .block-content .dica .titulo { font-size:0.8rem; color:#aaa; }
-        .block-content .dica .texto { font-size:0.75rem; color:#888; margin-top:2px; }
-        .block-content .fingerprint-area { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:12px; margin-top:6px; border:1px solid rgba(255,255,255,0.03); }
-        .block-content .fingerprint-area .fp-text { color:#888; font-size:0.6rem; word-break:break-all; font-family:'Courier New',monospace; flex:1; min-width:0; letter-spacing:1px; }
-        .block-content .fingerprint-area .btn-copiar-fp { background:rgba(108,92,231,0.1); border:1px solid rgba(108,92,231,0.2); color:var(--primary); padding:6px 14px; border-radius:12px; font-size:0.6rem; cursor:pointer; font-weight:600; transition:all 0.2s; }
-        .block-content .fingerprint-area .btn-copiar-fp:active { transform:scale(0.9); }
-        #adminPanel { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(10,10,30,0.98); border-radius:20px; padding:20px; z-index:99999; width:90%; max-width:450px; border:2px solid var(--gold); max-height:90vh; overflow-y:auto; }
-        #adminPanel.open { display:block; animation:modalFade 0.3s ease; }
-        #adminPanel h2 { text-align:center; font-size:1.3rem; color:var(--gold); margin-bottom:2px; }
-        #adminPanel .sub { text-align:center; font-size:0.6rem; color:#666; margin-bottom:8px; }
-        #adminPanel .fp-cliente { background:rgba(108,92,231,0.03); border:1px solid rgba(108,92,231,0.06); border-radius:12px; padding:8px; margin-bottom:8px; }
-        #adminPanel .fp-cliente label { font-size:0.8rem; color:#aaa; display:block; }
-        #adminPanel .fp-cliente input { width:100%; padding:10px 14px; border-radius:25px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.05); color:#fff; font-size:0.8rem; font-family:monospace; outline:none; margin-top:2px; }
-        #adminPanel .fp-cliente input:focus { border-color:var(--primary); }
-        #adminPanel .fp-cliente .helper { font-size:0.4rem; color:#555; margin-top:2px; }
-        #adminPanel .row-btns { display:flex; gap:6px; margin-bottom:8px; }
-        #adminPanel .row-btns button { flex:1; padding:12px; border-radius:20px; border:none; font-weight:700; cursor:pointer; font-size:0.9rem; transition:transform 0.2s; }
-        #adminPanel .row-btns button:active { transform:scale(0.95); }
-        #adminPanel .btn-gerar { background:linear-gradient(135deg,var(--gold),#f0932b); color:#000; }
-        #adminPanel .btn-universal { background:linear-gradient(135deg,#00b894,#00a86b); color:#fff; }
-        #adminPanel .btn-limpar { background:rgba(255,255,255,0.05); color:#666; border:1px solid rgba(255,255,255,0.05); }
-        #adminPanel .senha-box { background:rgba(108,92,231,0.03); border:1px solid rgba(108,92,231,0.06); border-radius:12px; padding:8px; margin-bottom:6px; }
-        #adminPanel .senha-box label { font-size:0.6rem; color:#888; display:block; }
-        #adminPanel .senha-box .row { display:flex; gap:6px; margin-top:2px; }
-        #adminPanel .senha-box .row input { flex:2; padding:10px 14px; border-radius:25px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); color:#fff; font-size:0.8rem; font-family:monospace; outline:none; }
-        #adminPanel .senha-box .row .btn-copiar { flex:1; background:rgba(108,92,231,0.1); border:1px solid var(--primary); color:var(--primary); padding:10px; border-radius:20px; cursor:pointer; font-size:0.7rem; font-weight:600; transition:all 0.2s; }
-        #adminPanel .senha-box .row .btn-copiar:active { transform:scale(0.95); }
-        #adminPanel .senha-box .info-senha { font-size:0.4rem; color:#555; margin-top:2px; }
-        #adminPanel .actions { display:flex; gap:6px; margin-bottom:6px; }
-        #adminPanel .actions button { flex:1; padding:8px; border-radius:20px; border:none; font-weight:700; cursor:pointer; font-size:0.65rem; transition:transform 0.2s; }
-        #adminPanel .actions button:active { transform:scale(0.95); }
-        #adminPanel .actions .btn-whats { background:linear-gradient(135deg,#25d366,#128C7E); color:#fff; }
-        #adminPanel .actions .btn-copiar-senha { background:rgba(108,92,231,0.1); border:1px solid var(--primary); color:var(--primary); }
-        #adminPanel .historico { max-height:80px; overflow-y:auto; margin-bottom:4px; scrollbar-width:none; }
-        #adminPanel .historico::-webkit-scrollbar { display:none; }
-        #adminPanel .historico-item { display:flex; justify-content:space-between; padding:2px 4px; border-bottom:1px solid rgba(255,255,255,0.02); font-size:0.4rem; color:#666; }
-        #adminPanel .historico-item .senha-hash { color:#888; font-family:monospace; }
-        #adminPanel .total { font-size:0.45rem; color:#555; text-align:center; padding:4px; border-top:1px solid rgba(255,255,255,0.03); margin-top:4px; }
-        #adminPanel .btn-fechar { background:rgba(255,255,255,0.03); border:none; padding:8px; border-radius:20px; color:#555; cursor:pointer; width:100%; font-size:0.7rem; margin-top:4px; transition:all 0.2s; }
-        #adminPanel .btn-fechar:active { background:rgba(255,255,255,0.05); }
-        #videoClickOverlay { position:fixed; bottom:120px; right:20px; z-index:50; cursor:pointer; pointer-events:auto; animation:pulseClick 2s infinite; }
-        @keyframes pulseClick { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-        #btnSairModoTV { position:fixed; top:100px; right:20px; z-index:60; background:rgba(10,10,30,0.9); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:25px; padding:10px 16px; font-weight:700; cursor:pointer; backdrop-filter:blur(12px); box-shadow:0 4px 20px rgba(0,0,0,0.4); display:flex; align-items:center; gap:8px; }
-        @media (max-width:480px) { .logo-macaco{height:28px;width:28px} .btn-genero-fav{padding:4px 10px;gap:5px;min-height:30px} .btn-genero-fav .genero-nome{font-size:0.65rem} .btn-genero-fav .fav-badge{font-size:0.45rem;min-width:14px;line-height:14px} .btn-genero-fav .coracao-icon{font-size:0.6rem} .top-bar{height:48px;padding:4px 10px} .top-right .timer-lib{font-size:0.6rem;padding:2px 6px} .top-right .menu-btn{width:26px;height:26px;font-size:0.7rem} .info-scroll{top:42px;height:34px} .info-scroll .letreiro{font-size:0.7rem} .fav-heart-center .fav-heart{font-size:3.5rem} .ctrl-btn{width:36px;height:36px;font-size:0.85rem;min-width:44px;min-height:44px} .play-big{width:46px;height:46px;font-size:1.1rem} .shuffle-btn{width:36px;height:36px;font-size:0.8rem;min-width:44px;min-height:44px} .buttons-row{gap:10px} .bottom-controls{padding:6px 12px calc(12px + var(--safe-bottom))} .fab-main{width:42px;height:42px;font-size:1rem} .fab-container{bottom:calc(85px + var(--safe-bottom));right:10px} .block-content h1{font-size:1.8rem} .block-content .logo{font-size:3rem} #adminPanel{max-width:95%;padding:12px} .qr-content .qr-wrapper img{width:160px;height:160px} .qr-content .qr-logo-overlay{width:40px;height:40px} .qr-content .qr-logo-overlay img{width:28px;height:28px} .genres-grid{grid-template-columns:repeat(2,1fr);gap:8px} .genre-card{min-height:60px;padding:10px 6px;border-radius:14px} .genre-card .genre-name{font-size:0.9rem;letter-spacing:0.5px} .genre-card .genre-count{font-size:0.35rem} .genres-modal .header .titulo{font-size:1rem} .fav-item-modal{min-height:44px;font-size:0.9rem} .fav-item-modal .fav-info .title{font-size:0.85rem} .fav-item-modal .fav-info .artist{font-size:0.7rem} .notification{font-size:0.85rem;padding:8px 16px;top:100px} #videoClickOverlay{bottom:100px;right:10px} #videoClickOverlay video{width:clamp(70px,15vw,120px)!important;height:clamp(70px,15vw,120px)!important} #btnSairModoTV{top:80px;right:10px;padding:8px 12px;font-size:0.8rem} }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            background: #0a0a1e;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --gold: #fdcb6e;
+            --dark: #0a0a1e;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 60px rgba(108, 92, 231, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(108, 92, 231, 0.1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(108, 92, 231, 0.3); }
+        }
+
+        .loading-spinner {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            animation: spin 1.5s infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .loading-progress-container {
+            width: 220px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        #playerContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+        }
+
+        #playerContainer.visible {
+            display: block;
+        }
+
+        .media-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: var(--dark);
+            overflow: hidden;
+        }
+
+        .media-container video,
+        .media-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .media-container .active {
+            opacity: 1;
+            z-index: 3;
+        }
+
+        .media-container .inactive {
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .media-container .clickable {
+            cursor: pointer;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 14px;
+            background: linear-gradient(180deg, rgba(10, 10, 30, 0.9) 0%, transparent 100%);
+            height: 56px;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-macaco {
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(108, 92, 231, 0.3);
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.1);
+        }
+
+        .btn-genero-fav {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 34px;
+        }
+
+        .btn-genero-fav:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .genero-nome {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 30%, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .separador {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.7rem;
+        }
+
+        .coracao-icon {
+            font-size: 0.7rem;
+            color: var(--accent);
+        }
+
+        .fav-badge {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 0.5rem;
+            font-weight: 900;
+            min-width: 16px;
+            text-align: center;
+            line-height: 16px;
+            box-shadow: 0 0 20px rgba(253, 121, 168, 0.3);
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timer-lib {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--secondary);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
+        }
+
+        .timer-lib.lib {
+            color: #00b894;
+        }
+
+        .audio-status {
+            font-size: 0.5rem;
+            color: #00b894;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 20px;
+            display: none;
+        }
+
+        .audio-status.active {
+            display: inline-block;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: none;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            transition: background 0.2s;
+        }
+
+        .menu-btn:active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .info-scroll {
+            position: fixed;
+            top: 46px;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            padding: 6px 16px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .letreiro {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: scrollText 20s linear infinite;
+            text-shadow: 0 0 30px rgba(108, 92, 231, 0.1);
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .fav-heart-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .fav-heart {
+            font-size: 4.5rem;
+            color: rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+            pointer-events: auto;
+        }
+
+        .fav-heart.active {
+            color: var(--accent);
+            animation: heartBeat 0.3s ease;
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .fav-heart:active {
+            transform: scale(1.3);
+        }
+
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 16px calc(16px + var(--safe-bottom));
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-controls.visible {
+            transform: translateY(0);
+        }
+
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.1s;
+        }
+
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .play-big {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            width: 52px;
+            height: 52px;
+            font-size: 1.3rem;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 30px rgba(108, 92, 231, 0.3);
+        }
+
+        .play-big:active {
+            transform: scale(0.9);
+        }
+
+        .shuffle-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .shuffle-btn.active {
+            background: rgba(108, 92, 231, 0.2);
+            color: var(--secondary);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+        }
+
+        .shuffle-btn:active {
+            transform: scale(0.9);
+        }
+
+        .fab-container {
+            position: fixed;
+            bottom: calc(100px + var(--safe-bottom));
+            right: 16px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .fab-main {
+            background: rgba(10, 10, 30, 0.8);
+            backdrop-filter: blur(12px);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .fab-main:active {
+            transform: scale(0.9);
+        }
+
+        .fab-sub {
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 6px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--shadow);
+        }
+
+        .fab-sub.open {
+            display: flex;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .fab-sub-btn {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            min-height: 44px;
+            white-space: nowrap;
+        }
+
+        .fab-sub-btn:active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .menu-popup {
+            position: fixed;
+            top: 56px;
+            right: 10px;
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 8px;
+            z-index: 32;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-width: 160px;
+            box-shadow: var(--shadow);
+        }
+
+        .menu-popup.open {
+            display: flex;
+        }
+
+        .menu-popup button {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            min-height: 44px;
+        }
+
+        .menu-popup button:active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.98);
+            backdrop-filter: blur(30px);
+            border-radius: 30px 30px 0 0;
+            padding: 20px 16px 24px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 85vh;
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .genres-modal.open {
+            transform: translateY(0);
+        }
+
+        .genres-modal .header {
+            text-align: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .genres-modal .header .titulo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .genres-modal .header .sub-titulo {
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .genres-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 4px 0;
+            max-height: 55vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .genres-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .genre-card {
+            position: relative;
+            min-height: 72px;
+            border-radius: 20px;
+            cursor: pointer;
+            padding: 14px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .genre-card:active {
+            transform: scale(0.94);
+        }
+
+        .genre-card .genre-name {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            line-height: 1.2;
+        }
+
+        .genre-card .genre-count {
+            font-size: 0.45rem;
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 2px;
+            z-index: 1;
+        }
+
+        .genre-card[data-genre="BÔNUS"] { background: linear-gradient(135deg, #fdcb6e, #f0a500); border-color: #fdcb6e55; }
+        .genre-card[data-genre="FLASHBACK"] { background: linear-gradient(135deg, #e17055, #d63031); border-color: #e1705555; }
+        .genre-card[data-genre="RELIGIOSA"] { background: linear-gradient(135deg, #6c5ce7, #341f97); border-color: #6c5ce755; }
+        .genre-card[data-genre="ROMÂNTICA"] { background: linear-gradient(135deg, #fd79a8, #e84393); border-color: #fd79a855; }
+        .genre-card[data-genre="MPB"] { background: linear-gradient(135deg, #00b894, #00a86b); border-color: #00b89455; }
+        .genre-card[data-genre="POP/MIX"] { background: linear-gradient(135deg, #fd79a8, #d63031); border-color: #fd79a855; }
+        .genre-card[data-genre="SERTANEJO"] { background: linear-gradient(135deg, #fdcb6e, #e17055); border-color: #fdcb6e55; }
+        .genre-card[data-genre="FORRÓ"] { background: linear-gradient(135deg, #e17055, #d63031); border-color: #e1705555; }
+        .genre-card[data-genre="SAMBA"] { background: linear-gradient(135deg, #fdcb6e, #f0932b); border-color: #fdcb6e55; }
+        .genre-card[data-genre="BREGA"] { background: linear-gradient(135deg, #fd79a8, #e84393); border-color: #fd79a855; }
+        .genre-card[data-genre="REGGAE"] { background: linear-gradient(135deg, #00b894, #00a86b); border-color: #00b89455; }
+        .genre-card[data-genre="MODA RAIZ"] { background: linear-gradient(135deg, #e17055, #d63031); border-color: #e1705555; }
+        .genre-card[data-genre="FANK"] { background: linear-gradient(135deg, #fd79a8, #d63031); border-color: #fd79a855; }
+        .genre-card[data-genre="TESTE MIDIA"] { background: linear-gradient(135deg, #fdcb6e, #f0932b); border-color: #fdcb6e55; }
+        .genre-card[data-genre="MODÃO SERTANEJO"] { background: linear-gradient(135deg, #e17055, #d63031); border-color: #e1705555; }
+        .genre-card[data-genre="CHORINHO"] { background: linear-gradient(135deg, #6c5ce7, #341f97); border-color: #6c5ce755; }
+        .genre-card[data-genre="FORRÓ RAIZ"] { background: linear-gradient(135deg, #e17055, #d63031); border-color: #e1705555; }
+        .genre-card[data-genre="ROCK"] { background: linear-gradient(135deg, #fd79a8, #d63031); border-color: #fd79a855; }
+        .close-genres {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 25px;
+            color: #555;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .close-genres:active { background: rgba(255, 255, 255, 0.05); transform: scale(0.97); }
+
+        .fav-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px 25px 0 0;
+            padding: 16px 16px 20px;
+            z-index: 2001;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 70vh;
+            overflow: hidden;
+        }
+        .fav-modal.open { transform: translateY(0); }
+        .fav-modal h3 { text-align: center; margin-bottom: 4px; font-size: 1.1rem; color: var(--accent); letter-spacing: 1px; }
+        .fav-modal .sub-titulo { text-align: center; font-size: 0.65rem; color: #666; margin-bottom: 8px; }
+        .fav-list-modal { display: flex; flex-direction: column; overflow-y: auto; gap: 6px; padding: 4px 0; max-height: 50vh; scrollbar-width: none; }
+        .fav-list-modal::-webkit-scrollbar { display: none; }
+        .fav-item-modal {
+            min-height: 50px;
+            border-radius: 16px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        .fav-item-modal:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.06); }
+        .fav-item-modal .fav-info { flex: 1; cursor: pointer; display: flex; flex-direction: column; overflow: hidden; }
+        .fav-item-modal .fav-info .title { color: #fff; font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fav-item-modal .fav-info .artist { color: #888; font-size: 0.8rem; }
+        .fav-item-modal .remove-fav { background: transparent; border: none; color: var(--accent); font-size: 1.2rem; cursor: pointer; padding: 0 6px; flex-shrink: 0; }
+        .fav-item-modal .remove-fav:active { transform: scale(0.9); }
+        .fav-empty-modal { color: #555; padding: 20px; text-align: center; font-size: 0.8rem; }
+        .close-fav { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--accent), #e84393); border: none; border-radius: 25px; color: #fff; font-size: 0.85rem; cursor: pointer; font-weight: 700; margin-top: 8px; }
+        .close-fav:active { transform: scale(0.97); }
+
+        .choice-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px 25px 0 0;
+            padding: 16px 16px 20px;
+            z-index: 1999;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 50vh;
+            overflow: hidden;
+        }
+        .choice-menu.open { transform: translateY(0); }
+        .choice-menu h3 { text-align: center; margin-bottom: 12px; font-size: 1.1rem; color: var(--secondary); letter-spacing: 1px; }
+        .choice-menu .choice-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+        .choice-menu .choice-btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.06); }
+        .choice-menu .choice-btn i { font-size: 1.4rem; width: 28px; text-align: center; }
+        .choice-menu .choice-btn .badge { background: var(--accent); color: #fff; border-radius: 50%; padding: 0 8px; font-size: 0.8rem; font-weight: 900; min-width: 24px; text-align: center; line-height: 24px; }
+        .choice-menu .choice-btn .info-text { font-size: 0.75rem; color: #666; }
+        .choice-menu .choice-close { width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 25px; color: #666; font-size: 0.8rem; cursor: pointer; font-weight: 600; margin-top: 4px; }
+        .choice-menu .choice-close:active { background: rgba(255, 255, 255, 0.08); }
+
+        .feedback-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 30, 0.98);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 5000;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            display: none;
+            border: 1px solid rgba(108, 92, 231, 0.1);
+        }
+        .feedback-modal.open { display: block; animation: modalFade 0.3s ease; }
+        @keyframes modalFade { from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        .feedback-modal h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--secondary); }
+        .feedback-modal .stars { display: flex; justify-content: center; gap: 6px; margin: 6px 0; }
+        .feedback-modal .star { font-size: 2rem; color: #444; cursor: pointer; transition: color 0.2s; }
+        .feedback-modal .star.active { color: var(--gold); }
+        .feedback-modal textarea { width: 100%; height: 50px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 6px 10px; color: #fff; resize: none; font-size: 0.8rem; margin-top: 6px; }
+        .feedback-modal .btn-feedback { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; padding: 10px; border-radius: 25px; color: #fff; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; font-size: 0.9rem; }
+        .feedback-modal .btn-feedback:active { transform: scale(0.97); }
+        #closeFeedbackBtn { background: transparent; border: none; color: #555; padding: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 4px; }
+
+        .notification {
+            position: fixed;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            color: var(--secondary);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border: 1px solid rgba(108, 92, 231, 0.1);
+            white-space: nowrap;
+            font-weight: 600;
+        }
+        .notification.show { opacity: 1; }
+
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
+        #loadingOverlay.active { display: flex; }
+        #loadingOverlay i { font-size: 2.5rem; color: var(--secondary); animation: spin 1s infinite; }
+
+        #qrCodeModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: qrFadeIn 0.4s ease;
+        }
+        #qrCodeModal.active { display: flex; }
+        @keyframes qrFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .qr-content { background: linear-gradient(145deg, #1a1a3e, #0a0a1e); border-radius: 30px; padding: 24px; max-width: 400px; width: 100%; text-align: center; border: 1px solid rgba(108, 92, 231, 0.1); box-shadow: 0 0 80px rgba(108, 92, 231, 0.05); }
+        .qr-content .qr-titulo { color: #fff; font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
+        .qr-content .qr-sub { color: #666; font-size: 0.7rem; margin-bottom: 12px; }
+        .qr-content .qr-wrapper { background: #fff; border-radius: 20px; padding: 12px; display: inline-block; margin: 0 auto; position: relative; box-shadow: 0 0 40px rgba(108, 92, 231, 0.05); }
+        .qr-content .qr-wrapper img { width: 220px; height: 220px; display: block; border-radius: 12px; }
+        .qr-content .qr-logo-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 50%; background: #000; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; }
+        .qr-content .qr-logo-overlay img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .qr-content .qr-info { display: flex; justify-content: center; gap: 16px; margin: 10px 0 6px; }
+        .qr-content .qr-info span { font-size: 0.65rem; color: #888; display: flex; align-items: center; gap: 4px; }
+        .qr-content .qr-info span i { color: var(--gold); }
+        .qr-content .qr-btn-close { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; padding: 12px; border-radius: 25px; color: #fff; font-weight: 700; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 8px; }
+        .qr-content .qr-btn-close:active { transform: scale(0.97); }
+
+        #blockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        #blockOverlay.active { display: flex; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .block-content { max-width: 450px; width: 100%; padding: 30px 24px; }
+        .block-content .logo { font-size: 4rem; margin-bottom: 4px; }
+        .block-content h1 { color: #fff; font-size: 2.2rem; margin-bottom: 2px; font-weight: 900; }
+        .block-content .sub { color: var(--secondary); font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
+        .block-content input { width: 100%; padding: 16px 20px; border-radius: 30px; border: 2px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 1.3rem; text-align: center; margin-bottom: 12px; outline: none; transition: border-color 0.3s; }
+        .block-content input:focus { border-color: var(--primary); }
+        .block-content .btn-liberar { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 25px; color: #fff; font-weight: 700; font-size: 1.2rem; cursor: pointer; transition: transform 0.2s; }
+        .block-content .btn-liberar:active { transform: scale(0.97); }
+        .block-content .erro { color: var(--accent); font-size: 1rem; min-height: 40px; padding: 8px 0; font-weight: 600; }
+        .block-content .dica { background: rgba(108, 92, 231, 0.05); border: 1px solid rgba(108, 92, 231, 0.08); border-radius: 16px; padding: 12px; margin-top: 4px; }
+        .block-content .dica .titulo { font-size: 0.8rem; color: #aaa; }
+        .block-content .dica .texto { font-size: 0.75rem; color: #888; margin-top: 2px; }
+        .block-content .fingerprint-area { display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.05); padding: 10px 14px; border-radius: 12px; margin-top: 6px; border: 1px solid rgba(255, 255, 255, 0.03); }
+        .block-content .fingerprint-area .fp-text { color: #888; font-size: 0.6rem; word-break: break-all; font-family: 'Courier New', monospace; flex: 1; min-width: 0; letter-spacing: 1px; }
+        .block-content .fingerprint-area .btn-copiar-fp { background: rgba(108, 92, 231, 0.1); border: 1px solid rgba(108, 92, 231, 0.2); color: var(--primary); padding: 6px 14px; border-radius: 12px; font-size: 0.6rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .block-content .fingerprint-area .btn-copiar-fp:active { transform: scale(0.9); }
+
+        #adminPanel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 30, 0.98);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 99999;
+            width: 90%;
+            max-width: 450px;
+            border: 2px solid var(--gold);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #adminPanel.open { display: block; animation: modalFade 0.3s ease; }
+        #adminPanel h2 { text-align: center; font-size: 1.3rem; color: var(--gold); margin-bottom: 2px; }
+        #adminPanel .sub { text-align: center; font-size: 0.6rem; color: #666; margin-bottom: 8px; }
+        #adminPanel .fp-cliente { background: rgba(108, 92, 231, 0.03); border: 1px solid rgba(108, 92, 231, 0.06); border-radius: 12px; padding: 8px; margin-bottom: 8px; }
+        #adminPanel .fp-cliente label { font-size: 0.8rem; color: #aaa; display: block; }
+        #adminPanel .fp-cliente input { width: 100%; padding: 10px 14px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 0.8rem; font-family: monospace; outline: none; margin-top: 2px; }
+        #adminPanel .fp-cliente input:focus { border-color: var(--primary); }
+        #adminPanel .fp-cliente .helper { font-size: 0.4rem; color: #555; margin-top: 2px; }
+        #adminPanel .row-btns { display: flex; gap: 6px; margin-bottom: 8px; }
+        #adminPanel .row-btns button { flex: 1; padding: 12px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; transition: transform 0.2s; }
+        #adminPanel .row-btns button:active { transform: scale(0.95); }
+        #adminPanel .btn-gerar { background: linear-gradient(135deg, var(--gold), #f0932b); color: #000; }
+        #adminPanel .btn-universal { background: linear-gradient(135deg, #00b894, #00a86b); color: #fff; }
+        #adminPanel .btn-limpar { background: rgba(255, 255, 255, 0.05); color: #666; border: 1px solid rgba(255, 255, 255, 0.05); }
+        #adminPanel .senha-box { background: rgba(108, 92, 231, 0.03); border: 1px solid rgba(108, 92, 231, 0.06); border-radius: 12px; padding: 8px; margin-bottom: 6px; }
+        #adminPanel .senha-box label { font-size: 0.6rem; color: #888; display: block; }
+        #adminPanel .senha-box .row { display: flex; gap: 6px; margin-top: 2px; }
+        #adminPanel .senha-box .row input { flex: 2; padding: 10px 14px; border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.06); background: rgba(255, 255, 255, 0.03); color: #fff; font-size: 0.8rem; font-family: monospace; outline: none; }
+        #adminPanel .senha-box .row .btn-copiar { flex: 1; background: rgba(108, 92, 231, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: all 0.2s; }
+        #adminPanel .senha-box .row .btn-copiar:active { transform: scale(0.95); }
+        #adminPanel .senha-box .info-senha { font-size: 0.4rem; color: #555; margin-top: 2px; }
+        #adminPanel .actions { display: flex; gap: 6px; margin-bottom: 6px; }
+        #adminPanel .actions button { flex: 1; padding: 8px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; font-size: 0.65rem; transition: transform 0.2s; }
+        #adminPanel .actions button:active { transform: scale(0.95); }
+        #adminPanel .actions .btn-whats { background: linear-gradient(135deg, #25d366, #128C7E); color: #fff; }
+        #adminPanel .actions .btn-copiar-senha { background: rgba(108, 92, 231, 0.1); border: 1px solid var(--primary); color: var(--primary); }
+        #adminPanel .historico { max-height: 80px; overflow-y: auto; margin-bottom: 4px; scrollbar-width: none; }
+        #adminPanel .historico::-webkit-scrollbar { display: none; }
+        #adminPanel .historico-item { display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.02); font-size: 0.4rem; color: #666; }
+        #adminPanel .historico-item .senha-hash { color: #888; font-family: monospace; }
+        #adminPanel .total { font-size: 0.45rem; color: #555; text-align: center; padding: 4px; border-top: 1px solid rgba(255, 255, 255, 0.03); margin-top: 4px; }
+        #adminPanel .btn-fechar { background: rgba(255, 255, 255, 0.03); border: none; padding: 8px; border-radius: 20px; color: #555; cursor: pointer; width: 100%; font-size: 0.7rem; margin-top: 4px; transition: all 0.2s; }
+        #adminPanel .btn-fechar:active { background: rgba(255, 255, 255, 0.05); }
+
+        #videoClickOverlay {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            z-index: 50;
+            cursor: pointer;
+            pointer-events: auto;
+            animation: pulseClick 2s infinite;
+        }
+        @keyframes pulseClick { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        #btnSairModoTV {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 60;
+            background: rgba(10, 10, 30, 0.9);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .logo-macaco { height: 28px; width: 28px; }
+            .btn-genero-fav { padding: 4px 10px; gap: 5px; min-height: 30px; }
+            .btn-genero-fav .genero-nome { font-size: 0.65rem; }
+            .btn-genero-fav .fav-badge { font-size: 0.45rem; min-width: 14px; line-height: 14px; }
+            .btn-genero-fav .coracao-icon { font-size: 0.6rem; }
+            .top-bar { height: 48px; padding: 4px 10px; }
+            .top-right .timer-lib { font-size: 0.6rem; padding: 2px 6px; }
+            .top-right .menu-btn { width: 26px; height: 26px; font-size: 0.7rem; }
+            .info-scroll { top: 42px; height: 34px; }
+            .info-scroll .letreiro { font-size: 0.7rem; }
+            .fav-heart-center .fav-heart { font-size: 3.5rem; }
+            .ctrl-btn { width: 36px; height: 36px; font-size: 0.85rem; min-width: 44px; min-height: 44px; }
+            .play-big { width: 46px; height: 46px; font-size: 1.1rem; }
+            .shuffle-btn { width: 36px; height: 36px; font-size: 0.8rem; min-width: 44px; min-height: 44px; }
+            .buttons-row { gap: 10px; }
+            .bottom-controls { padding: 6px 12px calc(12px + var(--safe-bottom)); }
+            .fab-main { width: 42px; height: 42px; font-size: 1rem; }
+            .fab-container { bottom: calc(85px + var(--safe-bottom)); right: 10px; }
+            .block-content h1 { font-size: 1.8rem; }
+            .block-content .logo { font-size: 3rem; }
+            #adminPanel { max-width: 95%; padding: 12px; }
+            .qr-content .qr-wrapper img { width: 160px; height: 160px; }
+            .qr-content .qr-logo-overlay { width: 40px; height: 40px; }
+            .qr-content .qr-logo-overlay img { width: 28px; height: 28px; }
+            .genres-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .genre-card { min-height: 60px; padding: 10px 6px; border-radius: 14px; }
+            .genre-card .genre-name { font-size: 0.9rem; letter-spacing: 0.5px; }
+            .genre-card .genre-count { font-size: 0.35rem; }
+            .genres-modal .header .titulo { font-size: 1rem; }
+            .fav-item-modal { min-height: 44px; font-size: 0.9rem; }
+            .fav-item-modal .fav-info .title { font-size: 0.85rem; }
+            .fav-item-modal .fav-info .artist { font-size: 0.7rem; }
+            .notification { font-size: 0.85rem; padding: 8px 16px; top: 100px; }
+            #videoClickOverlay { bottom: 100px; right: 10px; }
+            #videoClickOverlay video { width: clamp(70px, 15vw, 120px) !important; height: clamp(70px, 15vw, 120px) !important; }
+            #btnSairModoTV { top: 80px; right: 10px; padding: 8px 12px; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
 
-<!-- Loading Screen -->
 <div id="loadingScreen">
     <img src="favicon30.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner loading-spinner"></i>
@@ -244,10 +1082,9 @@
     </div>
 </div>
 
-<!-- Player Container -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
-    
+
     <div class="top-bar">
         <div class="top-left">
             <img src="favicon30.png" alt="VDB Music" class="logo-macaco">
@@ -264,15 +1101,15 @@
             <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
         </div>
     </div>
-    
+
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵</p>
     </div>
-    
+
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
     </div>
-    
+
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -288,7 +1125,7 @@
             <button class="shuffle-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
         </div>
     </div>
-    
+
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
@@ -301,7 +1138,7 @@
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
-    
+
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
@@ -315,7 +1152,6 @@
     </div>
 </div>
 
-<!-- Block Overlay -->
 <div id="blockOverlay" class="active">
     <div class="block-content">
         <div class="logo">🐵</div>
@@ -335,7 +1171,6 @@
     </div>
 </div>
 
-<!-- Admin Panel -->
 <div id="adminPanel">
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas para seus clientes</div>
@@ -366,7 +1201,6 @@
     <button class="btn-fechar" id="adminCloseBtn">✕ Fechar Painel</button>
 </div>
 
-<!-- QR Code Modal -->
 <div id="qrCodeModal">
     <div class="qr-content">
         <div class="qr-titulo">📱 VAI DE BOA! MUSIC</div>
@@ -384,15 +1218,12 @@
     </div>
 </div>
 
-<!-- Notification -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
-<!-- Audio elements -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
-<!-- Modals -->
 <div class="genres-modal" id="genresModal">
     <div class="header">
         <div class="titulo">ESTILOS MUSICAIS</div>
@@ -437,13 +1268,9 @@
 </div>
 
 <script>
-// ============================================================
-// VAI DE BOA! MUSIC - v3.0 FINAL (TIMER CORRIDO 24H)
-// ============================================================
 (function() {
     'use strict';
 
-    // ========== CONFIGURAÇÕES ==========
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
         WHATSAPP_NUMBER: '12988461978',
@@ -497,7 +1324,6 @@
         }
     };
 
-    // ========== CACHE BUSTING ==========
     const CacheBuster = {
         get version() { return CONFIG.CACHE_VERSION; },
         set version(v) { localStorage.setItem('vdb_cache_version', String(v)); },
@@ -518,7 +1344,6 @@
         }
     };
 
-    // ========== DOM HELPERS ==========
     const $ = (id) => document.getElementById(id);
     const dom = {
         loadingScreen: $('loadingScreen'),
@@ -606,7 +1431,6 @@
         feedbackText: $('feedbackText'),
     };
 
-    // ========== UTILITÁRIOS ==========
     function fmt(s) {
         if (!s || isNaN(s)) return '0:00';
         const m = Math.floor(s / 60);
@@ -621,12 +1445,8 @@
         const horas = Math.floor((s % 86400) / 3600);
         const minutos = Math.floor((s % 3600) / 60);
         const segundos = Math.floor(s % 60);
-        if (dias > 0) {
-            return dias + 'd ' + String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
-        }
-        if (horas > 0) {
-            return String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
-        }
+        if (dias > 0) return dias + 'd ' + String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+        if (horas > 0) return String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
         return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
     }
 
@@ -669,7 +1489,6 @@
         dom.loadingProgressFill.style.width = Math.min(pct, 100) + '%';
     }
 
-    // ========== NOTIFICAÇÕES ==========
     class Notifier {
         constructor() {
             this.queue = [];
@@ -684,9 +1503,7 @@
             if (this.showing || this.queue.length === 0) return;
             this.showing = true;
             const item = this.queue.shift();
-            const colors = {
-                success: '#00b894', error: '#fd79a8', info: '#6c5ce7', warning: '#fdcb6e'
-            };
+            const colors = { success: '#00b894', error: '#fd79a8', info: '#6c5ce7', warning: '#fdcb6e' };
             this.el.style.borderColor = colors[item.type] || colors.info;
             this.el.textContent = item.msg;
             this.el.classList.add('show');
@@ -699,7 +1516,6 @@
     const notifier = new Notifier();
     const notif = (msg, dur = 2000, type = 'info') => notifier.show(msg, dur, type);
 
-    // ========== FINGERPRINT ==========
     function obterFingerprint() {
         try {
             const navegador = navigator.userAgent || '';
@@ -715,7 +1531,6 @@
         }
     }
 
-    // ========== STATE ==========
     const state = {
         tempoRestante: 86400,
         desbloqueado: false,
@@ -751,15 +1566,8 @@
         touchManager: null,
     };
 
-    // ========== SENHAS ==========
-    const SENHA_ADMIN = (() => {
-        const c = [112, 97, 116, 105, 99, 111, 49, 54, 56, 53];
-        return String.fromCharCode(...c);
-    })();
-    const SENHA_MESTRA = (() => {
-        const c = [80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64];
-        return String.fromCharCode(...c);
-    })();
+    const SENHA_ADMIN = (() => { const c = [112, 97, 116, 105, 99, 111, 49, 54, 56, 53]; return String.fromCharCode(...c); })();
+    const SENHA_MESTRA = (() => { const c = [80, 97, 116, 105, 99, 111, 49, 54, 56, 53, 64]; return String.fromCharCode(...c); })();
 
     function gerarSenhaAleatoria() {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -768,43 +1576,25 @@
         return s;
     }
 
-    function gerarSenhaDispositivo(fp) {
-        const aleatorio = gerarSenhaAleatoria();
-        return btoa(fp + ':' + aleatorio);
-    }
-
-    function gerarSenhaUniversal() {
-        const timestamp = Date.now().toString(36);
-        const aleatorio = gerarSenhaAleatoria();
-        return 'UNIV:' + timestamp + ':' + btoa('UNIV:' + timestamp + ':' + aleatorio).slice(0, 16);
-    }
+    function gerarSenhaDispositivo(fp) { return btoa(fp + ':' + gerarSenhaAleatoria()); }
+    function gerarSenhaUniversal() { const ts = Date.now().toString(36); return 'UNIV:' + ts + ':' + btoa('UNIV:' + ts + ':' + gerarSenhaAleatoria()).slice(0, 16); }
 
     function validarSenha(senha) {
-        if (senha === SENHA_MESTRA) {
-            return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
-        }
+        if (senha === SENHA_MESTRA) return { valida: true, tipo: 'mestra', msg: '✅ Liberado com sucesso!' };
         try {
             const decoded = atob(senha);
             const partes = decoded.split(':');
-            if (partes.length === 2 && partes[0] === state.fingerprint) {
-                return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
-            }
+            if (partes.length === 2 && partes[0] === state.fingerprint) return { valida: true, tipo: 'cliente', msg: '✅ Liberado permanentemente!' };
         } catch (e) {}
         if (senha.startsWith('UNIV:')) {
             const partes = senha.split(':');
-            if (partes.length === 3 && partes[2].length === 16) {
-                return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
-            }
+            if (partes.length === 3 && partes[2].length === 16) return { valida: true, tipo: 'universal', msg: '✅ Liberado com senha universal!' };
         }
         return { valida: false };
     }
 
-    // ========== FAVORITOS (IndexedDB) ==========
     class FavoritesManager {
-        constructor() {
-            this.db = null;
-            this.init();
-        }
+        constructor() { this.db = null; this.init(); }
         async init() {
             return new Promise(resolve => {
                 try {
@@ -822,25 +1612,15 @@
                             store.createIndex('data', 'data', { unique: false });
                         }
                     };
-                    req.onsuccess = (e) => {
-                        this.db = e.target.result;
-                        this.migrar();
-                        resolve();
-                    };
+                    req.onsuccess = (e) => { this.db = e.target.result; this.migrar(); resolve(); };
                     req.onerror = () => resolve();
-                } catch (e) {
-                    console.error('Erro IndexedDB:', e);
-                    resolve();
-                }
+                } catch (e) { console.error('Erro IndexedDB:', e); resolve(); }
             });
         }
         async migrar() {
             try {
                 const dados = JSON.parse(localStorage.getItem('vfav') || '[]');
-                if (dados.length > 0) {
-                    for (const item of dados) await this.add(item);
-                    localStorage.removeItem('vfav');
-                }
+                if (dados.length > 0) { for (const item of dados) await this.add(item); localStorage.removeItem('vfav'); }
             } catch (e) { console.error('Erro migração:', e); }
         }
         async salvarPlaylist(playlist) {
@@ -859,10 +1639,7 @@
             } catch (e) { console.error('Erro salvar playlist:', e); }
         }
         async getPlaylist(id) {
-            if (!this.db) {
-                const playlists = JSON.parse(localStorage.getItem('vdb_playlists') || '[]');
-                return playlists.find(p => p.id === id) || null;
-            }
+            if (!this.db) { const playlists = JSON.parse(localStorage.getItem('vdb_playlists') || '[]'); return playlists.find(p => p.id === id) || null; }
             return new Promise(resolve => {
                 try {
                     const tx = this.db.transaction(['playlists'], 'readonly');
@@ -886,43 +1663,20 @@
             });
         }
         async deletePlaylist(id) {
-            if (!this.db) {
-                const playlists = JSON.parse(localStorage.getItem('vdb_playlists') || '[]');
-                localStorage.setItem('vdb_playlists', JSON.stringify(playlists.filter(p => p.id !== id)));
-                return;
-            }
-            try {
-                const tx = this.db.transaction(['playlists'], 'readwrite');
-                const store = tx.objectStore('playlists');
-                await store.delete(id);
-            } catch (e) { console.error('Erro deletar playlist:', e); }
+            if (!this.db) { const playlists = JSON.parse(localStorage.getItem('vdb_playlists') || '[]'); localStorage.setItem('vdb_playlists', JSON.stringify(playlists.filter(p => p.id !== id))); return; }
+            try { const tx = this.db.transaction(['playlists'], 'readwrite'); const store = tx.objectStore('playlists'); await store.delete(id); } catch (e) { console.error('Erro deletar playlist:', e); }
         }
         async add(musica) {
             if (!this.db) {
                 const favs = JSON.parse(localStorage.getItem('vfav') || '[]');
-                if (!favs.find(f => f.id === musica.id)) {
-                    favs.push({ ...musica, data: Date.now() });
-                    localStorage.setItem('vfav', JSON.stringify(favs));
-                }
+                if (!favs.find(f => f.id === musica.id)) { favs.push({ ...musica, data: Date.now() }); localStorage.setItem('vfav', JSON.stringify(favs)); }
                 return;
             }
-            try {
-                const tx = this.db.transaction(['favorites'], 'readwrite');
-                const store = tx.objectStore('favorites');
-                await store.put({ ...musica, data: Date.now() });
-            } catch (e) { console.error('Erro adicionar favorito:', e); }
+            try { const tx = this.db.transaction(['favorites'], 'readwrite'); const store = tx.objectStore('favorites'); await store.put({ ...musica, data: Date.now() }); } catch (e) { console.error('Erro adicionar favorito:', e); }
         }
         async remove(id) {
-            if (!this.db) {
-                const favs = JSON.parse(localStorage.getItem('vfav') || '[]');
-                localStorage.setItem('vfav', JSON.stringify(favs.filter(f => f.id !== id)));
-                return;
-            }
-            try {
-                const tx = this.db.transaction(['favorites'], 'readwrite');
-                const store = tx.objectStore('favorites');
-                await store.delete(id);
-            } catch (e) { console.error('Erro remover favorito:', e); }
+            if (!this.db) { const favs = JSON.parse(localStorage.getItem('vfav') || '[]'); localStorage.setItem('vfav', JSON.stringify(favs.filter(f => f.id !== id))); return; }
+            try { const tx = this.db.transaction(['favorites'], 'readwrite'); const store = tx.objectStore('favorites'); await store.delete(id); } catch (e) { console.error('Erro remover favorito:', e); }
         }
         async getAll() {
             if (!this.db) return JSON.parse(localStorage.getItem('vfav') || '[]');
@@ -939,39 +1693,24 @@
     }
     const favManager = new FavoritesManager();
 
-    // ========== TIMER CORRIDO 24H ==========
     const TEMPO_TESTE = 86400;
 
     function updateTimerDisplay() {
-        if (state.desbloqueado) {
-            dom.timerLib.textContent = '🔓 Lib';
-            dom.timerLib.className = 'timer-lib lib';
-            return;
-        }
-        const tempoRestante = calcularTempoRestante();
-        state.tempoRestante = tempoRestante;
-        dom.timerLib.textContent = fmtTempo(tempoRestante);
-        dom.timerLib.className = 'timer-lib';
-        dom.timerLib.style.color = tempoRestante <= 3600 ? '#fd79a8' : '#6c5ce7';
+        if (state.desbloqueado) { dom.timerLib.textContent = '🔓 Lib'; dom.timerLib.className = 'timer-lib lib'; return; }
+        const tr = calcularTempoRestante(); state.tempoRestante = tr;
+        dom.timerLib.textContent = fmtTempo(tr); dom.timerLib.className = 'timer-lib';
+        dom.timerLib.style.color = tr <= 3600 ? '#fd79a8' : '#6c5ce7';
     }
 
     function iniciarTimerCorrido() {
-        const expiracaoSalva = localStorage.getItem('vdb_teste_expiracao');
-        if (!expiracaoSalva) {
-            const expiracao = Date.now() + (TEMPO_TESTE * 1000);
-            localStorage.setItem('vdb_teste_expiracao', String(expiracao));
-            console.log('✅ Timer corrido iniciado! Expira em:', new Date(expiracao).toLocaleString());
-        }
+        const exp = localStorage.getItem('vdb_teste_expiracao');
+        if (!exp) { const e = Date.now() + (TEMPO_TESTE * 1000); localStorage.setItem('vdb_teste_expiracao', String(e)); console.log('✅ Timer corrido iniciado! Expira em:', new Date(e).toLocaleString()); }
         state.timerIniciado = true;
         clearInterval(state.timerInterval);
         state.timerInterval = setInterval(() => {
             if (!state.desbloqueado && !document.hidden) {
-                const tempoRestante = calcularTempoRestante();
-                state.tempoRestante = tempoRestante;
-                if (tempoRestante <= 0) {
-                    clearInterval(state.timerInterval);
-                    bloquear();
-                }
+                const tr = calcularTempoRestante(); state.tempoRestante = tr;
+                if (tr <= 0) { clearInterval(state.timerInterval); bloquear(); }
                 updateTimerDisplay();
             }
         }, 1000);
@@ -979,49 +1718,32 @@
     }
 
     function calcularTempoRestante() {
-        const expiracaoSalva = localStorage.getItem('vdb_teste_expiracao');
-        if (!expiracaoSalva) {
-            const expiracao = Date.now() + (TEMPO_TESTE * 1000);
-            localStorage.setItem('vdb_teste_expiracao', String(expiracao));
-            return TEMPO_TESTE;
-        }
-        const expiracao = parseInt(expiracaoSalva);
-        const agora = Date.now();
-        const restante = Math.floor((expiracao - agora) / 1000);
-        return restante > 0 ? restante : 0;
+        const exp = localStorage.getItem('vdb_teste_expiracao');
+        if (!exp) { const e = Date.now() + (TEMPO_TESTE * 1000); localStorage.setItem('vdb_teste_expiracao', String(e)); return TEMPO_TESTE; }
+        const e = parseInt(exp); const agora = Date.now(); const rest = Math.floor((e - agora) / 1000);
+        return rest > 0 ? rest : 0;
     }
 
     function restaurarTempo() {
-        const tempoRestante = calcularTempoRestante();
-        if (tempoRestante > 0) {
-            state.tempoRestante = tempoRestante;
-            return true;
-        }
+        const tr = calcularTempoRestante();
+        if (tr > 0) { state.tempoRestante = tr; return true; }
         return false;
     }
 
     function bloquear() {
         state.desbloqueado = false;
-        dom.blockOverlay.classList.add('active');
-        dom.blockOverlay.style.display = 'flex';
-        dom.audio.pause();
-        state.isPlaying = false;
-        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        dom.blockOverlay.classList.add('active'); dom.blockOverlay.style.display = 'flex';
+        dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
         localStorage.setItem('vdb_bloqueado_permanente', 'true');
-        localStorage.removeItem('vdb_desbloqueado');
-        localStorage.removeItem('vdb_senha_permanente');
-        localStorage.removeItem('vdb_teste_expiracao');
+        localStorage.removeItem('vdb_desbloqueado'); localStorage.removeItem('vdb_senha_permanente'); localStorage.removeItem('vdb_teste_expiracao');
         if (dom.infoDispositivo) dom.infoDispositivo.textContent = state.fingerprint;
         notif('⏰ Tempo de teste expirou!', 3000);
     }
 
-    // ========== PLAYER FUNCTIONS ==========
     function showControls() {
         dom.bottomControls.classList.add('visible');
         clearTimeout(state.hideControlsTimeout);
-        state.hideControlsTimeout = setTimeout(() => {
-            dom.bottomControls.classList.remove('visible');
-        }, 4000);
+        state.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000);
     }
 
     function fullscreen() {
@@ -1034,33 +1756,18 @@
     }
 
     function forcarTelaCheia() {
-        fullscreen();
-        setTimeout(fullscreen, 500);
-        setTimeout(fullscreen, 1000);
-        setTimeout(fullscreen, 2000);
-        setTimeout(fullscreen, 3000);
+        fullscreen(); setTimeout(fullscreen, 500); setTimeout(fullscreen, 1000); setTimeout(fullscreen, 2000); setTimeout(fullscreen, 3000);
     }
 
     function criarSilentAudio() {
         const sr = 44100, ns = sr * 5;
         const buffer = new ArrayBuffer(44 + ns * 2);
         const view = new DataView(buffer);
-        const write = (o, str) => {
-            for (let i = 0; i < str.length; i++) view.setUint8(o + i, str.charCodeAt(i));
-        };
-        write(0, 'RIFF');
-        view.setUint32(4, 36 + ns * 2, true);
-        write(8, 'WAVE');
-        write(12, 'fmt ');
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, 1, true);
-        view.setUint32(24, sr, true);
-        view.setUint32(28, sr * 2, true);
-        view.setUint16(32, 2, true);
-        view.setUint16(34, 16, true);
-        write(36, 'data');
-        view.setUint32(40, ns * 2, true);
+        const write = (o, str) => { for (let i = 0; i < str.length; i++) view.setUint8(o + i, str.charCodeAt(i)); };
+        write(0, 'RIFF'); view.setUint32(4, 36 + ns * 2, true); write(8, 'WAVE'); write(12, 'fmt ');
+        view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+        view.setUint32(24, sr, true); view.setUint32(28, sr * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+        write(36, 'data'); view.setUint32(40, ns * 2, true);
         return new Blob([buffer], { type: 'audio/wav' });
     }
 
@@ -1068,106 +1775,56 @@
         clearInterval(state.backgroundInterval);
         state.backgroundInterval = setInterval(async () => {
             try {
-                if (dom.backgroundAudio.paused && state.isBackgroundActive) {
-                    dom.backgroundAudio.play().catch(() => {});
-                }
-                if (state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) {
-                    dom.audio.play().catch(() => {});
-                }
-                if (dom.audio.ended && state.isPlaying) {
-                    next();
-                }
+                if (dom.backgroundAudio.paused && state.isBackgroundActive) dom.backgroundAudio.play().catch(() => {});
+                if (state.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(() => {});
+                if (dom.audio.ended && state.isPlaying) next();
             } catch (e) {}
         }, 1000);
     }
 
     async function ativarPlayer() {
         if (state.playerAtivado) return;
-        state.playerAtivado = true;
-        updateProgress(30);
+        state.playerAtivado = true; updateProgress(30);
         try {
             const url = URL.createObjectURL(criarSilentAudio());
-            dom.backgroundAudio.src = url;
-            dom.backgroundAudio.loop = true;
-            dom.backgroundAudio.volume = 0.001;
+            dom.backgroundAudio.src = url; dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001;
             await dom.backgroundAudio.play();
-            state.isBackgroundActive = true;
-            dom.audioStatus.classList.add('active');
-            manterAudioAtivo();
-            if ('wakeLock' in navigator) {
-                try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
-            }
-            updateProgress(70);
-            forcarTelaCheia();
-            iniciarTimerCorrido();
-            updateProgress(100);
+            state.isBackgroundActive = true; dom.audioStatus.classList.add('active'); manterAudioAtivo();
+            if ('wakeLock' in navigator) { try { state.wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+            updateProgress(70); forcarTelaCheia(); iniciarTimerCorrido(); updateProgress(100);
             setTimeout(() => tocar(), 500);
         } catch (e) {
-            state.isBackgroundActive = true;
-            dom.audioStatus.classList.add('active');
-            updateProgress(100);
-            forcarTelaCheia();
-            iniciarTimerCorrido();
-            setTimeout(() => tocar(), 500);
+            state.isBackgroundActive = true; dom.audioStatus.classList.add('active'); updateProgress(100);
+            forcarTelaCheia(); iniciarTimerCorrido(); setTimeout(() => tocar(), 500);
         }
     }
 
-    // ========== PLAYER CONTROLS ==========
     function togglePlay() {
         if (!state.isBackgroundActive) { notif('🔊 Aguarde...', 1500); return; }
-        if (dom.audio.paused) {
-            tocar();
-        } else {
-            dom.audio.pause();
-            state.isPlaying = false;
-            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-        }
+        if (dom.audio.paused) tocar();
+        else { dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; }
         showControls();
     }
 
-    function next() {
-        if (state.carregandoMusica) return;
-        state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length;
-        if (state.isBackgroundActive) setTimeout(tocar, 100);
-        showControls();
-    }
+    function next() { if (state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual + 1) % state.playlistAtual.length; if (state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
+    function prev() { if (state.carregandoMusica) return; state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length; if (state.isBackgroundActive) setTimeout(tocar, 100); showControls(); }
+    function toggleShuffle() { state.shuffleMode = !state.shuffleMode; dom.shuffleBtn.classList.toggle('active', state.shuffleMode); state.playlistAtual = shuffle(state.musicas); notif(state.shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial'); }
 
-    function prev() {
-        if (state.carregandoMusica) return;
-        state.indiceAtual = (state.indiceAtual - 1 + state.playlistAtual.length) % state.playlistAtual.length;
-        if (state.isBackgroundActive) setTimeout(tocar, 100);
-        showControls();
-    }
-
-    function toggleShuffle() {
-        state.shuffleMode = !state.shuffleMode;
-        dom.shuffleBtn.classList.toggle('active', state.shuffleMode);
-        state.playlistAtual = shuffle(state.musicas);
-        notif(state.shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial');
-    }
-
-    // ========== CARREGAR PLAYLIST ==========
     function getUrls(musica) {
         const src = musica.src || '';
         if (!src) return [];
         if (src.startsWith('http')) return [CacheBuster.getUrl(src)];
         const nome = src.replace(/^\.\//, '').replace(/[^a-zA-Z0-9\-_.]/g, '');
         const repo = CONFIG.REPOS[musica.genero] || 'play12';
-        return [
-            CacheBuster.getUrl('https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome)
-        ];
+        return [CacheBuster.getUrl('https://raw.githubusercontent.com/radiolojasjc-hub/' + repo + '/refs/heads/main/' + nome)];
     }
 
     async function carregarPlaylist(genero) {
-        const url = CONFIG.GENRE_URLS[genero];
-        if (!url) return null;
+        const url = CONFIG.GENRE_URLS[genero]; if (!url) return null;
         try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 15000);
+            const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 15000);
             const response = await fetch(CacheBuster.getUrl(url), { signal: controller.signal, cache: 'no-store' });
-            clearTimeout(timeout);
-            let data = await response.json();
+            clearTimeout(timeout); let data = await response.json();
             if (!Array.isArray(data)) data = data.musicas || data.data || Object.values(data)[0];
             return data.filter(m => m.src && m.title).map(m => ({
                 ...m,
@@ -1175,29 +1832,20 @@
                 genero: genero,
                 artist: m.artist || 'Artista'
             }));
-        } catch (e) {
-            return null;
-        }
+        } catch (e) { return null; }
     }
 
     function atualizarPlaylist() {
         if (!state.playlistAtual.length) return null;
-        if (state.indiceAtual >= state.playlistAtual.length) {
-            state.playlistAtual = shuffle(state.musicas);
-            state.indiceAtual = 0;
-        }
+        if (state.indiceAtual >= state.playlistAtual.length) { state.playlistAtual = shuffle(state.musicas); state.indiceAtual = 0; }
         return state.playlistAtual[state.indiceAtual];
     }
 
     async function tocar() {
         if (!state.isBackgroundActive || state.carregandoMusica || !state.musicas.length) return;
-        state.carregandoMusica = true;
-        const musica = atualizarPlaylist();
+        state.carregandoMusica = true; const musica = atualizarPlaylist();
         if (!musica) { state.carregandoMusica = false; return; }
-
-        atualizarLetreiro(musica);
-        updateHeart(musica.id);
-
+        atualizarLetreiro(musica); updateHeart(musica.id);
         if ('mediaSession' in navigator) {
             try {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -1212,19 +1860,14 @@
                 navigator.mediaSession.setActionHandler('nexttrack', next);
             } catch (e) {}
         }
-
-        dom.audio.pause();
-        dom.audio.src = '';
-        const urls = getUrls(musica).slice(0, 8);
-        let ok = false;
+        dom.audio.pause(); dom.audio.src = ''; const urls = getUrls(musica).slice(0, 8); let ok = false;
         for (const url of urls) {
             try {
                 const loaded = await new Promise(res => {
                     const timeout = setTimeout(() => { dom.audio.oncanplay = null; dom.audio.onerror = null; res(false); }, 8000);
                     dom.audio.oncanplay = () => { clearTimeout(timeout); res(true); };
                     dom.audio.onerror = () => { clearTimeout(timeout); res(false); };
-                    dom.audio.src = url;
-                    dom.audio.load();
+                    dom.audio.src = url; dom.audio.load();
                 });
                 if (loaded) { ok = true; break; }
             } catch (e) {}
@@ -1232,154 +1875,67 @@
         state.carregandoMusica = false;
         if (ok) {
             try {
-                await dom.audio.play();
-                state.isPlaying = true;
-                dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                await dom.audio.play(); state.isPlaying = true; dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
             } catch (e) { setTimeout(next, 100); }
-        } else {
-            setTimeout(next, 100);
-        }
+        } else { setTimeout(next, 100); }
     }
 
     function atualizarLetreiro(musica) {
         if (state.scrollPersonalizado) return;
-        if (musica) {
-            dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | 🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
-        } else {
-            dom.scrollText.textContent = '🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
-        }
-        dom.scrollText.style.animation = 'none';
-        dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 20s linear infinite';
+        if (musica) dom.scrollText.textContent = sanitize(musica.title) + ' - ' + sanitize(musica.artist) + ' [' + musica.genero + '] 🎵 | 🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
+        else dom.scrollText.textContent = '🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
+        dom.scrollText.style.animation = 'none'; dom.scrollText.offsetHeight; dom.scrollText.style.animation = 'scrollText 20s linear infinite';
     }
 
-    // ========== FAVORITOS UI ==========
-    async function carregarFav() {
-        try {
-            state.favorites = await favManager.getAll();
-            if (!Array.isArray(state.favorites)) state.favorites = [];
-        } catch (e) { state.favorites = []; }
-        updateFavBadge();
-    }
-
-    function updateFavBadge() {
-        dom.favBadge.textContent = state.favorites.length;
-        if (dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length;
-    }
-
-    function updateHeart(id) {
-        const isFav = state.favorites.some(f => f.id === id);
-        if (isFav) {
-            dom.heartBtn.className = 'fav-heart active';
-            dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>';
-        } else {
-            dom.heartBtn.className = 'fav-heart';
-            dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>';
-        }
-    }
+    async function carregarFav() { try { state.favorites = await favManager.getAll(); if (!Array.isArray(state.favorites)) state.favorites = []; } catch (e) { state.favorites = []; } updateFavBadge(); }
+    function updateFavBadge() { dom.favBadge.textContent = state.favorites.length; if (dom.choiceBadge) dom.choiceBadge.textContent = state.favorites.length; }
+    function updateHeart(id) { const isFav = state.favorites.some(f => f.id === id); if (isFav) { dom.heartBtn.className = 'fav-heart active'; dom.heartBtn.innerHTML = '<i class="fas fa-heart"></i>'; } else { dom.heartBtn.className = 'fav-heart'; dom.heartBtn.innerHTML = '<i class="far fa-heart"></i>'; } }
 
     async function toggleFav(musica) {
         if (!musica) return;
         const idx = state.favorites.findIndex(f => f.id === musica.id);
-        if (idx > -1) {
-            state.favorites.splice(idx, 1);
-            await favManager.remove(musica.id);
-            notif('💔 Removido dos favoritos');
-        } else {
-            const musicaCompleta = {
-                id: musica.id,
-                title: musica.title,
-                artist: musica.artist,
-                src: musica.src,
-                genero: musica.genero,
-                data: Date.now()
-            };
-            state.favorites.push(musicaCompleta);
-            await favManager.add(musicaCompleta);
-            notif('❤️ Adicionado aos favoritos');
+        if (idx > -1) { state.favorites.splice(idx, 1); await favManager.remove(musica.id); notif('💔 Removido dos favoritos'); }
+        else {
+            const musicaCompleta = { id: musica.id, title: musica.title, artist: musica.artist, src: musica.src, genero: musica.genero, data: Date.now() };
+            state.favorites.push(musicaCompleta); await favManager.add(musicaCompleta); notif('❤️ Adicionado aos favoritos');
         }
-        updateFavBadge();
-        updateHeart(musica.id);
-        await salvarPlaylistAtual();
+        updateFavBadge(); updateHeart(musica.id); await salvarPlaylistAtual();
     }
 
-    async function salvarPlaylistAtual() {
-        if (state.musicas.length > 0) {
-            await favManager.salvarPlaylist({
-                id: 'playlist_' + state.modoAtual,
-                nome: state.modoAtual,
-                musicas: state.musicas,
-                data: Date.now()
-            });
-        }
-    }
+    async function salvarPlaylistAtual() { if (state.musicas.length > 0) { await favManager.salvarPlaylist({ id: 'playlist_' + state.modoAtual, nome: state.modoAtual, musicas: state.musicas, data: Date.now() }); } }
 
     function renderizarFavoritosModal() {
         dom.favListModal.innerHTML = '';
-        if (state.favorites.length === 0) {
-            dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Nenhuma música favorita</div>';
-            return;
-        }
+        if (state.favorites.length === 0) { dom.favListModal.innerHTML = '<div class="fav-empty-modal">💔 Nenhuma música favorita</div>'; return; }
         state.favorites.forEach(m => {
-            const item = document.createElement('div');
-            item.className = 'fav-item-modal';
-            item.innerHTML = `
-                <div class="fav-info">
-                    <span class="title">${sanitize(m.title)}</span>
-                    <span class="artist"> - ${sanitize(m.artist)}</span>
-                </div>
-                <button class="remove-fav"><i class="fas fa-times-circle"></i></button>
-            `;
-            item.querySelector('.fav-info').onclick = () => {
-                dom.favModal.classList.remove('open');
-                tocarFavoritaEspecifica(m.id);
-            };
-            item.querySelector('.remove-fav').onclick = (e) => {
-                e.stopPropagation();
-                toggleFav(m);
-                renderizarFavoritosModal();
-            };
+            const item = document.createElement('div'); item.className = 'fav-item-modal';
+            item.innerHTML = `<div class="fav-info"><span class="title">${sanitize(m.title)}</span><span class="artist"> - ${sanitize(m.artist)}</span></div><button class="remove-fav"><i class="fas fa-times-circle"></i></button>`;
+            item.querySelector('.fav-info').onclick = () => { dom.favModal.classList.remove('open'); tocarFavoritaEspecifica(m.id); };
+            item.querySelector('.remove-fav').onclick = (e) => { e.stopPropagation(); toggleFav(m); renderizarFavoritosModal(); };
             dom.favListModal.appendChild(item);
         });
     }
 
     function tocarFavoritaEspecifica(id) {
-        let musica = state.musicas.find(m => m.id === id);
-        if (!musica) musica = state.favorites.find(m => m.id === id);
-        if (!musica) return;
-        state.playlistAtual = shuffle(state.favorites.map(m => ({ ...m })));
-        const idx = state.playlistAtual.findIndex(m => m.id === id);
+        let musica = state.musicas.find(m => m.id === id); if (!musica) musica = state.favorites.find(m => m.id === id); if (!musica) return;
+        state.playlistAtual = shuffle(state.favorites.map(m => ({ ...m }))); const idx = state.playlistAtual.findIndex(m => m.id === id);
         if (idx > -1) {
-            state.indiceAtual = idx;
-            dom.generoNome.textContent = '❤️ FAV';
+            state.indiceAtual = idx; dom.generoNome.textContent = '❤️ FAV';
             dom.generoNome.style.background = 'linear-gradient(135deg, #fd79a8, #e84393)';
-            dom.generoNome.style.webkitBackgroundClip = 'text';
-            dom.generoNome.style.webkitTextFillColor = 'transparent';
-            dom.generoNome.style.backgroundClip = 'text';
-            if (state.isBackgroundActive) tocar();
-            notif('🎵 Tocando favorita!');
+            dom.generoNome.style.webkitBackgroundClip = 'text'; dom.generoNome.style.webkitTextFillColor = 'transparent'; dom.generoNome.style.backgroundClip = 'text';
+            if (state.isBackgroundActive) tocar(); notif('🎵 Tocando favorita!');
         }
     }
 
-    // ========== GÊNEROS ==========
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         CONFIG.ORDEM.forEach(g => {
-            const card = document.createElement('div');
-            card.className = 'genre-card';
-            card.setAttribute('data-genre', g);
-            const name = document.createElement('div');
-            name.className = 'genre-name';
-            name.textContent = g;
-            const count = document.createElement('div');
-            count.className = 'genre-count';
-            count.textContent = '✦';
-            card.appendChild(name);
-            card.appendChild(count);
-            card.onclick = function(genero) {
-                return function() { selecionarGenero(genero); };
-            }(g);
+            const card = document.createElement('div'); card.className = 'genre-card'; card.setAttribute('data-genre', g);
+            const name = document.createElement('div'); name.className = 'genre-name'; name.textContent = g;
+            const count = document.createElement('div'); count.className = 'genre-count'; count.textContent = '✦';
+            card.appendChild(name); card.appendChild(count);
+            card.onclick = (function(genero) { return function() { selecionarGenero(genero); }; })(g);
             dom.genresGrid.appendChild(card);
         });
     }
@@ -1387,34 +1943,17 @@
     async function selecionarGenero(genero) {
         showLoad(true);
         const musicas = await carregarPlaylist(genero);
-        if (!musicas || !musicas.length) {
-            showLoad(false);
-            notif('❌ Erro ao carregar ' + genero);
-            dom.genresModal.classList.remove('open');
-            return;
-        }
-        dom.audio.pause();
-        state.musicas = musicas;
-        state.modoAtual = genero;
-        state.playlistAtual = shuffle(musicas);
-        state.indiceAtual = 0;
+        if (!musicas || !musicas.length) { showLoad(false); notif('❌ Erro ao carregar ' + genero); dom.genresModal.classList.remove('open'); return; }
+        dom.audio.pause(); state.musicas = musicas; state.modoAtual = genero; state.playlistAtual = shuffle(musicas); state.indiceAtual = 0;
         dom.generoNome.textContent = genero;
         dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CONFIG.CORES[genero] || '#fff') + ', #ffffff)';
-        dom.generoNome.style.webkitBackgroundClip = 'text';
-        dom.generoNome.style.webkitTextFillColor = 'transparent';
-        dom.generoNome.style.backgroundClip = 'text';
-        state.scrollPersonalizado = false;
-        const m = state.playlistAtual[0];
-        if (m) { atualizarLetreiro(m); updateHeart(m.id); }
-        renderizarGeneros();
-        showLoad(false);
-        dom.genresModal.classList.remove('open');
-        forcarTelaCheia();
+        dom.generoNome.style.webkitBackgroundClip = 'text'; dom.generoNome.style.webkitTextFillColor = 'transparent'; dom.generoNome.style.backgroundClip = 'text';
+        state.scrollPersonalizado = false; const m = state.playlistAtual[0]; if (m) { atualizarLetreiro(m); updateHeart(m.id); }
+        renderizarGeneros(); showLoad(false); dom.genresModal.classList.remove('open'); forcarTelaCheia();
         if (state.isBackgroundActive) setTimeout(tocar, 300);
         await salvarPlaylistAtual();
     }
 
-    // ========== CRIAÇÃO DE MÍDIA PADRÃO ==========
     async function carregarMidiasPadrao() {
         try {
             dom.mediaContainer.innerHTML = '';
@@ -1422,42 +1961,32 @@
             try {
                 const response = await fetch(CacheBuster.getUrl(CONFIG.MIDIAS_PADRAO_URL));
                 const data = await response.json();
-                if (Array.isArray(data)) {
-                    midias = data;
-                } else if (data.medias && Array.isArray(data.medias)) {
-                    midias = data.medias;
-                } else if (data.midias && Array.isArray(data.midias)) {
-                    midias = data.midias;
-                }
-            } catch (e) {
-                console.warn('⚠️ Falha ao buscar midias.json, usando fallback');
-            }
+                if (Array.isArray(data)) midias = data;
+                else if (data.medias && Array.isArray(data.medias)) midias = data.medias;
+                else if (data.midias && Array.isArray(data.midias)) midias = data.midias;
+            } catch (e) { console.warn('⚠️ Falha ao buscar midias.json, usando fallback'); }
 
-            if (!midias.length) {
-                midias = [
-                    { tipo: 'video', src: 'logo.mp4' },
-                    { tipo: 'imagem', src: 'bob.png' },
-                    { tipo: 'imagem', src: 'marina.png' },
-                    { tipo: 'imagem', src: 'macaco.png' },
-                    { tipo: 'imagem', src: 'mulher.png' },
-                    { tipo: 'imagem', src: 'em.png' },
-                    { tipo: 'video', src: 'nova12.mp4' }
-                ];
-            }
+            if (!midias.length) midias = [
+                { tipo: 'video', src: 'logo.mp4' },
+                { tipo: 'imagem', src: 'bob.png' },
+                { tipo: 'imagem', src: 'marina.png' },
+                { tipo: 'imagem', src: 'macaco.png' },
+                { tipo: 'imagem', src: 'mulher.png' },
+                { tipo: 'imagem', src: 'em.png' },
+                { tipo: 'video', src: 'nova12.mp4' }
+            ];
 
             midias = midias.filter(m => m && (m.tipo === 'video' || m.tipo === 'imagem') && m.src);
 
-            if (!midias.length) {
-                midias = [
-                    { tipo: 'video', src: 'logo.mp4' },
-                    { tipo: 'imagem', src: 'bob.png' },
-                    { tipo: 'imagem', src: 'marina.png' },
-                    { tipo: 'imagem', src: 'macaco.png' },
-                    { tipo: 'imagem', src: 'mulher.png' },
-                    { tipo: 'imagem', src: 'em.png' },
-                    { tipo: 'video', src: 'nova12.mp4' }
-                ];
-            }
+            if (!midias.length) midias = [
+                { tipo: 'video', src: 'logo.mp4' },
+                { tipo: 'imagem', src: 'bob.png' },
+                { tipo: 'imagem', src: 'marina.png' },
+                { tipo: 'imagem', src: 'macaco.png' },
+                { tipo: 'imagem', src: 'mulher.png' },
+                { tipo: 'imagem', src: 'em.png' },
+                { tipo: 'video', src: 'nova12.mp4' }
+            ];
 
             const fallbackDiv = document.createElement('div');
             fallbackDiv.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at center,#1a1a3e,#0a0a1e);z-index:1;';
@@ -1468,33 +1997,26 @@
                 if (m.tipo === 'video') {
                     el = document.createElement('video');
                     el.src = CacheBuster.getMediaUrl(m.src);
-                    el.muted = true;
-                    el.playsInline = true;
-                    el.loop = true;
-                    el.load();
-                    el.onerror = () => { el.style.display = 'none'; };
+                    el.muted = true; el.playsInline = true; el.loop = true;
+                    el.load(); el.onerror = () => { el.style.display = 'none'; };
                 } else {
                     el = document.createElement('img');
                     el.src = CacheBuster.getMediaUrl(m.src);
-                    el.loading = 'lazy';
-                    el.alt = 'VDB Music';
-                    el.onerror = () => { el.style.display = 'none'; };
+                    el.loading = 'lazy'; el.alt = 'VDB Music'; el.onerror = () => { el.style.display = 'none'; };
                 }
                 el.className = i === 0 ? 'active' : 'inactive';
 
-                // Se for clik.mp4 (ou qualquer src contendo "clik"), torna clicável
                 if (m.src && m.src.toLowerCase().includes('clik')) {
                     el.classList.add('clickable');
-                    el.addEventListener('click', () => {
+                    el.style.cursor = 'pointer';
+                    el.addEventListener('click', function() {
                         const mensagem = encodeURIComponent('Olá! Quero adquirir o VAI DE BOA! MUSIC VITALÍCIO por R$ 39,00');
                         window.open('https://wa.me/55' + CONFIG.WHATSAPP_NUMBER + '?text=' + mensagem, '_blank');
                     });
                 }
 
                 dom.mediaContainer.appendChild(el);
-                if (i === 0 && m.tipo === 'video') {
-                    el.play().catch(() => {});
-                }
+                if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
             });
 
             const children = dom.mediaContainer.querySelectorAll('video, img');
@@ -1505,10 +2027,8 @@
                     const atual = children[state.midiaAtual];
                     const prox = children[(state.midiaAtual + 1) % children.length];
                     if (!atual || !prox) return;
-                    atual.className = 'inactive';
-                    if (atual.tagName === 'VIDEO') atual.pause();
-                    prox.className = 'active';
-                    if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    atual.className = 'inactive'; if (atual.tagName === 'VIDEO') atual.pause();
+                    prox.className = 'active'; if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
                     state.midiaAtual = (state.midiaAtual + 1) % children.length;
                 }, 5000);
             }
@@ -1526,11 +2046,8 @@
         }
     }
 
-    async function criarMidia() {
-        await carregarMidiasPadrao();
-    }
+    async function criarMidia() { await carregarMidiasPadrao(); }
 
-    // ========== CARREGAR MÍDIAS TV ==========
     async function carregarMidiasTV() {
         try {
             dom.mediaContainer.innerHTML = '';
@@ -1538,55 +2055,38 @@
             try {
                 const response = await fetch(CacheBuster.getUrl(CONFIG.MIDIAS_TV_URL));
                 const data = await response.json();
-                if (Array.isArray(data)) {
-                    midias = data;
-                } else if (data.medias && Array.isArray(data.medias)) {
-                    midias = data.medias;
-                } else if (data.midias && Array.isArray(data.midias)) {
-                    midias = data.midias;
-                }
-            } catch (e) {
-                console.warn('⚠️ Falha ao buscar modotv.json, usando fallback');
-            }
+                if (Array.isArray(data)) midias = data;
+                else if (data.medias && Array.isArray(data.medias)) midias = data.medias;
+                else if (data.midias && Array.isArray(data.midias)) midias = data.midias;
+            } catch (e) { console.warn('⚠️ Falha ao buscar modotv.json, usando fallback'); }
 
-            if (!midias.length) {
-                midias = [
-                    { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
-                    { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
-                ];
-            }
+            if (!midias.length) midias = [
+                { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
+                { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
+            ];
 
             midias = midias.filter(m => m && (m.tipo === 'video' || m.tipo === 'imagem') && m.src);
 
-            if (!midias.length) {
-                midias = [
-                    { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
-                    { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
-                ];
-            }
+            if (!midias.length) midias = [
+                { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
+                { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
+            ];
 
             midias.forEach((m, i) => {
                 let el;
                 if (m.tipo === 'video') {
                     el = document.createElement('video');
                     el.src = CacheBuster.getMediaUrl(m.src);
-                    el.muted = true;
-                    el.playsInline = true;
-                    el.loop = true;
-                    el.load();
-                    el.onerror = () => { el.style.display = 'none'; };
+                    el.muted = true; el.playsInline = true; el.loop = true;
+                    el.load(); el.onerror = () => { el.style.display = 'none'; };
                 } else {
                     el = document.createElement('img');
                     el.src = CacheBuster.getMediaUrl(m.src);
-                    el.loading = 'lazy';
-                    el.alt = 'VDB TV';
-                    el.onerror = () => { el.style.display = 'none'; };
+                    el.loading = 'lazy'; el.alt = 'VDB TV'; el.onerror = () => { el.style.display = 'none'; };
                 }
                 el.className = i === 0 ? 'active' : 'inactive';
                 dom.mediaContainer.appendChild(el);
-                if (i === 0 && m.tipo === 'video') {
-                    el.play().catch(() => {});
-                }
+                if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
             });
 
             if (state.mediaTVTimer) clearInterval(state.mediaTVTimer);
@@ -1597,10 +2097,8 @@
                     const atual = children[state.midiaTVAtual];
                     const prox = children[(state.midiaTVAtual + 1) % children.length];
                     if (!atual || !prox) return;
-                    atual.className = 'inactive';
-                    if (atual.tagName === 'VIDEO') atual.pause();
-                    prox.className = 'active';
-                    if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    atual.className = 'inactive'; if (atual.tagName === 'VIDEO') atual.pause();
+                    prox.className = 'active'; if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
                     state.midiaTVAtual = (state.midiaTVAtual + 1) % children.length;
                 }, 8000);
             }
@@ -1623,24 +2121,18 @@
             await carregarMidiasTV();
         } else {
             notif('📺 Modo TV DESATIVADO!', 2000);
-            if (state.mediaTVTimer) {
-                clearInterval(state.mediaTVTimer);
-                state.mediaTVTimer = null;
-            }
+            if (state.mediaTVTimer) { clearInterval(state.mediaTVTimer); state.mediaTVTimer = null; }
             await carregarMidiasPadrao();
             esconderBotaoSairModoTV();
         }
     }
 
-    // ========== BOTÃO SAIR MODO TV ==========
     function mostrarBotaoSairModoTV() {
         esconderBotaoSairModoTV();
         const btn = document.createElement('button');
         btn.id = 'btnSairModoTV';
         btn.innerHTML = '<i class="fas fa-times"></i> Sair Modo TV';
-        btn.onclick = () => {
-            toggleModoTV();
-        };
+        btn.onclick = () => { toggleModoTV(); };
         document.body.appendChild(btn);
     }
 
@@ -1649,216 +2141,71 @@
         if (btn) btn.remove();
     }
 
-    // ========== OVERLAY VÍDEO CLIQUE ==========
     function criarOverlayVideoClick() {
         if (state.modoTV) return;
-        
         const existingOverlay = document.getElementById('videoClickOverlay');
         if (existingOverlay) existingOverlay.remove();
-        
+
         const overlay = document.createElement('div');
         overlay.id = 'videoClickOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            bottom: 120px;
-            right: 20px;
-            z-index: 50;
-            cursor: pointer;
-            pointer-events: auto;
-        `;
-        
+        overlay.style.cssText = 'position:fixed;bottom:120px;right:20px;z-index:50;cursor:pointer;pointer-events:auto;';
+
         const video = document.createElement('video');
         video.src = CacheBuster.getMediaUrl(CONFIG.VIDEO_CLICK_URL);
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.autoplay = true;
-        video.style.cssText = `
-            width: clamp(70px, 15vw, 120px);
-            height: clamp(70px, 15vw, 120px);
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #25d366;
-            box-shadow: 0 0 30px rgba(37, 211, 102, 0.5);
-            cursor: pointer;
-        `;
-        
+        video.muted = true; video.loop = true; video.playsInline = true; video.autoplay = true;
+        video.style.cssText = 'width:clamp(70px,15vw,120px);height:clamp(70px,15vw,120px);border-radius:50%;object-fit:cover;border:3px solid #25d366;box-shadow:0 0 30px rgba(37,211,102,0.5);cursor:pointer;';
+
         const texto = document.createElement('div');
         texto.textContent = '📲 CLIQUE AQUI';
-        texto.style.cssText = `
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #25d366;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            font-weight: 900;
-            white-space: nowrap;
-            letter-spacing: 1px;
-        `;
-        
-        overlay.appendChild(video);
-        overlay.appendChild(texto);
-        
+        texto.style.cssText = 'position:absolute;bottom:-25px;left:50%;transform:translateX(-50%);background:#25d366;color:#fff;padding:4px 12px;border-radius:15px;font-size:0.7rem;font-weight:900;white-space:nowrap;letter-spacing:1px;';
+
+        overlay.appendChild(video); overlay.appendChild(texto);
         overlay.onclick = () => {
             const mensagem = encodeURIComponent('Olá! Quero adquirir o VAI DE BOA! MUSIC VITALÍCIO por R$ 39,00');
             window.open('https://wa.me/55' + CONFIG.WHATSAPP_NUMBER + '?text=' + mensagem, '_blank');
         };
-        
         video.play().catch(() => {});
-        
         document.body.appendChild(overlay);
     }
 
-    // ========== CADASTRO ==========
     function abrirCadastro() {
         const modal = document.createElement('div');
         modal.id = 'cadastroModal';
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        `;
-        
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);backdrop-filter:blur(20px);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;';
         modal.innerHTML = `
-            <div style="
-                background: linear-gradient(145deg, #1a1a3e, #0a0a1e);
-                border-radius: 30px;
-                padding: 30px;
-                max-width: 400px;
-                width: 100%;
-                text-align: center;
-                border: 2px solid rgba(108, 92, 231, 0.2);
-                box-shadow: 0 0 80px rgba(108, 92, 231, 0.1);
-            ">
-                <div style="font-size: 3rem; margin-bottom: 10px;">🎵</div>
-                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 5px;">CADASTRO</h2>
-                <p style="color: #888; font-size: 0.8rem; margin-bottom: 20px;">Preencha seus dados para continuar</p>
-                
-                <input type="text" id="cadastroNome" placeholder="Seu nome completo" style="
-                    width: 100%;
-                    padding: 15px 20px;
-                    border-radius: 25px;
-                    border: 2px solid rgba(255, 255, 255, 0.1);
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #fff;
-                    font-size: 1rem;
-                    margin-bottom: 12px;
-                    outline: none;
-                    text-align: center;
-                ">
-                
-                <input type="tel" id="cadastroZap" placeholder="Seu WhatsApp (com DDD)" style="
-                    width: 100%;
-                    padding: 15px 20px;
-                    border-radius: 25px;
-                    border: 2px solid rgba(255, 255, 255, 0.1);
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #fff;
-                    font-size: 1rem;
-                    margin-bottom: 20px;
-                    outline: none;
-                    text-align: center;
-                ">
-                
-                <div style="
-                    background: rgba(108, 92, 231, 0.05);
-                    border: 1px solid rgba(108, 92, 231, 0.1);
-                    border-radius: 15px;
-                    padding: 15px;
-                    margin-bottom: 20px;
-                ">
-                    <div style="font-size: 0.7rem; color: #888; margin-bottom: 5px;">💰 PAGAMENTO ÚNICO</div>
-                    <div style="font-size: 2rem; font-weight: 900; color: #fdcb6e;">R$ 39,00</div>
-                    <div style="font-size: 0.6rem; color: #666;">Acesso vitalício • Pagamento único</div>
+            <div style="background:linear-gradient(145deg,#1a1a3e,#0a0a1e);border-radius:30px;padding:30px;max-width:400px;width:100%;text-align:center;border:2px solid rgba(108,92,231,0.2);box-shadow:0 0 80px rgba(108,92,231,0.1);">
+                <div style="font-size:3rem;margin-bottom:10px;">🎵</div>
+                <h2 style="color:#fff;font-size:1.5rem;margin-bottom:5px;">CADASTRO</h2>
+                <p style="color:#888;font-size:0.8rem;margin-bottom:20px;">Preencha seus dados para continuar</p>
+                <input type="text" id="cadastroNome" placeholder="Seu nome completo" style="width:100%;padding:15px 20px;border-radius:25px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1rem;margin-bottom:12px;outline:none;text-align:center;">
+                <input type="tel" id="cadastroZap" placeholder="Seu WhatsApp (com DDD)" style="width:100%;padding:15px 20px;border-radius:25px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:1rem;margin-bottom:20px;outline:none;text-align:center;">
+                <div style="background:rgba(108,92,231,0.05);border:1px solid rgba(108,92,231,0.1);border-radius:15px;padding:15px;margin-bottom:20px;">
+                    <div style="font-size:0.7rem;color:#888;margin-bottom:5px;">💰 PAGAMENTO ÚNICO</div>
+                    <div style="font-size:2rem;font-weight:900;color:#fdcb6e;">R$ 39,00</div>
+                    <div style="font-size:0.6rem;color:#666;">Acesso vitalício • Pagamento único</div>
                 </div>
-                
-                <button id="cadastroConfirmarBtn" style="
-                    width: 100%;
-                    padding: 16px;
-                    background: linear-gradient(135deg, #25d366, #128C7E);
-                    border: none;
-                    border-radius: 25px;
-                    color: #fff;
-                    font-weight: 700;
-                    font-size: 1.1rem;
-                    cursor: pointer;
-                    margin-bottom: 10px;
-                ">📱 CONFIRMAR E COMPRAR</button>
-                
-                <button id="cadastroCancelarBtn" style="
-                    width: 100%;
-                    padding: 12px;
-                    background: transparent;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 25px;
-                    color: #888;
-                    font-size: 0.8rem;
-                    cursor: pointer;
-                ">✕ Cancelar</button>
+                <button id="cadastroConfirmarBtn" style="width:100%;padding:16px;background:linear-gradient(135deg,#25d366,#128C7E);border:none;border-radius:25px;color:#fff;font-weight:700;font-size:1.1rem;cursor:pointer;margin-bottom:10px;">📱 CONFIRMAR E COMPRAR</button>
+                <button id="cadastroCancelarBtn" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:25px;color:#888;font-size:0.8rem;cursor:pointer;">✕ Cancelar</button>
             </div>
         `;
-        
         document.body.appendChild(modal);
-        
-        document.getElementById('cadastroCancelarBtn').onclick = () => {
-            modal.remove();
-        };
-        
+        document.getElementById('cadastroCancelarBtn').onclick = () => modal.remove();
         document.getElementById('cadastroConfirmarBtn').onclick = () => {
             const nome = document.getElementById('cadastroNome').value.trim();
             const zap = document.getElementById('cadastroZap').value.trim();
-            
-            if (!nome || nome.length < 2) {
-                alert('⚠️ Digite seu nome completo!');
-                return;
-            }
-            
-            if (!zap || zap.length < 8) {
-                alert('⚠️ Digite seu WhatsApp corretamente!');
-                return;
-            }
-            
-            state.cadastro = {
-                nome: nome,
-                zap: zap,
-                data: new Date().toISOString()
-            };
-            
+            if (!nome || nome.length < 2) { alert('⚠️ Digite seu nome completo!'); return; }
+            if (!zap || zap.length < 8) { alert('⚠️ Digite seu WhatsApp corretamente!'); return; }
+            state.cadastro = { nome, zap, data: new Date().toISOString() };
             localStorage.setItem('vdb_cadastro', JSON.stringify(state.cadastro));
-            
-            const mensagem = `🎵 *VAI DE BOA! MUSIC*\n\n` +
-                           `👤 *Nome:* ${nome}\n` +
-                           `📱 *WhatsApp:* ${zap}\n` +
-                           `💰 *Valor:* R$ 39,00 (Vitalício)\n\n` +
-                           `✅ Quero comprar o acesso!`;
-            
+            const mensagem = `🎵 *VAI DE BOA! MUSIC*\n\n👤 *Nome:* ${nome}\n📱 *WhatsApp:* ${zap}\n💰 *Valor:* R$ 39,00 (Vitalício)\n\n✅ Quero comprar o acesso!`;
             window.open('https://wa.me/55' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(mensagem), '_blank');
-            
             modal.remove();
-            
             notif('✅ Cadastro enviado! Aguarde ativação!', 3000);
         };
     }
 
-    // ========== ADMIN ==========
     function abrirAdmin() {
-        if (state.adminBloqueado) {
-            notif('🔒 Painel bloqueado por segurança!', 2000);
-            return;
-        }
+        if (state.adminBloqueado) { notif('🔒 Painel bloqueado por segurança!', 2000); return; }
         const senha = prompt('🔐 Digite a senha do painel admin:');
         if (senha === null) { notif('❌ Acesso cancelado!', 1500); return; }
         if (senha === SENHA_ADMIN) {
@@ -1872,11 +2219,7 @@
             if (state.adminTentativas >= 3) {
                 state.adminBloqueado = true;
                 notif('🔒 Painel bloqueado por muitas tentativas!', 3000);
-                setTimeout(() => {
-                    state.adminBloqueado = false;
-                    state.adminTentativas = 0;
-                    notif('🔓 Painel desbloqueado, tente novamente!', 2000);
-                }, 60000);
+                setTimeout(() => { state.adminBloqueado = false; state.adminTentativas = 0; notif('🔓 Painel desbloqueado, tente novamente!', 2000); }, 60000);
             } else {
                 notif('❌ Senha incorreta! Tentativas: ' + state.adminTentativas + '/3', 2000);
             }
@@ -1895,8 +2238,7 @@
         const historico = JSON.parse(localStorage.getItem('vdb_historico_senhas') || '[]');
         dom.historicoSenhas.innerHTML = '';
         historico.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'historico-item';
+            const div = document.createElement('div'); div.className = 'historico-item';
             const tipoIcon = item.tipo === 'universal' ? '🌍' : '📱';
             const senhaOculta = item.senha.slice(0, 4) + '••••' + item.senha.slice(-4);
             div.innerHTML = `<span>${tipoIcon} ${item.data}</span><span class="senha-hash">${senhaOculta}</span>`;
@@ -1909,24 +2251,18 @@
         dom.totalSenhas.textContent = historico.length;
     }
 
-    // ========== QR CODE ==========
     function gerarQrCode() {
         const url = encodeURIComponent(window.location.href);
         dom.qrCodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png&bgcolor=ffffff&color=000000';
         dom.qrCodeModal.classList.add('active');
     }
 
-    // ========== TOUCH MANAGER ==========
     class TouchManager {
         constructor() {
             this.swipeThreshold = 50;
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.touchStartTime = 0;
-            this.isSwiping = false;
-            this.swipeDirection = null;
-            this.longPressTimer = null;
-            this.isLongPress = false;
+            this.touchStartX = 0; this.touchStartY = 0; this.touchStartTime = 0;
+            this.isSwiping = false; this.swipeDirection = null;
+            this.longPressTimer = null; this.isLongPress = false;
             this.setup();
         }
         setup() {
@@ -1937,67 +2273,40 @@
         }
         handleTouchStart(e) {
             const touch = e.touches[0];
-            this.touchStartX = touch.clientX;
-            this.touchStartY = touch.clientY;
-            this.touchStartTime = Date.now();
-            this.isSwiping = false;
-            this.swipeDirection = null;
-            this.isLongPress = false;
+            this.touchStartX = touch.clientX; this.touchStartY = touch.clientY; this.touchStartTime = Date.now();
+            this.isSwiping = false; this.swipeDirection = null; this.isLongPress = false;
             const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, .btn-copiar, .btn-gerar, .btn-universal, .btn-limpar, .btn-whats, .btn-copiar-senha, .qr-btn-close');
             if (target) return;
-            this.longPressTimer = setTimeout(() => {
-                if (!this.isSwiping) {
-                    this.isLongPress = true;
-                    showControls();
-                    notif('👆 Controles exibidos', 1000);
-                }
-            }, 500);
+            this.longPressTimer = setTimeout(() => { if (!this.isSwiping) { this.isLongPress = true; showControls(); notif('👆 Controles exibidos', 1000); } }, 500);
         }
         handleTouchMove(e) {
             if (!this.touchStartX || !this.touchStartY) return;
             const touch = e.touches[0];
-            const diffX = touch.clientX - this.touchStartX;
-            const diffY = touch.clientY - this.touchStartY;
+            const diffX = touch.clientX - this.touchStartX; const diffY = touch.clientY - this.touchStartY;
             if (Math.abs(diffX) > this.swipeThreshold || Math.abs(diffY) > this.swipeThreshold) {
-                this.isSwiping = true;
-                clearTimeout(this.longPressTimer);
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    this.swipeDirection = diffX > 0 ? 'right' : 'left';
-                } else {
-                    this.swipeDirection = diffY > 0 ? 'down' : 'up';
-                }
+                this.isSwiping = true; clearTimeout(this.longPressTimer);
+                if (Math.abs(diffX) > Math.abs(diffY)) this.swipeDirection = diffX > 0 ? 'right' : 'left';
+                else this.swipeDirection = diffY > 0 ? 'down' : 'up';
                 this.showSwipeFeedback(diffX, diffY);
             }
         }
         handleTouchEnd(e) {
             clearTimeout(this.longPressTimer);
-            if (this.isSwiping && this.swipeDirection) {
-                this.executeSwipeAction(this.swipeDirection);
-            } else if (!this.isSwiping && !this.isLongPress) {
+            if (this.isSwiping && this.swipeDirection) this.executeSwipeAction(this.swipeDirection);
+            else if (!this.isSwiping && !this.isLongPress) {
                 const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, .btn-copiar, .btn-gerar, .btn-universal, .btn-limpar, .btn-whats, .btn-copiar-senha, .qr-btn-close');
                 if (!target) {
                     const controls = dom.bottomControls;
-                    if (controls.classList.contains('visible')) {
-                        controls.classList.remove('visible');
-                    } else {
-                        showControls();
-                    }
+                    if (controls.classList.contains('visible')) controls.classList.remove('visible');
+                    else showControls();
                 }
             }
             this.removeSwipeFeedback();
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.swipeDirection = null;
-            this.isSwiping = false;
-            this.isLongPress = false;
+            this.touchStartX = 0; this.touchStartY = 0; this.swipeDirection = null; this.isSwiping = false; this.isLongPress = false;
         }
         handleTouchCancel() {
             clearTimeout(this.longPressTimer);
-            this.touchStartX = 0;
-            this.touchStartY = 0;
-            this.swipeDirection = null;
-            this.isSwiping = false;
-            this.isLongPress = false;
+            this.touchStartX = 0; this.touchStartY = 0; this.swipeDirection = null; this.isSwiping = false; this.isLongPress = false;
             this.removeSwipeFeedback();
         }
         showSwipeFeedback(diffX, diffY) {
@@ -2005,46 +2314,21 @@
             if (!indicator) {
                 indicator = document.createElement('div');
                 indicator.id = 'swipeIndicator';
-                indicator.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    font-size: 2.5rem;
-                    color: rgba(108, 92, 231, 0.3);
-                    z-index: 9999;
-                    pointer-events: none;
-                    transition: all 0.1s;
-                    text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-                `;
+                indicator.style.cssText = 'position:fixed;top:50%;transform:translateY(-50%);font-size:2.5rem;color:rgba(108,92,231,0.3);z-index:9999;pointer-events:none;transition:all 0.1s;text-shadow:0 0 30px rgba(0,0,0,0.5);';
                 document.body.appendChild(indicator);
             }
             const absX = Math.abs(diffX), absY = Math.abs(diffY);
             if (absX > absY && absX > this.swipeThreshold) {
-                if (diffX > 0) {
-                    indicator.textContent = '⏭️';
-                    indicator.style.right = '20px';
-                    indicator.style.left = 'auto';
-                } else {
-                    indicator.textContent = '⏮️';
-                    indicator.style.left = '20px';
-                    indicator.style.right = 'auto';
-                }
+                if (diffX > 0) { indicator.textContent = '⏭️'; indicator.style.right = '20px'; indicator.style.left = 'auto'; }
+                else { indicator.textContent = '⏮️'; indicator.style.left = '20px'; indicator.style.right = 'auto'; }
                 indicator.style.opacity = Math.min(absX / 150, 0.6);
             } else if (absY > absX && absY > this.swipeThreshold) {
-                if (diffY < 0) {
-                    indicator.textContent = '🔊';
-                } else {
-                    indicator.textContent = '🔇';
-                }
-                indicator.style.left = '50%';
-                indicator.style.transform = 'translateX(-50%) translateY(-50%)';
+                if (diffY < 0) indicator.textContent = '🔊'; else indicator.textContent = '🔇';
+                indicator.style.left = '50%'; indicator.style.transform = 'translateX(-50%) translateY(-50%)';
                 indicator.style.opacity = Math.min(absY / 150, 0.6);
             }
         }
-        removeSwipeFeedback() {
-            const indicator = document.getElementById('swipeIndicator');
-            if (indicator) indicator.remove();
-        }
+        removeSwipeFeedback() { const indicator = document.getElementById('swipeIndicator'); if (indicator) indicator.remove(); }
         executeSwipeAction(direction) {
             if (direction === 'left') { next(); notif('⏭️ Próxima', 800); showControls(); }
             else if (direction === 'right') { prev(); notif('⏮️ Anterior', 800); showControls(); }
@@ -2053,94 +2337,56 @@
         }
     }
 
-    // ========== HANDLE LIBERAR ==========
     function handleLiberar() {
         const senha = dom.senhaInput.value.trim();
-        if (!senha) {
-            dom.erroSenha.textContent = '⚠️ Digite a senha';
-            return;
-        }
+        if (!senha) { dom.erroSenha.textContent = '⚠️ Digite a senha'; return; }
         const resultado = validarSenha(senha);
         if (resultado.valida) {
             state.desbloqueado = true;
-            dom.blockOverlay.classList.remove('active');
-            dom.blockOverlay.style.display = 'none';
-            dom.erroSenha.textContent = '';
-            dom.senhaInput.value = '';
-            localStorage.setItem('vdb_desbloqueado', 'true');
-            localStorage.setItem('vdb_senha_permanente', 'true');
-            localStorage.removeItem('vdb_teste_expiracao');
-            localStorage.removeItem('vdb_bloqueado_permanente');
+            dom.blockOverlay.classList.remove('active'); dom.blockOverlay.style.display = 'none';
+            dom.erroSenha.textContent = ''; dom.senhaInput.value = '';
+            localStorage.setItem('vdb_desbloqueado', 'true'); localStorage.setItem('vdb_senha_permanente', 'true');
+            localStorage.removeItem('vdb_teste_expiracao'); localStorage.removeItem('vdb_bloqueado_permanente');
             notif(resultado.msg, 3000);
             if (!state.playerAtivado) setTimeout(ativarPlayer, 500);
         } else {
-            dom.erroSenha.innerHTML = `
-                ❌ Senha inválida!<br>
-                <small style="color:#888;font-size:0.7rem;">
-                    💡 Entre em contato com o suporte para receber sua senha
-                </small>
-            `;
-            dom.senhaInput.value = '';
-            notif('❌ Senha inválida!', 2000);
+            dom.erroSenha.innerHTML = '❌ Senha inválida!<br><small style="color:#888;font-size:0.7rem;">💡 Entre em contato com o suporte para receber sua senha</small>';
+            dom.senhaInput.value = ''; notif('❌ Senha inválida!', 2000);
         }
     }
 
-    // ========== INICIALIZAÇÃO ==========
     async function iniciar() {
         console.log('🚀 Iniciando VAI DE BOA! MUSIC v3.0 FINAL (TIMER CORRIDO)...');
-
         try {
             state.fingerprint = obterFingerprint();
             dom.infoDispositivo.textContent = '🆔 ' + state.fingerprint;
-            console.log('✅ Fingerprint obtido');
-
             state.touchManager = new TouchManager();
-            console.log('✅ Touch Manager ativado');
-
             updateProgress(10);
             await carregarFav();
             updateProgress(20);
-            console.log('✅ Favoritos carregados:', state.favorites.length);
-
             await criarMidia();
             updateProgress(30);
-            console.log('✅ Mídia configurada');
-
             const cadastroSalvo = localStorage.getItem('vdb_cadastro');
-            if (cadastroSalvo) {
-                state.cadastro = JSON.parse(cadastroSalvo);
-            }
+            if (cadastroSalvo) state.cadastro = JSON.parse(cadastroSalvo);
 
             if (localStorage.getItem('vdb_desbloqueado') === 'true' || localStorage.getItem('vdb_senha_permanente') === 'true') {
                 state.desbloqueado = true;
-                dom.blockOverlay.classList.remove('active');
-                dom.blockOverlay.style.display = 'none';
-                dom.timerLib.textContent = '🔓 Lib';
-                dom.timerLib.className = 'timer-lib lib';
+                dom.blockOverlay.classList.remove('active'); dom.blockOverlay.style.display = 'none';
+                dom.timerLib.textContent = '🔓 Lib'; dom.timerLib.className = 'timer-lib lib';
                 updateProgress(60);
-                console.log('✅ Usuário já desbloqueado');
                 setTimeout(() => ativarPlayer(), 1000);
             } else if (localStorage.getItem('vdb_bloqueado_permanente') === 'true') {
-                dom.blockOverlay.classList.add('active');
-                dom.blockOverlay.style.display = 'flex';
+                dom.blockOverlay.classList.add('active'); dom.blockOverlay.style.display = 'flex';
                 notif('⏰ Teste expirado!', 3000);
-                console.log('⏰ Teste expirado');
             } else {
                 if (restaurarTempo()) {
-                    dom.blockOverlay.style.display = 'none';
-                    updateProgress(60);
-                    console.log('✅ Tempo corrido restaurado:', state.tempoRestante, 'segundos restantes');
+                    dom.blockOverlay.style.display = 'none'; updateProgress(60);
                     setTimeout(() => ativarPlayer(), 500);
                 } else if (!localStorage.getItem('vdb_bloqueado_permanente')) {
-                    iniciarTimerCorrido();
-                    dom.blockOverlay.style.display = 'none';
-                    updateProgress(60);
-                    console.log('✅ Timer corrido de 24h iniciado!');
+                    iniciarTimerCorrido(); dom.blockOverlay.style.display = 'none'; updateProgress(60);
                     setTimeout(() => ativarPlayer(), 500);
                 } else {
-                    dom.blockOverlay.classList.add('active');
-                    dom.blockOverlay.style.display = 'flex';
-                    notif('⏰ Teste expirado!', 3000);
+                    dom.blockOverlay.classList.add('active'); dom.blockOverlay.style.display = 'flex';
                 }
             }
 
@@ -2150,215 +2396,105 @@
                 try {
                     const musicas = await carregarPlaylist(g);
                     if (musicas && musicas.length) {
-                        state.musicas = musicas;
-                        state.modoAtual = g;
-                        state.playlistAtual = shuffle(musicas);
+                        state.musicas = musicas; state.modoAtual = g; state.playlistAtual = shuffle(musicas);
                         dom.generoNome.textContent = g;
                         dom.generoNome.style.background = 'linear-gradient(135deg, ' + (CONFIG.CORES[g] || '#fff') + ', #ffffff)';
-                        dom.generoNome.style.webkitBackgroundClip = 'text';
-                        dom.generoNome.style.webkitTextFillColor = 'transparent';
-                        dom.generoNome.style.backgroundClip = 'text';
-                        const m = state.playlistAtual[0];
-                        if (m) { atualizarLetreiro(m); updateHeart(m.id); }
-                        primeiraPlaylistCarregada = true;
-                        console.log('✅ Playlist carregada:', g);
-                        break;
+                        dom.generoNome.style.webkitBackgroundClip = 'text'; dom.generoNome.style.webkitTextFillColor = 'transparent'; dom.generoNome.style.backgroundClip = 'text';
+                        const m = state.playlistAtual[0]; if (m) { atualizarLetreiro(m); updateHeart(m.id); }
+                        primeiraPlaylistCarregada = true; break;
                     }
-                } catch (e) {
-                    console.warn('⚠️ Falha ao carregar gênero', g, e);
-                }
+                } catch (e) { console.warn('Falha ao carregar', g, e); }
             }
-
             if (!primeiraPlaylistCarregada) {
-                console.warn('⚠️ Nenhuma playlist carregada, usando fallback local');
                 state.musicas = [
                     { id: 'fallback1', title: 'Música Exemplo', artist: 'Artista', src: '', genero: 'BÔNUS' },
                     { id: 'fallback2', title: 'Outra Música', artist: 'Artista 2', src: '', genero: 'BÔNUS' }
                 ];
                 state.playlistAtual = shuffle(state.musicas);
                 dom.generoNome.textContent = 'BÔNUS';
-                dom.generoNome.style.background = 'linear-gradient(135deg, #fdcb6e, #f0932b)';
-                dom.generoNome.style.webkitBackgroundClip = 'text';
-                dom.generoNome.style.webkitTextFillColor = 'transparent';
-                dom.generoNome.style.backgroundClip = 'text';
-                atualizarLetreiro(state.musicas[0]);
                 notif('⚠️ Modo offline - algumas músicas podem não tocar', 3000);
             }
             renderizarGeneros();
             updateProgress(90);
-
             setTimeout(() => {
                 dom.loadingScreen.style.display = 'none';
                 dom.playerContainer.classList.add('visible');
                 updateProgress(100);
-                console.log('✅ Player visível');
             }, 1500);
-
             updateTimerDisplay();
             forcarTelaCheia();
-
             if (state.desbloqueado) {
                 setTimeout(() => ativarPlayer(), 1500);
                 setTimeout(() => criarOverlayVideoClick(), 2000);
             }
-
-            const fullscreenInterval = setInterval(() => { fullscreen(); }, 2000);
-            setTimeout(() => { clearInterval(fullscreenInterval); }, 20000);
+            const fullscreenInterval = setInterval(() => fullscreen(), 2000);
+            setTimeout(() => clearInterval(fullscreenInterval), 20000);
             document.addEventListener('click', function fsClick() { fullscreen(); });
-
             carregarHistorico();
             atualizarTotalSenhas();
-
             setTimeout(() => {
                 if (dom.loadingScreen.style.display !== 'none') {
-                    console.warn('⚠️ Loading travado, forçando saída');
                     dom.loadingScreen.style.display = 'none';
                     dom.playerContainer.classList.add('visible');
                     notif('⚠️ App iniciado com fallback', 3000);
                 }
             }, 10000);
 
-            // ========== EVENT LISTENERS ==========
             dom.playBtn.onclick = togglePlay;
             dom.prevBtn.onclick = prev;
             dom.nextBtn.onclick = next;
             dom.shuffleBtn.onclick = toggleShuffle;
-
             dom.progressBar.onclick = (e) => {
                 if (dom.audio.duration) {
                     const rect = e.currentTarget.getBoundingClientRect();
                     dom.audio.currentTime = ((e.clientX - rect.left) / rect.width) * dom.audio.duration;
                 }
             };
-
             dom.heartBtn.onclick = () => {
                 const m = state.playlistAtual[state.indiceAtual % state.playlistAtual.length] || state.playlistAtual[0];
                 if (m) toggleFav(m);
             };
-
-            dom.btnGeneroFav.onclick = () => {
-                dom.choiceMenu.classList.add('open');
-                dom.choiceBadge.textContent = state.favorites.length;
-            };
-            dom.choiceGenres.onclick = () => {
-                dom.choiceMenu.classList.remove('open');
-                dom.genresModal.classList.add('open');
-            };
-            dom.choiceFavorites.onclick = () => {
-                dom.choiceMenu.classList.remove('open');
-                renderizarFavoritosModal();
-                dom.favModal.classList.add('open');
-            };
+            dom.btnGeneroFav.onclick = () => { dom.choiceMenu.classList.add('open'); dom.choiceBadge.textContent = state.favorites.length; };
+            dom.choiceGenres.onclick = () => { dom.choiceMenu.classList.remove('open'); dom.genresModal.classList.add('open'); };
+            dom.choiceFavorites.onclick = () => { dom.choiceMenu.classList.remove('open'); renderizarFavoritosModal(); dom.favModal.classList.add('open'); };
             dom.choiceClose.onclick = () => dom.choiceMenu.classList.remove('open');
-
             dom.closeGenresBtn.onclick = () => dom.genresModal.classList.remove('open');
             dom.closeFavBtn.onclick = () => dom.favModal.classList.remove('open');
-
-            dom.fabGeneros.onclick = () => {
-                dom.choiceMenu.classList.add('open');
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-
-            dom.fabCadastro.onclick = () => {
-                abrirCadastro();
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-
-            dom.fabModoTV.onclick = () => {
-                toggleModoTV();
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-
-            dom.menuButton.onclick = (e) => {
-                e.stopPropagation();
-                dom.menuPopup.classList.toggle('open');
-            };
+            dom.fabGeneros.onclick = () => { dom.choiceMenu.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.fabCadastro.onclick = () => { abrirCadastro(); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.fabModoTV.onclick = () => { toggleModoTV(); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.menuButton.onclick = (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); };
             dom.closeMenuBtn.onclick = () => dom.menuPopup.classList.remove('open');
-            dom.fullscreenMenuBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                forcarTelaCheia();
-            };
-            dom.modoTVMenuBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                toggleModoTV();
-            };
-            dom.cadastroMenuBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                abrirCadastro();
-            };
-            dom.reloadPlaylistBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                location.reload();
-            };
-            dom.feedbackMenuBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                dom.feedbackModal.classList.add('open');
-            };
+            dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); forcarTelaCheia(); };
+            dom.modoTVMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); toggleModoTV(); };
+            dom.cadastroMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); abrirCadastro(); };
+            dom.reloadPlaylistBtn.onclick = () => { dom.menuPopup.classList.remove('open'); location.reload(); };
+            dom.feedbackMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); dom.feedbackModal.classList.add('open'); };
             dom.sleepMenuBtn.onclick = () => {
                 dom.menuPopup.classList.remove('open');
                 const mins = parseInt(prompt('⏰ Desligar em quantos minutos?', '15'));
                 if (mins > 0) {
                     clearTimeout(state.sleepTimer);
                     state.sleepTimer = setTimeout(() => {
-                        dom.audio.pause();
-                        state.isPlaying = false;
-                        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        dom.audio.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
                         notif('💤 Rádio desligada!', 2000);
                     }, mins * 60000);
                     notif('⏰ Sleep: ' + mins + ' min', 2000);
                 }
             };
-            dom.qrCodeMenuBtn.onclick = () => {
-                dom.menuPopup.classList.remove('open');
-                gerarQrCode();
-            };
-            dom.fabQrCode.onclick = () => {
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-                gerarQrCode();
-            };
+            dom.qrCodeMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); gerarQrCode(); };
+            dom.fabQrCode.onclick = () => { dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; gerarQrCode(); };
             dom.qrCloseBtn.onclick = () => dom.qrCodeModal.classList.remove('active');
-            dom.qrCodeModal.onclick = (e) => {
-                if (e.target === dom.qrCodeModal) dom.qrCodeModal.classList.remove('active');
-            };
-
-            dom.fabMain.onclick = () => {
-                state.fabOpen = !state.fabOpen;
-                dom.fabSub.classList.toggle('open', state.fabOpen);
-                dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>';
-            };
-            dom.fabYoutube.onclick = () => {
-                window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio');
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            dom.fabShare.onclick = () => {
-                navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!', 1500));
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
-            dom.fabFeedback.onclick = () => {
-                dom.feedbackModal.classList.add('open');
-                dom.fabSub.classList.remove('open');
-                state.fabOpen = false;
-                dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>';
-            };
+            dom.qrCodeModal.onclick = (e) => { if (e.target === dom.qrCodeModal) dom.qrCodeModal.classList.remove('active'); };
+            dom.fabMain.onclick = () => { state.fabOpen = !state.fabOpen; dom.fabSub.classList.toggle('open', state.fabOpen); dom.fabMain.innerHTML = state.fabOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'; };
+            dom.fabYoutube.onclick = () => { window.open('https://sites.google.com/view/rogersjc/in%C3%ADcio'); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.fabShare.onclick = () => { navigator.clipboard.writeText(location.href).then(() => notif('📋 Link copiado!', 1500)); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.fabFeedback.onclick = () => { dom.feedbackModal.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
 
             document.querySelectorAll('.star').forEach(star => {
                 star.onclick = () => {
-                    const rating = parseInt(star.dataset.rating);
-                    document.querySelectorAll('.star').forEach((s, i) => {
-                        s.className = i < rating ? 'fas fa-star star active' : 'far fa-star star';
-                    });
+                    const r = parseInt(star.dataset.rating);
+                    document.querySelectorAll('.star').forEach((s, i) => s.className = i < r ? 'fas fa-star star active' : 'far fa-star star');
                 };
             });
             dom.sendFeedbackBtn.onclick = () => {
@@ -2368,39 +2504,26 @@
                 dom.feedbackModal.classList.remove('open');
             };
             dom.closeFeedbackBtn.onclick = () => dom.feedbackModal.classList.remove('open');
-
             dom.senhaInput.onkeydown = (e) => { if (e.key === 'Enter') handleLiberar(); };
             dom.btnLiberar.onclick = handleLiberar;
-
             dom.infoScroll.addEventListener('click', function(e) {
                 e.stopPropagation();
                 state.clickCount++;
                 clearTimeout(state.clickTimer);
-                state.clickTimer = setTimeout(() => { state.clickCount = 0; }, 3000);
-                if (state.clickCount >= 8) {
-                    state.clickCount = 0;
-                    clearTimeout(state.clickTimer);
-                    abrirAdmin();
-                }
+                state.clickTimer = setTimeout(() => state.clickCount = 0, 3000);
+                if (state.clickCount >= 8) { state.clickCount = 0; clearTimeout(state.clickTimer); abrirAdmin(); }
             });
-
             dom.adminGerarBtn.onclick = function() {
                 const fp = dom.adminFingerprintInput.value.trim();
-                if (!fp || fp.length < 10) {
-                    notif('⚠️ Cole o fingerprint do cliente primeiro!', 2000);
-                    dom.adminFingerprintInput.focus();
-                    return;
-                }
+                if (!fp || fp.length < 10) { notif('⚠️ Cole o fingerprint do cliente primeiro!', 2000); dom.adminFingerprintInput.focus(); return; }
                 const senhaCliente = gerarSenhaDispositivo(fp);
                 dom.adminSenhaGerada.value = senhaCliente;
                 dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
                 adicionarHistorico(senhaCliente, 'dispositivo');
                 atualizarTotalSenhas();
-                dom.adminFingerprintInput.value = '';
-                dom.adminFingerprintInput.focus();
+                dom.adminFingerprintInput.value = ''; dom.adminFingerprintInput.focus();
                 notif('✅ Senha gerada para o dispositivo!', 2000);
             };
-
             dom.adminGerarUniversalBtn.onclick = function() {
                 const senhaUniversal = gerarSenhaUniversal();
                 dom.adminSenhaGerada.value = senhaUniversal;
@@ -2410,28 +2533,17 @@
                 dom.adminFingerprintInput.value = '';
                 notif('✅ Senha universal gerada!', 2000);
             };
-
-            dom.adminLimparBtn.onclick = function() {
-                dom.adminSenhaGerada.value = '';
-                dom.infoSenha.textContent = '';
-                notif('🗑️ Limpo!', 1000);
-            };
-
+            dom.adminLimparBtn.onclick = function() { dom.adminSenhaGerada.value = ''; dom.infoSenha.textContent = ''; notif('🗑️ Limpo!', 1000); };
             dom.btnCopiarSenha.onclick = () => copiarTexto(dom.adminSenhaGerada.value, '📋 Senha copiada!');
             dom.adminCopiarSenhaBtn.onclick = () => copiarTexto(dom.adminSenhaGerada.value, '📋 Senha copiada!');
             dom.btnCopiarFingerprint.onclick = () => copiarTexto(state.fingerprint, '📋 ID copiado!');
-
             dom.adminEnviarWhatsBtn.onclick = function() {
                 const senha = dom.adminSenhaGerada.value;
                 if (!senha) { notif('⚠️ Gere uma senha primeiro!', 1500); return; }
                 const mensagem = '🔑 *VAI DE BOA! MUSIC*%0A%0ASua senha de acesso:%0A%0A`' + senha + '`%0A%0A📱 Copie e cole no app para liberar!%0A🎵 Aproveite todas as músicas!';
                 window.open('https://wa.me/55' + CONFIG.WHATSAPP_NUMBER + '?text=' + mensagem, '_blank');
             };
-
-            dom.adminCloseBtn.onclick = function() {
-                dom.adminPanel.classList.remove('open');
-            };
-
+            dom.adminCloseBtn.onclick = function() { dom.adminPanel.classList.remove('open'); };
             dom.audio.ontimeupdate = () => {
                 if (dom.audio.duration) {
                     dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100) + '%';
@@ -2449,22 +2561,16 @@
                 if (e.key === 'ArrowLeft') prev();
                 if (e.key === 's' || e.key === 'S') toggleShuffle();
             });
-
             document.addEventListener('click', (e) => {
                 if (e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll')) return;
                 showControls();
             });
-
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     forcarTelaCheia();
                     if (!state.desbloqueado && state.timerIniciado) {
-                        const tempoRestante = calcularTempoRestante();
-                        state.tempoRestante = tempoRestante;
-                        updateTimerDisplay();
-                        if (tempoRestante <= 0) {
-                            bloquear();
-                        }
+                        const tr = calcularTempoRestante(); state.tempoRestante = tr; updateTimerDisplay();
+                        if (tr <= 0) bloquear();
                     }
                     if (state.isPlaying && dom.audio && dom.audio.paused && dom.audio.src) {
                         dom.audio.play().then(() => {
@@ -2474,24 +2580,18 @@
                     }
                     if (state.isBackgroundActive && dom.backgroundAudio.paused) {
                         const url = URL.createObjectURL(criarSilentAudio());
-                        dom.backgroundAudio.src = url;
-                        dom.backgroundAudio.loop = true;
-                        dom.backgroundAudio.volume = 0.001;
+                        dom.backgroundAudio.src = url; dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001;
                         dom.backgroundAudio.play().catch(() => {});
                     }
                     if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
                 }
             });
-
             dom.forceUpdateBtn.onclick = async () => {
                 dom.menuPopup.classList.remove('open');
                 notif('🔄 Atualizando mídias...', 1500);
                 CacheBuster.version = CacheBuster.version + 1;
-                if (state.modoTV) {
-                    await carregarMidiasTV();
-                } else {
-                    await carregarMidiasPadrao();
-                }
+                if (state.modoTV) await carregarMidiasTV();
+                else await carregarMidiasPadrao();
                 notif('✅ Mídias atualizadas!', 2000);
             };
 
@@ -2501,7 +2601,6 @@
             console.log('📺 Modo TV usa modotv.json');
             console.log('📲 Banner clik.mp4 responsivo (70-120px)');
             console.log('🔒 Banner oculto no Modo TV');
-
         } catch (erro) {
             console.error('❌ ERRO FATAL NA INICIALIZAÇÃO:', erro);
             dom.loadingScreen.style.display = 'none';
@@ -2510,13 +2609,11 @@
         }
     }
 
-    // ========== START ==========
     iniciar();
 })();
 </script>
 
 <script>
-// Service Worker e PWA
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
         .then(() => console.log('✅ Service Worker registrado!'))
@@ -2532,55 +2629,25 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 function mostrarBotaoInstalar() {
     if (window.matchMedia('(display-mode: standalone)').matches) return;
-
     const btn = document.createElement('button');
     btn.id = 'btnInstalarApp';
     btn.innerHTML = '📲 Instalar App';
-    btn.style.cssText = `
-        position: fixed;
-        bottom: 160px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #6c5ce7, #00cec9);
-        color: #fff;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 1rem;
-        box-shadow: 0 6px 30px rgba(108, 92, 231, 0.4);
-        z-index: 99999;
-        cursor: pointer;
-        touch-action: manipulation;
-        animation: pulseBtn 2s infinite;
-    `;
+    btn.style.cssText = 'position:fixed;bottom:160px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;border:none;padding:14px 28px;border-radius:30px;font-weight:700;font-size:1rem;box-shadow:0 6px 30px rgba(108,92,231,0.4);z-index:99999;cursor:pointer;touch-action:manipulation;animation:pulseBtn 2s infinite;';
     const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulseBtn {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-        }
-    `;
+    style.textContent = '@keyframes pulseBtn{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}';
     document.head.appendChild(style);
-
     btn.onclick = async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const result = await deferredPrompt.userChoice;
-            if (result.outcome === 'accepted') {
-                notif('✅ App instalado com sucesso!', 3000);
-            } else {
-                notif('❌ Instalação cancelada', 2000);
-            }
+            if (result.outcome === 'accepted') notif('✅ App instalado com sucesso!', 3000);
+            else notif('❌ Instalação cancelada', 2000);
             deferredPrompt = null;
             btn.remove();
         }
     };
     document.body.appendChild(btn);
-
-    setTimeout(() => {
-        if (btn.parentNode) btn.remove();
-    }, 15000);
+    setTimeout(() => { if (btn.parentNode) btn.remove(); }, 15000);
 }
 
 window.addEventListener('appinstalled', () => {
