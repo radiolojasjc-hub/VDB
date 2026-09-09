@@ -60,20 +60,23 @@
         .menu-btn { background:rgba(255,255,255,0.06); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); transition:background 0.2s; }
         .menu-btn:active { background:rgba(255,255,255,0.15); }
 
-        /* ===== SEARCH BAR (pequena) ===== */
-        #searchContainer { position:fixed; top:56px; left:0; right:0; z-index:30; padding:4px 16px; background:rgba(0,0,0,0.2); backdrop-filter:blur(8px); display:flex; align-items:center; gap:6px; transition:opacity 0.3s; }
-        #searchContainer.hidden { opacity:0; pointer-events:none; }
-        #searchInput { flex:1; padding:4px 28px 4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.04); color:#fff; font-size:0.7rem; outline:none; min-height:28px; width:100px; transition:width 0.2s; }
-        #searchInput::placeholder { color:rgba(255,255,255,0.2); font-size:0.6rem; }
-        #searchInput:focus { border-color:var(--primary); width:180px; }
-        #searchClear { position:absolute; right:24px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:0.8rem; cursor:pointer; display:none; padding:2px 6px; }
-        #searchContainer { position:relative; }
-        #searchClear.visible { display:block; }
+        /* ===== LETREIRO COM PESQUISA INTEGRADA ===== */
+        .info-scroll { position:fixed; top:56px; left:0; right:0; z-index:30; padding:4px 16px; height:38px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.2); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,0.03); transition:height 0.3s, background 0.3s; }
+        .info-scroll.modo-pesquisa { height:44px; background:rgba(0,0,0,0.4); cursor:default; }
+        .info-scroll.hidden { opacity:0; pointer-events:none; height:0; padding:0; overflow:hidden; }
 
-        /* ===== LETREIRO (MAIOR) ===== */
-        .info-scroll { position:fixed; top:92px; left:0; right:0; z-index:25; padding:4px 16px; height:34px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.15); backdrop-filter:blur(4px); }
-        .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 25s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; }
+        .letreiro { color:#fff; font-size:0.9rem; font-weight:700; white-space:nowrap; animation:scrollText 25s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
+        .info-scroll.modo-pesquisa .letreiro { animation:none; white-space:normal; text-overflow:clip; }
         @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+        .search-input-container { display:none; width:100%; align-items:center; gap:6px; position:relative; }
+        .info-scroll.modo-pesquisa .search-input-container { display:flex; }
+        .info-scroll.modo-pesquisa .letreiro { display:none; }
+
+        #searchInputLetreiro { flex:1; background:transparent; border:none; color:#fff; font-size:0.9rem; font-weight:600; outline:none; padding:4px 30px 4px 4px; width:100%; min-width:0; }
+        #searchInputLetreiro::placeholder { color:rgba(255,255,255,0.25); font-weight:400; }
+        #searchClearLetreiro { position:absolute; right:4px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:1rem; cursor:pointer; display:none; padding:2px 6px; }
+        #searchClearLetreiro.visible { display:block; }
 
         /* ===== CORAÇÃO CENTRAL ===== */
         .fav-heart-center { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:15; text-align:center; pointer-events:none; }
@@ -113,7 +116,7 @@
         .menu-popup button { background:transparent; border:none; color:#ccc; padding:8px 12px; border-radius:12px; font-size:0.75rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; transition:background 0.2s; min-height:36px; }
         .menu-popup button:active { background:rgba(255,255,255,0.06); }
 
-        /* ===== MODAL GÊNEROS (glassmorphism + bordas neon) ===== */
+        /* ===== MODAL GÊNEROS ===== */
         .genres-modal { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.7); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); border-radius:30px 30px 0 0; padding:20px 16px 24px; z-index:2000; transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); max-height:85vh; overflow:hidden; border-top:1px solid rgba(255,255,255,0.08); box-shadow:0 -20px 60px rgba(0,0,0,0.6); }
         .genres-modal.open { transform:translateY(0); }
         .genres-modal .header { text-align:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.05); }
@@ -122,10 +125,9 @@
         .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:4px 0; max-height:55vh; overflow-y:auto; scrollbar-width:none; }
         .genres-grid::-webkit-scrollbar { display:none; }
 
-        /* CARDS VIDRO COM BORDA NEON ANIMADA */
         .genre-card {
             position:relative;
-            min-height:60px;           /* Reduzido */
+            min-height:60px;
             border-radius:16px;
             cursor:pointer;
             padding:12px 8px;
@@ -139,24 +141,21 @@
             -webkit-backdrop-filter:blur(12px);
             border:1.5px solid rgba(255,255,255,0.1);
             box-shadow:0 4px 20px rgba(0,0,0,0.3);
-            /* Animação da borda neon */
             animation: borderGlow 3s ease-in-out infinite alternate;
         }
         .genre-card:active { transform:scale(0.94); }
         .genre-card .genre-name {
-            font-size:1.2rem;          /* Maior */
+            font-size:1.2rem;
             font-weight:900;
             letter-spacing:1.5px;
             text-transform:uppercase;
-            color:#fff;
-            text-shadow:0 2px 20px rgba(0,0,0,0.6), 0 0 20px rgba(108,92,231,0.1);
+            color:#c8c8c8; /* CINZA CLARO */
+            text-shadow:0 2px 20px rgba(0,0,0,0.6), 0 0 20px rgba(108,92,231,0.05);
             z-index:1;
             line-height:1.2;
         }
-        .genre-card .genre-count {
-            display:none; /* Esconde contagem */
-        }
-        /* Cada gênero ganha uma cor de borda personalizada na animação */
+        .genre-card .genre-count { display:none; }
+
         .genre-card[data-genre="BÔNUS"] { border-color:rgba(253,203,110,0.3); }
         .genre-card[data-genre="FLASHBACK"] { border-color:rgba(225,112,85,0.3); }
         .genre-card[data-genre="RELIGIOSA"] { border-color:rgba(108,92,231,0.3); }
@@ -176,12 +175,10 @@
         .genre-card[data-genre="FORRÓ RAIZ"] { border-color:rgba(225,112,85,0.3); }
         .genre-card[data-genre="ROCK"] { border-color:rgba(253,121,168,0.3); }
 
-        /* Animação de brilho neon nas bordas */
         @keyframes borderGlow {
             0% { box-shadow: 0 0 8px rgba(108,92,231,0.1), 0 0 15px rgba(108,92,231,0.05); }
             100% { box-shadow: 0 0 20px rgba(108,92,231,0.3), 0 0 40px rgba(108,92,231,0.1); }
         }
-        /* Cada gênero com sua própria cor de brilho */
         .genre-card[data-genre="BÔNUS"] { animation-name: borderGlowGold; }
         .genre-card[data-genre="FLASHBACK"] { animation-name: borderGlowRed; }
         .genre-card[data-genre="RELIGIOSA"] { animation-name: borderGlowPurple; }
@@ -202,24 +199,24 @@
         .genre-card[data-genre="ROCK"] { animation-name: borderGlowPink; }
 
         @keyframes borderGlowGold {
-            0% { box-shadow:0 0 6px rgba(253,203,110,0.1), 0 0 12px rgba(253,203,110,0.05); border-color:rgba(253,203,110,0.2); }
-            100% { box-shadow:0 0 20px rgba(253,203,110,0.3), 0 0 40px rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.6); }
+            0% { box-shadow:0 0 6px rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.2); }
+            100% { box-shadow:0 0 20px rgba(253,203,110,0.3); border-color:rgba(253,203,110,0.6); }
         }
         @keyframes borderGlowRed {
-            0% { box-shadow:0 0 6px rgba(225,112,85,0.1), 0 0 12px rgba(225,112,85,0.05); border-color:rgba(225,112,85,0.2); }
-            100% { box-shadow:0 0 20px rgba(225,112,85,0.3), 0 0 40px rgba(225,112,85,0.1); border-color:rgba(225,112,85,0.6); }
+            0% { box-shadow:0 0 6px rgba(225,112,85,0.1); border-color:rgba(225,112,85,0.2); }
+            100% { box-shadow:0 0 20px rgba(225,112,85,0.3); border-color:rgba(225,112,85,0.6); }
         }
         @keyframes borderGlowPurple {
-            0% { box-shadow:0 0 6px rgba(108,92,231,0.1), 0 0 12px rgba(108,92,231,0.05); border-color:rgba(108,92,231,0.2); }
-            100% { box-shadow:0 0 20px rgba(108,92,231,0.3), 0 0 40px rgba(108,92,231,0.1); border-color:rgba(108,92,231,0.6); }
+            0% { box-shadow:0 0 6px rgba(108,92,231,0.1); border-color:rgba(108,92,231,0.2); }
+            100% { box-shadow:0 0 20px rgba(108,92,231,0.3); border-color:rgba(108,92,231,0.6); }
         }
         @keyframes borderGlowPink {
-            0% { box-shadow:0 0 6px rgba(253,121,168,0.1), 0 0 12px rgba(253,121,168,0.05); border-color:rgba(253,121,168,0.2); }
-            100% { box-shadow:0 0 20px rgba(253,121,168,0.3), 0 0 40px rgba(253,121,168,0.1); border-color:rgba(253,121,168,0.6); }
+            0% { box-shadow:0 0 6px rgba(253,121,168,0.1); border-color:rgba(253,121,168,0.2); }
+            100% { box-shadow:0 0 20px rgba(253,121,168,0.3); border-color:rgba(253,121,168,0.6); }
         }
         @keyframes borderGlowGreen {
-            0% { box-shadow:0 0 6px rgba(0,184,148,0.1), 0 0 12px rgba(0,184,148,0.05); border-color:rgba(0,184,148,0.2); }
-            100% { box-shadow:0 0 20px rgba(0,184,148,0.3), 0 0 40px rgba(0,184,148,0.1); border-color:rgba(0,184,148,0.6); }
+            0% { box-shadow:0 0 6px rgba(0,184,148,0.1); border-color:rgba(0,184,148,0.2); }
+            100% { box-shadow:0 0 20px rgba(0,184,148,0.3); border-color:rgba(0,184,148,0.6); }
         }
 
         .close-genres { width:100%; padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); border-radius:25px; color:#555; font-size:0.7rem; cursor:pointer; font-weight:600; margin-top:12px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; }
@@ -369,12 +366,10 @@
             .top-bar { height:48px; padding:4px 10px; }
             .top-right .timer-lib { font-size:0.55rem; padding:2px 6px; }
             .top-right .menu-btn { width:26px; height:26px; font-size:0.7rem; }
-            #searchContainer { top:48px; padding:2px 10px; }
-            #searchInput { font-size:0.6rem; padding:3px 24px 3px 10px; min-height:24px; width:80px; }
-            #searchInput:focus { width:130px; }
-            #searchClear { right:16px; font-size:0.7rem; }
-            .info-scroll { top:80px; height:30px; padding:2px 10px; }
-            .info-scroll .letreiro { font-size:0.75rem; }
+            .info-scroll { top:48px; height:34px; padding:2px 10px; }
+            .info-scroll.modo-pesquisa { height:40px; }
+            .letreiro { font-size:0.75rem; }
+            #searchInputLetreiro { font-size:0.75rem; }
             .fav-heart-center .fav-heart { font-size:3.5rem; }
             .ctrl-btn { width:30px; height:30px; font-size:0.7rem; min-width:34px; min-height:34px; }
             .play-big { width:38px; height:38px; font-size:0.9rem; }
@@ -437,15 +432,13 @@
         </div>
     </div>
 
-    <!-- SEARCH BAR (pequena) -->
-    <div id="searchContainer">
-        <input type="text" id="searchInput" placeholder="🔍 Pesquisar...">
-        <button id="searchClear" aria-label="Limpar busca">✕</button>
-    </div>
-
-    <!-- LETREIRO (MAIOR) -->
+    <!-- LETREIRO COM PESQUISA INTEGRADA -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵</p>
+        <div class="search-input-container">
+            <input type="text" id="searchInputLetreiro" placeholder="🔍 Pesquisar música...">
+            <button id="searchClearLetreiro" aria-label="Limpar busca">✕</button>
+        </div>
     </div>
 
     <!-- CORAÇÃO CENTRAL -->
@@ -630,7 +623,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- ========== JAVASCRIPT (mesmo da versão anterior, mantido) ========== -->
+<!-- ========== JAVASCRIPT (com pesquisa no letreiro) ========== -->
 <script>
 (function(){
     'use strict';
@@ -687,7 +680,7 @@
     const SENHA_MESTRA = String.fromCharCode(80,97,116,105,99,111,49,54,56,53,64);
 
     // =============================================================
-    // 2. UTILITÁRIOS (mantidos)
+    // 2. UTILITÁRIOS
     // =============================================================
     const $ = id => document.getElementById(id);
     const fmt = s => { if(!s||isNaN(s)) return '0:00'; const m=Math.floor(s/60); const seg=Math.floor(s%60); return m+':'+(seg<10?'0':'')+seg; };
@@ -703,7 +696,7 @@
     }
 
     // =============================================================
-    // 3. GERENCIADOR DE CACHE (LRU)
+    // 3. GERENCIADOR DE CACHE
     // =============================================================
     class CacheManager {
         constructor(maxBytes=5*1024*1024) {
@@ -779,7 +772,7 @@
     const cacheManager = new CacheManager();
 
     // =============================================================
-    // 4. GERENCIADOR DE ESTADO CENTRAL
+    // 4. ESTADO CENTRAL
     // =============================================================
     class AppState {
         constructor() {
@@ -967,9 +960,8 @@
         starRating: $('starRating'),
         feedbackText: $('feedbackText'),
         bannerPromocional: $('bannerPromocional'),
-        searchInput: $('searchInput'),
-        searchClear: $('searchClear'),
-        searchContainer: $('searchContainer'),
+        searchInputLetreiro: $('searchInputLetreiro'),
+        searchClearLetreiro: $('searchClearLetreiro'),
     };
 
     // =============================================================
@@ -1003,7 +995,7 @@
     }
 
     // =============================================================
-    // 7. TIMER (24h corrido)
+    // 7. TIMER
     // =============================================================
     function calcularTempoRestante() {
         const exp = localStorage.getItem('vdb_teste_expiracao');
@@ -1296,7 +1288,7 @@
     }
 
     // =============================================================
-    // 11. ÁUDIO DE FUNDO (keep-alive)
+    // 11. ÁUDIO DE FUNDO
     // =============================================================
     function criarSilentAudio() {
         const sr=44100, ns=sr*5;
@@ -1490,7 +1482,8 @@
                 }, 8000);
             }
 
-            dom.searchContainer.classList.add('hidden');
+            // Oculta o letreiro (que contém a pesquisa)
+            dom.infoScroll.classList.add('hidden');
             mostrarBotaoSairTV();
 
         } catch(erro) {
@@ -1521,7 +1514,7 @@
         } else {
             notif('📺 Modo TV DESATIVADO',2000);
             if(appState.mediaTVTimer) { clearInterval(appState.mediaTVTimer); appState.mediaTVTimer = null; }
-            dom.searchContainer.classList.remove('hidden');
+            dom.infoScroll.classList.remove('hidden');
             esconderBotaoSairTV();
             await carregarMidiasPadrao();
         }
@@ -1529,7 +1522,7 @@
     }
 
     // =============================================================
-    // 13. GÊNEROS (com ícones removidos e bordas neon)
+    // 13. GÊNEROS
     // =============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
@@ -1577,41 +1570,106 @@
     }
 
     // =============================================================
-    // 14. PESQUISA
+    // 14. PESQUISA NO LETREIRO
     // =============================================================
-    let searchTimeout = null;
-    dom.searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
+    let searchTimeoutLetreiro = null;
+
+    // Clicar no letreiro abre a pesquisa
+    dom.infoScroll.addEventListener('click', function(e) {
+        // Se não estiver em modo pesquisa e não for um clique no botão de limpar
+        if (!this.classList.contains('modo-pesquisa') && !e.target.closest('#searchClearLetreiro')) {
+            this.classList.add('modo-pesquisa');
+            dom.searchInputLetreiro.value = '';
+            dom.searchClearLetreiro.classList.remove('visible');
+            dom.searchInputLetreiro.focus();
+        }
+    });
+
+    // Fechar pesquisa ao pressionar Enter ou perder foco
+    dom.searchInputLetreiro.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            aplicarBusca(this.value.trim());
+            dom.infoScroll.classList.remove('modo-pesquisa');
+            dom.searchClearLetreiro.classList.remove('visible');
+        }
+    });
+
+    dom.searchInputLetreiro.addEventListener('blur', function() {
+        // Pequeno delay para não interferir com clique no botão limpar
+        setTimeout(() => {
+            if (dom.infoScroll.classList.contains('modo-pesquisa')) {
+                aplicarBusca(this.value.trim());
+                dom.infoScroll.classList.remove('modo-pesquisa');
+                dom.searchClearLetreiro.classList.remove('visible');
+            }
+        }, 200);
+    });
+
+    // Botão limpar
+    dom.searchClearLetreiro.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dom.searchInputLetreiro.value = '';
+        dom.searchClearLetreiro.classList.remove('visible');
+        // Restaura playlist original
+        appState.playlistAtual = shuffle(appState.musicas);
+        appState.indiceAtual = 0;
+        if(appState.isBackgroundActive) tocar();
+        dom.searchInputLetreiro.focus();
+        // Se estava em modo pesquisa, mantém
+    });
+
+    // Mostrar botão limpar quando digitar
+    dom.searchInputLetreiro.addEventListener('input', function() {
+        if (this.value.trim().length > 0) {
+            dom.searchClearLetreiro.classList.add('visible');
+        } else {
+            dom.searchClearLetreiro.classList.remove('visible');
+        }
+        // Busca ao vivo com debounce
+        clearTimeout(searchTimeoutLetreiro);
         const termo = this.value.trim();
-        if(termo.length === 0) {
-            dom.searchClear.classList.remove('visible');
+        if (termo.length === 0) {
             appState.playlistAtual = shuffle(appState.musicas);
             appState.indiceAtual = 0;
             if(appState.isBackgroundActive) tocar();
             return;
         }
-        dom.searchClear.classList.add('visible');
-        searchTimeout = setTimeout(() => {
-            const filtradas = appState.musicas.filter(m =>
-                m.title.toLowerCase().includes(termo.toLowerCase()) ||
-                (m.artist && m.artist.toLowerCase().includes(termo.toLowerCase()))
-            );
-            if(filtradas.length) {
-                appState.playlistAtual = shuffle(filtradas);
-                appState.indiceAtual = 0;
-                if(appState.isBackgroundActive) tocar();
-            } else {
-                notif('🔍 Nenhuma música encontrada',1500);
-            }
+        searchTimeoutLetreiro = setTimeout(() => {
+            aplicarBusca(termo);
         }, 500);
     });
 
-    dom.searchClear.addEventListener('click', function() {
-        dom.searchInput.value = '';
-        dom.searchClear.classList.remove('visible');
-        dom.searchInput.dispatchEvent(new Event('input'));
-        dom.searchInput.focus();
-    });
+    function aplicarBusca(termo) {
+        if (!termo || termo.length === 0) {
+            appState.playlistAtual = shuffle(appState.musicas);
+            appState.indiceAtual = 0;
+            if(appState.isBackgroundActive) tocar();
+            return;
+        }
+        const filtradas = appState.musicas.filter(m =>
+            m.title.toLowerCase().includes(termo.toLowerCase()) ||
+            (m.artist && m.artist.toLowerCase().includes(termo.toLowerCase()))
+        );
+        if (filtradas.length) {
+            appState.playlistAtual = shuffle(filtradas);
+            appState.indiceAtual = 0;
+            if(appState.isBackgroundActive) tocar();
+            // Atualiza o letreiro com o resultado da busca
+            if (filtradas.length > 0) {
+                const primeira = filtradas[0];
+                dom.scrollText.textContent = '🔍 Resultados: ' + sanitize(primeira.title) + ' - ' + sanitize(primeira.artist) + ' (+' + (filtradas.length-1) + ' músicas)';
+                dom.scrollText.style.animation = 'none';
+                dom.scrollText.offsetHeight;
+                dom.scrollText.style.animation = 'scrollText 25s linear infinite';
+            }
+        } else {
+            notif('🔍 Nenhuma música encontrada',1500);
+            dom.scrollText.textContent = '🔍 Nenhum resultado para "' + sanitize(termo) + '"';
+            dom.scrollText.style.animation = 'none';
+            dom.scrollText.offsetHeight;
+            dom.scrollText.style.animation = 'scrollText 15s linear infinite';
+        }
+    }
 
     // =============================================================
     // 15. OUTRAS FUNÇÕES
@@ -1862,7 +1920,7 @@
     // 17. INICIALIZAÇÃO
     // =============================================================
     async function iniciar() {
-        console.log('🚀 VAI DE BOA! MUSIC v4.0 - Glass + Neon');
+        console.log('🚀 VAI DE BOA! MUSIC v5.0 - Pesquisa no Letreiro + Cinza Claro');
         try {
             appState.favorites = appState.getFavorites();
             updateFavBadge();
@@ -1940,7 +1998,7 @@
                 setTimeout(ativarPlayer,1500);
             }
 
-            // Eventos (mantidos)
+            // Eventos principais (mantidos)
             dom.playBtn.onclick = togglePlay;
             dom.prevBtn.onclick = prev;
             dom.nextBtn.onclick = next;
@@ -2019,6 +2077,8 @@
 
             let clickCount=0, clickTimer=null;
             dom.infoScroll.addEventListener('click', function(e) {
+                // Se já estiver em modo pesquisa, não ativa o admin
+                if (this.classList.contains('modo-pesquisa')) return;
                 e.stopPropagation();
                 clickCount++;
                 clearTimeout(clickTimer);
