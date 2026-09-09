@@ -244,7 +244,6 @@
         #adminPanel .senha-box .info-senha { font-size:0.4rem; color:#555; margin-top:2px; }
         #adminPanel .actions { display:flex; gap:6px; margin-bottom:6px; }
         #adminPanel .actions button { flex:1; padding:8px; border-radius:20px; border:none; font-weight:700; cursor:pointer; font-size:0.65rem; transition:transform 0.2s; }
-        #adminPanel .actions button:active { transform:scale(0.95); }
         #adminPanel .actions .btn-whats { background:linear-gradient(135deg,#25d366,#128C7E); color:#fff; }
         #adminPanel .actions .btn-copiar-senha { background:rgba(108,92,231,0.1); border:1px solid var(--primary); color:var(--primary); }
         #adminPanel .historico { max-height:80px; overflow-y:auto; margin-bottom:4px; scrollbar-width:none; }
@@ -255,11 +254,37 @@
         #adminPanel .btn-fechar { background:rgba(255,255,255,0.03); border:none; padding:8px; border-radius:20px; color:#555; cursor:pointer; width:100%; font-size:0.7rem; margin-top:4px; transition:all 0.2s; }
         #adminPanel .btn-fechar:active { background:rgba(255,255,255,0.05); }
 
+        /* ========== BANNER PROMOCIONAL ========== */
         #bannerPromocional { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #1a1a3e, #0a0a1e); border: 1px solid rgba(253,203,110,0.3); border-radius: 30px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); cursor: pointer; opacity: 0; transform: translateX(100%); transition: all 0.4s cubic-bezier(0.4,0,0.2,1); pointer-events: none; max-width: 90vw; }
         #bannerPromocional.mostrar { opacity: 1; transform: translateX(0); pointer-events: auto; }
         #bannerPromocional img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
         #bannerPromocional .banner-texto { color: #fff; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
         #bannerPromocional .banner-texto span { color: var(--gold); }
+
+        /* ========== BOTÃO SAIR MODO TV (REDUZIDO) ========== */
+        #btnSairModoTV {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 60;
+            background: rgba(10,10,30,0.9);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.55rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
+            transition: all 0.2s;
+        }
+        #btnSairModoTV:active { transform: scale(0.95); }
+        #btnSairModoTV i { font-size: 0.6rem; }
 
         @media (max-width: 480px) {
             .logo-macaco { height: 28px; width: 28px; }
@@ -301,11 +326,14 @@
             #bannerPromocional { padding: 6px 10px; }
             #bannerPromocional img { width: 24px; height: 24px; }
             #bannerPromocional .banner-texto { font-size: 0.6rem; }
+            #btnSairModoTV { top: 80px; right: 10px; padding: 3px 8px; font-size: 0.5rem; }
+            #btnSairModoTV i { font-size: 0.5rem; }
         }
     </style>
 </head>
 <body>
 
+<!-- ========== LOADING ========== -->
 <div id="loadingScreen">
     <img src="favicon30.png" alt="VDB Music" class="loading-logo">
     <i class="fas fa-spinner loading-spinner"></i>
@@ -313,9 +341,11 @@
     <div class="loading-progress-container"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
 </div>
 
+<!-- ========== PLAYER ========== -->
 <div id="playerContainer">
     <div class="media-container" id="mediaContainer"></div>
 
+    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="top-left">
             <img src="favicon30.png" alt="VDB Music" class="logo-macaco">
@@ -333,19 +363,22 @@
         </div>
     </div>
 
-    <!-- BARRA DE PESQUISA -->
+    <!-- SEARCH BAR -->
     <div id="searchContainer">
         <input type="text" id="searchInput" placeholder="🔍 Pesquisar música...">
     </div>
 
+    <!-- INFO SCROLL -->
     <div class="info-scroll" id="infoScroll">
         <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - O MELHOR DAS MÚSICAS! 🐵</p>
     </div>
 
+    <!-- HEART -->
     <div class="fav-heart-center">
         <div class="fav-heart" id="heartBtn"><i class="far fa-heart"></i></div>
     </div>
 
+    <!-- BOTTOM CONTROLS -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time">
             <span id="currentTime">0:00</span>
@@ -362,9 +395,11 @@
         </div>
     </div>
 
+    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i>Gêneros</button>
+            <button class="fab-sub-btn" id="fabModoTV"><i class="fas fa-tv"></i>Modo TV</button>
             <button class="fab-sub-btn" id="fabCadastro"><i class="fas fa-user"></i>Cadastro</button>
             <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i>Feedback</button>
             <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube"></i>YouTube</button>
@@ -374,9 +409,12 @@
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
+    <!-- MENU POPUP -->
     <div class="menu-popup" id="menuPopup">
         <button id="closeMenuBtn"><i class="fas fa-times"></i>Fechar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i>Tela Cheia</button>
+        <button id="modoTVMenuBtn"><i class="fas fa-tv"></i>Modo TV</button>
+        <button id="liberarAgoraBtn"><i class="fas fa-unlock"></i>Liberar Agora</button>
         <button id="cadastroMenuBtn"><i class="fas fa-user"></i>Cadastro</button>
         <button id="reloadPlaylistBtn"><i class="fas fa-sync"></i>Recarregar</button>
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
@@ -386,6 +424,7 @@
     </div>
 </div>
 
+<!-- ========== BLOCK OVERLAY ========== -->
 <div id="blockOverlay" class="active">
     <div class="block-content">
         <div class="logo">🐵</div>
@@ -405,6 +444,7 @@
     </div>
 </div>
 
+<!-- ========== ADMIN PANEL ========== -->
 <div id="adminPanel">
     <h2>🔐 GERENCIADOR DE SENHAS</h2>
     <div class="sub">Gere senhas para seus clientes</div>
@@ -435,6 +475,7 @@
     <button class="btn-fechar" id="adminCloseBtn">✕ Fechar Painel</button>
 </div>
 
+<!-- ========== QR CODE MODAL ========== -->
 <div id="qrCodeModal">
     <div class="qr-content">
         <div class="qr-titulo">📱 VAI DE BOA! MUSIC</div>
@@ -452,12 +493,15 @@
     </div>
 </div>
 
+<!-- ========== NOTIFICATION ========== -->
 <div class="notification" id="notification"></div>
 <div id="loadingOverlay"><i class="fas fa-spinner fa-spin"></i></div>
 
+<!-- ========== AUDIO ========== -->
 <audio id="musicPlayer" preload="none"></audio>
 <audio id="backgroundAudio" preload="auto" style="display:none;"></audio>
 
+<!-- ========== GENRES MODAL ========== -->
 <div class="genres-modal" id="genresModal">
     <div class="header">
         <div class="titulo">ESTILOS MUSICAIS</div>
@@ -467,6 +511,7 @@
     <button class="close-genres" id="closeGenresBtn">✕ FECHAR</button>
 </div>
 
+<!-- ========== FAVORITES MODAL ========== -->
 <div class="fav-modal" id="favModal">
     <h3>❤️ SUAS FAVORITAS</h3>
     <div class="sub-titulo" id="favSubTitulo">Suas músicas favoritas</div>
@@ -474,6 +519,7 @@
     <button class="close-fav" id="closeFavBtn">FECHAR</button>
 </div>
 
+<!-- ========== CHOICE MENU ========== -->
 <div class="choice-menu" id="choiceMenu">
     <h3>🎯 O QUE VOCÊ QUER?</h3>
     <button class="choice-btn" id="choiceGenres">
@@ -487,6 +533,7 @@
     <button class="choice-close" id="choiceClose">✕ CANCELAR</button>
 </div>
 
+<!-- ========== FEEDBACK MODAL ========== -->
 <div class="feedback-modal" id="feedbackModal">
     <h3>⭐ Avalie o App</h3>
     <div class="stars" id="starRating">
@@ -501,11 +548,14 @@
     <button id="closeFeedbackBtn">Cancelar</button>
 </div>
 
+<!-- ========== BANNER PROMOCIONAL ========== -->
 <div id="bannerPromocional">
     <img src="favicon30.png" alt="VDB">
     <div class="banner-texto">🔥 <span>Vitalício</span> Clique Aqui!</div>
 </div>
 
+<!-- ============================================================ -->
+<!-- ========== JAVASCRIPT ========== -->
 <script>
 (function() {
     'use strict';
@@ -535,9 +585,13 @@
             'FORRÓ RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forroraiz/refs/heads/main/forroraiz.json',
             'ROCK': 'https://raw.githubusercontent.com/radiolojasjc-hub/rock/refs/heads/main/rock.json',
         },
-        VIDEOS_TV: [], // removido
+        VIDEOS_TV: [
+            'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4',
+            'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4'
+        ],
         VIDEO_CLICK_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/clik.mp4',
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
+        MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
         FALLBACK_MIDIAS_PADRAO: [
             { tipo: 'video', src: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mms.mp4' },
             { tipo: 'video', src: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/clik.mp4' },
@@ -642,6 +696,7 @@
         infoSenha: $('infoSenha'),
         historicoSenhas: $('historicoSenhas'),
         fabGeneros: $('fabGeneros'),
+        fabModoTV: $('fabModoTV'),
         fabCadastro: $('fabCadastro'),
         closeGenresBtn: $('closeGenresBtn'),
         fabFeedback: $('fabFeedback'),
@@ -654,6 +709,8 @@
         closeFeedbackBtn: $('closeFeedbackBtn'),
         closeMenuBtn: $('closeMenuBtn'),
         fullscreenMenuBtn: $('fullscreenMenuBtn'),
+        modoTVMenuBtn: $('modoTVMenuBtn'),
+        liberarAgoraBtn: $('liberarAgoraBtn'),
         cadastroMenuBtn: $('cadastroMenuBtn'),
         reloadPlaylistBtn: $('reloadPlaylistBtn'),
         feedbackMenuBtn: $('feedbackMenuBtn'),
@@ -672,6 +729,7 @@
         searchInput: $('searchInput'),
     };
 
+    // ========== UTILITIES ==========
     function fmt(s) {
         if (!s || isNaN(s)) return '0:00';
         const m = Math.floor(s / 60);
@@ -772,6 +830,7 @@
         }
     }
 
+    // ========== STATE ==========
     const state = {
         tempoRestante: 86400,
         desbloqueado: false,
@@ -800,6 +859,9 @@
         clickTimer: null,
         adminTentativas: 0,
         adminBloqueado: false,
+        modoTV: false,
+        midiaTVAtual: 0,
+        mediaTVTimer: null,
         cadastro: null,
         touchManager: null,
         bannerInterval: null,
@@ -833,7 +895,7 @@
         return { valida: false };
     }
 
-    // ========== FAVORITOS COM localStorage ==========
+    // ========== FAVORITOS (localStorage) ==========
     function carregarFavoritos() {
         try {
             const dados = localStorage.getItem('vdb_favoritos');
@@ -1187,7 +1249,109 @@
         }
     }
 
-    // ========== BANNER ==========
+    // ========== MODO TV ==========
+    async function carregarMidiasTV() {
+        try {
+            dom.mediaContainer.innerHTML = '';
+            let midias = [];
+            try {
+                const response = await fetch(CacheBuster.getUrl(CONFIG.MIDIAS_TV_URL));
+                const data = await response.json();
+                if (Array.isArray(data)) midias = data;
+                else if (data.medias && Array.isArray(data.medias)) midias = data.medias;
+                else if (data.midias && Array.isArray(data.midias)) midias = data.midias;
+            } catch (e) {
+                console.warn('⚠️ Falha ao buscar modotv.json, usando fallback');
+            }
+
+            if (!midias.length) {
+                midias = [
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
+                ];
+            }
+
+            midias = midias.filter(m => m && (m.tipo === 'video' || m.tipo === 'imagem') && m.src);
+
+            if (!midias.length) {
+                midias = [
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[0] },
+                    { tipo: 'video', src: CONFIG.VIDEOS_TV[1] }
+                ];
+            }
+
+            midias.forEach((m, i) => {
+                let el;
+                if (m.tipo === 'video') {
+                    el = document.createElement('video');
+                    el.src = CacheBuster.getMediaUrl(m.src);
+                    el.muted = true; el.playsInline = true; el.loop = true;
+                    el.load(); el.onerror = () => { el.style.display = 'none'; };
+                } else {
+                    el = document.createElement('img');
+                    el.src = CacheBuster.getMediaUrl(m.src);
+                    el.loading = 'lazy'; el.alt = 'VDB TV'; el.onerror = () => { el.style.display = 'none'; };
+                }
+                el.className = i === 0 ? 'active' : 'inactive';
+                dom.mediaContainer.appendChild(el);
+                if (i === 0 && m.tipo === 'video') el.play().catch(() => {});
+            });
+
+            if (state.mediaTVTimer) clearInterval(state.mediaTVTimer);
+            state.midiaTVAtual = 0;
+            const children = dom.mediaContainer.querySelectorAll('video, img');
+            if (children.length > 1) {
+                state.mediaTVTimer = setInterval(() => {
+                    const atual = children[state.midiaTVAtual];
+                    const prox = children[(state.midiaTVAtual + 1) % children.length];
+                    if (!atual || !prox) return;
+                    atual.className = 'inactive';
+                    if (atual.tagName === 'VIDEO') atual.pause();
+                    prox.className = 'active';
+                    if (prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    state.midiaTVAtual = (state.midiaTVAtual + 1) % children.length;
+                }, 8000);
+            }
+
+            const overlayExistente = document.getElementById('videoClickOverlay');
+            if (overlayExistente) overlayExistente.remove();
+
+            mostrarBotaoSairModoTV();
+
+        } catch (erro) {
+            console.error('❌ Erro ao carregar mídias TV:', erro);
+            dom.mediaContainer.innerHTML = '';
+        }
+    }
+
+    async function toggleModoTV() {
+        state.modoTV = !state.modoTV;
+        if (state.modoTV) {
+            notif('📺 Modo TV ATIVADO!', 2000);
+            await carregarMidiasTV();
+        } else {
+            notif('📺 Modo TV DESATIVADO!', 2000);
+            if (state.mediaTVTimer) { clearInterval(state.mediaTVTimer); state.mediaTVTimer = null; }
+            await carregarMidiasPadrao();
+            esconderBotaoSairModoTV();
+        }
+    }
+
+    function mostrarBotaoSairModoTV() {
+        esconderBotaoSairModoTV();
+        const btn = document.createElement('button');
+        btn.id = 'btnSairModoTV';
+        btn.innerHTML = '<i class="fas fa-times"></i> Sair TV';
+        btn.onclick = () => { toggleModoTV(); };
+        document.body.appendChild(btn);
+    }
+
+    function esconderBotaoSairModoTV() {
+        const btn = document.getElementById('btnSairModoTV');
+        if (btn) btn.remove();
+    }
+
+    // ========== BANNER PROMOCIONAL ==========
     function mostrarBannerPromocional() {
         if (state.bannerTimeout) clearTimeout(state.bannerTimeout);
         dom.bannerPromocional.classList.add('mostrar');
@@ -1558,6 +1722,28 @@
         }, 500);
     });
 
+    // ========== LIBERAR AGORA ==========
+    function liberarAgora() {
+        const senha = prompt('🔑 Digite sua senha única para liberar permanentemente:');
+        if (!senha) return;
+        const resultado = validarSenha(senha);
+        if (resultado.valida) {
+            state.desbloqueado = true;
+            dom.blockOverlay.classList.remove('active');
+            dom.blockOverlay.style.display = 'none';
+            dom.timerLib.textContent = '🔓 Lib';
+            dom.timerLib.className = 'timer-lib lib';
+            localStorage.setItem('vdb_desbloqueado', 'true');
+            localStorage.setItem('vdb_senha_permanente', 'true');
+            localStorage.removeItem('vdb_teste_expiracao');
+            localStorage.removeItem('vdb_bloqueado_permanente');
+            clearInterval(state.timerInterval);
+            notif('✅ App liberado com sucesso!', 3000);
+        } else {
+            notif('❌ Senha inválida!', 2000);
+        }
+    }
+
     // ========== HANDLE LIBERAR ==========
     function handleLiberar() {
         const senha = dom.senhaInput.value.trim();
@@ -1693,10 +1879,13 @@
             dom.closeGenresBtn.onclick = () => dom.genresModal.classList.remove('open');
             dom.closeFavBtn.onclick = () => dom.favModal.classList.remove('open');
             dom.fabGeneros.onclick = () => { dom.choiceMenu.classList.add('open'); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
+            dom.fabModoTV.onclick = () => { toggleModoTV(); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
             dom.fabCadastro.onclick = () => { abrirCadastro(); dom.fabSub.classList.remove('open'); state.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; };
             dom.menuButton.onclick = (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); };
             dom.closeMenuBtn.onclick = () => dom.menuPopup.classList.remove('open');
             dom.fullscreenMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); forcarTelaCheia(); };
+            dom.modoTVMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); toggleModoTV(); };
+            dom.liberarAgoraBtn.onclick = () => { dom.menuPopup.classList.remove('open'); liberarAgora(); };
             dom.cadastroMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); abrirCadastro(); };
             dom.reloadPlaylistBtn.onclick = () => { dom.menuPopup.classList.remove('open'); location.reload(); };
             dom.feedbackMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); dom.feedbackModal.classList.add('open'); };
@@ -1820,7 +2009,8 @@
                 dom.menuPopup.classList.remove('open');
                 notif('🔄 Atualizando mídias...', 1500);
                 CacheBuster.version = CacheBuster.version + 1;
-                await carregarMidiasPadrao();
+                if (state.modoTV) await carregarMidiasTV();
+                else await carregarMidiasPadrao();
                 notif('✅ Mídias atualizadas!', 2000);
             };
 
@@ -1829,6 +2019,8 @@
             console.log('✅ Favoritos com localStorage (persistentes)');
             console.log('📦 Cache de playlists ativo');
             console.log('🔍 Pesquisa de músicas');
+            console.log('📺 Modo TV restaurado com botão "Sair" reduzido');
+            console.log('🔓 Botão "Liberar Agora" no menu');
             console.log('📢 Banner promocional a cada 2 min');
         } catch (erro) {
             console.error('❌ ERRO FATAL NA INICIALIZAÇÃO:', erro);
