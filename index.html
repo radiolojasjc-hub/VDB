@@ -16,6 +16,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1e">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
            RESET E BASE
@@ -39,7 +42,7 @@
         @keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(108,92,231,0.1)} 50%{transform:scale(1.05);box-shadow:0 0 40px rgba(108,92,231,0.3)} }
         .loading-spinner { font-size:2.2rem; color:var(--secondary); animation:spin 1.5s infinite; }
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .loading-text { font-size:1.4rem; font-weight:800; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:2px; }
+        .loading-text { font-family:'Audiowide', sans-serif; font-size:1.2rem; font-weight:400; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:3px; }
         .loading-progress-container { width:200px; height:4px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
         .loading-progress-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent)); border-radius:4px; transition:width 0.4s ease; }
 
@@ -57,9 +60,9 @@
         .top-left { display:flex; align-items:center; gap:10px; }
         .logo-macaco { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(108,92,231,0.3); box-shadow:0 0 20px rgba(108,92,231,0.1); cursor:pointer; transition:transform 0.2s; }
         .logo-macaco:active { transform:scale(0.92); }
-        .btn-genero-fav { background:rgba(255,255,255,0.06); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); border-radius:30px; padding:6px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.2s; min-height:36px; }
-        .btn-genero-fav:active { transform:scale(0.95); background:rgba(255,255,255,0.1); }
-        .genero-nome { font-size:1rem; font-weight:900; letter-spacing:0.5px; text-transform:uppercase; background:linear-gradient(135deg,#fff 30%,var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; transition:filter 0.3s; }
+        .btn-genero-fav { background:rgba(255,255,255,0.08); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.15); border-radius:30px; padding:6px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.2s; min-height:36px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); }
+        .btn-genero-fav:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
+        .genero-nome { font-family:'Audiowide', 'Rajdhani', sans-serif; font-size:0.85rem; font-weight:400; letter-spacing:1.2px; text-transform:uppercase; background:linear-gradient(135deg,#fff 30%,var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; transition:filter 0.3s; }
         .separador { color:rgba(255,255,255,0.15); font-size:0.7rem; }
         .coracao-icon { font-size:0.8rem; color:var(--accent); }
         .fav-badge { background:var(--accent); color:#fff; border-radius:50%; padding:0 7px; font-size:0.65rem; font-weight:900; min-width:18px; text-align:center; line-height:18px; box-shadow:0 0 20px rgba(253,121,168,0.3); }
@@ -128,109 +131,160 @@
         .menu-popup button { background:transparent; border:none; color:#ccc; padding:8px 12px; border-radius:12px; font-size:0.8rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; transition:background 0.2s; min-height:36px; }
         .menu-popup button:active { background:rgba(255,255,255,0.06); }
 
-        /* ===== MODAL GÊNEROS (glassmorphism + bordas neon) ===== */
+        /* ===== MODAL GÊNEROS ===== */
         .genres-modal { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.7); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); border-radius:25px 25px 0 0; padding:16px 12px 20px; z-index:2000; transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); max-height:85vh; overflow:hidden; border-top:1px solid rgba(255,255,255,0.08); box-shadow:0 -20px 60px rgba(0,0,0,0.6); }
         .genres-modal.open { transform:translateY(0); }
         .genres-modal .header { text-align:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); }
-        .genres-modal .header .titulo { font-size:1.1rem; font-weight:900; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:2px; }
+        .genres-modal .header .titulo { font-family:'Audiowide', sans-serif; font-size:1.05rem; font-weight:400; background:linear-gradient(135deg,var(--primary),var(--secondary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:3px; }
         .genres-modal .header .sub-titulo { font-size:0.55rem; color:rgba(255,255,255,0.2); letter-spacing:4px; text-transform:uppercase; margin-top:2px; }
-        .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:4px 0; max-height:60vh; overflow-y:auto; scrollbar-width:none; }
+        .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:4px 0; max-height:60vh; overflow-y:auto; scrollbar-width:none; }
         .genres-grid::-webkit-scrollbar { display:none; }
 
-        /* CARDS - AUMENTADOS */
+        /* ========================================================
+           CARDS DE GÊNERO - EFEITO VIDRO REAL + AUDIOWIDE
+           ======================================================== */
         .genre-card {
             position:relative;
-            min-height:58px;  /* AUMENTADO */
-            border-radius:14px;
+            min-height:64px;
+            border-radius:16px;
             cursor:pointer;
-            padding:12px 8px;
+            padding:14px 10px;
             display:flex;
             align-items:center;
             justify-content:center;
             text-align:center;
-            transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-            background:rgba(255,255,255,0.05);
-            backdrop-filter:blur(12px);
-            -webkit-backdrop-filter:blur(12px);
-            border:1.5px solid rgba(255,255,255,0.1);
-            box-shadow:0 4px 20px rgba(0,0,0,0.3);
-            animation: borderGlow 3s ease-in-out infinite alternate;
+            transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            background:linear-gradient(135deg,
+                rgba(255,255,255,0.18) 0%,
+                rgba(255,255,255,0.05) 45%,
+                rgba(255,255,255,0.12) 100%);
+            backdrop-filter:blur(22px) saturate(180%);
+            -webkit-backdrop-filter:blur(22px) saturate(180%);
+            border:1px solid rgba(255,255,255,0.22);
+            box-shadow:
+                0 8px 32px rgba(0,0,0,0.45),
+                0 0 0 1px rgba(255,255,255,0.04),
+                inset 0 1px 0 rgba(255,255,255,0.35),
+                inset 0 -1px 0 rgba(0,0,0,0.12),
+                inset 0 0 20px rgba(255,255,255,0.05);
+            overflow:hidden;
+            animation:borderGlow 3s ease-in-out infinite alternate;
         }
-        .genre-card:active { transform:scale(0.94); }
-        .genre-card .genre-name {
-            font-size:0.95rem;          /* AUMENTADO */
-            font-weight:700;
-            letter-spacing:0.5px;
-            text-transform:uppercase;
-            color:#c8c8c8;
-            text-shadow:0 2px 20px rgba(0,0,0,0.6), 0 0 20px rgba(108,92,231,0.05);
+        /* Brilho superior (vidro reflexivo) */
+        .genre-card::before {
+            content:'';
+            position:absolute;
+            top:0; left:0; right:0;
+            height:50%;
+            background:linear-gradient(180deg,
+                rgba(255,255,255,0.22) 0%,
+                rgba(255,255,255,0.06) 60%,
+                transparent 100%);
+            pointer-events:none;
+            border-radius:16px 16px 60% 60% / 16px 16px 22px 22px;
+            z-index:0;
+        }
+        /* Borda interna luminosa (highlight do vidro) */
+        .genre-card::after {
+            content:'';
+            position:absolute;
+            inset:0;
+            border-radius:16px;
+            padding:1px;
+            background:linear-gradient(135deg,
+                rgba(255,255,255,0.65) 0%,
+                transparent 35%,
+                transparent 65%,
+                rgba(255,255,255,0.35) 100%);
+            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor;
+            mask-composite:exclude;
+            pointer-events:none;
+            opacity:0.7;
             z-index:1;
-            line-height:1.2;
+        }
+        .genre-card:active {
+            transform:scale(0.94);
+            background:linear-gradient(135deg,
+                rgba(255,255,255,0.28) 0%,
+                rgba(255,255,255,0.10) 100%);
+        }
+        .genre-card .genre-name {
+            font-family:'Audiowide', 'Rajdhani', sans-serif;
+            font-size:0.8rem;
+            font-weight:400;
+            letter-spacing:1.8px;
+            text-transform:uppercase;
+            color:#ffffff;
+            text-shadow:0 0 12px currentColor, 0 0 24px currentColor, 0 2px 10px rgba(0,0,0,0.85);
+            z-index:2;
+            line-height:1.25;
+            position:relative;
             transition:color 0.2s, text-shadow 0.2s;
         }
         .genre-card .genre-count { display:none; }
 
         /* Bordas neon personalizadas */
-        .genre-card[data-genre="BÔNUS"] { border-color:rgba(253,203,110,0.3); animation-name:borderGlowGold; }
-        .genre-card[data-genre="FLASHBACK"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="RELIGIOSA"] { border-color:rgba(108,92,231,0.3); animation-name:borderGlowPurple; }
-        .genre-card[data-genre="ROMÂNTICA"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="MPB"] { border-color:rgba(0,184,148,0.3); animation-name:borderGlowGreen; }
-        .genre-card[data-genre="POP/MIX"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="SERTANEJO"] { border-color:rgba(253,203,110,0.3); animation-name:borderGlowGold; }
-        .genre-card[data-genre="FORRÓ"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="SAMBA"] { border-color:rgba(253,203,110,0.3); animation-name:borderGlowGold; }
-        .genre-card[data-genre="PAGODE"] { border-color:rgba(250,177,160,0.4); animation-name:borderGlowPeach; }
-        .genre-card[data-genre="BREGA"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="REGGAE"] { border-color:rgba(0,184,148,0.3); animation-name:borderGlowGreen; }
-        .genre-card[data-genre="MODA RAIZ"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="FANK"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="TESTE MIDIA"] { border-color:rgba(253,203,110,0.3); animation-name:borderGlowGold; }
-        .genre-card[data-genre="MODÃO SERTANEJO"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="CHORINHO"] { border-color:rgba(108,92,231,0.3); animation-name:borderGlowPurple; }
-        .genre-card[data-genre="FORRÓ RAIZ"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="BAILÃO"] { border-color:rgba(255,99,72,0.4); animation-name:borderGlowRed; }
-        .genre-card[data-genre="ROCK"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="NOVIDADES"] { border-color:rgba(108,92,231,0.3); animation-name:borderGlowPurple; }
-        .genre-card[data-genre="MISTURA BRASIL"] { border-color:rgba(0,184,148,0.3); animation-name:borderGlowGreen; }
-        .genre-card[data-genre="DIRIGINDO"] { border-color:rgba(253,203,110,0.3); animation-name:borderGlowGold; }
-        .genre-card[data-genre="TREINO"] { border-color:rgba(225,112,85,0.3); animation-name:borderGlowRed; }
-        .genre-card[data-genre="SERESTA"] { border-color:rgba(253,121,168,0.3); animation-name:borderGlowPink; }
-        .genre-card[data-genre="MPB 2"] { border-color:rgba(0,184,148,0.3); animation-name:borderGlowGreen; }
-        .genre-card[data-genre="HIP HOP"] { border-color:rgba(108,92,231,0.3); animation-name:borderGlowPurple; }
-        .genre-card[data-genre="GLOBAL HITS"] { border-color:rgba(116,185,255,0.4); animation-name:borderGlowBlue; }
+        .genre-card[data-genre="BÔNUS"] { border-color:rgba(253,203,110,0.4); animation-name:borderGlowGold; }
+        .genre-card[data-genre="FLASHBACK"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="RELIGIOSA"] { border-color:rgba(108,92,231,0.4); animation-name:borderGlowPurple; }
+        .genre-card[data-genre="ROMÂNTICA"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="MPB"] { border-color:rgba(0,184,148,0.4); animation-name:borderGlowGreen; }
+        .genre-card[data-genre="POP/MIX"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="SERTANEJO"] { border-color:rgba(253,203,110,0.4); animation-name:borderGlowGold; }
+        .genre-card[data-genre="FORRÓ"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="SAMBA"] { border-color:rgba(253,203,110,0.4); animation-name:borderGlowGold; }
+        .genre-card[data-genre="PAGODE"] { border-color:rgba(250,177,160,0.45); animation-name:borderGlowPeach; }
+        .genre-card[data-genre="BREGA"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="REGGAE"] { border-color:rgba(0,184,148,0.4); animation-name:borderGlowGreen; }
+        .genre-card[data-genre="MODA RAIZ"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="FANK"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="TESTE MIDIA"] { border-color:rgba(253,203,110,0.4); animation-name:borderGlowGold; }
+        .genre-card[data-genre="MODÃO SERTANEJO"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="CHORINHO"] { border-color:rgba(108,92,231,0.4); animation-name:borderGlowPurple; }
+        .genre-card[data-genre="FORRÓ RAIZ"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="BAILÃO"] { border-color:rgba(255,99,72,0.45); animation-name:borderGlowRed; }
+        .genre-card[data-genre="ROCK"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="NOVIDADES"] { border-color:rgba(108,92,231,0.4); animation-name:borderGlowPurple; }
+        .genre-card[data-genre="MISTURA BRASIL"] { border-color:rgba(0,184,148,0.4); animation-name:borderGlowGreen; }
+        .genre-card[data-genre="DIRIGINDO"] { border-color:rgba(253,203,110,0.4); animation-name:borderGlowGold; }
+        .genre-card[data-genre="TREINO"] { border-color:rgba(225,112,85,0.4); animation-name:borderGlowRed; }
+        .genre-card[data-genre="SERESTA"] { border-color:rgba(253,121,168,0.4); animation-name:borderGlowPink; }
+        .genre-card[data-genre="MPB 2"] { border-color:rgba(0,184,148,0.4); animation-name:borderGlowGreen; }
+        .genre-card[data-genre="HIP HOP"] { border-color:rgba(108,92,231,0.4); animation-name:borderGlowPurple; }
+        .genre-card[data-genre="GLOBAL HITS"] { border-color:rgba(116,185,255,0.45); animation-name:borderGlowBlue; }
 
         @keyframes borderGlowGold {
-            0% { box-shadow:0 0 6px rgba(253,203,110,0.1); border-color:rgba(253,203,110,0.2); }
-            100% { box-shadow:0 0 20px rgba(253,203,110,0.3); border-color:rgba(253,203,110,0.6); }
+            0% { box-shadow:0 0 6px rgba(253,203,110,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(253,203,110,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowRed {
-            0% { box-shadow:0 0 6px rgba(225,112,85,0.1); border-color:rgba(225,112,85,0.2); }
-            100% { box-shadow:0 0 20px rgba(225,112,85,0.3); border-color:rgba(225,112,85,0.6); }
+            0% { box-shadow:0 0 6px rgba(225,112,85,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(225,112,85,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowPurple {
-            0% { box-shadow:0 0 6px rgba(108,92,231,0.1); border-color:rgba(108,92,231,0.2); }
-            100% { box-shadow:0 0 20px rgba(108,92,231,0.3); border-color:rgba(108,92,231,0.6); }
+            0% { box-shadow:0 0 6px rgba(108,92,231,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(108,92,231,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowPink {
-            0% { box-shadow:0 0 6px rgba(253,121,168,0.1); border-color:rgba(253,121,168,0.2); }
-            100% { box-shadow:0 0 20px rgba(253,121,168,0.3); border-color:rgba(253,121,168,0.6); }
+            0% { box-shadow:0 0 6px rgba(253,121,168,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(253,121,168,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowGreen {
-            0% { box-shadow:0 0 6px rgba(0,184,148,0.1); border-color:rgba(0,184,148,0.2); }
-            100% { box-shadow:0 0 20px rgba(0,184,148,0.3); border-color:rgba(0,184,148,0.6); }
+            0% { box-shadow:0 0 6px rgba(0,184,148,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(0,184,148,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowPeach {
-            0% { box-shadow:0 0 6px rgba(250,177,160,0.1); border-color:rgba(250,177,160,0.2); }
-            100% { box-shadow:0 0 20px rgba(250,177,160,0.4); border-color:rgba(250,177,160,0.7); }
+            0% { box-shadow:0 0 6px rgba(250,177,160,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(250,177,160,0.55), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
         @keyframes borderGlowBlue {
-            0% { box-shadow:0 0 6px rgba(116,185,255,0.1); border-color:rgba(116,185,255,0.2); }
-            100% { box-shadow:0 0 20px rgba(116,185,255,0.4); border-color:rgba(116,185,255,0.7); }
+            0% { box-shadow:0 0 6px rgba(116,185,255,0.15), inset 0 1px 0 rgba(255,255,255,0.35); }
+            100% { box-shadow:0 0 22px rgba(116,185,255,0.55), inset 0 1px 0 rgba(255,255,255,0.35); }
         }
 
-        .close-genres { width:100%; padding:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); border-radius:25px; color:#555; font-size:0.75rem; cursor:pointer; font-weight:600; margin-top:10px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; }
-        .close-genres:active { background:rgba(255,255,255,0.05); transform:scale(0.97); }
+        .close-genres { width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:25px; color:#aaa; font-size:0.75rem; cursor:pointer; font-weight:600; margin-top:10px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; backdrop-filter:blur(10px); }
+        .close-genres:active { background:rgba(255,255,255,0.1); transform:scale(0.97); }
 
         /* ===== FAVORITOS MODAL ===== */
         .fav-modal { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,30,0.98); backdrop-filter:blur(20px); border-radius:25px 25px 0 0; padding:14px 12px 18px; z-index:2001; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height:70vh; overflow:hidden; border-top:1px solid rgba(255,255,255,0.05); }
@@ -430,7 +484,7 @@
         @media (max-width:480px) {
             .logo-macaco { height:32px; width:32px; }
             .btn-genero-fav { padding:4px 10px; gap:5px; min-height:32px; }
-            .btn-genero-fav .genero-nome { font-size:0.85rem; }
+            .btn-genero-fav .genero-nome { font-size:0.7rem; letter-spacing:0.8px; }
             .btn-genero-fav .fav-badge { font-size:0.55rem; min-width:16px; line-height:16px; }
             .btn-genero-fav .coracao-icon { font-size:0.7rem; }
             .top-bar { height:50px; padding:4px 8px; }
@@ -455,10 +509,10 @@
             .qr-content .qr-wrapper img { width:140px; height:140px; }
             .qr-content .qr-logo-overlay { width:36px; height:36px; }
             .qr-content .qr-logo-overlay img { width:24px; height:24px; }
-            .genres-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
-            .genre-card { min-height:52px; padding:10px 6px; border-radius:12px; }
-            .genre-card .genre-name { font-size:0.88rem; letter-spacing:0.3px; }
-            .genres-modal .header .titulo { font-size:1rem; }
+            .genres-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+            .genre-card { min-height:56px; padding:12px 6px; border-radius:14px; }
+            .genre-card .genre-name { font-size:0.65rem; letter-spacing:1.2px; }
+            .genres-modal .header .titulo { font-size:0.95rem; }
             .fav-item-modal { min-height:36px; font-size:0.8rem; }
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
             .fav-item-modal .fav-info .artist { font-size:0.6rem; }
@@ -469,6 +523,7 @@
             #btnSairModoTV { top:80px; right:10px; width:30px; height:30px; font-size:1rem; }
             #adminPanel .senha-box .row .favicon-wrapper { width:28px; height:28px; }
             #adminPanel .senha-box .row .favicon-wrapper img { height:20px; width:20px; }
+            .genero-nome { font-size:0.7rem; letter-spacing:0.8px; }
         }
     </style>
 </head>
@@ -701,7 +756,7 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- ========== JAVASCRIPT COMPLETO E REVISADO ========== -->
+<!-- ========== JAVASCRIPT COMPLETO ========== -->
 <script>
 (function(){
     'use strict';
@@ -731,7 +786,6 @@
             'CHORINHO': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/chorinho.json',
             'FORRÓ RAIZ': 'https://raw.githubusercontent.com/radiolojasjc-hub/forroraiz/refs/heads/main/forroraiz.json',
             'ROCK': 'https://raw.githubusercontent.com/radiolojasjc-hub/rock/refs/heads/main/rock.json',
-            // ===== NOVOS GÊNEROS ADICIONADOS (v2) =====
             'NOVIDADES': 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/novidades.json',
             'MISTURA BRASIL': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/misturabrasil.json',
             'DIRIGINDO': 'https://raw.githubusercontent.com/radiolojasjc-hub/listtop/refs/heads/main/dirigindo.json',
@@ -739,12 +793,10 @@
             'SERESTA': 'https://raw.githubusercontent.com/radiolojasjc-hub/sertanejo/refs/heads/main/seresta.json',
             'MPB 2': 'https://raw.githubusercontent.com/radiolojasjc-hub/mpbtop/refs/heads/main/mpb2.json',
             'HIP HOP': 'https://raw.githubusercontent.com/radiolojasjc-hub/poptop/refs/heads/main/hiphop.json',
-            // ===== NOVOS GÊNEROS ADICIONADOS (v3) =====
             'PAGODE': 'https://raw.githubusercontent.com/radiolojasjc-hub/sambatop/refs/heads/main/pagode.json',
             'BAILÃO': 'https://raw.githubusercontent.com/radiolojasjc-hub/forrodez/refs/heads/main/bail%C3%A3o.json',
             'GLOBAL HITS': 'https://raw.githubusercontent.com/radiolojasjc-hub/chorinho/refs/heads/main/globalhits.json',
         },
-        // ===== ORDEM DOS GÊNEROS =====
         ORDEM: [
             'BÔNUS',
             'POP/MIX',
@@ -781,7 +833,6 @@
             'MODA RAIZ':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop',
             'FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias',
             'MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock',
-            // ===== REPOSITÓRIOS DOS NOVOS GÊNEROS =====
             'NOVIDADES': 'VDB',
             'MISTURA BRASIL': 'listtop',
             'DIRIGINDO': 'listtop',
@@ -1412,7 +1463,6 @@
 
     function atualizarLetreiro(musica) {
         if(appState.scrollPersonalizado) return;
-        // 📝 Usa a constante LETREIRO_PROMO (editável no topo do código)
         if(musica) dom.scrollText.textContent = sanitize(musica.title)+' - '+sanitize(musica.artist)+' ['+musica.genero+'] 🎵 | '+LETREIRO_PROMO;
         else dom.scrollText.textContent = LETREIRO_PROMO;
         dom.scrollText.style.animation = 'none';
@@ -1693,7 +1743,7 @@
     }
 
     // =============================================================
-    // 13. GÊNEROS (com cores personalizadas por gênero)
+    // 13. GÊNEROS (com cores personalizadas + efeito vidro)
     // =============================================================
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
@@ -1704,10 +1754,9 @@
             const name = document.createElement('div');
             name.className = 'genre-name';
             name.textContent = g;
-            // 🎨 Aplica a cor exclusiva do gênero no nome do card
             const cor = GENRE_COLORS[g] || '#c8c8c8';
             name.style.color = cor;
-            name.style.textShadow = `0 0 15px ${cor}80, 0 2px 8px rgba(0,0,0,0.6)`;
+            name.style.textShadow = `0 0 12px ${cor}, 0 0 24px ${cor}, 0 2px 10px rgba(0,0,0,0.85)`;
             card.appendChild(name);
             card.onclick = () => selecionarGenero(g);
             dom.genresGrid.appendChild(card);
@@ -1729,7 +1778,6 @@
         appState.playlistAtual = shuffle(musicas);
         appState.indiceAtual = 0;
         dom.generoNome.textContent = genero;
-        // 🎨 Aplica a cor exclusiva do gênero no nome do topo
         const corTopo = GENRE_COLORS[genero] || '#ffffff';
         dom.generoNome.style.background = `linear-gradient(135deg, #ffffff 0%, ${corTopo} 60%, ${corTopo} 100%)`;
         dom.generoNome.style.webkitBackgroundClip = 'text';
@@ -2108,7 +2156,7 @@
     // 18. INICIALIZAÇÃO
     // =============================================================
     async function iniciar() {
-        console.log('🚀 VAI DE BOA! MUSIC v6.5 - 28 gêneros + cores personalizadas + letreiro editável');
+        console.log('🚀 VAI DE BOA! MUSIC v7.0 - Efeito vidro + Audiowide + 28 gêneros');
         try {
             appState.favorites = appState.getFavorites();
             updateFavBadge();
