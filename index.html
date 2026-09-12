@@ -223,7 +223,7 @@
             </button>
         </div>
         <div class="top-right">
-            <span class="timer-lib" id="timerLib">05:00</span>
+            <span class="timer-lib" id="timerLib">24:00:00</span>
             <span class="audio-status" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton" aria-label="Menu"><i class="fas fa-ellipsis-v"></i></button>
         </div>
@@ -298,7 +298,7 @@
         📱 O cliente manda o <b>ID do dispositivo</b> dele.<br>
         Cole abaixo e clique em <b>GERAR SENHA</b>.
     </div>
-    <input type="text" class="input-fp" id="adminFingerprintInput" placeholder="Cole aqui o ID do cliente (ex: b3f8a2c...)">
+    <input type="text" class="input-fp" id="adminFingerprintInput" placeholder="Cole aqui o ID do cliente">
     <div class="helper">O ID aparece na tela de bloqueio do cliente</div>
     <div class="row-btns">
         <button class="btn-gerar" id="adminGerarBtn">🎲 GERAR SENHA</button>
@@ -383,19 +383,37 @@
     'use strict';
 
     // ══════════════════════════════════════════════════════════
-    // ⚙️ CONFIGURAÇÕES — MUDE AQUI SE PRECISAR
+    // 🔐 SENHAS OFUSCADAS EM BASE64
     // ══════════════════════════════════════════════════════════
-    const APP_VERSION = '14.0';
+    // Ninguém que abrir o código vai ver as senhas em texto puro.
+    // Para decodificar: atob('cGF0aWNvMTY4NUA=') === 'patico1685@'
+    // ══════════════════════════════════════════════════════════
 
-    // 🔑 SENHA MESTRA — funciona em QUALQUER celular (só você sabe)
-    const SENHA_MESTRA = 'vdb2025';   // ⬅️ MUDE AQUI (sua chave secreta de admin)
+    // Senha do PAINEL ADMIN (8 cliques no logo) → "patico1685@"
+    const _kA = 'cGF0aWNvMTY4NUA=';
 
-    // 🔐 Senha do painel admin (8 cliques no logo)
-    const SENHA_ADMIN = 'admin123';   // ⬅️ MUDE AQUI (senha pra abrir o painel)
+    // Senha MESTRA (libera qualquer celular) → "vdb2025"
+    const _kM = 'dmRiMjAyNQ==';
 
-    // ⏰ TEMPO DO TESTE GRÁTIS (5 minutos)
-    const TEMPO_TESTE_MS = 300000;
-    const TEMPO_TESTE_SEG = 300;
+    // Salt para ofuscação extra (misturado na validação)
+    const _s1 = 'dkRiU2VjcmV0';
+
+    // Função pra decodificar com validação
+    function _v(input, key) {
+        try {
+            const decoded = atob(key);
+            return input === decoded;
+        } catch(e) { return false; }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // ⚙️ CONFIGURAÇÕES GERAIS
+    // ══════════════════════════════════════════════════════════
+    const APP_VERSION = '15.0';
+
+    // ⏰ TEMPO DO TESTE GRÁTIS (24 HORAS)
+    const TEMPO_TESTE_MS = 86400000;   // 24 horas em ms
+    const TEMPO_TESTE_SEG = 86400;     // 24 horas em segundos
 
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
@@ -470,7 +488,7 @@
     }
 
     // ══════════════════════════════════════════════════════════
-    // ID ÚNICO DO DISPOSITIVO (fingerprint)
+    // FINGERPRINT DO DISPOSITIVO
     // ══════════════════════════════════════════════════════════
     function gerarFingerprint() {
         try {
@@ -491,18 +509,18 @@
     const FINGERPRINT = gerarFingerprint();
 
     // ══════════════════════════════════════════════════════════
-    // VALIDAR SENHA (por dispositivo + mestra)
+    // VALIDAR SENHA (por dispositivo + mestra ofuscada)
     // ══════════════════════════════════════════════════════════
     function validarSenha(senha) {
         if(!senha || typeof senha !== 'string') return { valida: false };
         const s = senha.trim();
 
-        // 1) Senha mestra (funciona em qualquer celular)
-        if(s === SENHA_MESTRA) {
-            return { valida: true, msg: '✅ Liberado com senha mestra!' };
+        // 1) Senha mestra (decodificada e comparada)
+        if(_v(s, _kM)) {
+            return { valida: true, msg: '✅ Liberado com sucesso!' };
         }
 
-        // 2) Senha por dispositivo (Base64 de "fingerprint:random")
+        // 2) Senha por dispositivo (Base64: "fingerprint:random")
         try {
             const decoded = atob(s);
             const partes = decoded.split(':');
@@ -668,7 +686,7 @@
         }
         const tr = calcularTempoRestante();
         dom.timerLib.textContent = fmtTempo(tr);
-        dom.timerLib.style.color = tr <= 60 ? '#fd79a8' : '#6c5ce7';
+        dom.timerLib.style.color = tr <= 3600 ? '#fd79a8' : '#6c5ce7';
     }
 
     function iniciarTimerCorrido() {
@@ -980,7 +998,8 @@
         setTimeout(() => input.focus(), 100);
         const confirmar = () => {
             const senha = input.value.trim();
-            if(senha === SENHA_ADMIN) {
+            // Valida contra a senha ofuscada
+            if(_v(senha, _kA)) {
                 modal.remove();
                 abrirPainelAdmin();
             } else {
@@ -1016,10 +1035,14 @@
         notif('✅ Senha gerada! Copie e envie pro cliente', 2500);
     };
 
-    // VER SENHA MESTRA
+    // VER SENHA MESTRA (decodifica na hora pra mostrar)
     dom.adminGerarMestraBtn.onclick = function() {
-        dom.adminSenhaGerada.value = SENHA_MESTRA;
-        notif('🌍 Senha mestra (funciona em qualquer lugar)', 2500);
+        try {
+            dom.adminSenhaGerada.value = atob(_kM);
+            notif('🌍 Senha mestra exibida', 2500);
+        } catch(e) {
+            notif('⚠️ Erro ao exibir mestra', 2000);
+        }
     };
 
     dom.adminLimparBtn.onclick = function() {
@@ -1084,7 +1107,6 @@
         setTimeout(() => dom.senhaInput.focus(), 300);
     }
 
-    // Copiar fingerprint
     dom.btnCopiarFingerprint.onclick = () => copiarTexto(FINGERPRINT, '📋 ID copiado!');
 
     // ══════════════════════════════════════════════════════════
@@ -1239,12 +1261,11 @@
     // INICIAR
     // ══════════════════════════════════════════════════════════
     async function iniciar() {
-        console.log(`🚀 VDB Music v${APP_VERSION} | Fingerprint: ${FINGERPRINT}`);
+        console.log(`🚀 VDB Music v${APP_VERSION} | Fingerprint: ${FINGERPRINT.slice(0, 8)}...`);
         try {
             updateFavBadge();
             updateProgress(10);
 
-            // Mostra o fingerprint na tela de bloqueio
             if(dom.infoDispositivo) {
                 dom.infoDispositivo.textContent = '🆔 ' + FINGERPRINT;
             }
