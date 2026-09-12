@@ -72,7 +72,7 @@
         .info-scroll.modo-pesquisa { height:44px; background:rgba(0,0,0,0.4); cursor:default; }
         .info-scroll.hidden { opacity:0; pointer-events:none; height:0; padding:0; overflow:hidden; }
 
-        .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 25s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
+        .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 30s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
         .info-scroll.modo-pesquisa .letreiro { animation:none; white-space:normal; text-overflow:clip; }
         @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
 
@@ -128,50 +128,59 @@
         .genres-grid::-webkit-scrollbar { display:none; }
 
         /* ═══════════════════════════════════════════════════════
-           CARDS DE GÊNERO — PREMIUM AZUL (CONFORME SOLICITADO)
+           CARDS DE GÊNERO — SPOTIFY STYLE
+           Fundo com foto (opcional) + overlay escuro + nome embaixo
+           Se não tiver foto, o JS aplica um gradiente automático.
            ═══════════════════════════════════════════════════════ */
         .genre-card {
-            position:relative;
-            min-height:64px;
-            border-radius:16px;
-            cursor:pointer;
-            padding:14px 10px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            text-align:center;
-            transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            background:linear-gradient(135deg, rgba(79,195,247,0.18) 0%, rgba(79,195,247,0.05) 45%, rgba(79,195,247,0.12) 100%);
-            backdrop-filter:blur(22px) saturate(180%);
-            -webkit-backdrop-filter:blur(22px) saturate(180%);
-            border:1px solid rgba(79,195,247,0.35);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(79,195,247,0.08), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.12), inset 0 0 20px rgba(79,195,247,0.06);
-            overflow:hidden;
-            animation:borderGlowBlue 3s ease-in-out infinite alternate;
-        }
-        .genre-card::before {
-            content:''; position:absolute; top:0; left:0; right:0; height:50%;
-            background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 60%, transparent 100%);
-            pointer-events:none; border-radius:16px 16px 60% 60% / 16px 16px 22px 22px; z-index:0;
+            position: relative;
+            aspect-ratio: 1 / 1;
+            min-height: 120px;
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+            background: #1a1a3e center/cover no-repeat;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .genre-card::after {
-            content:''; position:absolute; inset:0; border-radius:16px; padding:1px;
-            background:linear-gradient(135deg, rgba(79,195,247,0.7) 0%, transparent 35%, transparent 65%, rgba(79,195,247,0.4) 100%);
-            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; opacity:0.75; z-index:1;
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg,
+                rgba(0,0,0,0) 35%,
+                rgba(0,0,0,0.55) 75%,
+                rgba(0,0,0,0.85) 100%);
+            pointer-events: none;
+            z-index: 1;
         }
-        .genre-card:active { transform:scale(0.94); background:linear-gradient(135deg, rgba(79,195,247,0.28) 0%, rgba(79,195,247,0.15) 100%); }
+        .genre-card:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
         .genre-card .genre-name {
-            font-family:'Audiowide', 'Rajdhani', sans-serif; font-size:0.8rem; font-weight:400; letter-spacing:1.8px; text-transform:uppercase;
-            color:var(--genre-blue); text-shadow:0 0 12px var(--genre-blue), 0 0 24px rgba(79,195,247,0.6), 0 2px 10px rgba(0,0,0,0.85);
-            z-index:2; line-height:1.25; position:relative; transition:color 0.2s, text-shadow 0.2s;
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            right: 10px;
+            font-family: 'Audiowide', 'Rajdhani', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 400;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #fff;
+            text-align: left;
+            line-height: 1.2;
+            z-index: 2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
         }
-        .genre-card .genre-count { display:none; }
-
-        @keyframes borderGlowBlue {
-            0% { box-shadow:0 0 6px rgba(79,195,247,0.15), inset 0 1px 0 rgba(255,255,255,0.3); border-color:rgba(79,195,247,0.25); }
-            100% { box-shadow:0 0 25px rgba(79,195,247,0.55), inset 0 1px 0 rgba(255,255,255,0.3); border-color:rgba(79,195,247,0.7); }
-        }
+        .genre-card .genre-count { display: none; }
 
         .close-genres { width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:25px; color:#aaa; font-size:0.75rem; cursor:pointer; font-weight:600; margin-top:10px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; backdrop-filter:blur(10px); }
         .close-genres:active { background:rgba(255,255,255,0.1); transform:scale(0.97); }
@@ -421,8 +430,8 @@
             .qr-content .qr-logo-overlay { width:36px; height:36px; }
             .qr-content .qr-logo-overlay img { width:24px; height:24px; }
             .genres-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
-            .genre-card { min-height:56px; padding:12px 6px; border-radius:14px; }
-            .genre-card .genre-name { font-size:0.65rem; letter-spacing:1.2px; }
+            .genre-card { min-height:100px; border-radius:8px; }
+            .genre-card .genre-name { font-size:0.7rem; letter-spacing:0.9px; bottom:6px; left:8px; right:8px; }
             .genres-modal .header .titulo { font-size:0.95rem; }
             .fav-item-modal { min-height:36px; font-size:0.8rem; }
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
@@ -466,7 +475,7 @@
         </div>
     </div>
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵</p>
+        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵 - SERTANEJO • MPB • ROCK • FORRÓ • PAGODE • ROMÂNTICA • FLASHBACK 🎶</p>
         <div class="search-input-container">
             <input type="text" id="searchInputLetreiro" placeholder="🔍 Pesquisar música...">
             <button id="searchClearLetreiro" aria-label="Limpar busca">✕</button>
@@ -686,9 +695,87 @@
 (function(){
     'use strict';
 
+    /* ═══════════════════════════════════════════════════════════════
+       ╔═══════════════════════════════════════════════════════════╗
+       ║                                                           ║
+       ║   ✏️✏️✏️   EDITE AQUI  ✏️✏️✏️                              ║
+       ║                                                           ║
+       ║   Tudo o que você precisa mudar está neste bloco!         ║
+       ║                                                           ║
+       ╚═══════════════════════════════════════════════════════════╝
+       ═══════════════════════════════════════════════════════════════ */
+
+    const EDITE_AQUI = {
+
+        // ────────────────────────────────────────────────────────
+        // 📸 IMAGENS DOS GÊNEROS (OPCIONAL)
+        // ────────────────────────────────────────────────────────
+        // COMO USAR:
+        //   - Cole o link direto da imagem (.jpg, .png, .webp)
+        //   - Se deixar em branco/comentar (//), o card usa
+        //     um GRADIENTE COLORIDO AUTOMÁTICO (fica bonito também!)
+        //   - Não precisa preencher todos — só os que você quiser
+        //
+        // 📐 TAMANHO IDEAL: 400x400 pixels (quadrado)
+        // 💡 DICA: hospede no Imgur, ImgBB, ou no próprio GitHub
+        //
+        IMAGENS: {
+            // 'BÔNUS':            'https://i.imgur.com/exemplo1.jpg',
+            // 'SERTANEJO':        'https://i.imgur.com/exemplo2.jpg',
+            // 'MPB':              'https://i.imgur.com/exemplo3.jpg',
+            // 'ROCK':             'https://i.imgur.com/exemplo4.jpg',
+            // 'FORRÓ':            'https://i.imgur.com/exemplo5.jpg',
+            // 'PAGODE':           'https://i.imgur.com/exemplo6.jpg',
+            // 'ROMÂNTICA':        'https://i.imgur.com/exemplo7.jpg',
+            // 'FLASHBACK':        'https://i.imgur.com/exemplo8.jpg',
+            // 'GOSPEL':           'https://i.imgur.com/exemplo9.jpg',
+            // 'FUNK':             'https://i.imgur.com/exemplo10.jpg',
+            // ... adicione mais conforme precisar
+        },
+
+        // ────────────────────────────────────────────────────────
+        // 📢 TEXTO DO LETREIRO (o que rola no topo)
+        // ────────────────────────────────────────────────────────
+        // Pode colocar quantas palavras quiser!
+        // Quanto mais texto, mais tempo pra rolar.
+        // Use emojis pra deixar mais atrativo 🎵🎶🔥
+        //
+        LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  GOSPEL  •  FUNK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
+
+        // ────────────────────────────────────────────────────────
+        // ⏰ TEMPO DO TESTE GRÁTIS (em segundos)
+        // ────────────────────────────────────────────────────────
+        //  3600    = 1 hora
+        //  21600   = 6 horas
+        //  43200   = 12 horas
+        //  86400   = 24 horas (padrão)
+        //  172800  = 2 dias
+        //  604800  = 7 dias
+        //
+        TEMPO_TESTE_SEGUNDOS: 86400,
+
+        // ────────────────────────────────────────────────────────
+        // 📱 NÚMERO DO WHATSAPP (só dígitos, com DDI 55)
+        // ────────────────────────────────────────────────────────
+        WHATSAPP: '5512988461978',
+
+        // ────────────────────────────────────────────────────────
+        // ⏱️ VELOCIDADE DO LETREIRO (segundos por volta)
+        // ────────────────────────────────────────────────────────
+        //  20 = rápido  |  30 = normal  |  45 = lento
+        //
+        LETREIRO_DURACAO: 30,
+    };
+
+    /* ═══════════════════════════════════════════════════════════════
+       ═══════════════════════════════════════════════════════════════
+       ⚠️  DAQUI PRA BAIXO NÃO PRECISA MEXER
+       ═══════════════════════════════════════════════════════════════
+       ═══════════════════════════════════════════════════════════════ */
+
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
-        WHATSAPP_NUMBER: '12988461978',
+        WHATSAPP_NUMBER: EDITE_AQUI.WHATSAPP.replace(/\D/g,''),
         GENRE_URLS: {
             'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
             'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -750,7 +837,8 @@
     const SENHA_MESTRA = String.fromCharCode(80,97,116,105,99,111,49,54,56,53,64);
 
     const GENRE_COLOR = '#4fc3f7';
-    const LETREIRO_PROMO = '🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
+    const LETREIRO_PROMO = EDITE_AQUI.LETREIRO;
+    const TEMPO_TESTE = EDITE_AQUI.TEMPO_TESTE_SEGUNDOS;
 
     const $ = id => document.getElementById(id);
     const fmt = s => { if(!s||isNaN(s)) return '0:00'; const m=Math.floor(s/60); const seg=Math.floor(s%60); return m+':'+(seg<10?'0':'')+seg; };
@@ -758,6 +846,17 @@
     const sanitize = t => { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.textContent; };
     const sleep = ms => new Promise(r=>setTimeout(r,ms));
     const now = () => Date.now();
+
+    // Gera gradiente determinístico a partir do nome (fallback quando não tem imagem)
+    function gerarGradienteGenero(nome) {
+        let hash = 0;
+        for (let i = 0; i < nome.length; i++) {
+            hash = nome.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h1 = Math.abs(hash) % 360;
+        const h2 = (h1 + 45) % 360;
+        return `linear-gradient(135deg, hsl(${h1}, 55%, 40%) 0%, hsl(${h2}, 65%, 18%) 100%)`;
+    }
 
     function copiarTexto(texto, mensagem) {
         if(!texto) return notif('⚠️ Nada para copiar!',1500);
@@ -827,7 +926,7 @@
             this.favorites = this.data.favorites || [];
             this.fingerprint = this._getFingerprint();
             this.desbloqueado = this.data.desbloqueado || false;
-            this.tempoRestante = this.data.tempoRestante || 86400;
+            this.tempoRestante = this.data.tempoRestante || TEMPO_TESTE;
             this.modoTV = this.data.modoTV || false;
             this.modoAtual = this.data.modoAtual || 'BÔNUS';
             this.musicas = this.data.musicas || [];
@@ -855,7 +954,7 @@
                 const raw = localStorage.getItem(this.key);
                 if(raw) { const parsed = JSON.parse(raw); if(parsed.version === this.version) return parsed; }
             } catch(e) {}
-            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: 86400, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
+            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: TEMPO_TESTE, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
         }
         _save() {
             this.data = { version: this.version, favorites: this.favorites, desbloqueado: this.desbloqueado, tempoRestante: this.tempoRestante, modoTV: this.modoTV, modoAtual: this.modoAtual, musicas: this.musicas, playlistAtual: this.playlistAtual, indiceAtual: this.indiceAtual, shuffleMode: this.shuffleMode, historico: this.historico, cadastro: this.cadastro };
@@ -943,10 +1042,9 @@
     function updateProgress(pct) { dom.loadingProgressFill.style.width = Math.min(pct,100)+'%'; }
 
     function calcularTempoRestante() {
-        // Se bloqueado permanentemente, não recria expiração
         if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') return 0;
         const exp = localStorage.getItem('vdb_teste_expiracao');
-        if(!exp) { const inicio = now(); localStorage.setItem('vdb_teste_expiracao', String(inicio + 86400000)); return 86400; }
+        if(!exp) { const inicio = now(); localStorage.setItem('vdb_teste_expiracao', String(inicio + TEMPO_TESTE*1000)); return TEMPO_TESTE; }
         const e = parseInt(exp);
         const rest = Math.floor((e - now()) / 1000);
         return rest > 0 ? rest : 0;
@@ -973,11 +1071,11 @@
 
     function iniciarTimerCorrido() {
         if(!localStorage.getItem('vdb_teste_expiracao') && localStorage.getItem('vdb_bloqueado_permanente') !== 'true') {
-            localStorage.setItem('vdb_teste_expiracao', String(now() + 86400000));
+            localStorage.setItem('vdb_teste_expiracao', String(now() + TEMPO_TESTE*1000));
         }
         updateTimerDisplay();
         function tick() {
-            if(appState.desbloqueado) return; // não precisa continuar
+            if(appState.desbloqueado) return;
             const tr = calcularTempoRestante();
             appState.tempoRestante = tr;
             if(tr <= 0) {
@@ -986,7 +1084,7 @@
                     appState.escolhaMostrada = true;
                     mostrarEscolha();
                 }
-                return; // para o tick — não empilha
+                return;
             }
             updateTimerDisplay();
             appState._timerTimeout = setTimeout(tick, 2000);
@@ -1020,7 +1118,7 @@
         if(btnComprar) {
             btnComprar.onclick = () => {
                 const msg = encodeURIComponent('Olá! Gostei do VAI DE BOA! MUSIC e quero comprar o VITALÍCIO por R$ 39,00');
-                window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
             };
         }
         if(btnTenhoSenha) {
@@ -1103,9 +1201,6 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // tocar() — CORRIGIDO (race condition)
-    // ═══════════════════════════════════════════════════════════
     async function tocar() {
         if(!appState.isBackgroundActive || appState.carregandoMusica || !appState.musicas.length) return;
         appState.carregandoMusica = true;
@@ -1180,7 +1275,7 @@
         else dom.scrollText.textContent = LETREIRO_PROMO;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 25s linear infinite';
+        dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
     }
 
     function togglePlay() {
@@ -1228,9 +1323,6 @@
     function getSilentAudioBlob() { if(!silentAudioBlob) silentAudioBlob = criarSilentAudio(); return silentAudioBlob; }
     function getSilentAudioUrl() { if(!silentAudioUrl) silentAudioUrl = URL.createObjectURL(getSilentAudioBlob()); return silentAudioUrl; }
 
-    // ═══════════════════════════════════════════════════════════
-    // manterAudioAtivo() — OTIMIZADO (3s em vez de 1s)
-    // ═══════════════════════════════════════════════════════════
     let keepAliveInterval = null;
     function manterAudioAtivo() {
         if(keepAliveInterval) clearInterval(keepAliveInterval);
@@ -1244,7 +1336,6 @@
             } catch(e) {}
         }, 3000);
 
-        // Reset imediato quando a música termina (mais rápido que o polling)
         dom.audio.addEventListener('ended', () => {
             if(appState.isPlaying && !appState.carregandoMusica) next();
         });
@@ -1425,11 +1516,21 @@
             const card = document.createElement('div');
             card.className = 'genre-card';
             card.setAttribute('data-genre', g);
+
+            // ═══════════════════════════════════════════════════
+            // APLICA IMAGEM (se configurada) OU GRADIENTE AUTOMÁTICO
+            // ═══════════════════════════════════════════════════
+            const imgUrl = EDITE_AQUI.IMAGENS[g];
+            if(imgUrl && typeof imgUrl === 'string' && imgUrl.trim().length > 0) {
+                card.style.backgroundImage = `url('${imgUrl}')`;
+                card.style.backgroundColor = '#1a1a3e';
+            } else {
+                card.style.background = gerarGradienteGenero(g);
+            }
+
             const name = document.createElement('div');
             name.className = 'genre-name';
             name.textContent = g;
-            name.style.color = GENRE_COLOR;
-            name.style.textShadow = `0 0 12px ${GENRE_COLOR}, 0 0 24px rgba(79,195,247,0.6), 0 2px 10px rgba(0,0,0,0.85)`;
             card.appendChild(name);
             card.onclick = () => selecionarGenero(g);
             dom.genresGrid.appendChild(card);
@@ -1485,9 +1586,6 @@
         }
     });
 
-    // ═══════════════════════════════════════════════════════════
-    // blur — só aplica se o termo MUDOU desde a última busca
-    // ═══════════════════════════════════════════════════════════
     dom.searchInputLetreiro.addEventListener('blur', function() {
         const self = this;
         setTimeout(() => {
@@ -1544,7 +1642,7 @@
             dom.scrollText.textContent = '🔍 Resultados: ' + sanitize(primeira.title) + ' - ' + sanitize(primeira.artist) + ' (+' + (filtradas.length-1) + ' músicas)';
             dom.scrollText.style.animation = 'none';
             dom.scrollText.offsetHeight;
-            dom.scrollText.style.animation = 'scrollText 25s linear infinite';
+            dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
         } else {
             notif('🔍 Nenhuma música encontrada',1500);
             dom.scrollText.textContent = '🔍 Nenhum resultado para "' + sanitize(termo) + '"';
@@ -1554,9 +1652,6 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // Logo — 8 cliques em até 3 segundos (janela real)
-    // ═══════════════════════════════════════════════════════════
     let clickTimestamps = [];
     dom.logoMacaco.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -1571,7 +1666,7 @@
 
     function abrirWhatsAppCompra() {
         const msg = encodeURIComponent('Olá! Quero adquirir o VAI DE BOA! MUSIC VITALÍCIO por R$ 39,00');
-        window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
+        window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
     }
 
     function abrirCadastro() {
@@ -1603,14 +1698,13 @@
             appState.cadastro = { nome, zap, data: new Date().toISOString() };
             appState._save();
             const msg = `🎵 *VAI DE BOA! MUSIC*\n\n👤 *Nome:* ${nome}\n📱 *WhatsApp:* ${zap}\n💰 *Valor:* R$ 39,00 (Vitalício)\n\n✅ Quero comprar o acesso!`;
-            window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+            window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
             modal.remove();
             notif('✅ Cadastro enviado! Aguarde ativação!',3000);
         };
     }
 
     function abrirAdmin() {
-        // ⚠️ Persistência do bloqueio em localStorage
         const lock = JSON.parse(localStorage.getItem('vdb_admin_lock') || '{"tentativas":0,"bloqueado":false,"ate":0}');
         if(lock.bloqueado && now() < lock.ate) {
             const rest = Math.ceil((lock.ate - now())/1000);
@@ -1811,9 +1905,6 @@
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // INSTALAÇÃO PWA
-    // ═══════════════════════════════════════════════════════════
     const btnInstalarFixo = document.getElementById('btnInstalarFixo');
     const instrucoesInstalar = document.getElementById('instrucoesInstalar');
     const instrucoesBox = document.getElementById('instrucoesBox');
@@ -1828,9 +1919,6 @@
         deferredInstallPrompt = e;
     });
 
-    // ═══════════════════════════════════════════════════════════
-    // Esconde botão Instalar na tela de bloqueio
-    // ═══════════════════════════════════════════════════════════
     function atualizarVisibilidadeBotaoInstalar() {
         if(!btnInstalarFixo) return;
         const bloqueado = dom.blockOverlay.classList.contains('active') && dom.blockOverlay.style.display !== 'none';
@@ -1841,7 +1929,6 @@
         }
     }
 
-    // Observa mudanças no overlay de bloqueio
     const overlayObserver = new MutationObserver(atualizarVisibilidadeBotaoInstalar);
     overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
 
@@ -1898,6 +1985,12 @@
             appState.favorites = appState.getFavorites();
             updateFavBadge();
             updateProgress(10);
+
+            // Atualiza o letreiro inicial com o texto do EDITE_AQUI
+            dom.scrollText.textContent = LETREIRO_PROMO;
+            dom.scrollText.style.animation = 'none';
+            dom.scrollText.offsetHeight;
+            dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
 
             await carregarMidiasPadrao();
             updateProgress(30);
@@ -2033,7 +2126,7 @@
             dom.sendFeedbackBtn.onclick = () => {
                 const stars = document.querySelectorAll('.star.active').length;
                 const text = dom.feedbackText.value;
-                window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent('⭐'+'★'.repeat(stars)+' '+text));
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent('⭐'+'★'.repeat(stars)+' '+text));
                 dom.feedbackModal.classList.remove('open');
             };
             dom.closeFeedbackBtn.onclick = () => dom.feedbackModal.classList.remove('open');
@@ -2071,7 +2164,7 @@
                 const senha = dom.adminSenhaGerada.value;
                 if(!senha) { notif('⚠️ Gere uma senha primeiro!',1500); return; }
                 const mensagem = '🔑 *VAI DE BOA! MUSIC*%0A%0ASua senha de acesso:%0A%0A`'+senha+'`%0A%0A📱 Copie e cole no app para liberar!%0A🎵 Aproveite todas as músicas!';
-                window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+mensagem,'_blank');
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+mensagem,'_blank');
             };
             dom.adminCloseBtn.onclick = function() { dom.adminPanel.classList.remove('open'); };
 
