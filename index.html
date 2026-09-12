@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="icon" href="favicon30.png" type="image/png">
+    <link rel="icon" href="favicon30.png" type="image/png" id="faviconDinamico">
     <link rel="apple-touch-icon" href="favicon30.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon30.png">
     <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a1e%22%2C%22theme_color%22%3A%22%230a0a1e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22favicon30.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1e">
+    <meta name="application-name" content="VDB Music">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,14 +28,42 @@
             --accent:#fd79a8;
             --gold:#fdcb6e;
             --dark:#0a0a1e;
-            --card-bg:rgba(255,255,255,0.06);
             --safe-bottom:env(safe-area-inset-bottom, 0px);
             --shadow:0 8px 32px rgba(0,0,0,0.5);
             --genre-blue: #4fc3f7;
         }
 
         #loadingScreen { position:fixed; inset:0; background:var(--dark); display:flex; align-items:center; justify-content:center; z-index:99999; flex-direction:column; gap:16px; }
-        .loading-logo { width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); animation:pulse 1.5s infinite; box-shadow:0 0 60px rgba(108,92,231,0.2); }
+        .loading-logo {
+            width:72px; height:72px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid var(--primary);
+            animation: logoDance 2s ease-in-out infinite;
+            box-shadow:0 0 60px rgba(108,92,231,0.4);
+        }
+        @keyframes logoDance {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+                box-shadow:0 0 20px rgba(108,92,231,0.5);
+                border-color: var(--primary);
+            }
+            25% {
+                transform: scale(1.08) rotate(-8deg);
+                box-shadow:0 0 40px rgba(0,206,201,0.8);
+                border-color: var(--secondary);
+            }
+            50% {
+                transform: scale(1) rotate(0deg);
+                box-shadow:0 0 30px rgba(253,121,168,0.7);
+                border-color: var(--accent);
+            }
+            75% {
+                transform: scale(1.08) rotate(8deg);
+                box-shadow:0 0 40px rgba(253,203,110,0.8);
+                border-color: var(--gold);
+            }
+        }
         @keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(108,92,231,0.1)} 50%{transform:scale(1.05);box-shadow:0 0 40px rgba(108,92,231,0.3)} }
         .loading-spinner { font-size:2.2rem; color:var(--secondary); animation:spin 1.5s infinite; }
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
@@ -53,6 +83,11 @@
         .top-left { display:flex; align-items:center; gap:10px; }
         .logo-macaco { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(108,92,231,0.3); box-shadow:0 0 20px rgba(108,92,231,0.1); cursor:pointer; transition:transform 0.2s; }
         .logo-macaco:active { transform:scale(0.92); }
+        .logo-macaco:hover { animation: logoPulse 1s ease-in-out infinite; }
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow:0 0 20px rgba(108,92,231,0.3); }
+            50% { transform: scale(1.1); box-shadow:0 0 35px rgba(0,206,201,0.7); }
+        }
         .btn-genero-fav { background:rgba(255,255,255,0.08); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.15); border-radius:30px; padding:6px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.2s; min-height:36px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); }
         .btn-genero-fav:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
         .genero-nome { font-family:'Audiowide', 'Rajdhani', sans-serif; font-size:0.85rem; font-weight:400; letter-spacing:1.2px; text-transform:uppercase; color:var(--genre-blue); text-shadow:0 0 12px var(--genre-blue), 0 0 24px rgba(79,195,247,0.4); transition:filter 0.3s; }
@@ -71,7 +106,6 @@
         .info-scroll { position:fixed; top:54px; left:0; right:0; z-index:30; padding:4px 12px; height:38px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.2); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,0.03); transition:height 0.3s, background 0.3s; }
         .info-scroll.modo-pesquisa { height:44px; background:rgba(0,0,0,0.4); cursor:default; }
         .info-scroll.hidden { opacity:0; pointer-events:none; height:0; padding:0; overflow:hidden; }
-
         .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 30s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
         .info-scroll.modo-pesquisa .letreiro { animation:none; white-space:normal; text-overflow:clip; }
         @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
@@ -79,7 +113,6 @@
         .search-input-container { display:none; width:100%; align-items:center; gap:8px; position:relative; }
         .info-scroll.modo-pesquisa .search-input-container { display:flex; }
         .info-scroll.modo-pesquisa .letreiro { display:none; }
-
         #searchInputLetreiro { flex:1; background:transparent; border:none; color:#fff; font-size:0.85rem; font-weight:600; outline:none; padding:4px 32px 4px 6px; width:100%; min-width:0; }
         #searchInputLetreiro::placeholder { color:rgba(255,255,255,0.25); font-weight:400; }
         #searchClearLetreiro { position:absolute; right:6px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:1.1rem; cursor:pointer; display:none; padding:4px 8px; }
@@ -127,11 +160,6 @@
         .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:4px 0; max-height:60vh; overflow-y:auto; scrollbar-width:none; }
         .genres-grid::-webkit-scrollbar { display:none; }
 
-        /* ═══════════════════════════════════════════════════════
-           CARDS DE GÊNERO — SPOTIFY STYLE
-           Fundo com foto (opcional) + overlay escuro + nome embaixo
-           Se não tiver foto, o JS aplica um gradiente automático.
-           ═══════════════════════════════════════════════════════ */
         .genre-card {
             position: relative;
             aspect-ratio: 1 / 1;
@@ -148,10 +176,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg,
-                rgba(0,0,0,0) 35%,
-                rgba(0,0,0,0.55) 75%,
-                rgba(0,0,0,0.85) 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.85) 100%);
             pointer-events: none;
             z-index: 1;
         }
@@ -252,7 +277,15 @@
         #blockOverlay.active { display:flex; animation:fadeIn 0.5s ease; }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         .block-content { max-width:420px; width:100%; padding:24px 20px; }
-        .block-content .block-logo-img { width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); box-shadow:0 0 40px rgba(108,92,231,0.4); margin-bottom:8px; animation:pulse 2s infinite; }
+        .block-content .block-logo-img {
+            width:80px; height:80px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid var(--primary);
+            box-shadow:0 0 40px rgba(108,92,231,0.5);
+            margin-bottom:8px;
+            animation: logoDance 2.5s ease-in-out infinite;
+        }
         .block-content h1 { color:#fff; font-size:2rem; margin-bottom:2px; font-weight:900; }
         .block-content .sub { color:var(--secondary); font-size:1.1rem; font-weight:600; margin-bottom:14px; }
         .block-content input { width:100%; padding:14px 18px; border-radius:30px; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:1.1rem; text-align:center; margin-bottom:10px; outline:none; transition:border-color 0.3s; }
@@ -322,26 +355,33 @@
             bottom:calc(20px + var(--safe-bottom));
             right:16px;
             z-index:9999;
-            background:linear-gradient(135deg,#6c5ce7,#00cec9);
+            background:linear-gradient(135deg,#6c5ce7,#00cec9,#fd79a8);
+            background-size:200% 200%;
+            animation: gradientBtn 3s ease infinite, pulseInstall 2s ease-in-out infinite;
             color:#fff;
             border:none;
             border-radius:30px;
-            padding:12px 20px;
+            padding:14px 22px;
             font-weight:800;
-            font-size:0.85rem;
+            font-size:0.9rem;
             cursor:pointer;
             display:none;
             align-items:center;
             gap:8px;
-            box-shadow:0 6px 30px rgba(108,92,231,0.6);
-            animation:pulseInstall 2s ease-in-out infinite;
+            box-shadow:0 8px 35px rgba(108,92,231,0.7), 0 0 60px rgba(0,206,201,0.3);
             transition:transform 0.2s;
+            letter-spacing:0.5px;
         }
         #btnInstalarFixo:active { transform:scale(0.94); }
         #btnInstalarFixo i { font-size:1rem; }
+        @keyframes gradientBtn {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         @keyframes pulseInstall {
-            0%, 100% { transform: scale(1); box-shadow: 0 6px 30px rgba(108,92,231,0.6); }
-            50% { transform: scale(1.05); box-shadow: 0 6px 40px rgba(108,92,231,0.9); }
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 35px rgba(108,92,231,0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 45px rgba(108,92,231,0.95); }
         }
 
         #instrucoesInstalar {
@@ -444,6 +484,7 @@
             #adminPanel .senha-box .row .favicon-wrapper { width:28px; height:28px; }
             #adminPanel .senha-box .row .favicon-wrapper img { height:20px; width:20px; }
             .genero-nome { font-size:0.7rem; letter-spacing:0.8px; }
+            #btnInstalarFixo { padding:12px 18px; font-size:0.85rem; }
         }
     </style>
 </head>
@@ -475,7 +516,7 @@
         </div>
     </div>
     <div class="info-scroll" id="infoScroll">
-        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵 - SERTANEJO • MPB • ROCK • FORRÓ • PAGODE • ROMÂNTICA • FLASHBACK 🎶</p>
+        <p class="letreiro" id="scrollText">🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵</p>
         <div class="search-input-container">
             <input type="text" id="searchInputLetreiro" placeholder="🔍 Pesquisar música...">
             <button id="searchClearLetreiro" aria-label="Limpar busca">✕</button>
@@ -696,6 +737,67 @@
     'use strict';
 
     /* ═══════════════════════════════════════════════════════════════
+       🎵 FAVICON ANIMADO
+       ═══════════════════════════════════════════════════════════════ */
+    (function iniciarFaviconAnimado() {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const frames = ['🎵', '🎶', '🎧', '🎤'];
+            const paletas = [
+                ['#6c5ce7', '#a29bfe'],
+                ['#00cec9', '#55efc4'],
+                ['#fd79a8', '#e84393'],
+                ['#fdcb6e', '#f0932b'],
+            ];
+            let idx = 0;
+
+            document.querySelectorAll("link[rel*='icon']").forEach(l => l.remove());
+            const link = document.createElement('link');
+            link.rel = 'icon';
+            link.type = 'image/png';
+            document.head.appendChild(link);
+
+            function desenhar() {
+                const [c1, c2] = paletas[idx % paletas.length];
+                ctx.clearRect(0, 0, 64, 64);
+
+                const grad = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
+                grad.addColorStop(0, c1);
+                grad.addColorStop(0.7, c2);
+                grad.addColorStop(1, '#0a0a1e');
+                ctx.beginPath();
+                ctx.arc(32, 32, 30, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.9;
+                ctx.beginPath();
+                ctx.arc(32, 32, 29, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                ctx.font = 'bold 32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(frames[idx % frames.length], 32, 34);
+
+                link.href = canvas.toDataURL('image/png');
+                idx++;
+            }
+
+            desenhar();
+            setInterval(desenhar, 500);
+        } catch (e) {}
+    })();
+
+    /* ═══════════════════════════════════════════════════════════════
        ╔═══════════════════════════════════════════════════════════╗
        ║                                                           ║
        ║   ✏️✏️✏️   EDITE AQUI  ✏️✏️✏️                              ║
@@ -712,12 +814,12 @@
         // ────────────────────────────────────────────────────────
         // COMO USAR:
         //   - Cole o link direto da imagem (.jpg, .png, .webp)
-        //   - Se deixar em branco/comentar (//), o card usa
-        //     um GRADIENTE COLORIDO AUTOMÁTICO (fica bonito também!)
-        //   - Não precisa preencher todos — só os que você quiser
+        //   - Se deixar em branco/comentado (//), o card usa
+        //     um GRADIENTE COLORIDO AUTOMÁTICO
+        //   - Não precisa preencher todos
         //
         // 📐 TAMANHO IDEAL: 400x400 pixels (quadrado)
-        // 💡 DICA: hospede no Imgur, ImgBB, ou no próprio GitHub
+        // 💡 DICA: hospede no Imgur, ImgBB, ou no GitHub
         //
         IMAGENS: {
             // 'BÔNUS':            'https://i.imgur.com/exemplo1.jpg',
@@ -728,19 +830,15 @@
             // 'PAGODE':           'https://i.imgur.com/exemplo6.jpg',
             // 'ROMÂNTICA':        'https://i.imgur.com/exemplo7.jpg',
             // 'FLASHBACK':        'https://i.imgur.com/exemplo8.jpg',
-            // 'GOSPEL':           'https://i.imgur.com/exemplo9.jpg',
-            // 'FUNK':             'https://i.imgur.com/exemplo10.jpg',
+            // 'RELIGIOSA':        'https://i.imgur.com/exemplo9.jpg',
+            // 'FANK':             'https://i.imgur.com/exemplo10.jpg',
             // ... adicione mais conforme precisar
         },
 
         // ────────────────────────────────────────────────────────
-        // 📢 TEXTO DO LETREIRO (o que rola no topo)
+        // 📢 TEXTO DO LETREIRO
         // ────────────────────────────────────────────────────────
-        // Pode colocar quantas palavras quiser!
-        // Quanto mais texto, mais tempo pra rolar.
-        // Use emojis pra deixar mais atrativo 🎵🎶🔥
-        //
-        LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  GOSPEL  •  FUNK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
+        LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  RELIGIOSA  •  FANK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
 
         // ────────────────────────────────────────────────────────
         // ⏰ TEMPO DO TESTE GRÁTIS (em segundos)
@@ -768,9 +866,7 @@
     };
 
     /* ═══════════════════════════════════════════════════════════════
-       ═══════════════════════════════════════════════════════════════
        ⚠️  DAQUI PRA BAIXO NÃO PRECISA MEXER
-       ═══════════════════════════════════════════════════════════════
        ═══════════════════════════════════════════════════════════════ */
 
     const CONFIG = {
@@ -847,7 +943,6 @@
     const sleep = ms => new Promise(r=>setTimeout(r,ms));
     const now = () => Date.now();
 
-    // Gera gradiente determinístico a partir do nome (fallback quando não tem imagem)
     function gerarGradienteGenero(nome) {
         let hash = 0;
         for (let i = 0; i < nome.length; i++) {
@@ -1517,9 +1612,6 @@
             card.className = 'genre-card';
             card.setAttribute('data-genre', g);
 
-            // ═══════════════════════════════════════════════════
-            // APLICA IMAGEM (se configurada) OU GRADIENTE AUTOMÁTICO
-            // ═══════════════════════════════════════════════════
             const imgUrl = EDITE_AQUI.IMAGENS[g];
             if(imgUrl && typeof imgUrl === 'string' && imgUrl.trim().length > 0) {
                 card.style.backgroundImage = `url('${imgUrl}')`;
@@ -1912,11 +2004,19 @@
 
     function ehMobile(){ return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent); }
     function ehIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
-    function jaEstaInstalado(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+    function ehAndroid(){ return /Android/i.test(navigator.userAgent); }
+    function jaEstaInstalado(){
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true ||
+               document.referrer.includes('android-app://');
+    }
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
+        if(btnInstalarFixo && !jaEstaInstalado() && ehMobile()) {
+            btnInstalarFixo.style.display = 'flex';
+        }
     });
 
     function atualizarVisibilidadeBotaoInstalar() {
@@ -1933,7 +2033,7 @@
     overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
 
     if(ehMobile() && !jaEstaInstalado()){
-        setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 3000);
+        setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 1500);
     }
 
     if(btnInstalarFixo) {
@@ -1953,11 +2053,20 @@
             if(instrucoesBox) {
                 if(ehIOS()){
                     instrucoesBox.innerHTML = `
-                        <h3>📲 INSTALAR APP</h3>
-                        <div class="sub">Como instalar no iPhone</div>
-                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>Compartilhar</b> ⬆️ (embaixo)</div></div>
+                        <h3>📲 INSTALAR NO IPHONE</h3>
+                        <div class="sub">Como instalar na tela inicial</div>
+                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>Compartilhar</b> ⬆️ (embaixo no Safari)</div></div>
                         <div class="passo"><div class="num">2</div><div class="txt">Role e toque em <b>"Adicionar à Tela de Início"</b></div></div>
                         <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Adicionar"</b> e pronto! 🎵</div></div>
+                        <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                    `;
+                } else if(ehAndroid()){
+                    instrucoesBox.innerHTML = `
+                        <h3>📲 INSTALAR NO ANDROID</h3>
+                        <div class="sub">Como instalar na tela inicial</div>
+                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do Chrome</div></div>
+                        <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+                        <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
                         <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
                     `;
                 }
@@ -1986,7 +2095,6 @@
             updateFavBadge();
             updateProgress(10);
 
-            // Atualiza o letreiro inicial com o texto do EDITE_AQUI
             dom.scrollText.textContent = LETREIRO_PROMO;
             dom.scrollText.style.animation = 'none';
             dom.scrollText.offsetHeight;
@@ -2246,9 +2354,38 @@
         }
     }
 
-    if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(()=>{});
-    }
+    /* ═══════════════════════════════════════════════════════════════
+       📲 SERVICE WORKER INLINE
+       Registra um SW para o PWA funcionar como app
+       ═══════════════════════════════════════════════════════════════ */
+    (function registrarServiceWorkerInline() {
+        if(!('serviceWorker' in navigator)) return;
+
+        const swCode = `
+            const CACHE_NAME = 'vdb-music-v1';
+            self.addEventListener('install', (e) => {
+                self.skipWaiting();
+            });
+            self.addEventListener('activate', (e) => {
+                e.waitUntil(self.clients.claim());
+            });
+            self.addEventListener('fetch', (e) => {
+                e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            });
+        `;
+
+        try {
+            const blob = new Blob([swCode], { type: 'text/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl, { scope: './' })
+                .then(() => console.log('✅ SW inline registrado'))
+                .catch(() => {
+                    navigator.serviceWorker.register('sw.js').catch(() => {});
+                });
+        } catch(e) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    })();
 
     iniciar();
 })();
