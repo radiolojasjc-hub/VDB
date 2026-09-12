@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAI DE BOA! MUSIC!</title>
+    <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -199,13 +199,14 @@
 
         /* ========================================================
            CARDS DE GÊNERO — PREMIUM "ACCENT LATERAL"
+           LETRAS MAIORES (0.95rem)
            ======================================================== */
         .genre-card {
             position: relative;
-            min-height: 60px;
+            min-height: 64px;
             border-radius: 14px;
             cursor: pointer;
-            padding: 14px 14px 14px 22px;
+            padding: 16px 14px 16px 22px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -241,7 +242,7 @@
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: rgba(79, 195, 247, 0.12);
             font-family: serif;
             transition: all 0.3s;
@@ -271,7 +272,7 @@
 
         .genre-card .genre-name {
             font-family: 'Rajdhani', 'Audiowide', sans-serif;
-            font-size: 0.78rem;
+            font-size: 0.95rem;  /* ⬅️ ⬅️ ⬅️ MUDE AQUI se quiser maior (teste: 1rem, 1.05rem, 1.1rem) */
             font-weight: 700;
             letter-spacing: 1.1px;
             text-transform: uppercase;
@@ -410,11 +411,6 @@
         #adminPanel h2 { text-align:center; font-size:1.3rem; color:var(--gold); margin-bottom:2px; display:flex; align-items:center; justify-content:center; gap:8px; }
         #adminPanel h2 img { height:28px; width:28px; border-radius:50%; border:2px solid var(--gold); }
         #adminPanel .sub { text-align:center; font-size:0.65rem; color:#666; margin-bottom:8px; }
-        #adminPanel .fp-cliente { background:rgba(108,92,231,0.03); border:1px solid rgba(108,92,231,0.06); border-radius:12px; padding:8px; margin-bottom:8px; }
-        #adminPanel .fp-cliente label { font-size:0.8rem; color:#aaa; display:block; }
-        #adminPanel .fp-cliente input { width:100%; padding:10px 14px; border-radius:25px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.05); color:#fff; font-size:0.8rem; font-family:monospace; outline:none; margin-top:4px; }
-        #adminPanel .fp-cliente input:focus { border-color:var(--primary); }
-        #adminPanel .fp-cliente .helper { font-size:0.5rem; color:#555; margin-top:3px; }
         #adminPanel .row-btns { display:flex; gap:5px; margin-bottom:8px; }
         #adminPanel .row-btns button { flex:1; padding:10px; border-radius:20px; border:none; font-weight:700; cursor:pointer; font-size:0.85rem; transition:transform 0.2s; }
         #adminPanel .row-btns button:active { transform:scale(0.95); }
@@ -483,9 +479,9 @@
             .qr-content .qr-logo-overlay { width:36px; height:36px; }
             .qr-content .qr-logo-overlay img { width:24px; height:24px; }
             .genres-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
-            .genre-card { min-height:56px; padding:12px 12px 12px 18px; border-radius:12px; }
-            .genre-card .genre-name { font-size:0.7rem; letter-spacing:1px; }
-            .genre-card::after { font-size:1.2rem; right:8px; }
+            .genre-card { min-height:58px; padding:14px 12px 14px 18px; border-radius:12px; }
+            .genre-card .genre-name { font-size:0.85rem; letter-spacing:1px; }  /* ⬅️ MUDE AQUI para mobile */
+            .genre-card::after { font-size:1.3rem; right:8px; }
             .genres-modal .header .titulo { font-size:0.95rem; letter-spacing:3px; }
             .fav-item-modal { min-height:36px; font-size:0.8rem; }
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
@@ -523,7 +519,7 @@
             </button>
         </div>
         <div class="top-right">
-            <span class="timer-lib" id="timerLib">5:00</span>
+            <span class="timer-lib" id="timerLib">05:00</span>
             <span class="audio-status" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton" aria-label="Menu"><i class="fas fa-ellipsis-v"></i></button>
         </div>
@@ -707,7 +703,7 @@
     // ============================================================
     // ⚠️ ATENÇÃO — CONFIGURAÇÃO DE SENHAS
     // ============================================================
-    const APP_VERSION = '9.0';
+    const APP_VERSION = '10.0';
     const SENHA_SALT = 'VDB_MUSIC_2025_SECRET';
 
     // ⚠️⚠️⚠️ IMPORTANTE ⚠️⚠️⚠️
@@ -726,7 +722,6 @@
     const HASHES_VALIDOS = [
         // Cole seus hashes aqui, um por linha. Exemplo:
         // 'a3f5b8c9d2e1f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9',
-        // 'b4e6c9d0e3f2a5b8c1d4e7f0a3b6c9d2e5f8a1b4c7d0e3f6a9b2c5d8e1f4a7',
     ];
 
     const CONFIG = {
@@ -814,7 +809,6 @@
             return Array.from(new Uint8Array(hash))
                 .map(b => b.toString(16).padStart(2,'0')).join('');
         } catch(e) {
-            // Fallback para navegadores antigos (menos seguro, mas funciona)
             let hash = 0;
             const str = senha + SENHA_SALT;
             for(let i = 0; i < str.length; i++) {
@@ -923,7 +917,7 @@
             this.favorites = this.data.favorites || [];
             this.fingerprint = this._getFingerprint();
             this.desbloqueado = this.data.desbloqueado || false;
-            this.tempoRestante = this.data.tempoRestante || 86400;
+            this.tempoRestante = this.data.tempoRestante || 300;
             this.modoTV = this.data.modoTV || false;
             this.modoAtual = this.data.modoAtual || 'BÔNUS';
             this.musicas = this.data.musicas || [];
@@ -951,7 +945,7 @@
                 const raw = localStorage.getItem(this.key);
                 if(raw) { const parsed = JSON.parse(raw); if(parsed.version === this.version) return parsed; }
             } catch(e) {}
-            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: 86400, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
+            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: 300, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
         }
         _save() {
             this.data = { version: this.version, favorites: this.favorites, desbloqueado: this.desbloqueado, tempoRestante: this.tempoRestante, modoTV: this.modoTV, modoAtual: this.modoAtual, musicas: this.musicas, playlistAtual: this.playlistAtual, indiceAtual: this.indiceAtual, shuffleMode: this.shuffleMode, historico: this.historico, cadastro: this.cadastro };
@@ -1039,9 +1033,31 @@
 
     function updateProgress(pct) { dom.loadingProgressFill.style.width = Math.min(pct,100)+'%'; }
 
+    // ============================================================
+    // ⏰⏰⏰ MUDE AQUI — TEMPO DO TESTE GRÁTIS ⏰⏰⏰
+    // ============================================================
+    // VALORES ATUAIS: 5 MINUTOS
+    //   300000 = 5 minutos em milissegundos
+    //   300    = 5 minutos em segundos
+    //
+    // Para mudar, troque OS DOIS VALORES abaixo pelo mesmo tempo:
+    //   5 min   → 300000 ms  e  300 seg
+    //   15 min  → 900000 ms  e  900 seg
+    //   30 min  → 1800000 ms e  1800 seg
+    //   1 hora  → 3600000 ms e  3600 seg
+    //   24 horas → 86400000 ms e 86400 seg
+    //   7 dias  → 604800000 ms e 604800 seg
+    // ============================================================
+    const TEMPO_TESTE_MS = 300000; // ⬅️ MUDE AQUI (milissegundos)
+    const TEMPO_TESTE_SEG = 300;   // ⬅️ MUDE AQUI (segundos)
+
     function calcularTempoRestante() {
         const exp = localStorage.getItem('vdb_teste_expiracao');
-        if(!exp) { const inicio = now(); localStorage.setItem('vdb_teste_expiracao', String(inicio + 86400000)); return 86400; }
+        if(!exp) {
+            const inicio = now();
+            localStorage.setItem('vdb_teste_expiracao', String(inicio + TEMPO_TESTE_MS));
+            return TEMPO_TESTE_SEG;
+        }
         const e = parseInt(exp);
         const rest = Math.floor((e - now()) / 1000);
         return rest > 0 ? rest : 0;
@@ -1053,7 +1069,7 @@
         appState.tempoRestante = tr;
         dom.timerLib.textContent = fmtTempo(tr);
         dom.timerLib.className = 'timer-lib';
-        dom.timerLib.style.color = tr <= 3600 ? '#fd79a8' : '#6c5ce7';
+        dom.timerLib.style.color = tr <= 60 ? '#fd79a8' : '#6c5ce7';
     }
 
     function fmtTempo(s) {
@@ -1067,7 +1083,10 @@
     }
 
     function iniciarTimerCorrido() {
-        if(!localStorage.getItem('vdb_teste_expiracao')) localStorage.setItem('vdb_teste_expiracao', String(now() + 86400000));
+        // ⏰ MUDE AQUI — mesmo valor de TEMPO_TESTE_MS
+        if(!localStorage.getItem('vdb_teste_expiracao')) {
+            localStorage.setItem('vdb_teste_expiracao', String(now() + TEMPO_TESTE_MS));
+        }
         updateTimerDisplay();
         function tick() {
             if(!appState.desbloqueado) {
@@ -1076,7 +1095,7 @@
                 if(tr <= 0) { bloquear(); return; }
                 updateTimerDisplay();
             }
-            setTimeout(tick, 2000);
+            setTimeout(tick, 1000);
         }
         tick();
     }
@@ -1823,18 +1842,16 @@
     }
 
     async function iniciar() {
-        console.log(`🚀 VAI DE BOA! MUSIC v${APP_VERSION} - Premium Edition`);
+        console.log(`🚀 VAI DE BOA! MUSIC v${APP_VERSION} - Premium Edition (teste ${TEMPO_TESTE_SEG}s)`);
         try {
             appState.favorites = appState.getFavorites();
             updateFavBadge();
             updateProgress(10);
 
-            // Fingerprint display
             if(dom.infoDispositivo) {
                 dom.infoDispositivo.textContent = '🆔 ' + appState.fingerprint.slice(0, 32) + '...';
             }
 
-            // ✅ Valida senha salva de verdade (não confia em flag)
             const senhaSalva = localStorage.getItem('vdb_senha_salva');
             let bloqueado = false;
 
@@ -1857,7 +1874,6 @@
                 bloqueado = true;
                 notif('⏰ Teste expirado!', 3000);
             } else {
-                // Verifica teste grátis
                 if(calcularTempoRestante() > 0) {
                     dom.blockOverlay.style.display = 'none';
                     updateProgress(40);
@@ -1874,7 +1890,6 @@
                 updateProgress(50);
             }
 
-            // Carrega primeira playlist disponível
             updateProgress(70);
             let primeira = false;
             for(const g of CONFIG.ORDEM) {
@@ -1910,9 +1925,6 @@
             updateTimerDisplay();
             forcarTelaCheia();
 
-            // ============================================
-            // EVENT LISTENERS
-            // ============================================
             dom.playBtn.onclick = togglePlay;
             dom.prevBtn.onclick = prev;
             dom.nextBtn.onclick = next;
@@ -1988,9 +2000,6 @@
             dom.senhaInput.onkeydown = (e) => { if(e.key==='Enter') handleLiberar(); };
             dom.btnLiberar.onclick = handleLiberar;
 
-            // ============================================
-            // PAINEL ADMIN — GERAÇÃO DE SENHAS
-            // ============================================
             dom.adminGerarBtn.onclick = async function() {
                 const resultado = await gerarSenhaParaCliente();
                 dom.adminSenhaGerada.value = resultado.senha;
@@ -2027,9 +2036,6 @@
             };
             dom.adminCloseBtn.onclick = function() { dom.adminPanel.classList.remove('open'); };
 
-            // ============================================
-            // AUDIO EVENTS
-            // ============================================
             dom.audio.ontimeupdate = () => {
                 if(dom.audio.duration) {
                     dom.progressFill.style.width = (dom.audio.currentTime / dom.audio.duration * 100)+'%';
