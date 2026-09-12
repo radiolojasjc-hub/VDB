@@ -59,6 +59,7 @@
         .menu-btn { background:rgba(255,255,255,0.06); border:none; color:#fff; width:32px; height:32px; border-radius:50%; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
         .info-scroll { position:fixed; top:54px; left:0; right:0; z-index:30; padding:4px 12px; height:38px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:rgba(0,0,0,0.2); backdrop-filter:blur(8px); }
+        .info-scroll.hidden { opacity:0; pointer-events:none; height:0; padding:0; }
         .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 25s linear infinite; width:100%; text-align:center; }
         @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
 
@@ -84,7 +85,7 @@
         .fab-sub.open { display:flex; }
         .fab-sub-btn { background:transparent; border:none; color:#ccc; padding:8px 14px; border-radius:12px; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:8px; min-height:36px; white-space:nowrap; }
 
-        .menu-popup { position:fixed; top:54px; right:10px; background:rgba(10,10,30,0.95); backdrop-filter:blur(20px); border-radius:16px; padding:6px; z-index:32; display:none; flex-direction:column; gap:3px; min-width:170px; }
+        .menu-popup { position:fixed; top:54px; right:10px; background:rgba(10,10,30,0.95); backdrop-filter:blur(20px); border-radius:16px; padding:6px; z-index:32; display:none; flex-direction:column; gap:3px; min-width:180px; }
         .menu-popup.open { display:flex; }
         .menu-popup button { background:transparent; border:none; color:#ccc; padding:8px 12px; border-radius:12px; font-size:0.8rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; min-height:36px; }
 
@@ -269,6 +270,7 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i>Feedback</button>
         <button id="sleepMenuBtn"><i class="fas fa-moon"></i>Sleep Timer</button>
         <button id="qrCodeMenuBtn"><i class="fas fa-qrcode"></i>QR Code</button>
+        <button id="forceUpdateBtn"><i class="fas fa-sync-alt"></i>Atualizar Mídias</button>
     </div>
 </div>
 
@@ -385,35 +387,24 @@
     // ══════════════════════════════════════════════════════════
     // 🔐 SENHAS OFUSCADAS EM BASE64
     // ══════════════════════════════════════════════════════════
-    // Ninguém que abrir o código vai ver as senhas em texto puro.
-    // Para decodificar: atob('cGF0aWNvMTY4NUA=') === 'patico1685@'
+    // atob('cGF0aWNvMTY4NUA=') === 'patico1685@'
+    // atob('dmRiMjAyNQ==') === 'vdb2025'
     // ══════════════════════════════════════════════════════════
+    const _kA = 'cGF0aWNvMTY4NUA=';  // Senha do painel admin
+    const _kM = 'dmRiMjAyNQ==';      // Senha mestra
 
-    // Senha do PAINEL ADMIN (8 cliques no logo) → "patico1685@"
-    const _kA = 'cGF0aWNvMTY4NUA=';
-
-    // Senha MESTRA (libera qualquer celular) → "vdb2025"
-    const _kM = 'dmRiMjAyNQ==';
-
-    // Salt para ofuscação extra (misturado na validação)
-    const _s1 = 'dkRiU2VjcmV0';
-
-    // Função pra decodificar com validação
     function _v(input, key) {
-        try {
-            const decoded = atob(key);
-            return input === decoded;
-        } catch(e) { return false; }
+        try { return input === atob(key); } catch(e) { return false; }
     }
 
     // ══════════════════════════════════════════════════════════
-    // ⚙️ CONFIGURAÇÕES GERAIS
+    // ⚙️ CONFIGURAÇÕES
     // ══════════════════════════════════════════════════════════
-    const APP_VERSION = '15.0';
+    const APP_VERSION = '16.0';
 
-    // ⏰ TEMPO DO TESTE GRÁTIS (24 HORAS)
-    const TEMPO_TESTE_MS = 86400000;   // 24 horas em ms
-    const TEMPO_TESTE_SEG = 86400;     // 24 horas em segundos
+    // ⏰ TESTE GRÁTIS: 24 HORAS
+    const TEMPO_TESTE_MS = 86400000;
+    const TEMPO_TESTE_SEG = 86400;
 
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
@@ -465,9 +456,14 @@
             'PAGODE': 'sambatop','BAILÃO': 'forrodez','GLOBAL HITS': 'chorinho',
         },
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
+        MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
         FALLBACK_MIDIAS: [
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mms.mp4' },
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' },
+        ],
+        FALLBACK_TV: [
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' },
         ],
     };
 
@@ -505,22 +501,15 @@
             return 'dev_' + Math.random().toString(36).slice(2, 18);
         }
     }
-
     const FINGERPRINT = gerarFingerprint();
 
     // ══════════════════════════════════════════════════════════
-    // VALIDAR SENHA (por dispositivo + mestra ofuscada)
+    // VALIDAR SENHA
     // ══════════════════════════════════════════════════════════
     function validarSenha(senha) {
         if(!senha || typeof senha !== 'string') return { valida: false };
         const s = senha.trim();
-
-        // 1) Senha mestra (decodificada e comparada)
-        if(_v(s, _kM)) {
-            return { valida: true, msg: '✅ Liberado com sucesso!' };
-        }
-
-        // 2) Senha por dispositivo (Base64: "fingerprint:random")
+        if(_v(s, _kM)) return { valida: true, msg: '✅ Liberado com sucesso!' };
         try {
             const decoded = atob(s);
             const partes = decoded.split(':');
@@ -528,16 +517,17 @@
                 return { valida: true, msg: '✅ Liberado permanentemente!' };
             }
         } catch(e) {}
-
         return { valida: false };
     }
 
-    // Gera senha amarrada a um fingerprint
     function gerarSenhaParaFingerprint(fp) {
         const random = Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12);
         return btoa(fp + ':' + random);
     }
 
+    // ══════════════════════════════════════════════════════════
+    // CACHE DE MÚSICAS
+    // ══════════════════════════════════════════════════════════
     class CacheManager {
         async get(genero, url) {
             const key = 'cache_' + genero;
@@ -569,6 +559,9 @@
     }
     const cacheManager = new CacheManager();
 
+    // ══════════════════════════════════════════════════════════
+    // ESTADO DO APP
+    // ══════════════════════════════════════════════════════════
     class AppState {
         constructor() {
             this.key = 'vdb_state';
@@ -587,6 +580,7 @@
             this.playerAtivado = false;
             this.carregandoMusica = false;
             this.mediaTimer = null;
+            this.mediaTVTimer = null;
             this.hideControlsTimeout = null;
             this.fabOpen = false;
             this.sleepTimer = null;
@@ -635,7 +629,7 @@
         closeFavBtn: $('closeFavBtn'), closeMenuBtn: $('closeMenuBtn'), fullscreenMenuBtn: $('fullscreenMenuBtn'),
         modoTVMenuBtn: $('modoTVMenuBtn'), liberarAgoraBtn: $('liberarAgoraBtn'),
         reloadPlaylistBtn: $('reloadPlaylistBtn'), feedbackMenuBtn: $('feedbackMenuBtn'),
-        sleepMenuBtn: $('sleepMenuBtn'), qrCodeMenuBtn: $('qrCodeMenuBtn'),
+        sleepMenuBtn: $('sleepMenuBtn'), qrCodeMenuBtn: $('qrCodeMenuBtn'), forceUpdateBtn: $('forceUpdateBtn'),
         fabGeneros: $('fabGeneros'), fabModoTV: $('fabModoTV'), fabFeedback: $('fabFeedback'),
         fabYoutube: $('fabYoutube'), fabShare: $('fabShare'), fabQrCode: $('fabQrCode'),
         fabMain: $('fabMain'), fabSub: $('fabSub'),
@@ -663,6 +657,9 @@
 
     function updateProgress(pct) { dom.loadingProgressFill.style.width = Math.min(pct, 100) + '%'; }
 
+    // ══════════════════════════════════════════════════════════
+    // TEMPO DE TESTE
+    // ══════════════════════════════════════════════════════════
     function calcularTempoRestante() {
         const exp = localStorage.getItem('vdb_teste_expiracao');
         if(!exp) { localStorage.setItem('vdb_teste_expiracao', String(now() + TEMPO_TESTE_MS)); return TEMPO_TESTE_SEG; }
@@ -713,6 +710,9 @@
         notif('⏰ Teste expirou!', 3000);
     }
 
+    // ══════════════════════════════════════════════════════════
+    // FAVORITOS
+    // ══════════════════════════════════════════════════════════
     function updateFavBadge() {
         dom.favBadge.textContent = appState.favorites.length;
         if(dom.choiceBadge) dom.choiceBadge.textContent = appState.favorites.length;
@@ -755,6 +755,9 @@
         if(appState.isBackgroundActive) tocar();
     }
 
+    // ══════════════════════════════════════════════════════════
+    // PLAYER DE MÚSICA
+    // ══════════════════════════════════════════════════════════
     async function tocar() {
         if(!appState.isBackgroundActive || appState.carregandoMusica || !appState.musicas.length) return;
         appState.carregandoMusica = true;
@@ -855,6 +858,9 @@
         appState.hideControlsTimeout = setTimeout(() => dom.bottomControls.classList.remove('visible'), 4000);
     }
 
+    // ══════════════════════════════════════════════════════════
+    // ÁUDIO SILENCIOSO (KEEP-ALIVE)
+    // ══════════════════════════════════════════════════════════
     function criarSilentAudio() {
         const sr = 44100, ns = sr * 5;
         const buffer = new ArrayBuffer(44 + ns * 2);
@@ -911,48 +917,212 @@
         }
     }
 
+    // ══════════════════════════════════════════════════════════
+    // MÍDIAS DO FUNDO (PADRÃO)
+    // ══════════════════════════════════════════════════════════
     async function carregarMidiasPadrao() {
+        console.log('🎬 Carregando mídias padrão...');
         try {
+            // Para timer antigo de TV se houver
+            if(appState.mediaTVTimer) { clearInterval(appState.mediaTVTimer); appState.mediaTVTimer = null; }
+            esconderBotaoSairTV();
+            dom.infoScroll.classList.remove('hidden');
+
+            // Remove tudo e adiciona fundo gradiente primeiro
             dom.mediaContainer.innerHTML = '';
-            let midias = CONFIG.FALLBACK_MIDIAS;
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at center,#1a1a3e,#0a0a1e);z-index:1;';
+            dom.mediaContainer.appendChild(fallbackDiv);
+
+            let midias = [];
             try {
                 const r = await fetch(CONFIG.MIDIAS_PADRAO_URL + '?v=' + CONFIG.CACHE_VERSION + '&t=' + now());
-                const d = await r.json();
-                if(Array.isArray(d)) midias = d;
-                else if(d.medias) midias = d.medias;
-                else if(d.midias) midias = d.midias;
-            } catch(e) {}
-            midias = midias.filter(m => m && m.src);
+                if(r.ok) {
+                    const d = await r.json();
+                    if(Array.isArray(d)) midias = d;
+                    else if(d.medias) midias = d.medias;
+                    else if(d.midias) midias = d.midias;
+                    console.log('✅ midias.json carregado:', midias.length);
+                }
+            } catch(e) { console.warn('⚠️ Falha midias.json, usando fallback'); }
+
             if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
+            midias = midias.filter(m => m && m.src);
+
+            if(!midias.length) {
+                console.warn('⚠️ Nenhuma mídia disponível');
+                return;
+            }
+
             midias.forEach((m, i) => {
                 let el;
                 if(m.tipo === 'video') {
                     el = document.createElement('video');
-                    el.src = m.src; el.muted = true; el.playsInline = true; el.loop = true;
-                    el.load(); el.onerror = () => el.style.display = 'none';
+                    el.muted = true; el.playsInline = true; el.loop = true; el.preload = 'auto';
+                    el.src = m.src;
+                    el.onerror = () => { console.warn('❌ Vídeo falhou:', m.src); el.style.display = 'none'; };
                 } else {
                     el = document.createElement('img');
-                    el.src = m.src; el.onerror = () => el.style.display = 'none';
+                    el.src = m.src;
+                    el.onerror = () => { console.warn('❌ Imagem falhou:', m.src); el.style.display = 'none'; };
                 }
                 el.className = i === 0 ? 'active' : 'inactive';
                 dom.mediaContainer.appendChild(el);
-                if(i === 0 && m.tipo === 'video') el.play().catch(() => {});
             });
+
+            // Tenta tocar o primeiro vídeo
+            const primeiroVideo = dom.mediaContainer.querySelector('video');
+            if(primeiroVideo) {
+                primeiroVideo.play().catch(() => {
+                    console.log('⚠️ Autoplay bloqueado, aguardando toque do usuário');
+                    const tryPlay = () => {
+                        primeiroVideo.play().catch(() => {});
+                        document.removeEventListener('click', tryPlay);
+                        document.removeEventListener('touchstart', tryPlay);
+                    };
+                    document.addEventListener('click', tryPlay, { once: true });
+                    document.addEventListener('touchstart', tryPlay, { once: true });
+                });
+            }
+
+            // Rotaciona as mídias
             const children = dom.mediaContainer.querySelectorAll('video, img');
             if(children.length > 1) {
                 if(appState.mediaTimer) clearInterval(appState.mediaTimer);
                 let idx = 0;
                 appState.mediaTimer = setInterval(() => {
-                    children[idx].className = 'inactive';
-                    if(children[idx].tagName === 'VIDEO') children[idx].pause();
+                    const atual = children[idx];
+                    if(atual) {
+                        atual.className = 'inactive';
+                        if(atual.tagName === 'VIDEO') atual.pause();
+                    }
                     idx = (idx + 1) % children.length;
-                    children[idx].className = 'active';
-                    if(children[idx].tagName === 'VIDEO') children[idx].play().catch(() => {});
+                    const prox = children[idx];
+                    if(prox) {
+                        prox.className = 'active';
+                        if(prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    }
                 }, 5000);
             }
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error('❌ Erro carregarMidiasPadrao:', e); }
     }
 
+    // ══════════════════════════════════════════════════════════
+    // MÍDIAS DO MODO TV
+    // ══════════════════════════════════════════════════════════
+    async function carregarMidiasTV() {
+        console.log('📺 Carregando mídias do Modo TV...');
+        try {
+            // Para o timer antigo
+            if(appState.mediaTimer) { clearInterval(appState.mediaTimer); appState.mediaTimer = null; }
+
+            dom.mediaContainer.innerHTML = '';
+
+            let midias = [];
+            try {
+                const r = await fetch(CONFIG.MIDIAS_TV_URL + '?v=' + CONFIG.CACHE_VERSION + '&t=' + now());
+                if(r.ok) {
+                    const d = await r.json();
+                    if(Array.isArray(d)) midias = d;
+                    else if(d.medias) midias = d.medias;
+                    else if(d.midias) midias = d.midias;
+                    console.log('✅ modotv.json carregado:', midias.length);
+                }
+            } catch(e) { console.warn('⚠️ Falha modotv.json, usando fallback'); }
+
+            if(!midias.length) midias = CONFIG.FALLBACK_TV;
+            midias = midias.filter(m => m && m.src);
+
+            if(!midias.length) midias = CONFIG.FALLBACK_TV;
+
+            midias.forEach((m, i) => {
+                let el;
+                if(m.tipo === 'video') {
+                    el = document.createElement('video');
+                    el.muted = true; el.playsInline = true; el.loop = true; el.preload = 'auto';
+                    el.src = m.src;
+                    el.onerror = () => { console.warn('❌ Vídeo TV falhou:', m.src); el.style.display = 'none'; };
+                } else {
+                    el = document.createElement('img');
+                    el.src = m.src;
+                    el.onerror = () => { console.warn('❌ Imagem TV falhou:', m.src); el.style.display = 'none'; };
+                }
+                el.className = i === 0 ? 'active' : 'inactive';
+                dom.mediaContainer.appendChild(el);
+            });
+
+            // Tenta tocar o primeiro vídeo da TV
+            const primeiroVideo = dom.mediaContainer.querySelector('video');
+            if(primeiroVideo) {
+                primeiroVideo.play().catch(() => {
+                    const tryPlay = () => {
+                        primeiroVideo.play().catch(() => {});
+                        document.removeEventListener('click', tryPlay);
+                        document.removeEventListener('touchstart', tryPlay);
+                    };
+                    document.addEventListener('click', tryPlay, { once: true });
+                    document.addEventListener('touchstart', tryPlay, { once: true });
+                });
+            }
+
+            // Rotaciona as mídias da TV (8s cada)
+            const children = dom.mediaContainer.querySelectorAll('video, img');
+            if(children.length > 1) {
+                let idx = 0;
+                appState.mediaTVTimer = setInterval(() => {
+                    const atual = children[idx];
+                    if(atual) {
+                        atual.className = 'inactive';
+                        if(atual.tagName === 'VIDEO') atual.pause();
+                    }
+                    idx = (idx + 1) % children.length;
+                    const prox = children[idx];
+                    if(prox) {
+                        prox.className = 'active';
+                        if(prox.tagName === 'VIDEO') prox.play().catch(() => {});
+                    }
+                }, 8000);
+            }
+
+            dom.infoScroll.classList.add('hidden');
+            mostrarBotaoSairTV();
+        } catch(e) { console.error('❌ Erro carregarMidiasTV:', e); }
+    }
+
+    function mostrarBotaoSairTV() {
+        esconderBotaoSairTV();
+        const btn = document.createElement('button');
+        btn.id = 'btnSairModoTV';
+        btn.innerHTML = '✕';
+        btn.setAttribute('aria-label', 'Sair do Modo TV');
+        btn.style.cssText = 'position:fixed;top:90px;right:12px;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:38px;height:38px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.5);';
+        btn.onclick = () => toggleModoTV();
+        document.body.appendChild(btn);
+    }
+
+    function esconderBotaoSairTV() {
+        const btn = document.getElementById('btnSairModoTV');
+        if(btn) btn.remove();
+    }
+
+    async function toggleModoTV() {
+        appState.modoTV = !appState.modoTV;
+        if(appState.modoTV) {
+            notif('📺 Modo TV ATIVADO', 2000);
+            await carregarMidiasTV();
+        } else {
+            notif('📺 Modo TV DESATIVADO', 2000);
+            if(appState.mediaTVTimer) { clearInterval(appState.mediaTVTimer); appState.mediaTVTimer = null; }
+            dom.infoScroll.classList.remove('hidden');
+            esconderBotaoSairTV();
+            await carregarMidiasPadrao();
+        }
+        appState._save();
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // TELA CHEIA
+    // ══════════════════════════════════════════════════════════
     function forcarTelaCheia() {
         try {
             const el = document.documentElement;
@@ -998,7 +1168,6 @@
         setTimeout(() => input.focus(), 100);
         const confirmar = () => {
             const senha = input.value.trim();
-            // Valida contra a senha ofuscada
             if(_v(senha, _kA)) {
                 modal.remove();
                 abrirPainelAdmin();
@@ -1022,7 +1191,6 @@
         notif('🔐 Painel aberto!', 2000);
     }
 
-    // GERAR SENHA POR DISPOSITIVO
     dom.adminGerarBtn.onclick = function() {
         const fp = dom.adminFingerprintInput.value.trim();
         if(!fp || fp.length < 6) {
@@ -1032,16 +1200,15 @@
         }
         const senha = gerarSenhaParaFingerprint(fp);
         dom.adminSenhaGerada.value = senha;
-        notif('✅ Senha gerada! Copie e envie pro cliente', 2500);
+        notif('✅ Senha gerada!', 2500);
     };
 
-    // VER SENHA MESTRA (decodifica na hora pra mostrar)
     dom.adminGerarMestraBtn.onclick = function() {
         try {
             dom.adminSenhaGerada.value = atob(_kM);
             notif('🌍 Senha mestra exibida', 2500);
         } catch(e) {
-            notif('⚠️ Erro ao exibir mestra', 2000);
+            notif('⚠️ Erro', 2000);
         }
     };
 
@@ -1190,6 +1357,18 @@
         }
     };
     dom.qrCodeMenuBtn.onclick = () => { dom.menuPopup.classList.remove('open'); gerarQrCode(); };
+
+    // ⚡ BOTÃO ATUALIZAR MÍDIAS
+    dom.forceUpdateBtn.onclick = async () => {
+        dom.menuPopup.classList.remove('open');
+        notif('🔄 Atualizando mídias...', 1500);
+        CONFIG.CACHE_VERSION++;
+        localStorage.setItem('vdb_cache_version', String(CONFIG.CACHE_VERSION));
+        if(appState.modoTV) await carregarMidiasTV();
+        else await carregarMidiasPadrao();
+        notif('✅ Mídias atualizadas!', 2000);
+    };
+
     dom.fabQrCode.onclick = () => { dom.fabSub.classList.remove('open'); appState.fabOpen = false; dom.fabMain.innerHTML = '<i class="fas fa-plus"></i>'; gerarQrCode(); };
     dom.qrCloseBtn.onclick = () => dom.qrCodeModal.classList.remove('active');
     dom.fabMain.onclick = () => {
@@ -1245,12 +1424,6 @@
         if(e.key === 'ArrowLeft') prev();
     });
 
-    function toggleModoTV() {
-        appState.modoTV = !appState.modoTV;
-        notif(appState.modoTV ? '📺 Modo TV ATIVADO' : '📺 Modo TV DESATIVADO', 2000);
-        if(!appState.modoTV) carregarMidiasPadrao();
-    }
-
     function gerarQrCode() {
         const url = encodeURIComponent(window.location.href);
         dom.qrCodeImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=' + url + '&margin=20&format=png';
@@ -1261,7 +1434,7 @@
     // INICIAR
     // ══════════════════════════════════════════════════════════
     async function iniciar() {
-        console.log(`🚀 VDB Music v${APP_VERSION} | Fingerprint: ${FINGERPRINT.slice(0, 8)}...`);
+        console.log(`🚀 VDB Music v${APP_VERSION} | FP: ${FINGERPRINT.slice(0, 8)}...`);
         try {
             updateFavBadge();
             updateProgress(10);
