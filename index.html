@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <link rel="icon" href="favicon30.png" type="image/png">
     <link rel="apple-touch-icon" href="favicon30.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a1e%22%2C%22theme_color%22%3A%22%230a0a1e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22favicon30.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
@@ -692,23 +692,11 @@
 
     /* ═══════════════════════════════════════════════════════════════
        ╔═══════════════════════════════════════════════════════════╗
-       ║                                                           ║
-       ║   ✏️✏️✏️   EDITE AQUI  ✏️✏️✏️                              ║
-       ║                                                           ║
-       ║   Tudo o que você precisa mudar está neste bloco!         ║
-       ║                                                           ║
+       ║   ✏️  EDITE AQUI — Tudo que você precisa mudar            ║
        ╚═══════════════════════════════════════════════════════════╝
        ═══════════════════════════════════════════════════════════════ */
 
     const EDITE_AQUI = {
-
-        // ────────────────────────────────────────────────────────
-        // 📸 IMAGENS DOS GÊNEROS (PNG)
-        // ────────────────────────────────────────────────────────
-        // 📐 TAMANHO IDEAL: 400x400 pixels (quadrado)
-        // 📁 Coloque todas na pasta: imagens/
-        // ⚠️ Sem acentos nos nomes de arquivo!
-        //
         IMAGENS: {
             'BÔNUS':            'imagens/bonus.png',
             'SERTANEJO':        'imagens/sertanejo.png',
@@ -720,7 +708,7 @@
             'FLASHBACK':        'imagens/flashback.png',
             'GOSPEL':           'imagens/gospel.png',
             'FUNK':             'imagens/funk.png',
-            'REGGAE':           'imagens/re.png',
+            'REGGAE':           'imagens/re.png',   // ← Verifique se este arquivo existe!
             'POP/MIX':          'imagens/popmix.png',
             'NOVIDADES':        'imagens/novidades.png',
             'MISTURA BRASIL':   'imagens/misturabrasil.png',
@@ -741,25 +729,9 @@
             'CHORINHO':         'imagens/chorinho.png',
             'GLOBAL HITS':      'imagens/globalhits.png',
         },
-
-        // ────────────────────────────────────────────────────────
-        // 📢 TEXTO DO LETREIRO
-        // ────────────────────────────────────────────────────────
         LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  GOSPEL  •  FUNK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
-
-        // ────────────────────────────────────────────────────────
-        // ⏰ TEMPO DO TESTE GRÁTIS (segundos)
-        // ────────────────────────────────────────────────────────
         TEMPO_TESTE_SEGUNDOS: 86400,
-
-        // ────────────────────────────────────────────────────────
-        // 📱 WHATSAPP
-        // ────────────────────────────────────────────────────────
         WHATSAPP: '5512988461978',
-
-        // ────────────────────────────────────────────────────────
-        // ⏱️ VELOCIDADE DO LETREIRO
-        // ────────────────────────────────────────────────────────
         LETREIRO_DURACAO: 30,
     };
 
@@ -767,7 +739,22 @@
        ⚠️  DAQUI PRA BAIXO NÃO PRECISA MEXER
        ═══════════════════════════════════════════════════════════════ */
 
+    // ─────────────────────────────────────────────────────────
+    // 🔧 DETECÇÃO AUTOMÁTICA DO CAMINHO BASE (GitHub Pages)
+    // ─────────────────────────────────────────────────────────
+    // Detecta se estamos em /VDB/ ou na raiz
+    const BASE_PATH = (() => {
+        const path = window.location.pathname;
+        if (path.includes('/VDB/')) return '/VDB/';
+        // Se estiver na raiz de um domínio
+        const parts = path.split('/').filter(Boolean);
+        if (parts.length > 0 && !parts[0].includes('.')) return '/' + parts[0] + '/';
+        return '/';
+    })();
+    console.log('🌐 BASE_PATH detectado:', BASE_PATH);
+
     const CONFIG = {
+        BASE_PATH: BASE_PATH,
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
         WHATSAPP_NUMBER: EDITE_AQUI.WHATSAPP.replace(/\D/g,''),
         GENRE_URLS: {
@@ -828,7 +815,6 @@
 
     const SENHA_ADMIN = String.fromCharCode(112,97,116,105,99,111,49,54,56,53);
     const SENHA_MESTRA = String.fromCharCode(80,97,116,105,99,111,49,54,56,53,64);
-
     const GENRE_COLOR = '#4fc3f7';
     const LETREIRO_PROMO = EDITE_AQUI.LETREIRO;
     const TEMPO_TESTE = EDITE_AQUI.TEMPO_TESTE_SEGUNDOS;
@@ -842,9 +828,7 @@
 
     function gerarGradienteGenero(nome) {
         let hash = 0;
-        for (let i = 0; i < nome.length; i++) {
-            hash = nome.charCodeAt(i) + ((hash << 5) - hash);
-        }
+        for (let i = 0; i < nome.length; i++) hash = nome.charCodeAt(i) + ((hash << 5) - hash);
         const h1 = Math.abs(hash) % 360;
         const h2 = (h1 + 45) % 360;
         return `linear-gradient(135deg, hsl(${h1}, 55%, 40%) 0%, hsl(${h2}, 65%, 18%) 100%)`;
@@ -898,12 +882,10 @@
             }
             if(total > this.maxBytes) {
                 items.sort((a,b)=>a.size - b.size);
-                let removed=0;
                 while(total > this.maxBytes && items.length) {
                     const item=items.shift();
                     localStorage.removeItem(item.key);
                     total -= item.size;
-                    removed++;
                 }
             }
         }
@@ -1052,8 +1034,7 @@
     }
 
     function fmtTempo(s) {
-        if(s<0) s=0;
-        s=Math.floor(s);
+        if(s<0) s=0; s=Math.floor(s);
         const dias=Math.floor(s/86400); const horas=Math.floor((s%86400)/3600);
         const min=Math.floor((s%3600)/60); const seg=Math.floor(s%60);
         if(dias>0) return dias+'d '+String(horas).padStart(2,'0')+':'+String(min).padStart(2,'0')+':'+String(seg).padStart(2,'0');
@@ -1072,10 +1053,7 @@
             appState.tempoRestante = tr;
             if(tr <= 0) {
                 bloquear();
-                if(!appState.escolhaMostrada) {
-                    appState.escolhaMostrada = true;
-                    mostrarEscolha();
-                }
+                if(!appState.escolhaMostrada) { appState.escolhaMostrada = true; mostrarEscolha(); }
                 return;
             }
             updateTimerDisplay();
@@ -1309,8 +1287,7 @@
         return new Blob([buffer], { type:'audio/wav' });
     }
 
-    let silentAudioBlob = null;
-    let silentAudioUrl = null;
+    let silentAudioBlob = null, silentAudioUrl = null;
     function getSilentAudioBlob() { if(!silentAudioBlob) silentAudioBlob = criarSilentAudio(); return silentAudioBlob; }
     function getSilentAudioUrl() { if(!silentAudioUrl) silentAudioUrl = URL.createObjectURL(getSilentAudioBlob()); return silentAudioUrl; }
 
@@ -1327,9 +1304,7 @@
             } catch(e) {}
         }, 3000);
 
-        dom.audio.addEventListener('ended', () => {
-            if(appState.isPlaying && !appState.carregandoMusica) next();
-        });
+        dom.audio.addEventListener('ended', () => { if(appState.isPlaying && !appState.carregandoMusica) next(); });
         dom.audio.addEventListener('pause', () => {
             if(appState.isPlaying && !appState.carregandoMusica && !dom.audio.ended) {
                 setTimeout(() => { if(appState.isPlaying && dom.audio.paused) dom.audio.play().catch(()=>{}); }, 300);
@@ -1485,7 +1460,6 @@
         btn.onclick = () => toggleModoTV();
         document.body.appendChild(btn);
     }
-
     function esconderBotaoSairTV() { const btn = document.getElementById('btnSairModoTV'); if(btn) btn.remove(); }
 
     async function toggleModoTV() {
@@ -1501,6 +1475,9 @@
         appState._save();
     }
 
+    // ─────────────────────────────────────────────────────────
+    // 🖼️ RENDERIZAR GÊNEROS (com fallback inteligente para imagens)
+    // ─────────────────────────────────────────────────────────
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         CONFIG.ORDEM.forEach(g => {
@@ -1508,12 +1485,25 @@
             card.className = 'genre-card';
             card.setAttribute('data-genre', g);
 
+            // Sempre aplica gradiente primeiro (fallback)
+            card.style.background = gerarGradienteGenero(g);
+            card.style.backgroundColor = '#1a1a3e';
+
             const imgUrl = EDITE_AQUI.IMAGENS[g];
-            if(imgUrl && typeof imgUrl === 'string' && imgUrl.trim().length > 0) {
-                card.style.backgroundImage = `url('${imgUrl}')`;
-                card.style.backgroundColor = '#1a1a3e';
-            } else {
-                card.style.background = gerarGradienteGenero(g);
+            if (imgUrl && typeof imgUrl === 'string' && imgUrl.trim().length > 0) {
+                // Cache-busting + teste de carregamento
+                const urlComVersao = imgUrl + '?v=' + CONFIG.CACHE_VERSION;
+                const img = new Image();
+                img.onload = () => {
+                    card.style.backgroundImage = `url('${urlComVersao}')`;
+                    card.style.backgroundSize = 'cover';
+                    card.style.backgroundPosition = 'center';
+                };
+                img.onerror = () => {
+                    console.warn('❌ Imagem não encontrada:', g, '→', urlComVersao);
+                    // Mantém o gradiente
+                };
+                img.src = urlComVersao;
             }
 
             const name = document.createElement('div');
@@ -1579,10 +1569,7 @@
         setTimeout(() => {
             if (!dom.infoScroll.classList.contains('modo-pesquisa')) return;
             const termo = self.value.trim();
-            if (termo !== ultimaBusca) {
-                ultimaBusca = termo;
-                aplicarBusca(termo);
-            }
+            if (termo !== ultimaBusca) { ultimaBusca = termo; aplicarBusca(termo); }
             dom.infoScroll.classList.remove('modo-pesquisa');
             dom.searchClearLetreiro.classList.remove('visible');
         }, 200);
@@ -1700,8 +1687,7 @@
             return;
         }
         if(lock.bloqueado && now() >= lock.ate) {
-            lock.bloqueado = false;
-            lock.tentativas = 0;
+            lock.bloqueado = false; lock.tentativas = 0;
             localStorage.setItem('vdb_admin_lock', JSON.stringify(lock));
         }
         const senha = prompt('🔐 Digite a senha do painel admin:');
@@ -1808,13 +1794,11 @@
         setTimeout(mostrarBannerPromocional, 5000);
         appState.bannerInterval = setInterval(mostrarBannerPromocional, 120000);
     }
-
     function mostrarBannerPromocional() {
         dom.bannerPromocional.classList.add('mostrar');
         clearTimeout(appState.bannerTimeout);
         appState.bannerTimeout = setTimeout(() => dom.bannerPromocional.classList.remove('mostrar'), 8000);
     }
-
     dom.bannerPromocional.addEventListener('click', abrirWhatsAppCompra);
 
     class TouchManager {
@@ -1893,6 +1877,9 @@
         }
     }
 
+    // ─────────────────────────────────────────────────────────
+    // 📲 BOTÃO INSTALAR + PWA (Service Worker via Blob)
+    // ─────────────────────────────────────────────────────────
     const btnInstalarFixo = document.getElementById('btnInstalarFixo');
     const instrucoesInstalar = document.getElementById('instrucoesInstalar');
     const instrucoesBox = document.getElementById('instrucoesBox');
@@ -1903,8 +1890,13 @@
     function jaEstaInstalado(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
 
     window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('✅ beforeinstallprompt disparado!');
         e.preventDefault();
         deferredInstallPrompt = e;
+        // Mostra botão imediatamente
+        if(btnInstalarFixo && ehMobile() && !jaEstaInstalado()) {
+            btnInstalarFixo.style.display = 'flex';
+        }
     });
 
     function atualizarVisibilidadeBotaoInstalar() {
@@ -1920,7 +1912,7 @@
     const overlayObserver = new MutationObserver(atualizarVisibilidadeBotaoInstalar);
     overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
 
-    if(ehMobile() && !jaEstaInstalado()){
+    if(ehMobile() && !jaEstaInstalado()) {
         setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 3000);
     }
 
@@ -1964,15 +1956,37 @@
         notif('🎉 App instalado com sucesso!', 3000);
     });
 
-    if(!ehMobile()){
-        if(btnInstalarFixo) btnInstalarFixo.style.display = 'none';
+    if(!ehMobile()) { if(btnInstalarFixo) btnInstalarFixo.style.display = 'none'; }
+
+    // ─────────────────────────────────────────────────────────
+    // 🔧 SERVICE WORKER via BLOB (não precisa de arquivo sw.js)
+    // ─────────────────────────────────────────────────────────
+    if('serviceWorker' in navigator) {
+        const swCode = `
+            self.addEventListener('install', (e) => { self.skipWaiting(); });
+            self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
+            self.addEventListener('fetch', (e) => {
+                // Handler vazio obrigatório para o Android reconhecer como PWA
+            });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl)
+            .then(() => console.log('✅ Service Worker registrado via Blob!'))
+            .catch(err => console.warn('⚠️ Service Worker falhou:', err));
     }
 
+    // ─────────────────────────────────────────────────────────
+    // 🚀 INICIAR
+    // ─────────────────────────────────────────────────────────
     async function iniciar() {
         try {
             appState.favorites = appState.getFavorites();
             updateFavBadge();
             updateProgress(10);
+
+            // Preencher fingerprint
+            if (dom.infoDispositivo) dom.infoDispositivo.textContent = '🆔 ' + appState.fingerprint;
 
             dom.scrollText.textContent = LETREIRO_PROMO;
             dom.scrollText.style.animation = 'none';
@@ -2227,14 +2241,11 @@
             new TouchManager();
             iniciarBannerPromocional();
         } catch(erro) {
+            console.error('❌ Erro ao iniciar:', erro);
             dom.loadingScreen.style.display='none';
             dom.playerContainer.classList.add('visible');
             notif('⚠️ Erro ao iniciar, recarregue a página',5000);
         }
-    }
-
-    if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(()=>{});
     }
 
     iniciar();
