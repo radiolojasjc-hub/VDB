@@ -1061,7 +1061,8 @@
             manterAudioAtivo();
             if('wakeLock' in navigator) { try { appState.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
             updateProgress(70);
-            forcarTelaCheia();
+            // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA (para o Chrome mostrar o ⋮)
+            // forcarTelaCheia();
             iniciarTimerCorrido();
             updateProgress(100);
             setTimeout(tocar, 500);
@@ -1069,7 +1070,7 @@
             appState.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             updateProgress(100);
-            forcarTelaCheia();
+            // forcarTelaCheia();
             iniciarTimerCorrido();
             setTimeout(tocar, 500);
         }
@@ -1233,7 +1234,8 @@
         renderizarGeneros();
         showLoad(false);
         dom.genresModal.classList.remove('open');
-        forcarTelaCheia();
+        // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA
+        // forcarTelaCheia();
         if(appState.isBackgroundActive) setTimeout(tocar, 300);
         appState._save();
     }
@@ -1405,6 +1407,9 @@
     }
 
     function forcarTelaCheia() {
+        // ⚠️ TELA CHEIA DESATIVADA PARA O CHROME MOSTRAR O MENU ⋮ E PERMITIR INSTALAR
+        // O app só entra em tela cheia quando instalado como PWA (automático)
+        // Se quiser forçar manualmente, use o botão "Tela Cheia" no menu do app
         try {
             const el = document.documentElement;
             if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
@@ -1696,7 +1701,8 @@
             }, 1500);
 
             updateTimerDisplay();
-            forcarTelaCheia();
+            // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA NO STARTUP
+            // forcarTelaCheia();
             if(appState.desbloqueado) setTimeout(ativarPlayer,1500);
 
             dom.playBtn.onclick = togglePlay;
@@ -1832,7 +1838,8 @@
 
             document.addEventListener('visibilitychange', () => {
                 if(document.visibilityState==='visible') {
-                    forcarTelaCheia();
+                    // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA AO VOLTAR
+                    // forcarTelaCheia();
                     if(!appState.desbloqueado) {
                         const tr=calcularTempoRestante();
                         appState.tempoRestante=tr;
