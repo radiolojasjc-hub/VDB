@@ -250,7 +250,30 @@
 
         #btnSairModoTV { position:fixed; top:90px; right:12px; z-index:60; background:rgba(0,0,0,0.6); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:34px; height:34px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
-        #btnInstalarFixo { position:fixed; bottom:calc(20px + var(--safe-bottom)); right:16px; z-index:9999; background:linear-gradient(135deg,#6c5ce7,#00cec9,#fd79a8); background-size:200% 200%; animation: gradientBtn 3s ease infinite, pulseInstall 2s ease-in-out infinite; color:#fff; border:none; border-radius:30px; padding:14px 22px; font-weight:800; font-size:0.9rem; cursor:pointer; display:none; align-items:center; gap:8px; letter-spacing:0.5px; }
+        /* ═══════════════════════════════════════════════════════
+           BOTÃO INSTALAR — SEMPRE VISÍVEL NO CELULAR
+           ═══════════════════════════════════════════════════════ */
+        #btnInstalarFixo { 
+            position:fixed; 
+            bottom:calc(90px + var(--safe-bottom)); 
+            right:16px; 
+            z-index:99998; 
+            background:linear-gradient(135deg,#6c5ce7,#00cec9,#fd79a8); 
+            background-size:200% 200%; 
+            animation: gradientBtn 3s ease infinite, pulseInstall 2s ease-in-out infinite; 
+            color:#fff; 
+            border:none; 
+            border-radius:30px; 
+            padding:14px 22px; 
+            font-weight:800; 
+            font-size:0.9rem; 
+            cursor:pointer; 
+            display:none; 
+            align-items:center; 
+            gap:8px; 
+            letter-spacing:0.5px;
+            box-shadow:0 8px 35px rgba(108,92,231,0.7), 0 0 60px rgba(0,206,201,0.3);
+        }
         #btnInstalarFixo:active { transform:scale(0.94); }
         #btnInstalarFixo i { font-size:1rem; }
         @keyframes gradientBtn { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -281,7 +304,7 @@
             .genres-grid { gap:10px; }
             .genre-card { min-height:100px; border-radius:8px; }
             .genre-card .genre-name { font-size:0.7rem; bottom:6px; left:8px; right:8px; }
-            #btnInstalarFixo { padding:12px 18px; font-size:0.85rem; }
+            #btnInstalarFixo { padding:12px 18px; font-size:0.85rem; bottom:calc(80px + var(--safe-bottom)); right:12px; }
         }
     </style>
 </head>
@@ -520,9 +543,7 @@
 (function(){
     'use strict';
 
-    /* ═══════════════════════════════════════════════════════════════
-       🎵 FAVICON ANIMADO
-       ═══════════════════════════════════════════════════════════════ */
+    /* FAVICON ANIMADO */
     (function iniciarFaviconAnimado() {
         try {
             const canvas = document.createElement('canvas');
@@ -532,7 +553,6 @@
             const frames = ['🎵', '🎶', '🎧', '🎤'];
             const paletas = [['#6c5ce7','#a29bfe'],['#00cec9','#55efc4'],['#fd79a8','#e84393'],['#fdcb6e','#f0932b']];
             let idx = 0;
-            document.querySelectorAll("link[rel*='icon']").forEach(l => { if(!l.id || l.id !== 'faviconDinamico') l.remove(); });
             const link = document.createElement('link');
             link.rel = 'icon'; link.type = 'image/png';
             document.head.appendChild(link);
@@ -555,14 +575,8 @@
         } catch (e) {}
     })();
 
-    /* ═══════════════════════════════════════════════════════════════
-       ✏️ EDITE AQUI
-       ═══════════════════════════════════════════════════════════════ */
     const EDITE_AQUI = {
-        IMAGENS: {
-            // 'BÔNUS': 'https://i.imgur.com/exemplo.jpg',
-            // 'SERTANEJO': 'https://i.imgur.com/exemplo.jpg',
-        },
+        IMAGENS: {},
         LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  RELIGIOSA  •  FANK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
         TEMPO_TESTE_SEGUNDOS: 86400,
         WHATSAPP: '5512988461978',
@@ -1061,8 +1075,6 @@
             manterAudioAtivo();
             if('wakeLock' in navigator) { try { appState.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
             updateProgress(70);
-            // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA (para o Chrome mostrar o ⋮)
-            // forcarTelaCheia();
             iniciarTimerCorrido();
             updateProgress(100);
             setTimeout(tocar, 500);
@@ -1070,7 +1082,6 @@
             appState.isBackgroundActive = true;
             dom.audioStatus.classList.add('active');
             updateProgress(100);
-            // forcarTelaCheia();
             iniciarTimerCorrido();
             setTimeout(tocar, 500);
         }
@@ -1234,8 +1245,6 @@
         renderizarGeneros();
         showLoad(false);
         dom.genresModal.classList.remove('open');
-        // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA
-        // forcarTelaCheia();
         if(appState.isBackgroundActive) setTimeout(tocar, 300);
         appState._save();
     }
@@ -1407,9 +1416,6 @@
     }
 
     function forcarTelaCheia() {
-        // ⚠️ TELA CHEIA DESATIVADA PARA O CHROME MOSTRAR O MENU ⋮ E PERMITIR INSTALAR
-        // O app só entra em tela cheia quando instalado como PWA (automático)
-        // Se quiser forçar manualmente, use o botão "Tela Cheia" no menu do app
         try {
             const el = document.documentElement;
             if(el.requestFullscreen) el.requestFullscreen().catch(()=>{});
@@ -1548,6 +1554,9 @@
         }
     }
 
+    /* ═══════════════════════════════════════════════════════════════
+       📲 SISTEMA DE INSTALAÇÃO PWA — BOTÃO SEMPRE VISÍVEL NO CELULAR
+       ═══════════════════════════════════════════════════════════════ */
     const btnInstalarFixo = document.getElementById('btnInstalarFixo');
     const instrucoesInstalar = document.getElementById('instrucoesInstalar');
     const instrucoesBox = document.getElementById('instrucoesBox');
@@ -1562,34 +1571,58 @@
                document.referrer.includes('android-app://');
     }
 
+    // Captura o prompt nativo quando disponível
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredInstallPrompt = e;
-        if(btnInstalarFixo && !jaEstaInstalado() && ehMobile()) btnInstalarFixo.style.display = 'flex';
+        console.log('📲 beforeinstallprompt capturado');
+        mostrarBotaoInstalar();
     });
 
-    function atualizarVisibilidadeBotaoInstalar() {
+    // Mostra o botão SEMPRE no celular (não depende do prompt)
+    function mostrarBotaoInstalar() {
         if(!btnInstalarFixo) return;
-        const bloqueado = dom.blockOverlay.classList.contains('active') && dom.blockOverlay.style.display !== 'none';
-        if(bloqueado || jaEstaInstalado() || !ehMobile()) btnInstalarFixo.style.display = 'none';
-        else btnInstalarFixo.style.display = 'flex';
+        if(!ehMobile() || jaEstaInstalado()) {
+            btnInstalarFixo.style.display = 'none';
+            return;
+        }
+        btnInstalarFixo.style.display = 'flex';
     }
 
-    const overlayObserver = new MutationObserver(atualizarVisibilidadeBotaoInstalar);
-    overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
+    // Tenta mostrar várias vezes (pra garantir que aparece)
+    setTimeout(mostrarBotaoInstalar, 500);
+    setTimeout(mostrarBotaoInstalar, 1500);
+    setTimeout(mostrarBotaoInstalar, 3000);
 
-    if(ehMobile() && !jaEstaInstalado()) setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 1500);
+    // Quando desbloquear com senha, garante que o botão continua
+    const originalHandleLiberar = handleLiberar;
+    handleLiberar = function() {
+        originalHandleLiberar();
+        setTimeout(mostrarBotaoInstalar, 300);
+    };
 
+    // Configuração do clique no botão
     if(btnInstalarFixo) {
         btnInstalarFixo.onclick = async () => {
+            // Tentativa 1: usa o prompt nativo se disponível
             if(deferredInstallPrompt) {
-                deferredInstallPrompt.prompt();
-                const resultado = await deferredInstallPrompt.userChoice;
-                if(resultado.outcome === 'accepted') { notif('✅ Instalando app...', 2500); btnInstalarFixo.style.display = 'none'; }
-                else { notif('❌ Instalação cancelada', 2000); }
-                deferredInstallPrompt = null;
-                return;
+                try {
+                    deferredInstallPrompt.prompt();
+                    const resultado = await deferredInstallPrompt.userChoice;
+                    if(resultado.outcome === 'accepted') {
+                        notif('✅ Instalando app...', 2500);
+                        btnInstalarFixo.style.display = 'none';
+                    } else {
+                        notif('ℹ️ Use o menu ⋮ do Chrome → "Instalar app"', 3500);
+                    }
+                    deferredInstallPrompt = null;
+                    return;
+                } catch(e) {
+                    console.warn('Prompt falhou, mostrando instruções');
+                }
             }
+
+            // Tentativa 2: mostra instruções manuais
             if(instrucoesBox) {
                 if(ehIOS()){
                     instrucoesBox.innerHTML = `
@@ -1605,6 +1638,15 @@
                         <h3>📲 INSTALAR NO ANDROID</h3>
                         <div class="sub">Como instalar na tela inicial</div>
                         <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do Chrome</div></div>
+                        <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+                        <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
+                        <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                    `;
+                } else {
+                    instrucoesBox.innerHTML = `
+                        <h3>📲 INSTALAR APP</h3>
+                        <div class="sub">Como instalar na tela inicial</div>
+                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do navegador</div></div>
                         <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
                         <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
                         <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
@@ -1701,8 +1743,6 @@
             }, 1500);
 
             updateTimerDisplay();
-            // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA NO STARTUP
-            // forcarTelaCheia();
             if(appState.desbloqueado) setTimeout(ativarPlayer,1500);
 
             dom.playBtn.onclick = togglePlay;
@@ -1838,8 +1878,6 @@
 
             document.addEventListener('visibilitychange', () => {
                 if(document.visibilityState==='visible') {
-                    // ⚠️ TELA CHEIA AUTOMÁTICA DESATIVADA AO VOLTAR
-                    // forcarTelaCheia();
                     if(!appState.desbloqueado) {
                         const tr=calcularTempoRestante();
                         appState.tempoRestante=tr;
@@ -1886,9 +1924,7 @@
         }
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       📲 SERVICE WORKER — Registra o arquivo sw.js real
-       ═══════════════════════════════════════════════════════════════ */
+    /* SERVICE WORKER */
     (function registrarServiceWorker() {
         if(!('serviceWorker' in navigator)) return;
         navigator.serviceWorker.register('./sw.js', { scope: './' })
