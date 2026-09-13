@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VAI DE BOA! MUSIC</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="icon" href="favicon30.png" type="image/png">
+    <link rel="icon" href="favicon30.png" type="image/png" id="faviconDinamico">
     <link rel="apple-touch-icon" href="favicon30.png">
-    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22VAI%20DE%20BOA%20MUSIC%22%2C%22short_name%22%3A%22VDB%20Music%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a1e%22%2C%22theme_color%22%3A%22%230a0a1e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22favicon30.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon30.png">
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VDB Music">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a0a1e">
+    <meta name="application-name" content="VDB Music">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,14 +28,26 @@
             --accent:#fd79a8;
             --gold:#fdcb6e;
             --dark:#0a0a1e;
-            --card-bg:rgba(255,255,255,0.06);
             --safe-bottom:env(safe-area-inset-bottom, 0px);
             --shadow:0 8px 32px rgba(0,0,0,0.5);
             --genre-blue: #4fc3f7;
         }
 
         #loadingScreen { position:fixed; inset:0; background:var(--dark); display:flex; align-items:center; justify-content:center; z-index:99999; flex-direction:column; gap:16px; }
-        .loading-logo { width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); animation:pulse 1.5s infinite; box-shadow:0 0 60px rgba(108,92,231,0.2); }
+        .loading-logo {
+            width:72px; height:72px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid var(--primary);
+            animation: logoDance 2s ease-in-out infinite;
+            box-shadow:0 0 60px rgba(108,92,231,0.4);
+        }
+        @keyframes logoDance {
+            0%, 100% { transform: scale(1) rotate(0deg); box-shadow:0 0 20px rgba(108,92,231,0.5); border-color: var(--primary); }
+            25% { transform: scale(1.08) rotate(-8deg); box-shadow:0 0 40px rgba(0,206,201,0.8); border-color: var(--secondary); }
+            50% { transform: scale(1) rotate(0deg); box-shadow:0 0 30px rgba(253,121,168,0.7); border-color: var(--accent); }
+            75% { transform: scale(1.08) rotate(8deg); box-shadow:0 0 40px rgba(253,203,110,0.8); border-color: var(--gold); }
+        }
         @keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(108,92,231,0.1)} 50%{transform:scale(1.05);box-shadow:0 0 40px rgba(108,92,231,0.3)} }
         .loading-spinner { font-size:2.2rem; color:var(--secondary); animation:spin 1.5s infinite; }
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
@@ -55,6 +67,11 @@
         .top-left { display:flex; align-items:center; gap:10px; }
         .logo-macaco { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(108,92,231,0.3); box-shadow:0 0 20px rgba(108,92,231,0.1); cursor:pointer; transition:transform 0.2s; }
         .logo-macaco:active { transform:scale(0.92); }
+        .logo-macaco:hover { animation: logoPulse 1s ease-in-out infinite; }
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow:0 0 20px rgba(108,92,231,0.3); }
+            50% { transform: scale(1.1); box-shadow:0 0 35px rgba(0,206,201,0.7); }
+        }
         .btn-genero-fav { background:rgba(255,255,255,0.08); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.15); border-radius:30px; padding:6px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all 0.2s; min-height:36px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.2); }
         .btn-genero-fav:active { transform:scale(0.95); background:rgba(255,255,255,0.15); }
         .genero-nome { font-family:'Audiowide', 'Rajdhani', sans-serif; font-size:0.85rem; font-weight:400; letter-spacing:1.2px; text-transform:uppercase; color:var(--genre-blue); text-shadow:0 0 12px var(--genre-blue), 0 0 24px rgba(79,195,247,0.4); transition:filter 0.3s; }
@@ -73,15 +90,13 @@
         .info-scroll { position:fixed; top:54px; left:0; right:0; z-index:30; padding:4px 12px; height:38px; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; background:rgba(0,0,0,0.2); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,0.03); transition:height 0.3s, background 0.3s; }
         .info-scroll.modo-pesquisa { height:44px; background:rgba(0,0,0,0.4); cursor:default; }
         .info-scroll.hidden { opacity:0; pointer-events:none; height:0; padding:0; overflow:hidden; }
-
-        .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 25s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
+        .letreiro { color:#fff; font-size:0.85rem; font-weight:700; white-space:nowrap; animation:scrollText 30s linear infinite; text-shadow:0 0 30px rgba(108,92,231,0.2); letter-spacing:0.5px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; }
         .info-scroll.modo-pesquisa .letreiro { animation:none; white-space:normal; text-overflow:clip; }
         @keyframes scrollText { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
 
         .search-input-container { display:none; width:100%; align-items:center; gap:8px; position:relative; }
         .info-scroll.modo-pesquisa .search-input-container { display:flex; }
         .info-scroll.modo-pesquisa .letreiro { display:none; }
-
         #searchInputLetreiro { flex:1; background:transparent; border:none; color:#fff; font-size:0.85rem; font-weight:600; outline:none; padding:4px 32px 4px 6px; width:100%; min-width:0; }
         #searchInputLetreiro::placeholder { color:rgba(255,255,255,0.25); font-weight:400; }
         #searchClearLetreiro { position:absolute; right:6px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:1.1rem; cursor:pointer; display:none; padding:4px 8px; }
@@ -129,92 +144,52 @@
         .genres-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:4px 0; max-height:60vh; overflow-y:auto; scrollbar-width:none; }
         .genres-grid::-webkit-scrollbar { display:none; }
 
-        /* ========================================================
-           CARDS DE GÊNERO - COR ÚNICA AZUL + EFEITO VIDRO
-           ======================================================== */
         .genre-card {
-            position:relative;
-            min-height:64px;
-            border-radius:16px;
-            cursor:pointer;
-            padding:14px 10px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            text-align:center;
-            transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            background:linear-gradient(135deg,
-                rgba(79,195,247,0.18) 0%,
-                rgba(79,195,247,0.05) 45%,
-                rgba(79,195,247,0.12) 100%);
-            backdrop-filter:blur(22px) saturate(180%);
-            -webkit-backdrop-filter:blur(22px) saturate(180%);
-            border:1px solid rgba(79,195,247,0.35);
-            box-shadow:
-                0 8px 32px rgba(0,0,0,0.45),
-                0 0 0 1px rgba(79,195,247,0.08),
-                inset 0 1px 0 rgba(255,255,255,0.3),
-                inset 0 -1px 0 rgba(0,0,0,0.12),
-                inset 0 0 20px rgba(79,195,247,0.06);
-            overflow:hidden;
-            animation:borderGlowBlue 3s ease-in-out infinite alternate;
-        }
-        .genre-card::before {
-            content:'';
-            position:absolute;
-            top:0; left:0; right:0;
-            height:50%;
-            background:linear-gradient(180deg,
-                rgba(255,255,255,0.22) 0%,
-                rgba(255,255,255,0.06) 60%,
-                transparent 100%);
-            pointer-events:none;
-            border-radius:16px 16px 60% 60% / 16px 16px 22px 22px;
-            z-index:0;
+            position: relative;
+            aspect-ratio: 1 / 1;
+            min-height: 120px;
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+            background: #1a1a3e center/cover no-repeat;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .genre-card::after {
-            content:'';
-            position:absolute;
-            inset:0;
-            border-radius:16px;
-            padding:1px;
-            background:linear-gradient(135deg,
-                rgba(79,195,247,0.7) 0%,
-                transparent 35%,
-                transparent 65%,
-                rgba(79,195,247,0.4) 100%);
-            -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite:xor;
-            mask-composite:exclude;
-            pointer-events:none;
-            opacity:0.75;
-            z-index:1;
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.85) 100%);
+            pointer-events: none;
+            z-index: 1;
         }
         .genre-card:active {
-            transform:scale(0.94);
-            background:linear-gradient(135deg,
-                rgba(79,195,247,0.28) 0%,
-                rgba(79,195,247,0.15) 100%);
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
         .genre-card .genre-name {
-            font-family:'Audiowide', 'Rajdhani', sans-serif;
-            font-size:0.8rem;
-            font-weight:400;
-            letter-spacing:1.8px;
-            text-transform:uppercase;
-            color:var(--genre-blue);
-            text-shadow:0 0 12px var(--genre-blue), 0 0 24px rgba(79,195,247,0.6), 0 2px 10px rgba(0,0,0,0.85);
-            z-index:2;
-            line-height:1.25;
-            position:relative;
-            transition:color 0.2s, text-shadow 0.2s;
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            right: 10px;
+            font-family: 'Audiowide', 'Rajdhani', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 400;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #fff;
+            text-align: left;
+            line-height: 1.2;
+            z-index: 2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
         }
-        .genre-card .genre-count { display:none; }
-
-        @keyframes borderGlowBlue {
-            0% { box-shadow:0 0 6px rgba(79,195,247,0.15), inset 0 1px 0 rgba(255,255,255,0.3); border-color:rgba(79,195,247,0.25); }
-            100% { box-shadow:0 0 25px rgba(79,195,247,0.55), inset 0 1px 0 rgba(255,255,255,0.3); border-color:rgba(79,195,247,0.7); }
-        }
+        .genre-card .genre-count { display: none; }
 
         .close-genres { width:100%; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:25px; color:#aaa; font-size:0.75rem; cursor:pointer; font-weight:600; margin-top:10px; letter-spacing:3px; text-transform:uppercase; transition:all 0.2s; backdrop-filter:blur(10px); }
         .close-genres:active { background:rgba(255,255,255,0.1); transform:scale(0.97); }
@@ -259,7 +234,7 @@
         .feedback-modal .btn-feedback:active { transform:scale(0.97); }
         #closeFeedbackBtn { background:transparent; border:none; color:#555; padding:8px; cursor:pointer; font-size:0.8rem; margin-top:4px; }
 
-        .notification { position:fixed; top:100px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); color:var(--secondary); padding:8px 20px; border-radius:30px; font-size:0.9rem; z-index:10001; opacity:0; transition:opacity 0.3s; pointer-events:none; border:1px solid rgba(108,92,231,0.1); white-space:nowrap; font-weight:600; }
+        .notification { position:fixed; top:100px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); color:var(--secondary); padding:8px 20px; border-radius:30px; font-size:0.9rem; z-index:10001; opacity:0; transition:opacity 0.3s; pointer-events:none; border:1px solid rgba(108,92,231,0.1); white-space:nowrap; font-weight:600; max-width:90vw; }
         .notification.show { opacity:1; }
 
         #loadingOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9998; align-items:center; justify-content:center; }
@@ -286,7 +261,15 @@
         #blockOverlay.active { display:flex; animation:fadeIn 0.5s ease; }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         .block-content { max-width:420px; width:100%; padding:24px 20px; }
-        .block-content .logo { font-size:3.5rem; margin-bottom:4px; }
+        .block-content .block-logo-img {
+            width:80px; height:80px;
+            border-radius:50%;
+            object-fit:cover;
+            border:3px solid var(--primary);
+            box-shadow:0 0 40px rgba(108,92,231,0.5);
+            margin-bottom:8px;
+            animation: logoDance 2.5s ease-in-out infinite;
+        }
         .block-content h1 { color:#fff; font-size:2rem; margin-bottom:2px; font-weight:900; }
         .block-content .sub { color:var(--secondary); font-size:1.1rem; font-weight:600; margin-bottom:14px; }
         .block-content input { width:100%; padding:14px 18px; border-radius:30px; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:1.1rem; text-align:center; margin-bottom:10px; outline:none; transition:border-color 0.3s; }
@@ -351,6 +334,97 @@
         #btnSairModoTV { position:fixed; top:90px; right:12px; z-index:60; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:34px; height:34px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,0.5); transition:all 0.2s; }
         #btnSairModoTV:active { transform:scale(0.9); background:rgba(255,0,0,0.2); }
 
+        #btnInstalarFixo{
+            position:fixed;
+            bottom:calc(20px + var(--safe-bottom));
+            right:16px;
+            z-index:9999;
+            background:linear-gradient(135deg,#6c5ce7,#00cec9,#fd79a8);
+            background-size:200% 200%;
+            animation: gradientBtn 3s ease infinite, pulseInstall 2s ease-in-out infinite;
+            color:#fff;
+            border:none;
+            border-radius:30px;
+            padding:14px 22px;
+            font-weight:800;
+            font-size:0.9rem;
+            cursor:pointer;
+            display:none;
+            align-items:center;
+            gap:8px;
+            box-shadow:0 8px 35px rgba(108,92,231,0.7), 0 0 60px rgba(0,206,201,0.3);
+            transition:transform 0.2s;
+            letter-spacing:0.5px;
+        }
+        #btnInstalarFixo:active { transform:scale(0.94); }
+        #btnInstalarFixo i { font-size:1rem; }
+        @keyframes gradientBtn {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes pulseInstall {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 35px rgba(108,92,231,0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 45px rgba(108,92,231,0.95); }
+        }
+
+        #instrucoesInstalar {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 100002;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #instrucoesInstalar.active { display: flex; }
+        .instrucoes-box {
+            background: linear-gradient(145deg, #1a1a3e, #0a0a1e);
+            border-radius: 24px;
+            padding: 24px 20px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid rgba(108,92,231,0.3);
+        }
+        .instrucoes-box h3 { color: #fff; font-size: 1.2rem; margin-bottom: 8px; font-family: 'Audiowide', sans-serif; }
+        .instrucoes-box .sub { color: #888; font-size: 0.75rem; margin-bottom: 20px; }
+        .instrucoes-box .passo {
+            background: rgba(108,92,231,0.08);
+            border: 1px solid rgba(108,92,231,0.15);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .instrucoes-box .passo .num {
+            background: linear-gradient(135deg, #6c5ce7, #00cec9);
+            color: #fff;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .instrucoes-box .passo .txt { color: #ccc; font-size: 0.8rem; line-height: 1.4; }
+        .instrucoes-box .passo .txt b { color: #fff; }
+        .instrucoes-box .btn-fechar-inst {
+            background: linear-gradient(135deg, #6c5ce7, #00cec9);
+            border: none;
+            padding: 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
         @media (max-width:480px) {
             .logo-macaco { height:32px; width:32px; }
             .btn-genero-fav { padding:4px 10px; gap:5px; min-height:32px; }
@@ -374,14 +448,14 @@
             .fab-container { bottom:calc(75px + var(--safe-bottom)); right:10px; }
             .fab-sub-btn { font-size:0.7rem; padding:7px 12px; min-height:32px; }
             .block-content h1 { font-size:1.8rem; }
-            .block-content .logo { font-size:3rem; }
+            .block-content .block-logo-img { width:60px; height:60px; }
             #adminPanel { max-width:95%; padding:12px; }
             .qr-content .qr-wrapper img { width:140px; height:140px; }
             .qr-content .qr-logo-overlay { width:36px; height:36px; }
             .qr-content .qr-logo-overlay img { width:24px; height:24px; }
             .genres-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
-            .genre-card { min-height:56px; padding:12px 6px; border-radius:14px; }
-            .genre-card .genre-name { font-size:0.65rem; letter-spacing:1.2px; }
+            .genre-card { min-height:100px; border-radius:8px; }
+            .genre-card .genre-name { font-size:0.7rem; letter-spacing:0.9px; bottom:6px; left:8px; right:8px; }
             .genres-modal .header .titulo { font-size:0.95rem; }
             .fav-item-modal { min-height:36px; font-size:0.8rem; }
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
@@ -394,6 +468,7 @@
             #adminPanel .senha-box .row .favicon-wrapper { width:28px; height:28px; }
             #adminPanel .senha-box .row .favicon-wrapper img { height:20px; width:20px; }
             .genero-nome { font-size:0.7rem; letter-spacing:0.8px; }
+            #btnInstalarFixo { padding:12px 18px; font-size:0.85rem; }
         }
     </style>
 </head>
@@ -419,7 +494,7 @@
             </button>
         </div>
         <div class="top-right">
-            <span class="timer-lib" id="timerLib">5:00</span>
+            <span class="timer-lib" id="timerLib">24:00:00</span>
             <span class="audio-status" id="audioStatus">●</span>
             <button class="menu-btn" id="menuButton"><i class="fas fa-ellipsis-v"></i></button>
         </div>
@@ -477,7 +552,7 @@
 
 <div id="blockOverlay" class="active">
     <div class="block-content">
-        <div class="logo">🐵</div>
+        <img src="favicon30.png" alt="VDB" class="block-logo-img" onerror="this.style.display='none'">
         <h1>VAI DE BOA!</h1>
         <div class="sub">🔒 DIGITE SUA SENHA</div>
         <input type="password" id="senhaInput" placeholder="Digite sua senha" autocomplete="off">
@@ -491,6 +566,30 @@
             <span class="fp-text" id="infoDispositivo">🆔 Aguardando...</span>
             <button class="btn-copiar-fp" id="btnCopiarFingerprint">📋 Copiar</button>
         </div>
+    </div>
+</div>
+
+<div id="escolhaOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.96);backdrop-filter:blur(20px);z-index:99990;display:none;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:linear-gradient(145deg,#1a1a3e,#0a0a1e);border-radius:28px;padding:28px 22px;max-width:420px;width:100%;text-align:center;border:2px solid rgba(108,92,231,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.7);">
+        <div style="font-size:3.5rem;margin-bottom:12px;">🎵</div>
+        <div style="font-family:'Audiowide',sans-serif;font-size:1.3rem;color:#fff;letter-spacing:2px;margin-bottom:8px;">ACABOU O TESTE!</div>
+        <div style="color:#888;font-size:0.8rem;margin-bottom:20px;line-height:1.5;">Gostou do app? Continue ouvindo <b style="color:#fd79a8;">+3 mil músicas</b> para sempre!</div>
+        <div style="background:rgba(253,203,110,0.08);border:1px solid rgba(253,203,110,0.25);border-radius:16px;padding:14px;margin-bottom:16px;text-align:left;">
+            <div style="color:#fdcb6e;font-size:0.8rem;font-weight:800;margin-bottom:6px;">🔥 OFERTA ESPECIAL</div>
+            <div style="font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#fdcb6e,#fd79a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:6px 0;">R$ 39,00</div>
+            <div style="color:#ccc;font-size:0.72rem;line-height:1.6;">
+                ✓ Acesso <b>VITALÍCIO</b><br>
+                ✓ Sem mensalidade<br>
+                ✓ Todas as músicas liberadas<br>
+                ✓ Atualizações grátis
+            </div>
+        </div>
+        <button id="btnComprarEscolha" style="width:100%;padding:16px;border-radius:20px;border:none;font-weight:800;font-size:0.95rem;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25d366,#128C7E);color:#fff;box-shadow:0 6px 30px rgba(37,211,102,0.4);">
+            <i class="fab fa-whatsapp"></i> COMPRAR AGORA
+        </button>
+        <button id="btnTenhoSenhaEscolha" style="width:100%;padding:16px;border-radius:20px;border:none;font-weight:800;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;box-shadow:0 6px 30px rgba(108,92,231,0.4);">
+            <i class="fas fa-key"></i> JÁ TENHO SENHA
+        </button>
     </div>
 </div>
 
@@ -601,13 +700,121 @@
     <div class="banner-texto">🔥 <span>VITALÍCIO</span> R$ 39,00</div>
 </div>
 
+<button id="btnInstalarFixo">
+    <i class="fas fa-download"></i>
+    INSTALAR APP
+</button>
+
+<div id="instrucoesInstalar">
+    <div class="instrucoes-box" id="instrucoesBox">
+        <h3>📲 INSTALAR APP</h3>
+        <div class="sub">Como instalar na tela inicial</div>
+        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do navegador</div></div>
+        <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+        <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
+        <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+    </div>
+</div>
+
 <script>
 (function(){
     'use strict';
 
+    /* ═══════════════════════════════════════════════════════════════
+       🎵 FAVICON ANIMADO
+       ═══════════════════════════════════════════════════════════════ */
+    (function iniciarFaviconAnimado() {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const frames = ['🎵', '🎶', '🎧', '🎤'];
+            const paletas = [
+                ['#6c5ce7', '#a29bfe'],
+                ['#00cec9', '#55efc4'],
+                ['#fd79a8', '#e84393'],
+                ['#fdcb6e', '#f0932b'],
+            ];
+            let idx = 0;
+
+            document.querySelectorAll("link[rel*='icon']").forEach(l => l.remove());
+            const link = document.createElement('link');
+            link.rel = 'icon';
+            link.type = 'image/png';
+            document.head.appendChild(link);
+
+            function desenhar() {
+                const [c1, c2] = paletas[idx % paletas.length];
+                ctx.clearRect(0, 0, 64, 64);
+
+                const grad = ctx.createRadialGradient(32, 32, 4, 32, 32, 30);
+                grad.addColorStop(0, c1);
+                grad.addColorStop(0.7, c2);
+                grad.addColorStop(1, '#0a0a1e');
+                ctx.beginPath();
+                ctx.arc(32, 32, 30, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.9;
+                ctx.beginPath();
+                ctx.arc(32, 32, 29, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                ctx.font = 'bold 32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(frames[idx % frames.length], 32, 34);
+
+                link.href = canvas.toDataURL('image/png');
+                idx++;
+            }
+
+            desenhar();
+            setInterval(desenhar, 500);
+        } catch (e) {}
+    })();
+
+    /* ═══════════════════════════════════════════════════════════════
+       ╔═══════════════════════════════════════════════════════════╗
+       ║                                                           ║
+       ║   ✏️✏️✏️   EDITE AQUI  ✏️✏️✏️                              ║
+       ║                                                           ║
+       ╚═══════════════════════════════════════════════════════════╝
+       ═══════════════════════════════════════════════════════════════ */
+
+    const EDITE_AQUI = {
+
+        // 📸 IMAGENS DOS GÊNEROS (OPCIONAL) — 400x400px
+        IMAGENS: {
+            // 'BÔNUS':     'https://i.imgur.com/exemplo.jpg',
+            // 'SERTANEJO': 'https://i.imgur.com/exemplo.jpg',
+        },
+
+        // 📢 TEXTO DO LETREIRO
+        LETREIRO: '🎵 VAI DE BOA! MUSIC 🎵  +3 MIL MÚSICAS  •  VITALÍCIO R$39,00  🐵  •  SERTANEJO  •  MPB  •  ROCK  •  FORRÓ  •  PAGODE  •  ROMÂNTICA  •  FLASHBACK  •  RELIGIOSA  •  FANK  •  REGGAE  •  BREGA  •  MODA RAIZ  •  SAMBA  •  POP/MIX  •  NOVIDADES TODA SEMANA  🎶  OUÇA SEM PARAR!  🔥',
+
+        // ⏰ TEMPO DO TESTE (segundos) — 86400 = 24h
+        TEMPO_TESTE_SEGUNDOS: 86400,
+
+        // 📱 WHATSAPP (só dígitos, com DDI 55)
+        WHATSAPP: '5512988461978',
+
+        // ⏱️ VELOCIDADE DO LETREIRO (segundos)
+        LETREIRO_DURACAO: 30,
+    };
+
+    /* ⚠️ DAQUI PRA BAIXO NÃO PRECISA MEXER */
+
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
-        WHATSAPP_NUMBER: '12988461978',
+        WHATSAPP_NUMBER: EDITE_AQUI.WHATSAPP.replace(/\D/g,''),
         GENRE_URLS: {
             'BÔNUS': 'https://raw.githubusercontent.com/radiolojasjc-hub/play12/refs/heads/main/play.json',
             'FLASHBACK': 'https://raw.githubusercontent.com/radiolojasjc-hub/flashbacktop/refs/heads/main/flashback.json',
@@ -657,21 +864,18 @@
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
         MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
         FALLBACK_MIDIAS: [
-    { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mms.mp4' },
-    { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' },
-    { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mmt.png' },
-    { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mm1.png' }
-],
-        
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mms.mp4' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' },
+            { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mmt.png' },
+            { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mm1.png' }
+        ],
     };
 
     const SENHA_ADMIN = String.fromCharCode(112,97,116,105,99,111,49,54,56,53);
     const SENHA_MESTRA = String.fromCharCode(80,97,116,105,99,111,49,54,56,53,64);
-
-    // Cor única para todos os gêneros (azul ciano que combina com o tema)
     const GENRE_COLOR = '#4fc3f7';
-
-    const LETREIRO_PROMO = '🎵 VAI DE BOA! - +3 MIL MÚSICAS - VITALÍCIO R$39,00 🐵';
+    const LETREIRO_PROMO = EDITE_AQUI.LETREIRO;
+    const TEMPO_TESTE = EDITE_AQUI.TEMPO_TESTE_SEGUNDOS;
 
     const $ = id => document.getElementById(id);
     const fmt = s => { if(!s||isNaN(s)) return '0:00'; const m=Math.floor(s/60); const seg=Math.floor(s%60); return m+':'+(seg<10?'0':'')+seg; };
@@ -679,6 +883,14 @@
     const sanitize = t => { if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.textContent; };
     const sleep = ms => new Promise(r=>setTimeout(r,ms));
     const now = () => Date.now();
+
+    function gerarGradienteGenero(nome) {
+        let hash = 0;
+        for (let i = 0; i < nome.length; i++) hash = nome.charCodeAt(i) + ((hash << 5) - hash);
+        const h1 = Math.abs(hash) % 360;
+        const h2 = (h1 + 45) % 360;
+        return `linear-gradient(135deg, hsl(${h1}, 55%, 40%) 0%, hsl(${h2}, 65%, 18%) 100%)`;
+    }
 
     function copiarTexto(texto, mensagem) {
         if(!texto) return notif('⚠️ Nada para copiar!',1500);
@@ -692,25 +904,15 @@
         async get(genero, url) {
             const key = this.getKey(genero);
             const raw = localStorage.getItem(key);
-            if(raw) {
-                try {
-                    const data = JSON.parse(raw);
-                    if(data.timestamp && (now() - data.timestamp < 3600000)) return data.dados;
-                } catch(e) {}
-            }
+            if(raw) { try { const data = JSON.parse(raw); if(data.timestamp && (now() - data.timestamp < 3600000)) return data.dados; } catch(e) {} }
             try {
                 const response = await fetch(this._cacheBust(url));
                 let json = await response.json();
                 if(!Array.isArray(json)) json = json.musicas || json.data || Object.values(json)[0];
                 const musicas = json.filter(m=>m.src&&m.title).map(m=>({...m, id:'fav_'+(m.title+'_'+(m.artist||'Artista')).toLowerCase().replace(/[^a-z0-9]+/g,'_'), genero, artist:m.artist||'Artista'}));
-                if(musicas && musicas.length) {
-                    localStorage.setItem(key, JSON.stringify({ timestamp: now(), dados: musicas }));
-                    this._enforceLimit();
-                    return musicas;
-                }
+                if(musicas && musicas.length) { localStorage.setItem(key, JSON.stringify({ timestamp: now(), dados: musicas })); this._enforceLimit(); return musicas; }
                 return null;
             } catch(e) {
-                console.warn('Falha ao baixar', genero, e);
                 const raw2 = localStorage.getItem(key);
                 if(raw2) { try { return JSON.parse(raw2).dados; } catch(e2) {} }
                 return null;
@@ -729,17 +931,9 @@
             }
             if(total > this.maxBytes) {
                 items.sort((a,b)=>a.size - b.size);
-                let removed=0;
-                while(total > this.maxBytes && items.length) {
-                    const item=items.shift();
-                    localStorage.removeItem(item.key);
-                    total -= item.size;
-                    removed++;
-                }
-                if(removed) console.log(`🧹 Cache limpo: ${removed} itens removidos`);
+                while(total > this.maxBytes && items.length) { const item=items.shift(); localStorage.removeItem(item.key); total -= item.size; }
             }
         }
-        clearAll() { for(let i=localStorage.length-1; i>=0; i--) { const k=localStorage.key(i); if(k && k.startsWith(this.prefix)) localStorage.removeItem(k); } }
     }
     const cacheManager = new CacheManager();
 
@@ -751,7 +945,7 @@
             this.favorites = this.data.favorites || [];
             this.fingerprint = this._getFingerprint();
             this.desbloqueado = this.data.desbloqueado || false;
-            this.tempoRestante = this.data.tempoRestante || 86400;
+            this.tempoRestante = this.data.tempoRestante || TEMPO_TESTE;
             this.modoTV = this.data.modoTV || false;
             this.modoAtual = this.data.modoAtual || 'BÔNUS';
             this.musicas = this.data.musicas || [];
@@ -765,33 +959,32 @@
             this.fabOpen = false;
             this.isBackgroundActive = false;
             this.playerAtivado = false;
-            this.midiaTVAtual = 0;
             this.mediaTVTimer = null;
             this.mediaTimer = null;
             this.hideControlsTimeout = null;
+            this.carregandoMusica = false;
+            this.escolhaMostrada = false;
+            this.bloqueadoPermanente = localStorage.getItem('vdb_bloqueado_permanente') === 'true';
             this._save();
         }
         _load() {
-            try {
-                const raw = localStorage.getItem(this.key);
-                if(raw) { const parsed = JSON.parse(raw); if(parsed.version === this.version) return parsed; }
-            } catch(e) {}
-            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: 86400, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
+            try { const raw = localStorage.getItem(this.key); if(raw) { const parsed = JSON.parse(raw); if(parsed.version === this.version) return parsed; } } catch(e) {}
+            return { version: this.version, favorites: [], desbloqueado: false, tempoRestante: TEMPO_TESTE, modoTV: false, modoAtual: 'BÔNUS', musicas: [], playlistAtual: [], indiceAtual: 0, shuffleMode: false, historico: [], cadastro: null };
         }
         _save() {
             this.data = { version: this.version, favorites: this.favorites, desbloqueado: this.desbloqueado, tempoRestante: this.tempoRestante, modoTV: this.modoTV, modoAtual: this.modoAtual, musicas: this.musicas, playlistAtual: this.playlistAtual, indiceAtual: this.indiceAtual, shuffleMode: this.shuffleMode, historico: this.historico, cadastro: this.cadastro };
-            localStorage.setItem(this.key, JSON.stringify(this.data));
+            try { localStorage.setItem(this.key, JSON.stringify(this.data)); } catch(e) {}
         }
         _getFingerprint() {
             try {
                 const nav = navigator.userAgent || '';
                 const plat = navigator.platform || '';
                 const lang = navigator.language || '';
-                const screen = screen.width+'x'+screen.height+'x'+screen.colorDepth;
+                const scr = screen.width+'x'+screen.height+'x'+screen.colorDepth;
                 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
                 const mem = navigator.deviceMemory || '';
                 const cores = navigator.hardwareConcurrency || '';
-                return btoa(nav+'|'+plat+'|'+lang+'|'+screen+'|'+tz+'|'+mem+'|'+cores).slice(0,64);
+                return btoa(nav+'|'+plat+'|'+lang+'|'+scr+'|'+tz+'|'+mem+'|'+cores).slice(0,64);
             } catch(e) { return 'fallback_'+now(); }
         }
         addFavorite(musica) { if(!this.favorites.find(f=>f.id===musica.id)) { this.favorites.push({ id:musica.id, title:musica.title, artist:musica.artist, src:musica.src, genero:musica.genero, data:now() }); this._save(); } }
@@ -864,8 +1057,9 @@
     function updateProgress(pct) { dom.loadingProgressFill.style.width = Math.min(pct,100)+'%'; }
 
     function calcularTempoRestante() {
+        if(localStorage.getItem('vdb_bloqueado_permanente') === 'true') return 0;
         const exp = localStorage.getItem('vdb_teste_expiracao');
-        if(!exp) { const inicio = now(); localStorage.setItem('vdb_teste_expiracao', String(inicio + 86400000)); return 86400; }
+        if(!exp) { const inicio = now(); localStorage.setItem('vdb_teste_expiracao', String(inicio + TEMPO_TESTE*1000)); return TEMPO_TESTE; }
         const e = parseInt(exp);
         const rest = Math.floor((e - now()) / 1000);
         return rest > 0 ? rest : 0;
@@ -881,8 +1075,7 @@
     }
 
     function fmtTempo(s) {
-        if(s<0) s=0;
-        s=Math.floor(s);
+        if(s<0) s=0; s=Math.floor(s);
         const dias=Math.floor(s/86400); const horas=Math.floor((s%86400)/3600);
         const min=Math.floor((s%3600)/60); const seg=Math.floor(s%60);
         if(dias>0) return dias+'d '+String(horas).padStart(2,'0')+':'+String(min).padStart(2,'0')+':'+String(seg).padStart(2,'0');
@@ -891,22 +1084,28 @@
     }
 
     function iniciarTimerCorrido() {
-        if(!localStorage.getItem('vdb_teste_expiracao')) localStorage.setItem('vdb_teste_expiracao', String(now() + 86400000));
+        if(!localStorage.getItem('vdb_teste_expiracao') && localStorage.getItem('vdb_bloqueado_permanente') !== 'true') {
+            localStorage.setItem('vdb_teste_expiracao', String(now() + TEMPO_TESTE*1000));
+        }
         updateTimerDisplay();
         function tick() {
-            if(!appState.desbloqueado) {
-                const tr = calcularTempoRestante();
-                appState.tempoRestante = tr;
-                if(tr <= 0) { bloquear(); return; }
-                updateTimerDisplay();
+            if(appState.desbloqueado) return;
+            const tr = calcularTempoRestante();
+            appState.tempoRestante = tr;
+            if(tr <= 0) {
+                bloquear();
+                if(!appState.escolhaMostrada) { appState.escolhaMostrada = true; mostrarEscolha(); }
+                return;
             }
-            setTimeout(tick, 2000);
+            updateTimerDisplay();
+            appState._timerTimeout = setTimeout(tick, 2000);
         }
         tick();
     }
 
     function bloquear() {
         appState.desbloqueado = false;
+        appState.bloqueadoPermanente = true;
         dom.blockOverlay.classList.add('active');
         dom.blockOverlay.style.display = 'flex';
         dom.audio.pause();
@@ -918,6 +1117,28 @@
         localStorage.removeItem('vdb_teste_expiracao');
         notif('⏰ Tempo de teste expirou!', 3000);
     }
+
+    function mostrarEscolha() { const overlay = document.getElementById('escolhaOverlay'); if(overlay) overlay.style.display = 'flex'; }
+
+    setTimeout(() => {
+        const btnComprar = document.getElementById('btnComprarEscolha');
+        const btnTenhoSenha = document.getElementById('btnTenhoSenhaEscolha');
+        if(btnComprar) {
+            btnComprar.onclick = () => {
+                const msg = encodeURIComponent('Olá! Gostei do VAI DE BOA! MUSIC e quero comprar o VITALÍCIO por R$ 39,00');
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
+            };
+        }
+        if(btnTenhoSenha) {
+            btnTenhoSenha.onclick = () => {
+                const overlay = document.getElementById('escolhaOverlay');
+                if(overlay) overlay.style.display = 'none';
+                dom.blockOverlay.classList.add('active');
+                dom.blockOverlay.style.display = 'flex';
+                setTimeout(()=>dom.senhaInput.focus(), 300);
+            };
+        }
+    }, 100);
 
     function gerarSenhaDispositivo(fp) { return btoa(fp+':'+gerarSenhaAleatoria()); }
     function gerarSenhaUniversal() { const ts=now().toString(36); return 'UNIV:'+ts+':'+btoa('UNIV:'+ts+':'+gerarSenhaAleatoria()).slice(0,16); }
@@ -1007,30 +1228,32 @@
         }
 
         dom.audio.pause();
-        dom.audio.src = '';
+        dom.audio.removeAttribute('src');
+        dom.audio.load();
         const urls = getUrls(musica).slice(0,8);
         let ok = false;
         for(const url of urls) {
             try {
                 const loaded = await new Promise(res => {
                     const timeout = setTimeout(()=>{ dom.audio.oncanplay=null; dom.audio.onerror=null; res(false); }, 8000);
-                    dom.audio.oncanplay = () => { clearTimeout(timeout); res(true); };
-                    dom.audio.onerror = () => { clearTimeout(timeout); res(false); };
+                    dom.audio.oncanplay = () => { clearTimeout(timeout); dom.audio.oncanplay=null; dom.audio.onerror=null; res(true); };
+                    dom.audio.onerror = () => { clearTimeout(timeout); dom.audio.oncanplay=null; dom.audio.onerror=null; res(false); };
                     dom.audio.src = url;
                     dom.audio.load();
                 });
                 if(loaded) { ok=true; break; }
             } catch(e) {}
         }
-        appState.carregandoMusica = false;
+
         if(ok) {
             try {
                 await dom.audio.play();
                 appState.isPlaying = true;
                 dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-            } catch(e) { setTimeout(next,100); }
-        } else { setTimeout(next,100); }
+                appState.carregandoMusica = false;
+            } catch(e) { appState.carregandoMusica = false; setTimeout(next, 100); }
+        } else { appState.carregandoMusica = false; setTimeout(next, 100); }
     }
 
     function atualizarPlaylist() {
@@ -1042,25 +1265,29 @@
     function getUrls(musica) {
         const src = musica.src || '';
         if(!src) return [];
-        if(src.startsWith('http')) return [src + (src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION+'&t='+now()];
+        if(src.startsWith('http')) return [src + (src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION];
         const nome = src.replace(/^\.\//,'').replace(/[^a-zA-Z0-9\-_.]/g,'');
         const repo = CONFIG.REPOS[musica.genero] || 'play12';
-        return ['https://raw.githubusercontent.com/radiolojasjc-hub/'+repo+'/refs/heads/main/'+nome + '?v='+CONFIG.CACHE_VERSION+'&t='+now()];
+        return ['https://raw.githubusercontent.com/radiolojasjc-hub/'+repo+'/refs/heads/main/'+nome + '?v='+CONFIG.CACHE_VERSION];
     }
 
     function atualizarLetreiro(musica) {
-        if(appState.scrollPersonalizado) return;
         if(musica) dom.scrollText.textContent = sanitize(musica.title)+' - '+sanitize(musica.artist)+' ['+musica.genero+'] 🎵 | '+LETREIRO_PROMO;
         else dom.scrollText.textContent = LETREIRO_PROMO;
         dom.scrollText.style.animation = 'none';
         dom.scrollText.offsetHeight;
-        dom.scrollText.style.animation = 'scrollText 25s linear infinite';
+        dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
     }
 
     function togglePlay() {
         if(!appState.isBackgroundActive) { notif('🔊 Aguarde...',1500); return; }
         if(dom.audio.paused) tocar();
-        else { dom.audio.pause(); appState.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; }
+        else {
+            dom.audio.pause();
+            appState.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            if('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+        }
         showControls();
     }
 
@@ -1093,20 +1320,27 @@
     }
 
     let silentAudioBlob = null;
-    function getSilentAudioBlob() { if(!silentAudioBlob) silentAudioBlob = criarSilentAudio(); return silentAudioBlob; }
+    let silentAudioUrl = null;
+    function getSilentAudioUrl() { if(!silentAudioBlob) silentAudioBlob = criarSilentAudio(); if(!silentAudioUrl) silentAudioUrl = URL.createObjectURL(silentAudioBlob); return silentAudioUrl; }
 
+    let keepAliveInterval = null;
     function manterAudioAtivo() {
-        function keepAlive() {
-            if(appState.isBackgroundActive) {
-                try {
-                    if(dom.backgroundAudio.paused) dom.backgroundAudio.play().catch(()=>{});
-                    if(appState.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src) dom.audio.play().catch(()=>{});
-                    if(dom.audio.ended && appState.isPlaying) next();
-                } catch(e) {}
+        if(keepAliveInterval) clearInterval(keepAliveInterval);
+        keepAliveInterval = setInterval(() => {
+            if(!appState.isBackgroundActive) return;
+            try {
+                if(dom.backgroundAudio.paused) dom.backgroundAudio.play().catch(()=>{});
+                if(appState.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src && !appState.carregandoMusica) {
+                    dom.audio.play().catch(()=>{});
+                }
+            } catch(e) {}
+        }, 3000);
+        dom.audio.addEventListener('ended', () => { if(appState.isPlaying && !appState.carregandoMusica) next(); });
+        dom.audio.addEventListener('pause', () => {
+            if(appState.isPlaying && !appState.carregandoMusica && !dom.audio.ended) {
+                setTimeout(() => { if(appState.isPlaying && dom.audio.paused) dom.audio.play().catch(()=>{}); }, 300);
             }
-            requestAnimationFrame(keepAlive);
-        }
-        keepAlive();
+        });
     }
 
     async function ativarPlayer() {
@@ -1114,8 +1348,7 @@
         appState.playerAtivado = true;
         updateProgress(30);
         try {
-            const url = URL.createObjectURL(getSilentAudioBlob());
-            dom.backgroundAudio.src = url;
+            dom.backgroundAudio.src = getSilentAudioUrl();
             dom.backgroundAudio.loop = true;
             dom.backgroundAudio.volume = 0.001;
             await dom.backgroundAudio.play();
@@ -1148,7 +1381,7 @@
                 if(Array.isArray(data)) midias = data;
                 else if(data.medias) midias = data.medias;
                 else if(data.midias) midias = data.midias;
-            } catch(e) { console.warn('Falha midias.json, fallback'); }
+            } catch(e) {}
             if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
             midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
             if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
@@ -1161,12 +1394,12 @@
                 let el;
                 if(m.tipo==='video') {
                     el = document.createElement('video');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION+'&t='+now();
+                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
                     el.muted = true; el.playsInline = true; el.loop = true;
                     el.load(); el.onerror = ()=>el.style.display='none';
                 } else {
                     el = document.createElement('img');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION+'&t='+now();
+                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
                     el.loading='lazy'; el.alt='VDB Music'; el.onerror = ()=>el.style.display='none';
                 }
                 el.className = i===0 ? 'active' : 'inactive';
@@ -1195,7 +1428,7 @@
                     idx = (idx+1) % children.length;
                 }, 5000);
             }
-        } catch(erro) { console.error('Erro midias padrão:', erro); dom.mediaContainer.innerHTML = ''; }
+        } catch(erro) { dom.mediaContainer.innerHTML = ''; }
     }
 
     async function carregarMidiasTV() {
@@ -1208,7 +1441,7 @@
                 if(Array.isArray(data)) midias = data;
                 else if(data.medias) midias = data.medias;
                 else if(data.midias) midias = data.midias;
-            } catch(e) { console.warn('Falha modotv.json, fallback'); }
+            } catch(e) {}
             if(!midias.length) midias = [ { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }, { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' } ];
             midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
             if(!midias.length) midias = [ { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }, { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' } ];
@@ -1217,12 +1450,12 @@
                 let el;
                 if(m.tipo==='video') {
                     el = document.createElement('video');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION+'&t='+now();
+                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
                     el.muted = true; el.playsInline = true; el.loop = true;
                     el.load(); el.onerror = ()=>el.style.display='none';
                 } else {
                     el = document.createElement('img');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION+'&t='+now();
+                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
                     el.loading='lazy'; el.alt='VDB TV'; el.onerror = ()=>el.style.display='none';
                 }
                 el.className = i===0 ? 'active' : 'inactive';
@@ -1247,7 +1480,7 @@
             }
             dom.infoScroll.classList.add('hidden');
             mostrarBotaoSairTV();
-        } catch(erro) { console.error('Erro midias TV:', erro); dom.mediaContainer.innerHTML = ''; }
+        } catch(erro) { dom.mediaContainer.innerHTML = ''; }
     }
 
     function mostrarBotaoSairTV() {
@@ -1258,7 +1491,6 @@
         btn.onclick = () => toggleModoTV();
         document.body.appendChild(btn);
     }
-
     function esconderBotaoSairTV() { const btn = document.getElementById('btnSairModoTV'); if(btn) btn.remove(); }
 
     async function toggleModoTV() {
@@ -1274,19 +1506,22 @@
         appState._save();
     }
 
-    // GÊNEROS - Todos com a mesma cor azul ciano
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         CONFIG.ORDEM.forEach(g => {
             const card = document.createElement('div');
             card.className = 'genre-card';
             card.setAttribute('data-genre', g);
+            const imgUrl = EDITE_AQUI.IMAGENS[g];
+            if(imgUrl && typeof imgUrl === 'string' && imgUrl.trim().length > 0) {
+                card.style.backgroundImage = `url('${imgUrl}')`;
+                card.style.backgroundColor = '#1a1a3e';
+            } else {
+                card.style.background = gerarGradienteGenero(g);
+            }
             const name = document.createElement('div');
             name.className = 'genre-name';
             name.textContent = g;
-            // Todos os gêneros usam a mesma cor azul
-            name.style.color = GENRE_COLOR;
-            name.style.textShadow = `0 0 12px ${GENRE_COLOR}, 0 0 24px rgba(79,195,247,0.6), 0 2px 10px rgba(0,0,0,0.85)`;
             card.appendChild(name);
             card.onclick = () => selecionarGenero(g);
             dom.genresGrid.appendChild(card);
@@ -1308,10 +1543,8 @@
         appState.playlistAtual = shuffle(musicas);
         appState.indiceAtual = 0;
         dom.generoNome.textContent = genero;
-        // Cor única azul no topo também
         dom.generoNome.style.color = GENRE_COLOR;
         dom.generoNome.style.textShadow = `0 0 12px ${GENRE_COLOR}, 0 0 24px rgba(79,195,247,0.4)`;
-        appState.scrollPersonalizado = false;
         const m = appState.playlistAtual[0];
         if(m) { atualizarLetreiro(m); updateHeart(m.id); }
         renderizarGeneros();
@@ -1323,6 +1556,7 @@
     }
 
     let searchTimeoutLetreiro = null;
+    let ultimaBusca = '';
 
     dom.infoScroll.addEventListener('click', function(e) {
         if (this.classList.contains('modo-pesquisa')) return;
@@ -1334,19 +1568,23 @@
 
     dom.searchInputLetreiro.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            aplicarBusca(this.value.trim());
+            const termo = this.value.trim();
+            ultimaBusca = termo;
+            aplicarBusca(termo);
+            this.blur();
             dom.infoScroll.classList.remove('modo-pesquisa');
             dom.searchClearLetreiro.classList.remove('visible');
         }
     });
 
     dom.searchInputLetreiro.addEventListener('blur', function() {
+        const self = this;
         setTimeout(() => {
-            if (dom.infoScroll.classList.contains('modo-pesquisa')) {
-                aplicarBusca(this.value.trim());
-                dom.infoScroll.classList.remove('modo-pesquisa');
-                dom.searchClearLetreiro.classList.remove('visible');
-            }
+            if (!dom.infoScroll.classList.contains('modo-pesquisa')) return;
+            const termo = self.value.trim();
+            if (termo !== ultimaBusca) { ultimaBusca = termo; aplicarBusca(termo); }
+            dom.infoScroll.classList.remove('modo-pesquisa');
+            dom.searchClearLetreiro.classList.remove('visible');
         }, 200);
     });
 
@@ -1354,6 +1592,7 @@
         e.stopPropagation();
         dom.searchInputLetreiro.value = '';
         dom.searchClearLetreiro.classList.remove('visible');
+        ultimaBusca = '';
         appState.playlistAtual = shuffle(appState.musicas);
         appState.indiceAtual = 0;
         if(appState.isBackgroundActive) tocar();
@@ -1366,12 +1605,13 @@
         clearTimeout(searchTimeoutLetreiro);
         const termo = this.value.trim();
         if (termo.length === 0) {
+            ultimaBusca = '';
             appState.playlistAtual = shuffle(appState.musicas);
             appState.indiceAtual = 0;
             if(appState.isBackgroundActive) tocar();
             return;
         }
-        searchTimeoutLetreiro = setTimeout(() => { aplicarBusca(termo); }, 500);
+        searchTimeoutLetreiro = setTimeout(() => { ultimaBusca = termo; aplicarBusca(termo); }, 500);
     });
 
     function aplicarBusca(termo) {
@@ -1390,7 +1630,7 @@
             dom.scrollText.textContent = '🔍 Resultados: ' + sanitize(primeira.title) + ' - ' + sanitize(primeira.artist) + ' (+' + (filtradas.length-1) + ' músicas)';
             dom.scrollText.style.animation = 'none';
             dom.scrollText.offsetHeight;
-            dom.scrollText.style.animation = 'scrollText 25s linear infinite';
+            dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
         } else {
             notif('🔍 Nenhuma música encontrada',1500);
             dom.scrollText.textContent = '🔍 Nenhum resultado para "' + sanitize(termo) + '"';
@@ -1400,20 +1640,18 @@
         }
     }
 
-    let clickCountLogo = 0;
-    let clickTimerLogo = null;
-
+    let clickTimestamps = [];
     dom.logoMacaco.addEventListener('click', function(e) {
         e.stopPropagation();
-        clickCountLogo++;
-        clearTimeout(clickTimerLogo);
-        clickTimerLogo = setTimeout(() => { clickCountLogo = 0; }, 3000);
-        if (clickCountLogo >= 8) { clickCountLogo = 0; clearTimeout(clickTimerLogo); abrirAdmin(); }
+        const t = now();
+        clickTimestamps = clickTimestamps.filter(ts => t - ts < 3000);
+        clickTimestamps.push(t);
+        if (clickTimestamps.length >= 8) { clickTimestamps = []; abrirAdmin(); }
     });
 
     function abrirWhatsAppCompra() {
         const msg = encodeURIComponent('Olá! Quero adquirir o VAI DE BOA! MUSIC VITALÍCIO por R$ 39,00');
-        window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
+        window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+msg,'_blank');
     }
 
     function abrirCadastro() {
@@ -1440,34 +1678,34 @@
         document.getElementById('cadastroConfirmarBtn').onclick = ()=>{
             const nome = document.getElementById('cadastroNome').value.trim();
             const zap = document.getElementById('cadastroZap').value.trim();
-            if(!nome || nome.length<2) { alert('⚠️ Digite seu nome completo!'); return; }
-            if(!zap || zap.length<8) { alert('⚠️ Digite seu WhatsApp corretamente!'); return; }
+            if(!nome || nome.length<2) { notif('⚠️ Digite seu nome completo!',2000); return; }
+            if(!zap || zap.length<8) { notif('⚠️ Digite seu WhatsApp corretamente!',2000); return; }
             appState.cadastro = { nome, zap, data: new Date().toISOString() };
             appState._save();
             const msg = `🎵 *VAI DE BOA! MUSIC*\n\n👤 *Nome:* ${nome}\n📱 *WhatsApp:* ${zap}\n💰 *Valor:* R$ 39,00 (Vitalício)\n\n✅ Quero comprar o acesso!`;
-            window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
+            window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent(msg),'_blank');
             modal.remove();
             notif('✅ Cadastro enviado! Aguarde ativação!',3000);
         };
     }
 
     function abrirAdmin() {
-        if(appState.adminBloqueado) { notif('🔒 Painel bloqueado por segurança!',2000); return; }
+        const lock = JSON.parse(localStorage.getItem('vdb_admin_lock') || '{"tentativas":0,"bloqueado":false,"ate":0}');
+        if(lock.bloqueado && now() < lock.ate) { const rest = Math.ceil((lock.ate - now())/1000); notif('🔒 Painel bloqueado! Aguarde '+rest+'s',2500); return; }
+        if(lock.bloqueado && now() >= lock.ate) { lock.bloqueado = false; lock.tentativas = 0; localStorage.setItem('vdb_admin_lock', JSON.stringify(lock)); }
         const senha = prompt('🔐 Digite a senha do painel admin:');
         if(senha===null) return;
         if(senha===SENHA_ADMIN) {
-            appState.adminTentativas=0;
+            lock.tentativas = 0; lock.bloqueado = false;
+            localStorage.setItem('vdb_admin_lock', JSON.stringify(lock));
             dom.adminPanel.classList.add('open');
             notif('🔐 Painel Admin aberto!',2000);
             carregarHistorico();
             atualizarTotalSenhas();
         } else {
-            appState.adminTentativas = (appState.adminTentativas||0)+1;
-            if(appState.adminTentativas>=3) {
-                appState.adminBloqueado = true;
-                notif('🔒 Painel bloqueado por muitas tentativas!',3000);
-                setTimeout(()=>{ appState.adminBloqueado=false; appState.adminTentativas=0; notif('🔓 Painel desbloqueado, tente novamente!',2000); },60000);
-            } else { notif('❌ Senha incorreta! Tentativas: '+appState.adminTentativas+'/3',2000); }
+            lock.tentativas = (lock.tentativas||0)+1;
+            if(lock.tentativas>=3) { lock.bloqueado = true; lock.ate = now() + 60000; localStorage.setItem('vdb_admin_lock', JSON.stringify(lock)); notif('🔒 Painel bloqueado por 60s!',3000); }
+            else { localStorage.setItem('vdb_admin_lock', JSON.stringify(lock)); notif('❌ Senha incorreta! Tentativas: '+lock.tentativas+'/3',2000); }
         }
     }
 
@@ -1516,6 +1754,7 @@
             localStorage.setItem('vdb_senha_permanente','true');
             localStorage.removeItem('vdb_teste_expiracao');
             localStorage.removeItem('vdb_bloqueado_permanente');
+            appState.bloqueadoPermanente = false;
             notif('✅ App liberado com sucesso!',3000);
             appState._save();
         } else { notif('❌ Senha inválida!',2000); }
@@ -1531,10 +1770,12 @@
             dom.blockOverlay.style.display = 'none';
             dom.erroSenha.textContent='';
             dom.senhaInput.value='';
+            dom.senhaInput.blur();
             localStorage.setItem('vdb_desbloqueado','true');
             localStorage.setItem('vdb_senha_permanente','true');
             localStorage.removeItem('vdb_teste_expiracao');
             localStorage.removeItem('vdb_bloqueado_permanente');
+            appState.bloqueadoPermanente = false;
             notif(resultado.msg,3000);
             if(!appState.playerAtivado) setTimeout(ativarPlayer,500);
             appState._save();
@@ -1576,9 +1817,9 @@
             const touch=e.touches[0];
             this.touchStartX=touch.clientX; this.touchStartY=touch.clientY;
             this.isSwiping=false; this.swipeDirection=null; this.isLongPress=false;
-            const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, .btn-copiar, .btn-gerar, .btn-universal, .btn-limpar, .btn-whats, .btn-copiar-senha, .qr-btn-close');
+            const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, .btn-copiar, .btn-gerar, .btn-universal, .btn-limpar, .btn-whats, .btn-copiar-senha, .qr-btn-close, #btnInstalarFixo');
             if(target) return;
-            this.longPressTimer = setTimeout(() => { if(!this.isSwiping) { this.isLongPress=true; showControls(); notif('👆 Controles exibidos',1000); } }, 500);
+            this.longPressTimer = setTimeout(() => { if(!this.isSwiping) { this.isLongPress=true; showControls(); } }, 500);
         }
         handleTouchMove(e) {
             if(!this.touchStartX) return;
@@ -1595,7 +1836,7 @@
             clearTimeout(this.longPressTimer);
             if(this.isSwiping && this.swipeDirection) this.executeSwipeAction(this.swipeDirection);
             else if(!this.isSwiping && !this.isLongPress) {
-                const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, .btn-copiar, .btn-gerar, .btn-universal, .btn-limpar, .btn-whats, .btn-copiar-senha, .qr-btn-close');
+                const target = e.target.closest('button, .clickable, .touchable, a, .genre-card, .fav-item-modal, .ctrl-btn, .play-big, .shuffle-btn, .fab-main, .fab-sub-btn, .menu-btn, .close-genres, .close-fav, .choice-btn, .choice-close, .btn-liberar, .btn-copiar-fp, #btnInstalarFixo');
                 if(!target) {
                     const controls=dom.bottomControls;
                     if(controls.classList.contains('visible')) controls.classList.remove('visible');
@@ -1611,35 +1852,120 @@
             if(!indicator) {
                 indicator=document.createElement('div');
                 indicator.id='swipeIndicator';
-                indicator.style.cssText='position:fixed;top:50%;transform:translateY(-50%);font-size:2.5rem;color:rgba(108,92,231,0.3);z-index:9999;pointer-events:none;transition:all 0.2s;text-shadow:0 0 30px rgba(0,0,0,0.5);';
+                indicator.style.cssText='position:fixed;top:50%;transform:translateY(-50%);font-size:2.5rem;color:rgba(108,92,231,0.6);z-index:9999;pointer-events:none;transition:all 0.2s;text-shadow:0 0 30px rgba(0,0,0,0.5);';
                 document.body.appendChild(indicator);
             }
             const absX=Math.abs(diffX), absY=Math.abs(diffY);
             if(absX>absY && absX>this.swipeThreshold) {
-                if(diffX>0) { indicator.textContent='⏭️'; indicator.style.right='20px'; indicator.style.left='auto'; }
-                else { indicator.textContent='⏮️'; indicator.style.left='20px'; indicator.style.right='auto'; }
-                indicator.style.opacity=Math.min(absX/150,0.6);
+                if(diffX>0) { indicator.textContent='⏮️'; indicator.style.left='20px'; indicator.style.right='auto'; }
+                else { indicator.textContent='⏭️'; indicator.style.right='20px'; indicator.style.left='auto'; }
+                indicator.style.opacity=Math.min(absX/150,0.9);
             } else if(absY>absX && absY>this.swipeThreshold) {
-                if(diffY<0) indicator.textContent='🔊'; else indicator.textContent='🔇';
+                if(diffY<0) indicator.textContent='⬆️'; else indicator.textContent='⬇️';
                 indicator.style.left='50%'; indicator.style.transform='translateX(-50%) translateY(-50%)';
-                indicator.style.opacity=Math.min(absY/150,0.6);
+                indicator.style.opacity=Math.min(absY/150,0.9);
             }
         }
         removeSwipeFeedback() { const i=document.getElementById('swipeIndicator'); if(i) i.remove(); }
         executeSwipeAction(direction) {
             if(direction==='left') { next(); notif('⏭️ Próxima',800); showControls(); }
             else if(direction==='right') { prev(); notif('⏮️ Anterior',800); showControls(); }
-            else if(direction==='up') { showControls(); notif('👆 Controles',800); }
+            else if(direction==='up') { showControls(); }
             else if(direction==='down') { dom.bottomControls.classList.remove('visible'); }
         }
     }
 
+    const btnInstalarFixo = document.getElementById('btnInstalarFixo');
+    const instrucoesInstalar = document.getElementById('instrucoesInstalar');
+    const instrucoesBox = document.getElementById('instrucoesBox');
+    let deferredInstallPrompt = null;
+
+    function ehMobile(){ return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent); }
+    function ehIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+    function ehAndroid(){ return /Android/i.test(navigator.userAgent); }
+    function jaEstaInstalado(){
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true ||
+               document.referrer.includes('android-app://');
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if(btnInstalarFixo && !jaEstaInstalado() && ehMobile()) btnInstalarFixo.style.display = 'flex';
+    });
+
+    function atualizarVisibilidadeBotaoInstalar() {
+        if(!btnInstalarFixo) return;
+        const bloqueado = dom.blockOverlay.classList.contains('active') && dom.blockOverlay.style.display !== 'none';
+        if(bloqueado || jaEstaInstalado() || !ehMobile()) btnInstalarFixo.style.display = 'none';
+        else btnInstalarFixo.style.display = 'flex';
+    }
+
+    const overlayObserver = new MutationObserver(atualizarVisibilidadeBotaoInstalar);
+    overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
+
+    if(ehMobile() && !jaEstaInstalado()) setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 1500);
+
+    if(btnInstalarFixo) {
+        btnInstalarFixo.onclick = async () => {
+            if(deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const resultado = await deferredInstallPrompt.userChoice;
+                if(resultado.outcome === 'accepted') { notif('✅ Instalando app...', 2500); btnInstalarFixo.style.display = 'none'; }
+                else { notif('❌ Instalação cancelada', 2000); }
+                deferredInstallPrompt = null;
+                return;
+            }
+            if(instrucoesBox) {
+                if(ehIOS()){
+                    instrucoesBox.innerHTML = `
+                        <h3>📲 INSTALAR NO IPHONE</h3>
+                        <div class="sub">Como instalar na tela inicial</div>
+                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>Compartilhar</b> ⬆️ (embaixo no Safari)</div></div>
+                        <div class="passo"><div class="num">2</div><div class="txt">Role e toque em <b>"Adicionar à Tela de Início"</b></div></div>
+                        <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Adicionar"</b> e pronto! 🎵</div></div>
+                        <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                    `;
+                } else if(ehAndroid()){
+                    instrucoesBox.innerHTML = `
+                        <h3>📲 INSTALAR NO ANDROID</h3>
+                        <div class="sub">Como instalar na tela inicial</div>
+                        <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do Chrome</div></div>
+                        <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+                        <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
+                        <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                    `;
+                }
+            }
+            if(instrucoesInstalar) instrucoesInstalar.classList.add('active');
+            const fecharBtn = document.getElementById('fecharInstrucoesBtn');
+            if(fecharBtn) fecharBtn.onclick = () => instrucoesInstalar.classList.remove('active');
+        };
+    }
+
+    const fecharBtnGlobal = document.getElementById('fecharInstrucoesBtn');
+    if(fecharBtnGlobal) fecharBtnGlobal.onclick = () => instrucoesInstalar.classList.remove('active');
+
+    window.addEventListener('appinstalled', () => {
+        if(btnInstalarFixo) btnInstalarFixo.style.display = 'none';
+        notif('🎉 App instalado com sucesso!', 3000);
+    });
+
+    if(!ehMobile()){
+        if(btnInstalarFixo) btnInstalarFixo.style.display = 'none';
+    }
+
     async function iniciar() {
-        console.log('🚀 VAI DE BOA! MUSIC v8.0 - Cor única azul + Audiowide + 28 gêneros');
         try {
             appState.favorites = appState.getFavorites();
             updateFavBadge();
             updateProgress(10);
+
+            dom.scrollText.textContent = LETREIRO_PROMO;
+            dom.scrollText.style.animation = 'none';
+            dom.scrollText.offsetHeight;
+            dom.scrollText.style.animation = 'scrollText '+EDITE_AQUI.LETREIRO_DURACAO+'s linear infinite';
 
             await carregarMidiasPadrao();
             updateProgress(30);
@@ -1684,7 +2010,7 @@
                         primeira = true;
                         break;
                     }
-                } catch(e) { console.warn('Falha carregar', g, e); }
+                } catch(e) {}
             }
             if(!primeira) {
                 appState.musicas = [
@@ -1693,7 +2019,6 @@
                 ];
                 appState.playlistAtual = shuffle(appState.musicas);
                 dom.generoNome.textContent = 'BÔNUS';
-                notif('⚠️ Modo offline - algumas músicas podem não tocar',3000);
             }
             renderizarGeneros();
             updateProgress(90);
@@ -1776,7 +2101,7 @@
             dom.sendFeedbackBtn.onclick = () => {
                 const stars = document.querySelectorAll('.star.active').length;
                 const text = dom.feedbackText.value;
-                window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent('⭐'+'★'.repeat(stars)+' '+text));
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+encodeURIComponent('⭐'+'★'.repeat(stars)+' '+text));
                 dom.feedbackModal.classList.remove('open');
             };
             dom.closeFeedbackBtn.onclick = () => dom.feedbackModal.classList.remove('open');
@@ -1791,7 +2116,7 @@
                 dom.adminSenhaGerada.value = senhaCliente;
                 dom.infoSenha.textContent = '✅ Senha única gerada! Funciona apenas neste dispositivo.';
                 appState.addSenhaHistorico(senhaCliente, 'dispositivo');
-                atualizarTotalSenhas();
+                atualizarTotalSenhas(); carregarHistorico();
                 dom.adminFingerprintInput.value=''; dom.adminFingerprintInput.focus();
                 notif('✅ Senha gerada para o dispositivo!',2000);
             };
@@ -1800,7 +2125,7 @@
                 dom.adminSenhaGerada.value = senhaUniversal;
                 dom.infoSenha.textContent = '🌍 Senha universal! Funciona em qualquer dispositivo.';
                 appState.addSenhaHistorico(senhaUniversal, 'universal');
-                atualizarTotalSenhas();
+                atualizarTotalSenhas(); carregarHistorico();
                 dom.adminFingerprintInput.value='';
                 notif('✅ Senha universal gerada!',2000);
             };
@@ -1812,7 +2137,7 @@
                 const senha = dom.adminSenhaGerada.value;
                 if(!senha) { notif('⚠️ Gere uma senha primeiro!',1500); return; }
                 const mensagem = '🔑 *VAI DE BOA! MUSIC*%0A%0ASua senha de acesso:%0A%0A`'+senha+'`%0A%0A📱 Copie e cole no app para liberar!%0A🎵 Aproveite todas as músicas!';
-                window.open('https://wa.me/55'+CONFIG.WHATSAPP_NUMBER+'?text='+mensagem,'_blank');
+                window.open('https://wa.me/'+CONFIG.WHATSAPP_NUMBER+'?text='+mensagem,'_blank');
             };
             dom.adminCloseBtn.onclick = function() { dom.adminPanel.classList.remove('open'); };
 
@@ -1823,8 +2148,10 @@
                     dom.totalTime.textContent = fmt(dom.audio.duration);
                 }
             };
-            dom.audio.onended = () => { if(!appState.carregandoMusica) next(); };
-            dom.audio.onerror = () => { if(!appState.carregandoMusica) next(); };
+            let errosConsec = 0;
+            dom.audio.onended = () => { errosConsec = 0; if(!appState.carregandoMusica) next(); };
+            dom.audio.onerror = () => { if(appState.carregandoMusica) return; errosConsec++; if(errosConsec >= 5) { errosConsec = 0; return; } next(); };
+            dom.audio.oncanplay = () => { errosConsec = 0; };
 
             document.addEventListener('keydown', (e) => {
                 if(e.target.tagName==='INPUT') return;
@@ -1835,7 +2162,7 @@
             });
 
             document.addEventListener('click', (e) => {
-                if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll')) return;
+                if(e.target.closest('button') || e.target.closest('.genre-card') || e.target.closest('.fav-item-modal') || e.target.closest('#infoScroll') || e.target.closest('#btnInstalarFixo')) return;
                 showControls();
             });
 
@@ -1846,22 +2173,26 @@
                         const tr=calcularTempoRestante();
                         appState.tempoRestante=tr;
                         updateTimerDisplay();
-                        if(tr<=0) bloquear();
+                        if(tr<=0 && !appState.escolhaMostrada) { bloquear(); appState.escolhaMostrada = true; mostrarEscolha(); }
                     }
-                    if(appState.isPlaying && dom.audio && dom.audio.paused && dom.audio.src) {
+                    if(appState.isPlaying && dom.audio && dom.audio.paused && dom.audio.src && !appState.carregandoMusica) {
                         dom.audio.play().then(()=>{
                             dom.playBtn.innerHTML='<i class="fas fa-pause"></i>';
                             if('mediaSession' in navigator) navigator.mediaSession.playbackState='playing';
                         }).catch(()=>{ if(appState.playlistAtual.length) tocar(); });
                     }
                     if(appState.isBackgroundActive && dom.backgroundAudio.paused) {
-                        const url = URL.createObjectURL(getSilentAudioBlob());
-                        dom.backgroundAudio.src=url;
+                        dom.backgroundAudio.src = getSilentAudioUrl();
                         dom.backgroundAudio.loop=true;
                         dom.backgroundAudio.volume=0.001;
                         dom.backgroundAudio.play().catch(()=>{});
                     }
                     if('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(()=>{});
+                } else {
+                    if('wakeLock' in navigator && appState.wakeLock) {
+                        try { appState.wakeLock.release(); } catch(e) {}
+                        appState.wakeLock = null;
+                    }
                 }
             });
 
@@ -1877,51 +2208,27 @@
 
             new TouchManager();
             iniciarBannerPromocional();
-
-            console.log('🐵 App iniciado com sucesso!');
         } catch(erro) {
-            console.error('❌ ERRO FATAL:', erro);
             dom.loadingScreen.style.display='none';
             dom.playerContainer.classList.add('visible');
             notif('⚠️ Erro ao iniciar, recarregue a página',5000);
         }
     }
 
-    if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(()=>console.log('✅ SW registrado')).catch(err=>console.warn('⚠️ Falha SW:', err));
-    }
+    /* ═══════════════════════════════════════════════════════════════
+       📲 SERVICE WORKER — Registra o arquivo sw.js real
+       ═══════════════════════════════════════════════════════════════ */
+    (function registrarServiceWorker() {
+        if(!('serviceWorker' in navigator)) return;
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; mostrarBotaoInstalar(); });
-
-    function mostrarBotaoInstalar() {
-        if(window.matchMedia('(display-mode: standalone)').matches) return;
-        const btn = document.createElement('button');
-        btn.id='btnInstalarApp';
-        btn.innerHTML='📲 Instalar App';
-        btn.style.cssText='position:fixed;bottom:150px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;border:none;padding:12px 24px;border-radius:30px;font-weight:700;font-size:0.9rem;box-shadow:0 6px 30px rgba(108,92,231,0.4);z-index:99999;cursor:pointer;touch-action:manipulation;animation:pulseBtn 2s infinite;';
-        const style=document.createElement('style');
-        style.textContent='@keyframes pulseBtn{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}';
-        document.head.appendChild(style);
-        btn.onclick = async () => {
-            if(deferredPrompt) {
-                deferredPrompt.prompt();
-                const result = await deferredPrompt.userChoice;
-                if(result.outcome==='accepted') notif('✅ App instalado!',3000);
-                else notif('❌ Instalação cancelada',2000);
-                deferredPrompt=null;
-                btn.remove();
-            }
-        };
-        document.body.appendChild(btn);
-        setTimeout(()=>{ if(btn.parentNode) btn.remove(); }, 15000);
-    }
-
-    window.addEventListener('appinstalled', () => {
-        const btn=document.getElementById('btnInstalarApp');
-        if(btn) btn.remove();
-        notif('🎉 App instalado! Aproveite!',3000);
-    });
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+            .then((reg) => {
+                console.log('✅ SW registrado:', reg.scope);
+            })
+            .catch((err) => {
+                console.warn('⚠️ SW falhou:', err);
+            });
+    })();
 
     iniciar();
 })();
