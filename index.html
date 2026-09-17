@@ -30,6 +30,7 @@
             --shadow:0 8px 32px rgba(0,0,0,0.5);
             --genre-blue: #4fc3f7;
         }
+
         #loadingScreen { position:fixed; inset:0; background:var(--dark); display:flex; align-items:center; justify-content:center; z-index:99999; flex-direction:column; gap:16px; }
         .loading-logo { width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); animation:pulse 1.5s infinite; box-shadow:0 0 60px rgba(108,92,231,0.2); }
         @keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(108,92,231,0.1)} 50%{transform:scale(1.05);box-shadow:0 0 40px rgba(108,92,231,0.3)} }
@@ -567,7 +568,7 @@
         REPOS: {'BÔNUS':'play12','MPB':'mpbtop','POP/MIX':'poptop','SERTANEJO':'sertanejo','FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop','MODA RAIZ':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop','FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias','MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock','NOVIDADES':'VDB','MISTURA BRASIL':'listtop','DIRIGINDO':'listtop','TREINO':'listtop','SERESTA':'sertanejo','MPB 2':'mpbtop','HIP HOP':'poptop','PAGODE':'sambatop','BAILÃO':'forrodez','GLOBAL HITS':'chorinho'},
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
         MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
-        // ✅ CORRIGIDO: fallback agora aponta para arquivos que existem
+        // ✅ CORRIGIDO: fallback com arquivos que existem (não mais 404)
         FALLBACK_MIDIAS: [
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' },
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' }
@@ -608,7 +609,7 @@
 
     class CacheManager {
         constructor(maxBytes=5*1024*1024) { this.maxBytes = maxBytes; this.prefix = 'cache_'; }
-        // ✅ CORRIGIDO: chave agora inclui versão do cache
+        // ✅ CORRIGIDO: inclui versão do cache na chave (invalida cache antigo automaticamente)
         getKey(genero) { return this.prefix + CONFIG.CACHE_VERSION + '_' + genero; }
         async get(genero, url) {
             const key = this.getKey(genero);
@@ -823,6 +824,7 @@
         executeSwipeAction(direction) { if(direction==='left') { next(); notif('⏭️ Próxima',800); showControls(); } else if(direction==='right') { prev(); notif('⏮️ Anterior',800); showControls(); } else if(direction==='up') { showControls(); } else if(direction==='down') { dom.bottomControls.classList.remove('visible'); } }
     }
 
+    // ==================== INSTALAÇÃO PWA ====================
     const btnInstalarFixo = document.getElementById('btnInstalarFixo');
     const instrucoesInstalar = document.getElementById('instrucoesInstalar');
     const instrucoesBox = document.getElementById('instrucoesBox');
@@ -831,20 +833,119 @@
     function ehIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
     function jaEstaInstalado(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
 
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; if(btnInstalarFixo && ehMobile() && !jaEstaInstalado()) btnInstalarFixo.style.display = 'flex'; });
-    function atualizarVisibilidadeBotaoInstalar() { if(!btnInstalarFixo) return; const bloqueado = dom.blockOverlay.classList.contains('active') && dom.blockOverlay.style.display !== 'none'; if(bloqueado || jaEstaInstalado() || !ehMobile()) btnInstalarFixo.style.display = 'none'; else btnInstalarFixo.style.display = 'flex'; }
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        console.log('✅ beforeinstallprompt capturado');
+        atualizarVisibilidadeBotaoInstalar();
+    });
+
+    // ✅ CORRIGIDO: botão SEMPRE visível em mobile (mesmo sem beforeinstallprompt)
+    function atualizarVisibilidadeBotaoInstalar() {
+        if (!btnInstalarFixo) return;
+
+        // Já está instalado? Esconde.
+        if (jaEstaInstalado()) {
+            btnInstalarFixo.style.display = 'none';
+            return;
+        }
+
+        // Não é mobile? Esconde.
+        if (!ehMobile()) {
+            btnInstalarFixo.style.display = 'none';
+            return;
+        }
+
+        // Está na tela de bloqueio? Esconde.
+        const bloqueado = dom.blockOverlay.classList.contains('active')
+            && dom.blockOverlay.style.display !== 'none';
+        if (bloqueado) {
+            btnInstalarFixo.style.display = 'none';
+            return;
+        }
+
+        // ✅ Senão, mostra sempre
+        btnInstalarFixo.style.display = 'flex';
+    }
+
     const overlayObserver = new MutationObserver(atualizarVisibilidadeBotaoInstalar);
     overlayObserver.observe(dom.blockOverlay, { attributes: true, attributeFilter: ['class', 'style'] });
-    if(ehMobile() && !jaEstaInstalado()) setTimeout(() => atualizarVisibilidadeBotaoInstalar(), 3000);
-    // ✅ CORRIGIDO: removida a "força" do botão instalar após 5s
-    if(btnInstalarFixo) { btnInstalarFixo.onclick = async () => { if(deferredInstallPrompt) { deferredInstallPrompt.prompt(); const resultado = await deferredInstallPrompt.userChoice; if(resultado.outcome === 'accepted') { notif('✅ Instalando app...', 2500); btnInstalarFixo.style.display = 'none'; } else { notif('❌ Instalação cancelada', 2000); } deferredInstallPrompt = null; return; } if(instrucoesBox) { if(ehIOS()){ instrucoesBox.innerHTML = `<h3>📲 INSTALAR APP</h3><div class="sub">Como instalar no iPhone</div><div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>Compartilhar</b> ⬆️</div></div><div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Adicionar à Tela de Início"</b></div></div><div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Adicionar"</b></div></div><button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>`; } } if(instrucoesInstalar) instrucoesInstalar.classList.add('active'); const fecharBtn = document.getElementById('fecharInstrucoesBtn'); if(fecharBtn) fecharBtn.onclick = () => instrucoesInstalar.classList.remove('active'); }; }
-    const fecharBtnGlobal = document.getElementById('fecharInstrucoesBtn');
-    if(fecharBtnGlobal) fecharBtnGlobal.onclick = () => instrucoesInstalar.classList.remove('active');
-    window.addEventListener('appinstalled', () => { if(btnInstalarFixo) btnInstalarFixo.style.display = 'none'; notif('🎉 App instalado com sucesso!', 3000); });
-    if(!ehMobile()) { if(btnInstalarFixo) btnInstalarFixo.style.display = 'none'; }
 
-    // ✅ CORRIGIDO: SW com auto-update
-    if('serviceWorker' in navigator) {
+    // ✅ Mostra o botão assim que carrega em mobile
+    if (ehMobile() && !jaEstaInstalado()) {
+        setTimeout(atualizarVisibilidadeBotaoInstalar, 1500);
+        setTimeout(atualizarVisibilidadeBotaoInstalar, 4000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') atualizarVisibilidadeBotaoInstalar();
+        });
+    }
+
+    // ✅ Click do botão: prompt nativo OU instruções por navegador
+    if (btnInstalarFixo) {
+        btnInstalarFixo.onclick = async () => {
+            // 1) Chrome/Edge Android com evento disponível → prompt nativo
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const resultado = await deferredInstallPrompt.userChoice;
+                if (resultado.outcome === 'accepted') {
+                    notif('✅ Instalando app...', 2500);
+                    btnInstalarFixo.style.display = 'none';
+                } else {
+                    notif('❌ Instalação cancelada', 2000);
+                }
+                deferredInstallPrompt = null;
+                return;
+            }
+
+            // 2) Sem evento → mostra instruções manuais por navegador
+            let html = '';
+
+            if (ehIOS()) {
+                html = `
+                    <h3>📲 INSTALAR NO IPHONE</h3>
+                    <div class="sub">Use o Safari para instalar</div>
+                    <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>Compartilhar</b> ⬆️ (barra inferior)</div></div>
+                    <div class="passo"><div class="num">2</div><div class="txt">Role e toque em <b>"Adicionar à Tela de Início"</b></div></div>
+                    <div class="passo"><div class="num">3</div><div class="txt">Toque em <b>"Adicionar"</b> no canto superior</div></div>
+                    <div class="passo" style="background:rgba(253,203,110,0.08);border-color:rgba(253,203,110,0.25);"><div class="num" style="background:#fdcb6e;">!</div><div class="txt" style="color:#fdcb6e;">Se estiver no <b>Instagram/WhatsApp</b>, abra no <b>Safari</b> primeiro</div></div>
+                    <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                `;
+            } else if (/Firefox|FxiOS/i.test(navigator.userAgent)) {
+                html = `
+                    <h3>📲 INSTALAR NO FIREFOX</h3>
+                    <div class="sub">Firefox Android</div>
+                    <div class="passo"><div class="num">1</div><div class="txt">Toque no menu <b>⋮</b> (canto superior direito)</div></div>
+                    <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+                    <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Adicionar"</b></div></div>
+                    <div class="passo" style="background:rgba(253,203,110,0.08);border-color:rgba(253,203,110,0.25);"><div class="num" style="background:#fdcb6e;">!</div><div class="txt" style="color:#fdcb6e;">Prefira o <b>Chrome</b> para instalação completa</div></div>
+                    <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                `;
+            } else {
+                html = `
+                    <h3>📲 INSTALAR APP</h3>
+                    <div class="sub">Como instalar na tela inicial</div>
+                    <div class="passo"><div class="num">1</div><div class="txt">Toque no ícone <b>⋮</b> (3 pontinhos) do navegador</div></div>
+                    <div class="passo"><div class="num">2</div><div class="txt">Toque em <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b></div></div>
+                    <div class="passo"><div class="num">3</div><div class="txt">Confirme em <b>"Instalar"</b> e pronto! 🎵</div></div>
+                    <button class="btn-fechar-inst" id="fecharInstrucoesBtn">ENTENDI</button>
+                `;
+            }
+
+            if (instrucoesBox) instrucoesBox.innerHTML = html;
+            if (instrucoesInstalar) instrucoesInstalar.classList.add('active');
+
+            const fecharBtn = document.getElementById('fecharInstrucoesBtn');
+            if (fecharBtn) fecharBtn.onclick = () => instrucoesInstalar.classList.remove('active');
+        };
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (btnInstalarFixo) btnInstalarFixo.style.display = 'none';
+        notif('🎉 App instalado com sucesso!', 3000);
+    });
+
+    // ==================== SERVICE WORKER (auto-update) ====================
+    if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js', { scope: './' })
                 .then((reg) => {
@@ -864,6 +965,7 @@
         });
     }
 
+    // ==================== INICIAR APP ====================
     async function iniciar() {
         try {
             appState.favorites = appState.getFavorites();
@@ -885,7 +987,7 @@
             if(!primeira) { appState.musicas = [ { id:'fallback1', title:'Música Exemplo', artist:'Artista', src:'', genero:'BÔNUS' }, { id:'fallback2', title:'Outra Música', artist:'Artista 2', src:'', genero:'BÔNUS' } ]; appState.playlistAtual = shuffle(appState.musicas); dom.generoNome.textContent = 'BÔNUS'; }
             renderizarGeneros();
             updateProgress(90);
-            setTimeout(() => { dom.loadingScreen.style.display = 'none'; dom.playerContainer.classList.add('visible'); updateProgress(100); }, 1500);
+            setTimeout(() => { dom.loadingScreen.style.display = 'none'; dom.playerContainer.classList.add('visible'); updateProgress(100); atualizarVisibilidadeBotaoInstalar(); }, 1500);
             updateTimerDisplay();
             forcarTelaCheia();
             if(appState.desbloqueado) setTimeout(ativarPlayer,1500);
