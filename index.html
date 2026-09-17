@@ -46,8 +46,7 @@
 
         #playerContainer { position:fixed; inset:0; z-index:10; display:none; }
         #playerContainer.visible { display:block; }
-
-        /* ✅ CORREÇÃO 1: sem espaços vazios nas mídias */
+        /* ✅ CORREÇÃO 1: fundo escuro garantido + object-fit + centralização */
         .media-container { position:fixed; inset:0; z-index:0; background:#0a0a1e; overflow:hidden; }
         .media-container video, .media-container img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center center; opacity:0; transition:opacity 1s ease; background:#0a0a1e; display:block; }
         .media-container .active { opacity:1; z-index:3; }
@@ -124,6 +123,9 @@
         .menu-popup button { background:transparent; border:none; color:#ccc; padding:8px 12px; border-radius:12px; font-size:0.8rem; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; transition:background 0.2s; min-height:36px; }
         .menu-popup button:active { background:rgba(255,255,255,0.06); }
 
+        /* ═══════════════════════════════════════════════════════════
+           🎨 MODAL DE GÊNEROS — OVERLAY DE TELA CHEIA
+           ═══════════════════════════════════════════════════════════ */
         .genres-modal {
             position: fixed;
             inset: 0;
@@ -344,12 +346,14 @@
         #adminPanel .total { font-size:0.5rem; color:#555; text-align:center; padding:4px; border-top:1px solid rgba(255,255,255,0.03); margin-top:4px; }
         #adminPanel .btn-fechar { background:rgba(255,255,255,0.03); border:none; padding:8px; border-radius:20px; color:#555; cursor:pointer; width:100%; font-size:0.75rem; margin-top:4px; }
 
-        /* ✅ CORREÇÃO 2: BANNER NO MEIO PUXADO PARA A DIREITA */
+        /* ═══════════════════════════════════════════════════════════
+           ✅ CORREÇÃO 2: BANNER CENTRALIZADO COM EFEITO VIDRO
+           ═══════════════════════════════════════════════════════════ */
         #bannerPromocional {
             position: fixed;
             top: 50%;
-            right: 16px;
-            transform: translateY(-50%) translateX(120%) scale(0.85);
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
             z-index: 9999;
             background: rgba(20, 20, 45, 0.55);
             backdrop-filter: blur(28px) saturate(180%);
@@ -390,7 +394,7 @@
         }
         #bannerPromocional.mostrar {
             opacity: 1;
-            transform: translateY(-50%) translateX(0) scale(1);
+            transform: translate(-50%, -50%) scale(1);
             pointer-events: auto;
         }
         #bannerPromocional img {
@@ -424,6 +428,9 @@
             box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        /* ═══════════════════════════════════════════════════════════
+           ✅ FIM DO BANNER
+           ═══════════════════════════════════════════════════════════ */
 
         #btnSairModoTV { position:fixed; top:90px; right:12px; z-index:60; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:34px; height:34px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
@@ -478,7 +485,8 @@
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
             .fav-item-modal .fav-info .artist { font-size:0.6rem; }
             .notification { font-size:0.8rem; padding:7px 14px; top:90px; }
-            #bannerPromocional { padding: 10px 16px; border-radius: 18px; gap: 10px; right: 10px; }
+            /* ✅ Ajustes do banner no mobile */
+            #bannerPromocional { padding: 10px 16px; border-radius: 18px; gap: 10px; }
             #bannerPromocional img { width: 36px; height: 36px; }
             #bannerPromocional .banner-texto { font-size: 0.78rem; }
             #bannerPromocional .banner-texto span { font-size: 0.7rem; padding: 3px 8px; }
@@ -712,6 +720,12 @@
 (function(){
     'use strict';
 
+    /* ═══════════════════════════════════════════════════════════════
+       ╔═══════════════════════════════════════════════════════════╗
+       ║   ⚙️  CONFIGURAÇÕES — EDITE AQUI                          ║
+       ╚═══════════════════════════════════════════════════════════╝
+       ═══════════════════════════════════════════════════════════════ */
+
     const EDITE_AQUI = {
         IMAGENS: {
             'BÔNUS':'imagens/bonus.png','SERTANEJO':'imagens/sertanejo.png','MPB':'imagens/mpb.png','ROCK':'imagens/rock.png','FORRÓ':'imagens/forro.png','PAGODE':'imagens/pagode.png','ROMÂNTICA':'imagens/romantica.png','FLASHBACK':'imagens/flashback.png','GOSPEL':'imagens/gospel.png','FUNK':'imagens/funk.png','REGGAE':'imagens/re.png','POP/MIX':'imagens/popmix.png','NOVIDADES':'imagens/novidades.png','MISTURA BRASIL':'imagens/misturabrasil.png','DIRIGINDO':'imagens/dirigindo.png','TREINO':'imagens/treino.png','SERESTA':'imagens/seresta.png','MPB 2':'imagens/mpb2.png','HIP HOP':'imagens/hiphop.png','FORRÓ RAIZ':'imagens/forroraiz.png','BAILÃO':'imagens/bailao.png','SAMBA':'imagens/samba.png','BREGA':'imagens/brega.png','MODA RAIZ':'imagens/modaraiz.png','RELIGIOSA':'imagens/religiosa.png','FANK':'imagens/fank.png','TESTE MIDIA':'imagens/testemidia.png','MODÃO SERTANEJO':'imagens/modaosertanejo.png','CHORINHO':'imagens/chorinho.png','GLOBAL HITS':'imagens/globalhits.png',
@@ -721,6 +735,10 @@
         WHATSAPP: '5512988461978',
         LETREIRO_DURACAO: 30,
     };
+
+    /* ═══════════════════════════════════════════════════════════════
+       ⚠️  DAQUI PRA BAIXO NÃO PRECISA MEXER
+       ═══════════════════════════════════════════════════════════════ */
 
     const CONFIG = {
         CACHE_VERSION: parseInt(localStorage.getItem('vdb_cache_version') || '1'),
@@ -759,22 +777,16 @@
         REPOS: {'BÔNUS':'play12','MPB':'mpbtop','POP/MIX':'poptop','SERTANEJO':'sertanejo','FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop','MODA RAIZ':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop','FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias','MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock','NOVIDADES':'VDB','MISTURA BRASIL':'listtop','DIRIGINDO':'listtop','TREINO':'listtop','SERESTA':'sertanejo','MPB 2':'mpbtop','HIP HOP':'poptop','PAGODE':'sambatop','BAILÃO':'forrodez','GLOBAL HITS':'chorinho'},
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
         MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
-
-        /* ✅ FUNDO NORMAL — APENAS esses vídeos */
         FALLBACK_MIDIAS: [
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvcc.mp4' },
-            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' }
-        ],
-
-        /* ✅ MODO TV — APENAS esses vídeos (nunca mistura com o fundo normal) */
-        FALLBACK_MIDIAS_TV: [
-            { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvt.png' },
-            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mac1.mp4' },
-            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' },
-            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvc.mp4' }
         ],
     };
 
+    /* ═══════════════════════════════════════════════════════════
+       🎨 PALETA DE CORES POR GÊNERO
+       ═══════════════════════════════════════════════════════════ */
     const GENRE_COLORS = {
         'BÔNUS':            { c1: '#4fc3f7', c2: '#0288d1' },
         'POP/MIX':          { c1: '#74b9ff', c2: '#0984e3' },
@@ -959,167 +971,32 @@
     function manterAudioAtivo() { if(keepAliveInterval) clearInterval(keepAliveInterval); keepAliveInterval = setInterval(() => { if(!appState.isBackgroundActive) return; try { if(dom.backgroundAudio.paused) dom.backgroundAudio.play().catch(()=>{}); if(appState.isPlaying && dom.audio.paused && !dom.audio.ended && dom.audio.src && !appState.carregandoMusica) { dom.audio.play().catch(()=>{}); } } catch(e) {} }, 3000); dom.audio.addEventListener('ended', () => { if(appState.isPlaying && !appState.carregandoMusica) next(); }); dom.audio.addEventListener('pause', () => { if(appState.isPlaying && !appState.carregandoMusica && !dom.audio.ended) { setTimeout(() => { if(appState.isPlaying && dom.audio.paused) dom.audio.play().catch(()=>{}); }, 300); } }); }
     async function ativarPlayer() { if(appState.playerAtivado) return; appState.playerAtivado = true; updateProgress(30); try { dom.backgroundAudio.src = getSilentAudioUrl(); dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001; await dom.backgroundAudio.play(); appState.isBackgroundActive = true; dom.audioStatus.classList.add('active'); manterAudioAtivo(); if('wakeLock' in navigator) { try { appState.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} } updateProgress(70); forcarTelaCheia(); iniciarTimerCorrido(); updateProgress(100); setTimeout(tocar, 500); } catch(e) { appState.isBackgroundActive = true; dom.audioStatus.classList.add('active'); updateProgress(100); forcarTelaCheia(); iniciarTimerCorrido(); setTimeout(tocar, 500); } }
 
-    /* ═══════════════════════════════════════════════════════════════
-       ✅ FUNDO NORMAL — vídeos em LOOP INFINITO sem espaços vazios
-       🔒 TRAVA: bloqueia vídeos do Modo TV automaticamente
-       ═══════════════════════════════════════════════════════════════ */
-    async function carregarMidiasPadrao() {
-        try {
-            dom.mediaContainer.innerHTML = '';
-            let midias = [];
-            try {
-                const response = await fetch(CONFIG.MIDIAS_PADRAO_URL + '?v='+CONFIG.CACHE_VERSION+'&t='+now());
-                const data = await response.json();
-                if(Array.isArray(data)) midias = data;
-                else if(data.medias) midias = data.medias;
-                else if(data.midias) midias = data.midias;
-            } catch(e) {}
+    async function carregarMidiasPadrao() { try { dom.mediaContainer.innerHTML = ''; let midias = []; try { const response = await fetch(CONFIG.MIDIAS_PADRAO_URL + '?v='+CONFIG.CACHE_VERSION+'&t='+now()); const data = await response.json(); if(Array.isArray(data)) midias = data; else if(data.medias) midias = data.medias; else if(data.midias) midias = data.midias; } catch(e) {} if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS; midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src); if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS; const fallbackDiv = document.createElement('div'); fallbackDiv.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at center,#1a1a3e,#0a0a1e);z-index:1;'; dom.mediaContainer.appendChild(fallbackDiv); midias.forEach((m,i) => { let el; if(m.tipo==='video') { el = document.createElement('video'); el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION; el.muted = true; el.playsInline = true; el.loop = true; el.load(); el.onerror = ()=>el.style.display='none'; } else { el = document.createElement('img'); el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION; el.loading='lazy'; el.alt='VDB Music'; el.onerror = ()=>el.style.display='none'; } el.className = i===0 ? 'active' : 'inactive'; if(m.src && m.src.toLowerCase().includes('clik')) { el.classList.add('clickable'); el.style.cursor='pointer'; } dom.mediaContainer.appendChild(el); if(i===0 && m.tipo==='video') el.play().catch(()=>{}); }); dom.mediaContainer.addEventListener('click', function(e) { const target = e.target.closest('video, img'); if(target && target.classList.contains('clickable')) abrirWhatsAppCompra(); }); const children = dom.mediaContainer.querySelectorAll('video, img'); if(children.length > 1) { if(appState.mediaTimer) clearInterval(appState.mediaTimer); let idx = 0; appState.mediaTimer = setInterval(() => { const atual = children[idx]; const prox = children[(idx+1) % children.length]; if(!atual || !prox) return; atual.className = 'inactive'; if(atual.tagName === 'VIDEO') atual.pause(); prox.className = 'active'; if(prox.tagName === 'VIDEO') prox.play().catch(()=>{}); idx = (idx+1) % children.length; }, 5000); } } catch(erro) { dom.mediaContainer.innerHTML = ''; } }
 
-            /* 🔒 TRAVA DE SEGURANÇA — remove vídeos do Modo TV do fundo normal */
-            const TV_VIDEOS = ['mac1.mp4','amytv.mp4','tvbob.mp4','tvt.png'];
-            midias = midias.filter(m => m && m.src && !TV_VIDEOS.some(v => m.src.toLowerCase().includes(v)));
-
-            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
-            midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
-            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
-
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.style.cssText = 'position:absolute;inset:0;background:radial-gradient(circle at center,#1a1a3e,#0a0a1e);z-index:1;';
-            dom.mediaContainer.appendChild(fallbackDiv);
-
-            midias.forEach((m,i) => {
-                let el;
-                if(m.tipo==='video') {
-                    el = document.createElement('video');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
-                    el.muted = true;
-                    el.playsInline = true;
-                    el.loop = true;
-                    el.preload = 'auto';
-                    el.setAttribute('webkit-playsinline', '');
-                    el.setAttribute('playsinline', '');
-                    el.load();
-                    el.onerror = ()=>el.style.display='none';
-                } else {
-                    el = document.createElement('img');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
-                    el.loading='lazy';
-                    el.alt='VDB Music';
-                    el.onerror = ()=>el.style.display='none';
-                }
-                el.className = i===0 ? 'active' : 'inactive';
-                if(m.src && m.src.toLowerCase().includes('clik')) {
-                    el.classList.add('clickable');
-                    el.style.cursor='pointer';
-                }
-                dom.mediaContainer.appendChild(el);
-                if(i===0 && m.tipo==='video') el.play().catch(()=>{});
-            });
-
-            const children = dom.mediaContainer.querySelectorAll('video, img');
-            if(children.length > 1) {
-                if(appState.mediaTimer) clearInterval(appState.mediaTimer);
-                let idx = 0;
-                appState.mediaTimer = setInterval(() => {
-                    const atual = children[idx];
-                    const prox = children[(idx+1) % children.length];
-                    if(!atual || !prox) return;
-                    atual.className = 'inactive';
-                    prox.className = 'active';
-                    if(prox.tagName === 'VIDEO') prox.play().catch(()=>{});
-                    idx = (idx+1) % children.length;
-                }, 15000);
-            } else {
-                const unico = children[0];
-                if(unico && unico.tagName === 'VIDEO') {
-                    unico.loop = true;
-                    unico.play().catch(()=>{});
-                }
-            }
-
-            dom.mediaContainer.addEventListener('click', function(e) {
-                const target = e.target.closest('video, img');
-                if(target && target.classList.contains('clickable')) abrirWhatsAppCompra();
-            });
-        } catch(erro) { dom.mediaContainer.innerHTML = ''; }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       ✅ MODO TV — vídeos próprios, em LOOP, com fallback exclusivo
-       ═══════════════════════════════════════════════════════════════ */
-    async function carregarMidiasTV() {
-        try {
-            dom.mediaContainer.innerHTML = '';
-            let midias = [];
-            try {
-                const response = await fetch(CONFIG.MIDIAS_TV_URL + '?v='+CONFIG.CACHE_VERSION+'&t='+now());
-                const data = await response.json();
-                if(Array.isArray(data)) midias = data;
-                else if(data.medias) midias = data.medias;
-                else if(data.midias) midias = data.midias;
-            } catch(e) {}
-            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS_TV;
-            midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
-            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS_TV;
-
-            midias.forEach((m,i) => {
-                let el;
-                if(m.tipo==='video') {
-                    el = document.createElement('video');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
-                    el.muted = true;
-                    el.playsInline = true;
-                    el.loop = true;
-                    el.preload = 'auto';
-                    el.load();
-                    el.onerror = ()=>el.style.display='none';
-                } else {
-                    el = document.createElement('img');
-                    el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
-                    el.loading='lazy';
-                    el.alt='VDB TV';
-                    el.onerror = ()=>el.style.display='none';
-                }
-                el.className = i===0 ? 'active' : 'inactive';
-                dom.mediaContainer.appendChild(el);
-                if(i===0 && m.tipo==='video') el.play().catch(()=>{});
-            });
-
-            if(appState.mediaTVTimer) clearInterval(appState.mediaTVTimer);
-            let idx=0;
-            const children = dom.mediaContainer.querySelectorAll('video, img');
-            if(children.length > 1) {
-                appState.mediaTVTimer = setInterval(() => {
-                    const atual = children[idx];
-                    const prox = children[(idx+1) % children.length];
-                    if(!atual || !prox) return;
-                    atual.className = 'inactive';
-                    prox.className = 'active';
-                    if(prox.tagName === 'VIDEO') prox.play().catch(()=>{});
-                    idx = (idx+1) % children.length;
-                }, 15000);
-            }
-            dom.infoScroll.classList.add('hidden');
-            mostrarBotaoSairTV();
-        } catch(erro) { dom.mediaContainer.innerHTML = ''; }
-    }
+    async function carregarMidiasTV() { try { dom.mediaContainer.innerHTML = ''; let midias = []; try { const response = await fetch(CONFIG.MIDIAS_TV_URL + '?v='+CONFIG.CACHE_VERSION+'&t='+now()); const data = await response.json(); if(Array.isArray(data)) midias = data; else if(data.medias) midias = data.medias; else if(data.midias) midias = data.midias; } catch(e) {} if(!midias.length) midias = [ { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }, { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' } ]; midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src); if(!midias.length) midias = [ { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }, { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' } ]; midias.forEach((m,i) => { let el; if(m.tipo==='video') { el = document.createElement('video'); el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION; el.muted = true; el.playsInline = true; el.loop = true; el.load(); el.onerror = ()=>el.style.display='none'; } else { el = document.createElement('img'); el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION; el.loading='lazy'; el.alt='VDB TV'; el.onerror = ()=>el.style.display='none'; } el.className = i===0 ? 'active' : 'inactive'; dom.mediaContainer.appendChild(el); if(i===0 && m.tipo==='video') el.play().catch(()=>{}); }); if(appState.mediaTVTimer) clearInterval(appState.mediaTVTimer); let idx=0; const children = dom.mediaContainer.querySelectorAll('video, img'); if(children.length > 1) { appState.mediaTVTimer = setInterval(() => { const atual = children[idx]; const prox = children[(idx+1) % children.length]; if(!atual || !prox) return; atual.className = 'inactive'; if(atual.tagName === 'VIDEO') atual.pause(); prox.className = 'active'; if(prox.tagName === 'VIDEO') prox.play().catch(()=>{}); idx = (idx+1) % children.length; }, 8000); } dom.infoScroll.classList.add('hidden'); mostrarBotaoSairTV(); } catch(erro) { dom.mediaContainer.innerHTML = ''; } }
     function mostrarBotaoSairTV() { esconderBotaoSairTV(); const btn = document.createElement('button'); btn.id = 'btnSairModoTV'; btn.innerHTML = '✕'; btn.onclick = () => toggleModoTV(); document.body.appendChild(btn); }
     function esconderBotaoSairTV() { const btn = document.getElementById('btnSairModoTV'); if(btn) btn.remove(); }
     async function toggleModoTV() { appState.modoTV = !appState.modoTV; if(appState.modoTV) { notif('📺 Modo TV ATIVADO',2000); await carregarMidiasTV(); } else { notif('📺 Modo TV DESATIVADO',2000); if(appState.mediaTVTimer) { clearInterval(appState.mediaTVTimer); appState.mediaTVTimer = null; } dom.infoScroll.classList.remove('hidden'); esconderBotaoSairTV(); await carregarMidiasPadrao(); } appState._save(); }
 
+    /* ═══════════════════════════════════════════════════════════════
+       🎨 CARD DE GÊNERO — RENDERIZAÇÃO DOS CARDS
+       ═══════════════════════════════════════════════════════════════ */
     function renderizarGeneros() {
         dom.genresGrid.innerHTML = '';
         CONFIG.ORDEM.forEach(g => {
             const cores = GENRE_COLORS[g] || DEFAULT_COLORS;
+
             const card = document.createElement('div');
             card.className = 'genre-card';
             card.setAttribute('data-genre', g);
             card.style.setProperty('--c1', cores.c1);
             card.style.setProperty('--c2', cores.c2);
+
             const name = document.createElement('div');
             name.className = 'genre-name';
             name.textContent = g;
             card.appendChild(name);
+
             card.onclick = () => selecionarGenero(g);
             dom.genresGrid.appendChild(card);
         });
