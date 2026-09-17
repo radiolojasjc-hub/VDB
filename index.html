@@ -46,7 +46,8 @@
 
         #playerContainer { position:fixed; inset:0; z-index:10; display:none; }
         #playerContainer.visible { display:block; }
-        /* ✅ CORREÇÃO 1: fundo escuro + object-fit + centralização + sem espaços vazios */
+
+        /* ✅ CORREÇÃO 1: sem espaços vazios nas mídias */
         .media-container { position:fixed; inset:0; z-index:0; background:#0a0a1e; overflow:hidden; }
         .media-container video, .media-container img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center center; opacity:0; transition:opacity 1s ease; background:#0a0a1e; display:block; }
         .media-container .active { opacity:1; z-index:3; }
@@ -343,9 +344,7 @@
         #adminPanel .total { font-size:0.5rem; color:#555; text-align:center; padding:4px; border-top:1px solid rgba(255,255,255,0.03); margin-top:4px; }
         #adminPanel .btn-fechar { background:rgba(255,255,255,0.03); border:none; padding:8px; border-radius:20px; color:#555; cursor:pointer; width:100%; font-size:0.75rem; margin-top:4px; }
 
-        /* ═══════════════════════════════════════════════════════════
-           ✅ CORREÇÃO 2: BANNER NO MEIO DA TELA PUXADO PARA A DIREITA
-           ═══════════════════════════════════════════════════════════ */
+        /* ✅ CORREÇÃO 2: BANNER NO MEIO PUXADO PARA A DIREITA */
         #bannerPromocional {
             position: fixed;
             top: 50%;
@@ -425,9 +424,6 @@
             box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        /* ═══════════════════════════════════════════════════════════
-           ✅ FIM DO BANNER
-           ═══════════════════════════════════════════════════════════ */
 
         #btnSairModoTV { position:fixed; top:90px; right:12px; z-index:60; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:34px; height:34px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
@@ -482,7 +478,6 @@
             .fav-item-modal .fav-info .title { font-size:0.75rem; }
             .fav-item-modal .fav-info .artist { font-size:0.6rem; }
             .notification { font-size:0.8rem; padding:7px 14px; top:90px; }
-            /* ✅ Ajustes do banner no mobile — meio + direita */
             #bannerPromocional { padding: 10px 16px; border-radius: 18px; gap: 10px; right: 10px; }
             #bannerPromocional img { width: 36px; height: 36px; }
             #bannerPromocional .banner-texto { font-size: 0.78rem; }
@@ -764,9 +759,19 @@
         REPOS: {'BÔNUS':'play12','MPB':'mpbtop','POP/MIX':'poptop','SERTANEJO':'sertanejo','FORRÓ':'forrodez','SAMBA':'sambatop','BREGA':'bregatop','REGGAE':'reggaetop','MODA RAIZ':'modatop','RELIGIOSA':'religiosa','ROMÂNTICA':'romanticatop','FLASHBACK':'flashbacktop','FANK':'fank','TESTE MIDIA':'testemidias','MODÃO SERTANEJO':'modasertaneja','CHORINHO':'chorinho','FORRÓ RAIZ':'forroraiz','ROCK':'rock','NOVIDADES':'VDB','MISTURA BRASIL':'listtop','DIRIGINDO':'listtop','TREINO':'listtop','SERESTA':'sertanejo','MPB 2':'mpbtop','HIP HOP':'poptop','PAGODE':'sambatop','BAILÃO':'forrodez','GLOBAL HITS':'chorinho'},
         MIDIAS_PADRAO_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/midias.json',
         MIDIAS_TV_URL: 'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/modotv.json',
+
+        /* ✅ FUNDO NORMAL — APENAS esses vídeos */
         FALLBACK_MIDIAS: [
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvcc.mp4' },
             { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/bv1.mp4' }
+        ],
+
+        /* ✅ MODO TV — APENAS esses vídeos (nunca mistura com o fundo normal) */
+        FALLBACK_MIDIAS_TV: [
+            { tipo:'imagem', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvt.png' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/mac1.mp4' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' },
+            { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' }
         ],
     };
 
@@ -955,10 +960,8 @@
     async function ativarPlayer() { if(appState.playerAtivado) return; appState.playerAtivado = true; updateProgress(30); try { dom.backgroundAudio.src = getSilentAudioUrl(); dom.backgroundAudio.loop = true; dom.backgroundAudio.volume = 0.001; await dom.backgroundAudio.play(); appState.isBackgroundActive = true; dom.audioStatus.classList.add('active'); manterAudioAtivo(); if('wakeLock' in navigator) { try { appState.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} } updateProgress(70); forcarTelaCheia(); iniciarTimerCorrido(); updateProgress(100); setTimeout(tocar, 500); } catch(e) { appState.isBackgroundActive = true; dom.audioStatus.classList.add('active'); updateProgress(100); forcarTelaCheia(); iniciarTimerCorrido(); setTimeout(tocar, 500); } }
 
     /* ═══════════════════════════════════════════════════════════════
-       ✅ CORREÇÃO 1: VÍDEOS EM LOOP INFINITO SEM ESPAÇOS VAZIOS
-       - Se tiver APENAS 1 vídeo: ele fica em loop pra sempre
-       - Se tiver 2+ vídeos: alterna entre eles em loop infinito
-       - Fundo escuro sempre garante que não aparece branco
+       ✅ FUNDO NORMAL — vídeos em LOOP INFINITO sem espaços vazios
+       🔒 TRAVA: bloqueia vídeos do Modo TV automaticamente
        ═══════════════════════════════════════════════════════════════ */
     async function carregarMidiasPadrao() {
         try {
@@ -971,6 +974,11 @@
                 else if(data.medias) midias = data.medias;
                 else if(data.midias) midias = data.midias;
             } catch(e) {}
+
+            /* 🔒 TRAVA DE SEGURANÇA — remove vídeos do Modo TV do fundo normal */
+            const TV_VIDEOS = ['mac1.mp4','amytv.mp4','tvbob.mp4','tvt.png'];
+            midias = midias.filter(m => m && m.src && !TV_VIDEOS.some(v => m.src.toLowerCase().includes(v)));
+
             if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
             midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
             if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS;
@@ -986,7 +994,7 @@
                     el.src = m.src + (m.src.includes('?')?'&':'?')+'v='+CONFIG.CACHE_VERSION;
                     el.muted = true;
                     el.playsInline = true;
-                    el.loop = true;          /* ✅ LOOP INDIVIDUAL — vídeo nunca para */
+                    el.loop = true;
                     el.preload = 'auto';
                     el.setAttribute('webkit-playsinline', '');
                     el.setAttribute('playsinline', '');
@@ -1005,12 +1013,9 @@
                     el.style.cursor='pointer';
                 }
                 dom.mediaContainer.appendChild(el);
-                if(i===0 && m.tipo==='video') {
-                    el.play().catch(()=>{});
-                }
+                if(i===0 && m.tipo==='video') el.play().catch(()=>{});
             });
 
-            /* ✅ TROCA AUTOMÁTICA — só roda se tiver MAIS DE 1 mídia */
             const children = dom.mediaContainer.querySelectorAll('video, img');
             if(children.length > 1) {
                 if(appState.mediaTimer) clearInterval(appState.mediaTimer);
@@ -1020,13 +1025,11 @@
                     const prox = children[(idx+1) % children.length];
                     if(!atual || !prox) return;
                     atual.className = 'inactive';
-                    /* ✅ NÃO PAUSA o vídeo — mantém tocando em loop para não ter delay */
                     prox.className = 'active';
                     if(prox.tagName === 'VIDEO') prox.play().catch(()=>{});
                     idx = (idx+1) % children.length;
-                }, 15000);   /* 15s por vídeo, tempo suficiente pra não ficar cortando */
+                }, 15000);
             } else {
-                /* ✅ Com apenas 1 vídeo — garante loop infinito sem interrupção */
                 const unico = children[0];
                 if(unico && unico.tagName === 'VIDEO') {
                     unico.loop = true;
@@ -1041,6 +1044,9 @@
         } catch(erro) { dom.mediaContainer.innerHTML = ''; }
     }
 
+    /* ═══════════════════════════════════════════════════════════════
+       ✅ MODO TV — vídeos próprios, em LOOP, com fallback exclusivo
+       ═══════════════════════════════════════════════════════════════ */
     async function carregarMidiasTV() {
         try {
             dom.mediaContainer.innerHTML = '';
@@ -1052,15 +1058,9 @@
                 else if(data.medias) midias = data.medias;
                 else if(data.midias) midias = data.midias;
             } catch(e) {}
-            if(!midias.length) midias = [
-                { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' },
-                { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' }
-            ];
+            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS_TV;
             midias = midias.filter(m=>m&&(m.tipo==='video'||m.tipo==='imagem')&&m.src);
-            if(!midias.length) midias = [
-                { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/tvbob.mp4' },
-                { tipo:'video', src:'https://raw.githubusercontent.com/radiolojasjc-hub/VDB/refs/heads/main/amytv.mp4' }
-            ];
+            if(!midias.length) midias = CONFIG.FALLBACK_MIDIAS_TV;
 
             midias.forEach((m,i) => {
                 let el;
